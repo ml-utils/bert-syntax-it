@@ -40,16 +40,15 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
     def init_field(self, field_name, get_fun):
         field_cache_file = field_name + '.npy'
 
-        # todo, check if file already exists, or object is not null
-        #x = getattr(self, source)
-        #
         if exists(field_cache_file):
+            print(f'starting to load from file {field_cache_file}')
             setattr(self, field_name, numpy.load(field_cache_file, allow_pickle=True))
             # self.all_null_plural_nouns = numpy.load(field_cache_file, allow_pickle=True)
         else:
             print(f'generating ndarray because file does not exists: {field_cache_file}')
             setattr(self, field_name, get_fun())
             numpy.save(field_cache_file, getattr(self, field_name))
+            print(f'saved to file {field_cache_file}')
 
         print(f'{field_name} len: {len(getattr(self, field_name))}')
 
