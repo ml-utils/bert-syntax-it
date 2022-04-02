@@ -35,7 +35,7 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
             setattr(self, field_name, get_fun())
             numpy.save(field_cache_file, getattr(self, field_name))
 
-        print(f'field_name len: {len(getattr(self, field_name))}')
+        print(f'{field_name} len: {len(getattr(self, field_name))}')
 
     def sample(self):
         # John cleaned this table.
