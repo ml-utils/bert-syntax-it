@@ -7,6 +7,19 @@ import numpy
 from os.path import exists
 
 class DetNGenerator(data_generator.BenchmarkGenerator):
+
+    get_all_null_plural_nouns = lambda: get_all("sgequalspl", "1")
+    get_all_missingPluralSing_nouns = lambda: get_all_conjunctive([("pluralform", ""), ("singularform", "")])
+    get_all_irregular_nouns = lambda: get_all("irrpl", "1")
+
+    @staticmethod
+    def get_all_unusable_nouns(all_null_plural_nouns, all_missingPluralSing_nouns, all_irregular_nouns):
+        return lambda: np.union1d(all_null_plural_nouns, np.union1d(all_missingPluralSing_nouns, all_irregular_nouns))
+
+    @staticmethod
+    def get_all_pluralizable_nouns(all_unusable_nouns):
+        return lambda: np.setdiff1d(all_common_nouns, all_unusable_nouns)
+
     def __init__(self):
         super().__init__(field="morphology",
                          linguistics="determiner_noun_agreement",
@@ -15,11 +28,13 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
                          one_prefix_method=True,
                          two_prefix_method=False,
                          lexically_identical=True)
-        self.init_field('all_null_plural_nouns', lambda: get_all("sgequalspl", "1"))
-        self.init_field('all_missingPluralSing_nouns', lambda: get_all_conjunctive([("pluralform", ""), ("singularform", "")]))
-        self.init_field('all_irregular_nouns', lambda: get_all("irrpl", "1"))
-        self.init_field('all_unusable_nouns', lambda:np.union1d(self.all_null_plural_nouns, np.union1d(self.all_missingPluralSing_nouns, self.all_irregular_nouns)))
-        self.init_field('all_pluralizable_nouns', lambda:lambda:np.setdiff1d(all_common_nouns, self.all_unusable_nouns))
+        self.init_field('all_null_plural_nouns', DetNGenerator.get_all_null_plural_nouns)
+        self.init_field('all_missingPluralSing_nouns', DetNGenerator.get_all_missingPluralSing_nouns)
+        self.init_field('all_irregular_nouns', DetNGenerator.get_all_irregular_nouns)
+        self.init_field('all_unusable_nouns',
+                        DetNGenerator.get_all_unusable_nouns(self.all_null_plural_nouns, self.all_missingPluralSing_nouns,
+                                                    self.all_irregular_nouns))
+        self.init_field('all_pluralizable_nouns', DetNGenerator.get_all_pluralizable_nouns(self.all_unusable_nouns))
 
 
     def init_field(self, field_name, get_fun):
@@ -32,6 +47,7 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
             setattr(self, field_name, numpy.load(field_cache_file, allow_pickle=True))
             # self.all_null_plural_nouns = numpy.load(field_cache_file, allow_pickle=True)
         else:
+            print(f'generating ndarray because file does not exists: {field_cache_file}')
             setattr(self, field_name, get_fun())
             numpy.save(field_cache_file, getattr(self, field_name))
 
@@ -63,6 +79,20 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
         }
         return data, data["sentence_good"]
 
+
 if __name__ == "__main__":
-    generator = DetNGenerator()
-    generator.generate_paradigm(rel_output_path="outputs/blimp/%s.jsonl" % generator.uid)
+   #generator = DetNGenerator()
+    #generator.generate_paradigm(rel_output_path="outputs/blimp/%s.jsonl" % generator.uid)
+
+    # generate numpy pickle files only
+    all_null_plural_nouns = DetNGenerator.get_all_null_plural_nouns()
+    all_missingPluralSing_nouns = DetNGenerator.get_all_missingPluralSing_nouns()
+    all_irregular_nouns = DetNGenerator.get_all_irregular_nouns()
+    all_unusable_nouns = DetNGenerator.get_all_unusable_nouns(all_null_plural_nouns,
+                                                              all_missingPluralSing_nouns,
+                                                              all_irregular_nouns)
+    numpy.save('all_null_plural_nouns.npy', all_null_plural_nouns)
+    numpy.save('all_missingPluralSing_nouns.npy', all_missingPluralSing_nouns)
+    numpy.save('all_irregular_nouns.npy', all_irregular_nouns)
+    numpy.save('all_unusable_nouns.npy', all_unusable_nouns)
+    numpy.save('all_pluralizable_nouns.npy', DetNGenerator.get_all_pluralizable_nouns(all_unusable_nouns))
