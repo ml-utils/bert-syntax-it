@@ -85,13 +85,13 @@ if __name__ == "__main__":
 
     # generate numpy pickle files only
     all_null_plural_nouns = DetNGenerator.get_all_null_plural_nouns()
+    numpy.save('all_null_plural_nouns.npy', all_null_plural_nouns)
     all_missingPluralSing_nouns = DetNGenerator.get_all_missingPluralSing_nouns()
+    numpy.save('all_missingPluralSing_nouns.npy', all_missingPluralSing_nouns)
     all_irregular_nouns = DetNGenerator.get_all_irregular_nouns()
+    numpy.save('all_irregular_nouns.npy', all_irregular_nouns)
     all_unusable_nouns = DetNGenerator.get_all_unusable_nouns(all_null_plural_nouns,
                                                               all_missingPluralSing_nouns,
-                                                              all_irregular_nouns)
-    numpy.save('all_null_plural_nouns.npy', all_null_plural_nouns)
-    numpy.save('all_missingPluralSing_nouns.npy', all_missingPluralSing_nouns)
-    numpy.save('all_irregular_nouns.npy', all_irregular_nouns)
+                                                              all_irregular_nouns)()
     numpy.save('all_unusable_nouns.npy', all_unusable_nouns)
-    numpy.save('all_pluralizable_nouns.npy', DetNGenerator.get_all_pluralizable_nouns(all_unusable_nouns))
+    numpy.save('all_pluralizable_nouns.npy', DetNGenerator.get_all_pluralizable_nouns(all_unusable_nouns)())
