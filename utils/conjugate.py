@@ -19,6 +19,8 @@ def conjugate(verb, subj, allow_negated=True, require_negated=False, change_v_fo
     if change_v_form:
         verb = choice(get_matched_by(subj, "arg_1", get_all("root", verb["root"])))
     verb_agree_auxiliaries = get_matched_by(verb, "arg_2", subj_agree_auxiliaries)
+    if len(verb_agree_auxiliaries) == 0:
+        print(f'no verb_agree_auxiliaries for verb {verb[0]} and len(subj_agree_auxiliaries) {len(subj_agree_auxiliaries)}')
     aux = choice(verb_agree_auxiliaries)
     verb = verb.copy()
     verb[0] = aux[0] + " " + verb[0]

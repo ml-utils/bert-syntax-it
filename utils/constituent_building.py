@@ -268,9 +268,18 @@ def noun_args_from_noun(noun, frequent=True, allow_recursion=False, allow_quanti
     if avoid is not None:
         sample_space = np.setdiff1d(sample_space, avoid)
     if allow_quantifiers:
-        args["det"] = choice(get_matched_by(noun, "arg_1", np.intersect1d(all_determiners, sample_space)))
+        matched = get_matched_by(noun, "arg_1", np.intersect1d(all_determiners, sample_space))
+        if len(matched) == 0:
+            print(f'no matches for noun {noun[0]}, arg_1, all_determiners, sample_space[0] {sample_space[0]}')
+        else:
+            # print(f'matched noun {noun}, arg_1, all_determiner, sample_space[0] {sample_space[0]}')
+            pass
+        args["det"] = choice(matched)
     else:
-        args["det"] = choice(get_matched_by(noun, "arg_1", get_all("quantifier", "0", np.intersect1d(all_determiners, sample_space))))
+        matched = get_matched_by(noun, "arg_1", get_all("quantifier", "0", np.intersect1d(all_determiners, sample_space)))
+        if len(matched) == 0:
+            print(f'no matches for noun {noun[0]}, arg_1, quantifier, 0, all_determiners {all_determiners}, sample_space {sample_space}')
+        args["det"] = choice(matched)
     if noun["category"] == "N":
         args["args"] = []
     if noun["category"] == "NP":

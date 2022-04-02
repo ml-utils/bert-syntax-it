@@ -54,7 +54,7 @@ class Generator:
     def get_stack_trace(self, e):
         return "".join(traceback.format_tb(e.__traceback__)) + str(e)
 
-    def generate_paradigm(self, number_to_generate=1000, rel_output_path=None, absolute_path=None):
+    def generate_paradigm(self, number_to_generate=1, rel_output_path=None, absolute_path=None):
         """
         Contains the main loop for generating a full dataset for a given paradigm.
         Also contains exception handling: some exceptions are tolerated because sometimes no matching arguments can be found,
@@ -80,11 +80,12 @@ class Generator:
         print(f"Generating data for " + constant_data["UID"] + f' (number_to_generate {number_to_generate})')
         self.make_logger(constant_data)
         output_writer = jsonlines.Writer(output, flush=True)
-        with tqdm(total=number_to_generate + 1) as pbar:
+        with tqdm(total=number_to_generate) as pbar:
             while len(past_sentences) < number_to_generate:
                 try:
                     new_data, track_sentence = self.sample()
                     if track_sentence not in past_sentences:
+                        print(f'generated sentence: {track_sentence}')
                         past_sentences.add(track_sentence)
                         for field in self.data_fields:
                             if field in new_data:

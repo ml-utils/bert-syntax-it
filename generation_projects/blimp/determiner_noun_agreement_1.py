@@ -25,7 +25,7 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
         nouns_cache_file = query_name + '.npy'
 
         if exists(nouns_cache_file):
-            print(f'starting to load from file {nouns_cache_file}')
+            print(f'starting to load from file: {nouns_cache_file}')
             nouns = numpy.load(nouns_cache_file, allow_pickle=True)
             # self.all_null_plural_nouns = numpy.load(field_cache_file, allow_pickle=True)
         else:
@@ -34,7 +34,7 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
             numpy.save(nouns_cache_file, nouns)
             print(f'saved to file {nouns_cache_file}')
 
-        print(f'{query_name} len: {len(nouns)}')
+        print(f'{query_name} size: {nouns.size} first: {nouns[:1]}')
         return nouns
 
     def __init__(self):
@@ -64,8 +64,13 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
         # John cleaned this tables.
         # N1   V1      Dem  N2_mismatch
 
+        #print(f'len all_transitive_verbs: {len(all_transitive_verbs)}, first: {all_transitive_verbs[:1]}')
         V1 = choice(all_transitive_verbs)
+        #print(f'choosen V1: {V1}')
+        #print(f'len all_nouns: {len(all_nouns)}, first: {all_nouns[:1]}')
         N1 = N_to_DP_mutate(choice(get_matches_of(V1, "arg_1", all_nouns)))
+        #print(f'choosen N1: {N1}')
+        # print(f'len all_modals_auxs: {len(all_modals_auxs)}, first: {all_modals_auxs[:1]}')
         N2_match = choice(get_matches_of(V1, "arg_2", self.all_pluralizable_nouns))
         Dem = choice(get_matched_by(N2_match, "arg_1", all_demonstratives))
         if N2_match['pl'] == "1":
