@@ -20,6 +20,23 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
     def get_all_pluralizable_nouns(all_unusable_nouns):
         return lambda: np.setdiff1d(all_common_nouns, all_unusable_nouns)
 
+    @staticmethod
+    def get_nouns(query_name, get_fun):
+        nouns_cache_file = query_name + '.npy'
+
+        if exists(nouns_cache_file):
+            print(f'starting to load from file {nouns_cache_file}')
+            nouns = numpy.load(nouns_cache_file, allow_pickle=True)
+            # self.all_null_plural_nouns = numpy.load(field_cache_file, allow_pickle=True)
+        else:
+            print(f'generating nouns ndarray because file does not exists: {nouns_cache_file}')
+            nouns = get_fun()
+            numpy.save(nouns_cache_file, nouns)
+            print(f'saved to file {nouns_cache_file}')
+
+        print(f'{query_name} len: {len(nouns)}')
+        return nouns
+
     def __init__(self):
         super().__init__(field="morphology",
                          linguistics="determiner_noun_agreement",
@@ -38,19 +55,7 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
 
 
     def init_field(self, field_name, get_fun):
-        field_cache_file = field_name + '.npy'
-
-        if exists(field_cache_file):
-            print(f'starting to load from file {field_cache_file}')
-            setattr(self, field_name, numpy.load(field_cache_file, allow_pickle=True))
-            # self.all_null_plural_nouns = numpy.load(field_cache_file, allow_pickle=True)
-        else:
-            print(f'generating ndarray because file does not exists: {field_cache_file}')
-            setattr(self, field_name, get_fun())
-            numpy.save(field_cache_file, getattr(self, field_name))
-            print(f'saved to file {field_cache_file}')
-
-        print(f'{field_name} len: {len(getattr(self, field_name))}')
+        setattr(self, field_name, DetNGenerator.get_nouns(field_name, get_fun))
 
     def sample(self):
         # John cleaned this table.
@@ -84,14 +89,14 @@ if __name__ == "__main__":
     #generator.generate_paradigm(rel_output_path="outputs/blimp/%s.jsonl" % generator.uid)
 
     # generate numpy pickle files only
-    all_null_plural_nouns = DetNGenerator.get_all_null_plural_nouns()
-    numpy.save('all_null_plural_nouns.npy', all_null_plural_nouns)
-    all_missingPluralSing_nouns = DetNGenerator.get_all_missingPluralSing_nouns()
-    numpy.save('all_missingPluralSing_nouns.npy', all_missingPluralSing_nouns)
-    all_irregular_nouns = DetNGenerator.get_all_irregular_nouns()
-    numpy.save('all_irregular_nouns.npy', all_irregular_nouns)
-    all_unusable_nouns = DetNGenerator.get_all_unusable_nouns(all_null_plural_nouns,
-                                                              all_missingPluralSing_nouns,
-                                                              all_irregular_nouns)()
-    numpy.save('all_unusable_nouns.npy', all_unusable_nouns)
-    numpy.save('all_pluralizable_nouns.npy', DetNGenerator.get_all_pluralizable_nouns(all_unusable_nouns)())
+    all_null_plural_nouns = DetNGenerator.get_nouns('all_null_plural_nouns', DetNGenerator.get_all_null_plural_nouns)
+    all_missingPluralSing_nouns = DetNGenerator.get_nouns('all_missingPluralSing_nouns', DetNGenerator.get_all_missingPluralSing_nouns)
+    all_irregular_nouns = DetNGenerator.get_nouns('all_irregular_nouns', DetNGenerator.get_all_irregular_nouns)
+    all_unusable_nouns = DetNGenerator.get_nouns('all_unusable_nouns',
+                                                          DetNGenerator.get_all_unusable_nouns(all_null_plural_nouns,
+                                                                                               all_missingPluralSing_nouns,
+                                                                                               all_irregular_nouns))
+    all_pluralizable_nouns = DetNGenerator.get_nouns('all_pluralizable_nouns',
+                                                     DetNGenerator.get_all_pluralizable_nouns(all_unusable_nouns))
+
+
