@@ -9,6 +9,8 @@ import jsonlines
 import logging
 import datetime
 import traceback
+from tqdm import tqdm
+import time
 
 
 class Generator:
@@ -39,7 +41,9 @@ class Generator:
         """
         project_root = "/".join(os.path.join(os.path.dirname(os.path.abspath(__file__))).split("/")[:-1])
         log_dir = os.path.join(project_root, "logs")
-        log_file = 'generation-%s-%s.log' % (metadata["UID"], str(datetime.datetime.now()))
+        # fixme: proper file name
+        # log_file = 'generation-%s-%s.log' % (metadata["UID"], str(datetime.datetime.now()))
+        log_file = 'logfile'
         if not os.path.exists(log_dir):
             os.mkdir(log_dir)
         logging.basicConfig(filename=os.path.join(log_dir, log_file), level=logging.DEBUG)
@@ -73,30 +77,32 @@ class Generator:
         pairID = 0
         error_counter = 0
         constant_data = self.make_metadata_dict()
-        print("Generating data for " + constant_data["UID"])
+        print(f"Generating data for " + constant_data["UID"] + f' (number_to_generate {number_to_generate})')
         self.make_logger(constant_data)
         output_writer = jsonlines.Writer(output, flush=True)
-        while len(past_sentences) < number_to_generate:
-            try:
-                new_data, track_sentence = self.sample()
-                if track_sentence not in past_sentences:
-                    past_sentences.add(track_sentence)
-                    for field in self.data_fields:
-                        if field in new_data:
-                            new_data[field] = string_beautify(new_data[field])
-                            new_data.update(constant_data)
-                    new_data["pairID"] = str(pairID)
-                    pairID += 1
-                    if pairID % 100 == 0:
-                        print("%d sentences generated" % pairID)
-                    output_writer.write(new_data)
-            except Exception as e:
-                self.log_exception(e)
-                print(self.get_stack_trace(e))
-                error_counter += 1
-                if error_counter > number_to_generate // 5:
-                    pass
-                    # raise Exception("Over 20\% of samples result in errors. You should fix this.")
+        with tqdm(total=number_to_generate + 1) as pbar:
+            while len(past_sentences) < number_to_generate:
+                try:
+                    new_data, track_sentence = self.sample()
+                    if track_sentence not in past_sentences:
+                        past_sentences.add(track_sentence)
+                        for field in self.data_fields:
+                            if field in new_data:
+                                new_data[field] = string_beautify(new_data[field])
+                                new_data.update(constant_data)
+                        new_data["pairID"] = str(pairID)
+                        pairID += 1
+                        if pairID % 100 == 0:
+                            print("%d sentences generated" % pairID)
+                        output_writer.write(new_data)
+                    pbar.update(1)
+                except Exception as e:
+                    self.log_exception(e)
+                    print(self.get_stack_trace(e))
+                    error_counter += 1
+                    if error_counter > number_to_generate // 5:
+                        pass
+                        # raise Exception("Over 20\% of samples result in errors. You should fix this.")
         jsonlines.Writer(output).write_all(generated_data)
 
 

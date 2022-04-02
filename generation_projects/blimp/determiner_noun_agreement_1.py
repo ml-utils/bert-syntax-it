@@ -15,10 +15,15 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
                          two_prefix_method=False,
                          lexically_identical=True)
         self.all_null_plural_nouns = get_all("sgequalspl", "1")
+        print(f'all_null_plural_nouns len: {len(self.all_null_plural_nouns)}')
         self.all_missingPluralSing_nouns = get_all_conjunctive([("pluralform", ""), ("singularform", "")])
+        print(f'all_missingPluralSing_nouns len: {len(self.all_missingPluralSing_nouns)}')
         self.all_irregular_nouns = get_all("irrpl", "1")
+        print(f'all_irregular_nouns len: {len(self.all_irregular_nouns)}')
         self.all_unusable_nouns = np.union1d(self.all_null_plural_nouns, np.union1d(self.all_missingPluralSing_nouns, self.all_irregular_nouns))
+        print(f'all_unusable_nouns len: {len(self.all_unusable_nouns)}')
         self.all_pluralizable_nouns = np.setdiff1d(all_common_nouns, self.all_unusable_nouns)
+        print(f'all_pluralizable_nouns len: {len(self.all_pluralizable_nouns)}')
 
     def sample(self):
         # John cleaned this table.
@@ -46,5 +51,6 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
         }
         return data, data["sentence_good"]
 
-generator = DetNGenerator()
-generator.generate_paradigm(rel_output_path="outputs/blimp/%s.jsonl" % generator.uid)
+if __name__ == "__main__":
+    generator = DetNGenerator()
+    generator.generate_paradigm(rel_output_path="outputs/blimp/%s.jsonl" % generator.uid)

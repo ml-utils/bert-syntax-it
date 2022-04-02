@@ -6,15 +6,25 @@ from utils.data_type import data_type
 import re
 import os
 
-vocab_path = os.path.join("/".join(os.path.join(os.path.dirname(os.path.abspath(__file__))).split("/")[:-1]), "vocabulary.csv")
-vocab_it_path = os.path.join("/".join(os.path.join(os.path.dirname(os.path.abspath(__file__))).split("/")[:-1]), "vocabulary_it.csv")
-vocab = np.genfromtxt(vocab_path, delimiter=",", names=True, dtype=data_type)
-# decode apostrophe
-for entry in vocab:
-    entry[0] = re.sub("!", "'", entry[0])
 
-# Remove if you want to keep in OOV words
-vocab = np.array(list(filter(lambda x: x["OOV_inductive_biases"] != "1", vocab)))
+def generate_vocabulary():
+    print('starting to generate vocabulary..')
+    vocab_path = os.path.join("/".join(os.path.join(os.path.dirname(os.path.abspath(__file__))).split("/")[:-1]), "vocabulary.csv")
+    vocab_it_path = os.path.join("/".join(os.path.join(os.path.dirname(os.path.abspath(__file__))).split("/")[:-1]), "vocabulary_it.csv")
+    global vocab
+    vocab = np.genfromtxt(vocab_path, delimiter=",", names=True, dtype=data_type)
+    # decode apostrophe
+    for entry in vocab:
+        entry[0] = re.sub("!", "'", entry[0])
+
+    # Remove if you want to keep in OOV words
+
+    vocab = np.array(list(filter(lambda x: x["OOV_inductive_biases"] != "1", vocab)))
+    print('Vocabulary generated.')
+
+
+generate_vocabulary()
+print(f'vocab lenght is {len(vocab)}')
 
 
 def get_all(label, value, table=vocab):
