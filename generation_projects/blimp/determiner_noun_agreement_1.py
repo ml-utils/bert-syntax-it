@@ -3,7 +3,8 @@ from utils.constituent_building import *
 from utils.conjugate import *
 from utils.randomize import choice
 from utils.vocab_sets import *
-
+import numpy
+from os.path import exists
 
 class DetNGenerator(data_generator.BenchmarkGenerator):
     def __init__(self):
@@ -14,16 +15,27 @@ class DetNGenerator(data_generator.BenchmarkGenerator):
                          one_prefix_method=True,
                          two_prefix_method=False,
                          lexically_identical=True)
-        self.all_null_plural_nouns = get_all("sgequalspl", "1")
-        print(f'all_null_plural_nouns len: {len(self.all_null_plural_nouns)}')
-        self.all_missingPluralSing_nouns = get_all_conjunctive([("pluralform", ""), ("singularform", "")])
-        print(f'all_missingPluralSing_nouns len: {len(self.all_missingPluralSing_nouns)}')
-        self.all_irregular_nouns = get_all("irrpl", "1")
-        print(f'all_irregular_nouns len: {len(self.all_irregular_nouns)}')
-        self.all_unusable_nouns = np.union1d(self.all_null_plural_nouns, np.union1d(self.all_missingPluralSing_nouns, self.all_irregular_nouns))
-        print(f'all_unusable_nouns len: {len(self.all_unusable_nouns)}')
-        self.all_pluralizable_nouns = np.setdiff1d(all_common_nouns, self.all_unusable_nouns)
-        print(f'all_pluralizable_nouns len: {len(self.all_pluralizable_nouns)}')
+        self.init_field('all_null_plural_nouns', lambda: get_all("sgequalspl", "1"))
+        self.init_field('all_missingPluralSing_nouns', lambda: get_all_conjunctive([("pluralform", ""), ("singularform", "")]))
+        self.init_field('all_irregular_nouns', lambda: get_all("irrpl", "1"))
+        self.init_field('all_unusable_nouns', lambda:np.union1d(self.all_null_plural_nouns, np.union1d(self.all_missingPluralSing_nouns, self.all_irregular_nouns)))
+        self.init_field('all_pluralizable_nouns', lambda:lambda:np.setdiff1d(all_common_nouns, self.all_unusable_nouns))
+
+
+    def init_field(self, field_name, get_fun):
+        field_cache_file = field_name + '.npy'
+
+        # todo, check if file already exists, or object is not null
+        #x = getattr(self, source)
+        #
+        if exists(field_cache_file):
+            setattr(self, field_name, numpy.load(field_cache_file, allow_pickle=True))
+            # self.all_null_plural_nouns = numpy.load(field_cache_file, allow_pickle=True)
+        else:
+            setattr(self, field_name, get_fun())
+            numpy.save(field_cache_file, getattr(self, field_name))
+
+        print(f'field_name len: {len(getattr(self, field_name))}')
 
     def sample(self):
         # John cleaned this table.
