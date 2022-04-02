@@ -8,7 +8,7 @@ import os
 
 vocab_path = os.path.join("/".join(os.path.join(os.path.dirname(os.path.abspath(__file__))).split("/")[:-1]), "vocabulary.csv")
 vocab_it_path = os.path.join("/".join(os.path.join(os.path.dirname(os.path.abspath(__file__))).split("/")[:-1]), "vocabulary_it.csv")
-vocab = np.genfromtxt(vocab_it_path, delimiter=",", names=True, dtype=data_type)
+vocab = np.genfromtxt(vocab_path, delimiter=",", names=True, dtype=data_type)
 # decode apostrophe
 for entry in vocab:
     entry[0] = re.sub("!", "'", entry[0])
