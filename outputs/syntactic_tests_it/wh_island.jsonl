@@ -15,7 +15,7 @@
 {"sentence_good_no_extraction": "Marco si chiede se Luca ha riparato il frigorifero?",
   "sentence_bad_extraction": "Che cosa Marco si chiede se Luca ha riparato?",
   "sentence_good_extraction_resumption": "Di quale elettrodomestico Marco si chiede se Luca lo ha riparato?",
-  "sentence_good_extraction_passivisation": "Di che cosa Marco si chiede se è stata riparata da Luca?",
+  "sentence_good_extraction_as_subject": "Di che cosa Marco si chiede se è stata riparata da Luca?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -23,19 +23,159 @@
   "pairID": "0"}
 
 {"sentence_good_no_extraction": "Marco si chiede se Gianni ha risolto il problema di matematica?",
-  "sentence_bad_extraction": "Marco che cosa si chiede se Gianni ha risolto?",
-  "sentence_good_extraction_resumption": "",
-  "sentence_good_extraction_passivisation": "",
+  "sentence_bad_extraction": "Che cosa Marco si chiede se Gianni ha risolto?",
+  "sentence_good_extraction_resumption": "Di che cosa Marco si chiede se Gianni lo ha risolto?",
+  "sentence_good_extraction_as_subject": "Di che cosa Marco si chiede se è stato risolto da Gianni?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
   "island_subcategory": "whether_island",
   "pairID": "1"}
 
+{"sentence_good_no_extraction": "Gianni si chiede se Marco ha superato il limite di velocità?",
+  "sentence_bad_extraction": "Che cosa Gianni si chiede se Marco ha superato?",
+  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se Marco lo ha superato?",
+  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se è stato superato da Marco?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "2"}
+
+{"sentence_good_no_extraction": "Gianni si chiede se l’aereo ha infranto il muro del suono?",
+  "sentence_bad_extraction": "Che cosa Gianni si chiede se l’aereo ha infranto?",
+  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se l’aereo lo ha infranto?",
+  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se è stato infranto dall’aereo?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "3"}
+
+{"sentence_good_no_extraction": "Gianni si chiede se Marco ha mantenuto la sua promessa?",
+  "sentence_bad_extraction": "Che cosa Gianni si chiede se Marco ha mantenuto?",
+  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se Marco l'ha mantenuta?",
+  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se è stata mantenuta da Marco?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "4"}
+
+{"sentence_good_no_extraction": "Gianni si chiede se Marco ha tradito la sua fiducia?",
+  "sentence_bad_extraction": "Che cosa Gianni si chiede se Marco ha tradito?",
+  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se Marco l'ha tradita?",
+  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se è stata tradita da Marco?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "5"}
+
+{"sentence_good_no_extraction": "Gianni si chiede se Marco ha disatteso le aspettative?",
+  "sentence_bad_extraction": "Che cosa Gianni si chiede se Marco ha disatteso?",
+  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se Marco le ha disattese?",
+  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se sono state disattese da Marco?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "6"}
+
+{"sentence_good_no_extraction": "Gianni si chiede se Luisa ha violato la legge?",
+  "sentence_bad_extraction": "Che cosa Gianni si chiede se Luisa ha violato?",
+  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se Luisa l'ha violata'?",
+  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se è stata violata da Luisa?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "7"}
+
+{"sentence_good_no_extraction": "Marco si chiede se Letizia ha fatto trapelare la notizia?",
+  "sentence_bad_extraction": "Che cosa Gianni si chiede se Letizia ha fatto trapelare?",
+  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se Letizia l'ha fatta trapelare'?",
+  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se è stata fatta trapelare da Letizia?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "8"}
+
+{"sentence_good_no_extraction": "Marco si chiede se Gianni ha ritrovato il suo portafogli?",
+  "sentence_bad_extraction": "Che cosa Marco si chiede se Gianni ha ritrovato?",
+  "sentence_good_extraction_resumption": "Di che cosa Marco si chiede se Gianni l'ha ritrovato'?",
+  "sentence_good_extraction_as_subject": "Di che cosa Marco si chiede se è stato ritrovato da Gianni?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "9"}
+
+{"sentence_good_no_extraction": "Marco si chiede se Luca organizzerà la festa?",
+  "sentence_bad_extraction": "Che cosa Marco si chiede se Luca organizzerà?",
+  "sentence_good_extraction_resumption": "Di che cosa Marco si chiede se Luca la organizzerà'?",
+  "sentence_good_extraction_as_subject": "Di che cosa Marco si chiede se sarà organizzata da Luca?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "10"}
+
+{"sentence_good_no_extraction": "Marco si chiede se Gianni ha letto il libro?",
+  "sentence_bad_extraction": "Che cosa Marco si chiede se Gianni ha letto?",
+  "sentence_good_extraction_resumption": "Di che cosa Marco si chiede se Gianni lo ha letto?",
+  "sentence_good_extraction_as_subject": "Di che cosa Marco si chiede se è stato letto da Gianni?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "11"}
+
+{"sentence_good_no_extraction": "Marco si chiede se abbiamo preso il treno?",
+  "sentence_bad_extraction": "Che cosa Marco si chiede se abbiamo preso?",
+  "sentence_good_extraction_resumption": "Di che cosa Marco si chiede se lo abbiamo preso?",
+  "sentence_good_extraction_as_subject": "Di che cosa Marco si chiede se è stato preso da noi?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "12"}
+
+{"sentence_good_no_extraction": "Marco si chiede se Gianni è soddisfatto del suo lavoro?",
+  "sentence_bad_extraction": "Di che cosa Marco si chiede se Gianni è soddisfatto?",
+  "sentence_good_extraction_resumption": "Di che cosa Marco si chiede se Gianni ne è soddisfatto?",
+  "sentence_good_extraction_as_subject": "Di che cosa Marco si chiede se è soddisfacente per Gianni?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "13"}
+
+{"sentence_good_no_extraction": "Gianni si chiede se il Parlamento ha approvato la legge?",
+  "sentence_bad_extraction": "Che cosa Gianni si chiede se il Parlamento ha approvato?",
+  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se Gianni il Parlamento l'ha approvata?",
+  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se è stata approvata dal Parlamento?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "14"}
+
 {"sentence_good_no_extraction": "",
   "sentence_bad_extraction": "",
   "sentence_good_extraction_resumption": "",
-  "sentence_good_extraction_passivisation": "",
+  "sentence_good_extraction_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": ""}
+
+{"sentence_good_no_extraction": "",
+  "sentence_bad_extraction": "",
+  "sentence_good_extraction_resumption": "",
+  "sentence_good_extraction_as_subject": "",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
