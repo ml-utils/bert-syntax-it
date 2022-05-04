@@ -1,19 +1,5 @@
 {"sentences": [
 
-{"sentence_good": "Who have those men revealed they helped?",
-  "sentence_bad": "Who have those men revealed who helped?",
-  "one_prefix_prefix": "Who have those men revealed",
-  "one_prefix_word_good": "they",
-  "one_prefix_word_bad": "who",
-  "field": "syntax",
-  "linguistics_term": "island_effects",
-  "UID": "wh_island",
-  "simple_LM_method": true,
-  "one_prefix_method": true,
-  "two_prefix_method": false,
-  "lexically_identical": false,
-  "pairID": "0"},
-
 {"sentence_good_no_extraction": "Marco si chiede se Luca ha riparato il frigorifero?",
   "sentence_bad_extraction": "Che cosa Marco si chiede se Luca ha riparato?",
   "sentence_good_extraction_resumption": "Di quale elettrodomestico Marco si chiede se Luca lo ha riparato?",
