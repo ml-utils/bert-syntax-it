@@ -14,6 +14,8 @@ Original file is located at
 
 import os.path
 from collections import Counter
+import json
+import sys
 
 from pytorch_pretrained_bert import BertForMaskedLM,tokenization
 from torch.nn.functional import softmax
@@ -449,20 +451,66 @@ def custom_eval(sentence, bert, tokenizer):
     input_ids = pad_sequences(input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post")
 
 
+def print_sentence_pairs_probabilities(bert, tokenizer, sentence_data):
+    sentence_good_no_extraction = sentence_data['sentence_good_no_extraction']
+    sentence_bad_extraction = sentence_data['sentence_bad_extraction']
+    sentence_good_extraction_resumption = sentence_data['sentence_good_extraction_resumption']
+    sentence_good_extraction_as_subject = sentence_data['sentence_good_extraction_as_subject']
+    print(f'sentence_good_no_extraction: {sentence_good_no_extraction}')
+    print(f'sentence_bad_extraction: {sentence_bad_extraction}')
+    print(f'sentence_good_extraction_resumption: {sentence_good_extraction_resumption}')
+    print(f'sentence_good_extraction_as_subject: {sentence_good_extraction_as_subject}')
+
+    prob_sentence_good_no_extraction = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_no_extraction)
+    prob_sentence_bad_extraction = estimate_sentence_probability_from_text(bert, tokenizer, sentence_bad_extraction)
+    prob_sentence_good_extraction_resumption = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_extraction_resumption)
+    prob_sentence_good_extraction_as_subject = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_extraction_as_subject)
+
+    print(f'prob_sentence_good_no_extraction: {prob_sentence_good_no_extraction}')
+    print(f'prob_sentence_bad_extraction: {prob_sentence_bad_extraction}')
+    print(f'prob_sentence_good_extraction_resumption: {prob_sentence_good_extraction_resumption}')
+    print(f'prob_sentence_good_extraction_as_subject: {prob_sentence_good_extraction_as_subject}')
+
+
+def load_testset_data(file_path):
+    with open(file_path, 'r') as json_file:
+        #json_list = list(json_file)
+        testset_data = json.load(json_file)
+
+        #for i in data:
+        #    print(i)
+
+    return testset_data
+
+
 def main():
     print('main')
+
     model_name, eval_suite = arg_parse()
     model_name = 'bert-base-uncased'  # NB bert large uncased is about 1GB
+    model_name = f'''models/bert-base-italian-uncased/pytorch_model.bin'''
+    model_name = f'''models/bert-base-italian-uncased/'''
     eval_suite = 'it'
     bert, tokenizer = init_bert_model(model_name)
     if tokenizer is None:
         print('error, tokenizer is null')
         return
 
+    sys.stdout.reconfigure(encoding='utf-8')
+
+
+    data = load_testset_data('./outputs/syntactic_tests_it/wh_island.jsonl')
+    examples_count = len(data['sentences'])
+    print(f'examples_count: {examples_count}')
+    for sentence_data in data['sentences']:
+        print(f"json_str, type: {type(sentence_data)}: {sentence_data}")
+        print_sentence_pairs_probabilities(bert, tokenizer, sentence_data)
+        return
+
     # run_eval(eval_suite, bert, tokenizer)
-    prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
-    prob2 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is name your?')
-    print(f'prob1: {prob1}, prob2: {prob2}')
+    #prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
+    #prob2 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is name your?')
+    #print(f'prob1: {prob1}, prob2: {prob2}')
     #eval_it(bert, tokenizer)
     #custom_eval("What is your name?", bert, tokenizer)
 
