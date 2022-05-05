@@ -8,7 +8,7 @@ import numpy as np
 
 
 def load_testset_data(file_path):
-    with open(file_path, 'r') as json_file:
+    with open(file_path, mode='r', encoding="utf-8") as json_file:
         #json_list = list(json_file)
         testset_data = json.load(json_file)
 
@@ -27,13 +27,118 @@ def analize_sentence(bert: BertPreTrainedModel, tokenizer: BertTokenizer, senten
     """
     tokens, target_idx = tokenize_sentence(tokenizer, sentence)
     sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
-    return get_topk(bert, tokenizer, sentence_ids, target_idx)
+    return get_topk(bert, tokenizer, sentence_ids, target_idx, k=5)
+
+
+def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example_idx: int, example):
+    """
+    :param bert:
+    :param tokenizer:
+    :param example: four sentences of an example
+    :return:
+    """
+
+    sentence_names = ['sentence_good_no_extraction', 'sentence_bad_extraction',
+                      'sentence_good_extraction_resumption', 'sentence_good_extraction_as_subject']
+    sentences = []
+    for sentence_name in sentence_names:
+        sentences.append(example[sentence_name])
+
+    sentence_bad_extraction_idx = 1
+    unk_token = '[UNK]'
+
+    tokens_by_sentence = []
+    for sentence in sentences:
+        tokens = tokenizer.tokenize(sentence)
+        tokens_by_sentence.append(tokens)
+    #sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
+
+    for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
+        if unk_token in sentence_tokens:
+            print(f'this sentence {sentence_idx} ({sentences[sentence_idx]}) has at least an UNK token: '
+                  f'{sentences[sentence_idx]}')
+
+    # the ungrammatical sentence must not be shorter than the other three sentences
+    sentence_bad_tokens_count = len(tokens_by_sentence[sentence_bad_extraction_idx])
+    for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
+        if len(sentence_tokens) < sentence_bad_tokens_count:
+            print(f'example {example_idx}:  sentence {sentence_idx} ({sentences[sentence_idx]}) has less tokens '
+                  f'({len(sentence_tokens)}) '
+                  f'than the bad sentence ({sentence_bad_tokens_count})')
+        if len(sentence_tokens) == 0:
+            print(sentences[sentence_bad_extraction_idx])
+
+    # todo: check if the bad sentence has higher probability estimate than the other three
+    sentence_probability_estimates = []
+    for sentence_idx, sentence in enumerate(sentences):
+        # prob = estimate_sentence_probability_from_text(bert, tokenizer, sentence)
+        prob = get_PenLP(bert, tokenizer, sentence, tokens_by_sentence[sentence_idx])
+        sentence_probability_estimates.append(prob)
+    bad_sentence_prob = sentence_probability_estimates[sentence_bad_extraction_idx]
+    for sentence_idx, sentence_prob in enumerate(sentence_probability_estimates):
+        if sentence_prob < bad_sentence_prob:
+            print(f'example {example_idx}: sentence {sentence_idx} ({sentences[sentence_idx]}) '
+                  f'has less probability ({np.exp(sentence_prob)}) than the bad sentence ({np.exp(bad_sentence_prob)}')
+
+    # todo: check if the lp (log prob) calculation is the same as in the perper Lau et al. 2020) for estimating sentence probability
+    # check also if it reproduces the results from the paper (for english bert), and greenberg, and others
+    # check differences btw english and italian bert
+    # check diff btw bert base and large
+    # ..check diff btw case and uncased.. (NB some problems where due to the open file not in utf format)
+    # ..checks for gpt ..
+
+
+def get_PenLP(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence, sentence_tokens):
+
+    text_len = len(sentence_tokens)
+    lp = estimate_sentence_probability_from_text(bert, tokenizer, sentence)
+    # lp = bert_get_logprobs(sentence_tokens, bert, tokenizer)
+    # model_score(tokenize_input, tokenize_context, bert, tokenizer, device, args)
+    penalty = ((5 + text_len) ** 0.8 / (5 + 1) ** 0.8)
+    pen_lp = lp / penalty
+    return pen_lp
+
+
+def check_if_word_in_vocabulary():
+    return 0
+
+
+def check_unknown_words(tokenizer: BertTokenizer):
+    # NB: the uncased model also strips any accent markers from words. Use bert cased.
+
+    words_to_check = ['è']
+    print_token_info(tokenizer, '[UNK]')
+    unk = '[UNK]'
+    unk_tokens = tokenizer.tokenize(unk)
+    unk_id = tokenizer.convert_tokens_to_ids(unk_tokens)
+    print(f'token {unk} ({unk_tokens}) has ids {unk_id}')
+    print_token_info(tokenizer, 'riparata')
+    print_token_info(tokenizer, 'non')
+    print_token_info(tokenizer, 'che')
+    print_token_info(tokenizer, 'Chi')
+
+    words_ids = tokenizer.convert_tokens_to_ids(words_to_check)
+    print(words_ids)
+    recognized_tokens = convert_ids_to_tokens(tokenizer, words_ids)
+    print(recognized_tokens)
+
+
+def print_token_info(tokenizer: BertTokenizer, word_to_check: str):
+    tokens = tokenizer.tokenize(word_to_check)
+    ids = tokenizer.convert_tokens_to_ids(tokens)
+    print(f'word {word_to_check} hs tokens {tokens} and ids {ids}')
+
+    if len(tokens) > 1:
+        is_word_in_vocab = word_to_check in tokenizer.vocab
+        print(f'is_word_in_vocab: {is_word_in_vocab}, vocab size: {len(tokenizer.vocab)}')
 
 
 def get_topk(bert: BertPreTrainedModel, tokenizer: BertTokenizer,
-             sentence_ids, masked_word_idx):
-    res, res_softmax = get_bert_output(bert, tokenizer, sentence_ids, masked_word_idx)
-    return get_topk_tokens_from_bert_output(res_softmax, tokenizer)
+             sentence_ids, masked_word_idx, k=5):
+    res, res_softmax, res_normalized = get_bert_output(bert, tokenizer, sentence_ids, masked_word_idx)
+    topk_probs_nonsoftmax = torch.topk(res_normalized, k)
+    topk_tokens, topk_probs = get_topk_tokens_from_bert_output(res_softmax, tokenizer, k)
+    return topk_tokens, topk_probs, topk_probs_nonsoftmax
 
 
 def get_topk_tokens_from_bert_output(res_softmax, tokenizer, k=5):
@@ -52,8 +157,12 @@ def get_bert_output(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentenc
     # todo: produce probabilities not with softmax (not using an exponential, to avoiding the maximization of top results),
     #  then compare these probailities with the softmax ones, expecially for ungrammatical sentences
     res_softmax = softmax(res.detach(), -1)
+
+    # TODO: fix this, try absolute value for the sum (L1 norm) and / or the individual values
+    res_normalized = torch.div(res.detach(), torch.sum(res.detach()))
+
     #RuntimeError: Can't call numpy() on Tensor that requires grad. Use tensor.detach().numpy() instead.
-    return res, res_softmax
+    return res, res_softmax, res_normalized
 
 
 def convert_ids_to_tokens(tokenizer, ids):
@@ -71,7 +180,8 @@ def convert_ids_to_tokens(tokenizer, ids):
     return tokens
 
 
-def estimate_sentence_probability(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence_ids: list[int]):
+def estimate_sentence_probability(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence_ids: list[int],
+                                  verbose: bool = False):
     # iterate for each word, mask it and get the probability
     # sum the logs of the probabilities
 
@@ -85,15 +195,61 @@ def estimate_sentence_probability(bert: BertPreTrainedModel, tokenizer: BertToke
         masked_word_id = masked_sentence_ids[masked_index]
         masked_sentence_ids[masked_index] = MASK_ID
         masked_sentence_ids = [CLS_ID] + masked_sentence_ids + [SEP_ID]
-        print(f'testing {convert_ids_to_tokens(tokenizer, [masked_word_id])} '
-              f'at {masked_index+1} in sentence {convert_ids_to_tokens(tokenizer, masked_sentence_ids)}')
+        if verbose:
+            print(f'testing {convert_ids_to_tokens(tokenizer, [masked_word_id])} '
+                  f'at {masked_index+1} in sentence {convert_ids_to_tokens(tokenizer, masked_sentence_ids)}')
         probability_of_this_masking = get_sentence_probs_from_word_ids(bert, tokenizer, masked_sentence_ids,
                                                                      [masked_word_id], masked_index+1)
         sentence_prob_estimate += np.log(probability_of_this_masking[0])
 
     # todo: also alternative method with formula from paper balanced on sentence lenght
 
-    return np.exp(sentence_prob_estimate)
+    log_prob = sentence_prob_estimate
+    return log_prob  # np.exp(log_prob)
+
+
+def bert_get_logprobs(tokenize_input, model, tokenizer):
+    batched_indexed_tokens = []
+    batched_segment_ids = []
+
+    tokenize_combined = ["[CLS]"] + tokenize_input + ["[SEP]"]
+
+
+    for i in range(len(tokenize_input)):
+        # Mask a token that we will try to predict back with `BertForMaskedLM`
+        masked_index = i + 1
+        tokenize_masked = tokenize_combined.copy()
+        tokenize_masked[masked_index] = '[MASK]'
+        # unidir bert
+        # for j in range(masked_index, len(tokenize_combined)-1):
+        #    tokenize_masked[j] = '[MASK]'
+
+        # Convert token to vocabulary indices
+        indexed_tokens = tokenizer.convert_tokens_to_ids(tokenize_masked)
+        # Define sentence A and B indices associated to 1st and 2nd sentences (see paper)
+        segment_ids = [0] * len(tokenize_masked)
+
+        batched_indexed_tokens.append(indexed_tokens)
+        batched_segment_ids.append(segment_ids)
+
+    # Convert inputs to PyTorch tensors
+    tokens_tensor = torch.tensor(batched_indexed_tokens)
+    segment_tensor = torch.tensor(batched_segment_ids)
+
+    # Predict all tokens
+    with torch.no_grad():
+        outputs = model(tokens_tensor, token_type_ids=segment_tensor)
+        predictions = outputs[0]
+
+    # go through each word and sum their logprobs
+    lp = 0.0
+    for i in range(len(tokenize_input)):
+        masked_index = i + 1
+        predicted_score = predictions[i, masked_index]
+        predicted_prob = softmax(predicted_score)  # softmax(predicted_score.cpu().numpy())
+        lp += np.log(predicted_prob[tokenizer.convert_tokens_to_ids([tokenize_combined[masked_index]])[0]])
+
+    return lp
 
 
 def estimate_sentence_probability_from_text(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence: str):
@@ -117,7 +273,7 @@ def get_probs_for_words(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sen
 
 def get_sentence_probs_from_word_ids(bert: BertPreTrainedModel, tokenizer: BertTokenizer,
                                      sentence_ids, masked_words_ids, masked_word_idx):
-    res, res_softmax = get_bert_output(bert, tokenizer, sentence_ids, masked_word_idx)
+    res, res_softmax, res_normalized = get_bert_output(bert, tokenizer, sentence_ids, masked_word_idx)
 
     topk_tokens, top_probs = get_topk_tokens_from_bert_output(res_softmax, tokenizer, k=10)
 
@@ -136,7 +292,7 @@ def tokenize_sentence(tokenizer: BertTokenizer, sent: str):
     if 'mask' in target.lower():
         target=['[MASK]']
     else:
-        target=tokenizer.tokenize(target)
+        target = tokenizer.tokenize(target)
 
     # todo, fixme: the vocabulary of the pretrained model from Bostrom & Durrett (2020) does not have entries for CLS, UNK
     # fixme: tokenizer.tokenize(pre), does not recognize the words
