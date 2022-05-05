@@ -22,8 +22,8 @@
 
 {"sentence_good_no_extraction": "Gianni si chiede se Marco ha superato il limite di velocità?",
   "sentence_bad_extraction": "Che cosa Gianni si chiede se Marco ha superato?",
-  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se Marco lo ha superato?",
-  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se è stato superato da Marco?",
+  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se Marco la ha superata?",
+  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se è stata superata da Marco?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -32,8 +32,8 @@
 
 {"sentence_good_no_extraction": "Gianni si chiede se l’aereo ha infranto il muro del suono?",
   "sentence_bad_extraction": "Che cosa Gianni si chiede se l’aereo ha infranto?",
-  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se l’aereo lo ha infranto?",
-  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se è stato infranto dall’aereo?",
+  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se l’aereo l'ha infranta?",
+  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se è stata infranta dall’aereo?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
