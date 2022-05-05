@@ -1,9 +1,9 @@
 {"sentences": [
 
-{"sentence_good_no_extraction": "È vero che Marco si chiede se Luca ha riparato il frigorifero?",
-  "sentence_bad_extraction": "Che cosa Marco si chiede se Luca ha riparato?",
-  "sentence_good_extraction_resumption": "Di quale elettrodomestico Marco si chiede se Luca lo ha riparato?",
-  "sentence_good_extraction_as_subject": "Di che cosa Marco si chiede se è stata riparata da Luca?",
+  {"sentence_good_no_extraction": "Marco si chiede se Luca organizzerà la festa?",
+  "sentence_bad_extraction": "Che cosa Marco si chiede se Luca organizzerà?",
+  "sentence_good_extraction_resumption": "Di che cosa Marco si chiede se Luca la organizzerà?",
+  "sentence_good_extraction_as_subject": "Di che cosa Marco si chiede se verrà organizzata da Luca?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -100,10 +100,10 @@
   "island_subcategory": "whether_island",
   "pairID": "9"},
 
-{"sentence_good_no_extraction": "Marco si chiede se Luca organizzerà la festa?",
-  "sentence_bad_extraction": "Che cosa Marco si chiede se Luca organizzerà?",
-  "sentence_good_extraction_resumption": "Di che cosa Marco si chiede se Luca la organizzerà?",
-  "sentence_good_extraction_as_subject": "Di che cosa Marco si chiede se verrà organizzata da Luca?",
+{"sentence_good_no_extraction": "È vero che Marco si chiede se Luca ha riparato il frigorifero?",
+  "sentence_bad_extraction": "Che cosa Marco si chiede se Luca ha riparato?",
+  "sentence_good_extraction_resumption": "Di quale elettrodomestico Marco si chiede se Luca lo ha riparato?",
+  "sentence_good_extraction_as_subject": "Di che cosa Marco si chiede se è stata riparata da Luca?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
