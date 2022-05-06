@@ -339,8 +339,10 @@ def main():
 
     model_name, eval_suite = arg_parse()
     model_name = 'bert-base-uncased'  # NB bert large uncased is about 1GB
-    model_name = f'''models/bert-base-italian-uncased/pytorch_model.bin'''
+    model_name = f'''models/bert-base-italian-uncased/'''
     model_name = f'''models/bert-base-italian-cased/'''
+    model_name = f'models/bert-base-italian-xxl-cased/'
+    # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
     eval_suite = 'it'
     bert, tokenizer = init_bert_model(model_name, do_lower_case=False)
     if tokenizer is None:
