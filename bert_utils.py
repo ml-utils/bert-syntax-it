@@ -27,6 +27,9 @@ def analize_sentence(bert: BertPreTrainedModel, tokenizer: BertTokenizer, senten
     """
     tokens, target_idx = tokenize_sentence(tokenizer, sentence)
     sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
+
+    # todo: print tokp for all maskings of the sentence
+
     return get_topk(bert, tokenizer, sentence_ids, target_idx, k=5)
 
 
@@ -51,7 +54,7 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     for sentence in sentences:
         tokens = tokenizer.tokenize(sentence)
         tokens_by_sentence.append(tokens)
-    #sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
+
 
     for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
         if unk_token in sentence_tokens:
@@ -79,6 +82,8 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
         if sentence_prob < bad_sentence_prob:
             print(f'example {example_idx}: sentence {sentence_idx} ({sentences[sentence_idx]}) '
                   f'has less probability ({np.exp(sentence_prob)}) than the bad sentence ({np.exp(bad_sentence_prob)}')
+            sentence_ids = tokenizer.convert_tokens_to_ids(tokens_by_sentence[sentence_idx])
+            estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose = True)
 
     # todo: check if the lp (log prob) calculation is the same as in the perper Lau et al. 2020) for estimating sentence probability
     # check also if it reproduces the results from the paper (for english bert), and greenberg, and others
@@ -86,6 +91,22 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     # check diff btw bert base and large
     # ..check diff btw case and uncased.. (NB some problems where due to the open file not in utf format)
     # ..checks for gpt ..
+    # analise the good sentences with low probability: for each masking, see the topk
+    # ..
+    # todo: analize limitations of sentence acceptability estimates with Bert:
+    # series of sentences, show how using a different vocabulary choice (more or less frequent), changes the
+    # score/acceptability of the sentence, making it more or less likely/acceptable than a previous one,
+    # regardless of grammaticality
+    # ..
+    # new test sets exploring what sentence changes sways acceptability estimates
+
+
+def generate_text_with_bert(bert: BertPreTrainedModel, tokenizer: BertTokenizer, starting_word = 'Il'):
+    # convert tokens to ids, append mask to the end
+    # get topk with k = 1
+    # problem: mask prediction is assumed to result in a complete sentence, not one that would be further extended.
+    # Could use more than 1 masked word at the end (albeit in training it whas 15 % of the total sentence).
+    return 0
 
 
 def get_PenLP(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence, sentence_tokens):
@@ -195,12 +216,15 @@ def estimate_sentence_probability(bert: BertPreTrainedModel, tokenizer: BertToke
         masked_word_id = masked_sentence_ids[masked_index]
         masked_sentence_ids[masked_index] = MASK_ID
         masked_sentence_ids = [CLS_ID] + masked_sentence_ids + [SEP_ID]
-        if verbose:
-            print(f'testing {convert_ids_to_tokens(tokenizer, [masked_word_id])} '
-                  f'at {masked_index+1} in sentence {convert_ids_to_tokens(tokenizer, masked_sentence_ids)}')
-        probability_of_this_masking = get_sentence_probs_from_word_ids(bert, tokenizer, masked_sentence_ids,
+
+        probability_of_this_masking, topk_tokens = get_sentence_probs_from_word_ids(bert, tokenizer, masked_sentence_ids,
                                                                      [masked_word_id], masked_index+1)
         sentence_prob_estimate += np.log(probability_of_this_masking[0])
+        if verbose:
+            print(f'testing {convert_ids_to_tokens(tokenizer, [masked_word_id])} '
+                  f'at {masked_index+1} in sentence {convert_ids_to_tokens(tokenizer, masked_sentence_ids)}, '
+                  f'topk_tokens: {topk_tokens}')
+            # todo: also print the topk for the masking prediction
 
     # todo: also alternative method with formula from paper balanced on sentence lenght
 
@@ -268,7 +292,9 @@ def get_probs_for_words(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sen
         print("skipping",w1,w2,"bad wins")
         return None
 
-    return get_sentence_probs_from_word_ids(bert, tokenizer, sentence_ids, masked_words_ids, masked_word_idx)
+    probs_for_words, topk_tokens = get_sentence_probs_from_word_ids(bert, tokenizer, sentence_ids,
+                                                                    masked_words_ids, masked_word_idx)
+    return probs_for_words
 
 
 def get_sentence_probs_from_word_ids(bert: BertPreTrainedModel, tokenizer: BertTokenizer,
@@ -282,7 +308,7 @@ def get_sentence_probs_from_word_ids(bert: BertPreTrainedModel, tokenizer: BertT
     scores_softmax = res_softmax[masked_words_ids]
     probs_softmax = [float(x) for x in scores_softmax]
 
-    return probs_softmax  # probs
+    return probs_softmax, topk_tokens  # probs
 
 
 def tokenize_sentence(tokenizer: BertTokenizer, sent: str):
