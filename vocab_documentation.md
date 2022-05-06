@@ -3,6 +3,7 @@
 OVERVIEW
 - This document explains the purpose of each of the column headings in vocabulary.csv
 - For details on the structure of the entries, see the README file
+- also in vocab_sets.py there variable names give more extensive descriptions of some of the tags
 
 ## expression
 - each entry is a lexical expression
@@ -12,12 +13,17 @@ OVERVIEW
 - tag based on categorial grammar
 - contains information about what the expression combines with
 - for example, transitive verbs are '(S\NP)/NP' and intransitive verbs are 'S\NP'
-
+- more examples:
+   - relational_poss_nouns are 'N\NP[poss]' in cat1 (and RelN in cat2): friend, relatives names, boss, employee, teacher, student, senator, lawyer. By contrast 'friend of' is N/NP,RelN (relational noun, but not possessive)
+  
 ## category2
 - tag based on part of speech, sometimes with additional info
 - for example, transitive verbs are 'TV' and intransitive verbs are 'IV'
 - 'IV' labels can contain additional information about whether the subject needs to be agentive and/or plural
+- examples: 
+  - answer is 'IV_ag', communicate is 'IV_ag_pl'
 - note that this column is not complete for all expressions. It is only used when the information in 'category' is insufficient
+- note: clarify why there are two entries for clean, one has TV one not, one is frequent one not, ..
 
 ## verb
 - indicates whether the expression is a main verb
@@ -66,6 +72,10 @@ OVERVIEW
 
 ## animate
 
+## person
+- values: 1, 2, 3 or blank
+- for personal and possessive pronouns (NP[pron] in cat1) and possessive adjectives (D[poss],poss_det), indicates whether it's the 1st, 2nd or 3rd person (I, you, it, mine, yours, ..)
+- NB, for verbs in present tense and 3rd person singular, they are instead marked with 1 in the colum '3sg'
 
 ## properNoun
 
@@ -90,6 +100,7 @@ OVERVIEW
 
 ## 3sg
 
+- indicates if the word is in the 3rd person (only for present tense in English). Examples: wears, cleans, buys, ..
 
 ## arg_1
 
