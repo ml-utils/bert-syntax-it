@@ -1,9 +1,19 @@
 {"sentences": [
 
-  {"sentence_good_no_extraction": "Marco si chiede se Luca organizzerà la festa?",
-  "sentence_bad_extraction": "Che cosa Marco si chiede se Luca organizzerà?",
-  "sentence_good_extraction_resumption": "Di che cosa Marco si chiede se Luca la organizzerà?",
-  "sentence_good_extraction_as_subject": "Di che cosa Marco si chiede se verrà organizzata da Luca?",
+   {"sentence_good_no_extraction": "Davvero Gianni si chiede se Luca sa disegnare bene?",
+  "sentence_bad_extraction": "Come Gianni si chiede se Luca sa disegnare?",
+  "sentence_good_extraction_resumption": "",
+  "sentence_good_extraction_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "51"},
+
+  {"sentence_good_no_extraction": "Ti chiedi se non apprezzerà il regalo?",
+  "sentence_bad_extraction": "Che cosa ti chiedi se non apprezzerà?",
+  "sentence_good_extraction_resumption": "Di che cosa ti chiedi se non la apprezzerà?",
+  "sentence_good_extraction_as_subject": "Di che cosa ti chiedi se non verrà apprezzata da lei?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -498,7 +508,16 @@
   "linguistics_term": "island_effects",
   "UID": "wh_island",
   "island_subcategory": "whether_island",
-  "pairID": "49"}
+  "pairID": "49"},
 
+  {"sentence_good_no_extraction": "Davvero ci si chiede se Luca organizzerà la festa?",
+  "sentence_bad_extraction": "Che cosa ci si chiede se Luca organizzerà?",
+  "sentence_good_extraction_resumption": "Di che cosa ci si chiede se Luca la organizzerà?",
+  "sentence_good_extraction_as_subject": "Di che cosa ci si chiede se verrà organizzata da Luca?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "whether_island",
+  "pairID": "50"}
 ]
 }
