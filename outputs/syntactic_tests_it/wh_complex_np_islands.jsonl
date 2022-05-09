@@ -600,7 +600,6 @@
   "island_subcategory": "whether_island",
   "pairID": "59"},
 
-
   {"sentence_good_no_extraction": "Gianni ha avanzato la proposta che la relazione fosse fatta su tale argomento?",
   "sentence_bad_extraction": "Su cosa Gianni ha avanzato la proposta che la relazione fosse fatta?",
   "sentence_good_no_island": "Su cosa Gianni ha proposto che la relazione fosse fatta?",

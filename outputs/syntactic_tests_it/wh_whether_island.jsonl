@@ -1,7 +1,5 @@
 {"sentences": [
 
-
-
   {"sentence_good_no_extraction": "Ti chiedi se non apprezzerà il regalo?",
   "sentence_bad_extraction": "Che cosa ti chiedi se non apprezzerà?",
   "sentence_good_extraction_resumption": "Di che cosa ti chiedi se non la apprezzerà?",
