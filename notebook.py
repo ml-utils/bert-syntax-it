@@ -356,17 +356,11 @@ def main():
     print(f'sentence: {sentence_to_analizse}')
     print(f'topk: {topk_tokens}, top_probs: {topk_probs}, topk_probs_nonsoftmax: {topk_probs_nonsoftmax}')
 
-    testset_data = bert_utils.load_testset_data('./outputs/syntactic_tests_it/wh_island.jsonl')
-    examples_count = len(testset_data['sentences'])
-    print(f'examples_count: {examples_count}')
-
-    only_examples = [3, 6, 8, 10, 14, 15, 16, 18, 19, 21, 22, 23, 26, 29, 31, 32, 33, 39, 43, 46, 47, 48, 49]
-    print(f'incorrect examples count: {len(only_examples)} out of 50 ({len(only_examples)/50})')
-    for example_idx, sentence_data in enumerate(testset_data['sentences']):
-        #print(f"json_str, type: {type(sentence_data)}: {sentence_data}")
-        # print_sentence_pairs_probabilities(bert, tokenizer, sentence_data)
-        bert_utils.analize_example(bert, tokenizer, example_idx, sentence_data)
-        #return
+    testsets_dir = './outputs/syntactic_tests_it/'
+    testset_files = ['wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
+                     'wh_whether_island.jsonl']
+    for test_file in testset_files:
+        run_testset(testsets_dir, test_file, bert, tokenizer)
 
     # run_eval(eval_suite, bert, tokenizer)
     #prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
@@ -375,6 +369,24 @@ def main():
     #eval_it(bert, tokenizer)
     #custom_eval("What is your name?", bert, tokenizer)
 
+
+def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tokenizer: BertTokenizer):
+    filepath = os.path.join(testsets_dir, filename)
+    print(f'running test {filepath}')
+    testset_data = bert_utils.load_testset_data(filepath)
+    examples_count = len(testset_data['sentences'])
+    print(f'examples_count: {examples_count}')
+
+    # todo: add checks that there is enough variability / less repetitive examples (subjects proper names or pronouns,
+    #  plural and singular, 1st, 2nd and 3rd person, ..
+
+    # only_examples = [3, 6, 8, 10, 14, 15, 16, 18, 19, 21, 22, 23, 26, 29, 31, 32, 33, 39, 43, 46, 47, 48, 49]
+    # print(f'incorrect examples count: {len(only_examples)} out of 50 ({len(only_examples)/50})')
+    for example_idx, sentence_data in enumerate(testset_data['sentences']):
+        #print(f"json_str, type: {type(sentence_data)}: {sentence_data}")
+        # print_sentence_pairs_probabilities(bert, tokenizer, sentence_data)
+        bert_utils.analize_example(bert, tokenizer, example_idx, sentence_data)
+        #return
 
 if __name__ == "__main__":
     main()
