@@ -61,8 +61,8 @@
   "pairID": "5"},
 
         {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha pagato la parcella dell’avvocato?",
-  "sentence_bad_extraction": "Che cosa Gianni ha affermato che Luisa ha pagato?",
-  "sentence_good_no_island": "Che cosa Gianni ha affermato che Luisa avrebbe pagato",
+  "sentence_bad_extraction": "Che cosa Gianni ha fatto l’affermazione che Luisa ha pagato?",
+  "sentence_good_no_island": "Che cosa Gianni ha affermato che Luisa ha? pagato",
   "sentence_good_no_island_as_subject": "Che cosa Gianni ha affermato che sarebbe stata pagata da Luisa?",
   "field": "syntax",
   "linguistics_term": "island_effects",
