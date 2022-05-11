@@ -65,14 +65,15 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     unk_token = '[UNK]'
 
     tokens_by_sentence = []
+    num_of_oov_split_words_by_sentence = []
     for sentence in sentences:
         tokens = tokenizer.tokenize(sentence)
         tokens_by_sentence.append(tokens)
-
+        num_of_oov_split_words_by_sentence.append(count_split_words_in_sentence(tokens))
 
     for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
         if unk_token in sentence_tokens:
-            print(f'this sentence {sentence_idx} ({sentences[sentence_idx]}) has at least an UNK token: '
+            print_red(f'this sentence {sentence_idx} ({sentences[sentence_idx]}) has at least an UNK token: '
                   f'{sentences[sentence_idx]}')
 
     # the ungrammatical sentence must not be shorter than the other three sentences
@@ -92,13 +93,27 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
         prob = get_PenLP(bert, tokenizer, sentence, tokens_by_sentence[sentence_idx])
         sentence_probability_estimates.append(prob)
     bad_sentence_prob = sentence_probability_estimates[sentence_bad_extraction_idx]
+    base_sentence_less_acceptable = False
+    second_sentence_less_acceptable = False
+    acceptability_diff_base_sentence = 0
+    acceptability_diff_second_sentence = 0
     for sentence_idx, sentence_prob in enumerate(sentence_probability_estimates):
         if sentence_prob < bad_sentence_prob:
-            print(f'example {example_idx}: sentence {sentence_idx} ({sentences[sentence_idx]}) '
-                  f'has less probability ({np.exp(sentence_prob)}) than the bad sentence ({np.exp(bad_sentence_prob)}')
+            print_orange(f'\nexample {example_idx}: sentence {sentence_idx} ({sentences[sentence_idx]}, '
+                         f'oov_count {num_of_oov_split_words_by_sentence[sentence_idx]}) '
+                         f'has less probability ({np.exp(sentence_prob)}) '
+                         f'than the bad sentence ({np.exp(bad_sentence_prob)}) ({sentences[sentence_bad_extraction_idx]}), '
+                         f'oov_count {num_of_oov_split_words_by_sentence[sentence_bad_extraction_idx]}) ')
             sentence_ids = tokenizer.convert_tokens_to_ids(tokens_by_sentence[sentence_idx])
             estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose = True)
+            if sentence_idx == 0:
+                base_sentence_less_acceptable = True
+                acceptability_diff_base_sentence = bad_sentence_prob - sentence_prob
+            elif sentence_idx == 2:
+                second_sentence_less_acceptable = True
+                acceptability_diff_second_sentence = bad_sentence_prob - sentence_prob
 
+    return base_sentence_less_acceptable, second_sentence_less_acceptable, acceptability_diff_base_sentence, acceptability_diff_second_sentence
     # todo: check if the lp (log prob) calculation is the same as in the perper Lau et al. 2020) for estimating sentence probability
     # check also if it reproduces the results from the paper (for english bert), and greenberg, and others
     # check differences btw english and italian bert
@@ -116,6 +131,43 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     #
     # todo: skip examples that don't have at least 3 sentences
     # ..
+
+
+def count_split_words_in_sentence(sentence_tokens):
+    split_words_in_sentence = 0  ## count how many ##tokens there are, subtract from total
+    token_of_previously_counted_split_word = False
+    for token in sentence_tokens:
+        if not token.startswith('##'):
+            token_of_previously_counted_split_word = False
+        elif not token_of_previously_counted_split_word:
+            split_words_in_sentence += 1
+            token_of_previously_counted_split_word = True
+    return split_words_in_sentence
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    RED = '\033[91m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+def print_red(txt: str):
+    print_in_color(txt, bcolors.RED)
+
+
+def print_orange(txt: str):
+    print_in_color(txt, bcolors.WARNING)
+
+
+def print_in_color(txt, color: bcolors):
+    print(f'{color}{txt}{bcolors.ENDC}')
 
 
 def generate_text_with_bert(bert: BertPreTrainedModel, tokenizer: BertTokenizer, starting_word = 'Il'):

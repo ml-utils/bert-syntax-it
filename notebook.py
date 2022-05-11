@@ -77,16 +77,6 @@ def load_marvin():
         out.append((case[0],case[1]," ".join(g),gv,ugv))
     return out
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 def eval_it(bert,tokenizer):
     o = load_it()
@@ -96,7 +86,7 @@ def eval_it(bert,tokenizer):
     rc = defaultdict(Counter)
     tc = Counter()
     start = time.time()
-    print(f'{bcolors.WARNING}{len(o)} sentences to process..{bcolors.ENDC}')
+    bert_utils.print_orange(f'{len(o)} sentences to process..')
     for i, (case, tp, s, good_word, bad_word) in enumerate(o):
         ps = get_probs_for_words(bert, tokenizer, s, good_word, bad_word)
         if ps is None: ps = [0, 1]
@@ -104,7 +94,7 @@ def eval_it(bert,tokenizer):
         bp = ps[1]
         print(gp > bp, case, tp, good_word, bad_word, s)
         if i % 100 == 0:
-            print(f'{bcolors.WARNING}{i}{bcolors.ENDC}')
+            print(f'{bert_utils.bcolors.WARNING}{i}{bert_utils.bcolors.ENDC}')
             print(i, time.time() - start, file=sys.stderr)
             start = time.time()
             sys.stdout.flush()
@@ -372,7 +362,7 @@ def main():
 
 def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tokenizer: BertTokenizer):
     filepath = os.path.join(testsets_dir, filename)
-    print(f'running test {filepath}')
+    bert_utils.print_orange(f'running test {filepath}')
     testset_data = bert_utils.load_testset_data(filepath)
     examples_count = len(testset_data['sentences'])
     print(f'examples_count: {examples_count}')
@@ -382,11 +372,56 @@ def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tok
 
     # only_examples = [3, 6, 8, 10, 14, 15, 16, 18, 19, 21, 22, 23, 26, 29, 31, 32, 33, 39, 43, 46, 47, 48, 49]
     # print(f'incorrect examples count: {len(only_examples)} out of 50 ({len(only_examples)/50})')
+    error_count_base_sentence = 0
+    error_count_second_sentence = 0
+    error_count_either = 0
+    no_errors_examples_indexes = []
+    examples_by_base_sentence_acceptability_diff = {}
+    examples_by_second_sentence_acceptability_diff = {}
     for example_idx, sentence_data in enumerate(testset_data['sentences']):
         #print(f"json_str, type: {type(sentence_data)}: {sentence_data}")
         # print_sentence_pairs_probabilities(bert, tokenizer, sentence_data)
-        bert_utils.analize_example(bert, tokenizer, example_idx, sentence_data)
+        base_sentence_less_acceptable, second_sentence_less_acceptable, \
+        acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
+            = bert_utils.analize_example(bert, tokenizer, example_idx, sentence_data)
         #return
+        sentences = bert_utils.get_sentences_from_example(sentence_data)
+        if base_sentence_less_acceptable:
+            error_count_base_sentence += 1
+            examples_by_base_sentence_acceptability_diff[acceptability_diff_base_sentence] \
+                = (example_idx, sentences[0], sentences[1])
+        if second_sentence_less_acceptable:
+            error_count_second_sentence += 1
+            examples_by_second_sentence_acceptability_diff[acceptability_diff_second_sentence] \
+                = (example_idx, sentences[1], sentences[2])
+        if base_sentence_less_acceptable or second_sentence_less_acceptable:
+            error_count_either += 1
+        else:
+            no_errors_examples_indexes.append(example_idx)
+
+    print(f'error count out of {examples_count} examples: base sentence {error_count_base_sentence} '
+          f'({get_perc(error_count_base_sentence, examples_count)}), second sentence: {error_count_second_sentence} '
+          f'({get_perc(error_count_second_sentence, examples_count)}), either: {error_count_either} '
+          f'({get_perc(error_count_either, examples_count)}), filename: {filename}')
+
+    # print examples getting no errors:
+    bert_utils.print_orange('Examples getting no errors:')
+    for example_idx in no_errors_examples_indexes:
+        no_error_example = testset_data['sentences'][example_idx]
+        print(f'{bert_utils.get_sentences_from_example(no_error_example)}')
+
+    bert_utils.print_orange('examples sorted by sentence_acceptability diff, second sentence:')
+    for acceprability_diff, example in dict(sorted(examples_by_second_sentence_acceptability_diff.items())).items():
+        print(f'accept_diff_2nd_sent: {acceprability_diff}, example: {example}')
+    bert_utils.print_orange('examples sorted by sentence_acceptability diff, base sentence:')
+    for acceprability_diff, example in dict(sorted(examples_by_base_sentence_acceptability_diff.items())).items():
+        print(f'accept_diff_2nd_sent: {acceprability_diff}, example: {example}')
+
+
+def get_perc(value, total):
+    perc = (value / total) * 100
+    return f'{perc:.1f} %'
+
 
 if __name__ == "__main__":
     main()
