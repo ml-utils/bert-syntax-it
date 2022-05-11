@@ -16,7 +16,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "5"},
+    "pairID": "1"},
 
   {"sentence_good_no_extraction": "Gianni ha avanzato la proposta prima che Luisa elaborasse il programma.",
     "sentence_bad_extraction": "Che cosa Gianni ha avanzato la proposta prima che Luisa elaborasse?",
@@ -25,7 +25,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "7"},
+    "pairID": "2"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’investimento dopo che è stata creata l’azienda.",
     "sentence_bad_extraction": "Che cosa Gianni ha fatto l’investimento dopo che è stata creata?",
@@ -34,7 +34,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "9"},
+    "pairID": "3"},
 
   {"sentence_good_no_extraction": "Luisa ha rifiutato l’offerta dopo aver ottenuto un aumento di stipendio.",
     "sentence_bad_extraction": "Che cosa Luisa ha rifiutato l’offerta dopo aver ottenuto?",
@@ -43,16 +43,36 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "12"},
+    "pairID": "4"},
 
     {"sentence_good_no_extraction": "Gianni ha riparato il frigorifero dopo che si era guastato il termostato.",
     "sentence_bad_extraction": "Che cosa Gianni ha riparato il frigorifero dopo che si era guastato?",
-    "sentence_good_no_island": "Dopo che si era guastato cosa Gianni ha riparato il frigorifero dopo che si era guastato?",
+    "sentence_good_no_island": "Dopo che si era guastato cosa Gianni ha riparato il frigorifero?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "19"},
+    "pairID": "5"},
+
+    {"sentence_good_no_extraction": "Gianni scriverà una recensione se l'editore pubblicherà il libro.",
+    "sentence_bad_extraction": "Che cosa Gianni scriverà una recensione se l'editore pubblicherà?",
+    "sentence_good_no_island": "Se l'editore pubblicherà cosa Gianni scriverà una recensione?",
+    "field": "syntax",
+    "linguistics_term": "island_effects",
+    "UID": "wh_island",
+    "island_subcategory": "whether_island",
+    "pairID": "36"},
+
+    {"sentence_good_no_extraction": "Le modalità di esame verranno modificate se causeranno notevoli problemi.",
+    "sentence_bad_extraction": "Che cosa le modalità di esame verranno modificate se causeranno?",
+    "sentence_good_no_island": "Se causeranno cosa le modalità di esame verranno modificate?",
+    "field": "syntax",
+    "linguistics_term": "island_effects",
+    "UID": "wh_island",
+    "island_subcategory": "whether_island",
+    "pairID": "38"},
+
+
 
     {"sentence_good_no_extraction": "La commissione ha acquisito la documentazione dopo che l’assessore ha formulato la richiesta.",
     "sentence_bad_extraction": "Che cosa la commissione ha acquisito la documentazione dopo che l’assessore ha formulato?",
@@ -61,7 +81,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "1"},
+    "pairID": "6"},
 
   {"sentence_good_no_extraction": "Gianni ha lavato i pavimenti dopo aver spolverato i mobili.",
     "sentence_bad_extraction": "Che cosa Gianni ha lavato i pavimenti dopo aver spolverato?",
@@ -70,7 +90,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "2"},
+    "pairID": "7"},
 
   {"sentence_good_no_extraction": "Luisa ha scattato delle foto prima che iniziasse l’evento.",
     "sentence_bad_extraction": "Che cosa Luisa ha scattato delle foto prima che iniziasse?",
@@ -79,7 +99,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "3"},
+    "pairID": "8"},
 
   {"sentence_good_no_extraction": "Luca ha abitato a Milano mentre lavorava al progetto.",
     "sentence_bad_extraction": "A che cosa Luca ha abitato a Milano mentre lavorava?",
@@ -88,7 +108,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "4"},
+    "pairID": "9"},
 
   {"sentence_good_no_extraction": "Il parlamentare ha interpellato il ministro dopo che l'azienda ha trasferito la produzione in Romania.",
     "sentence_bad_extraction": "Dove il parlamentare ha interpellato il ministro dopo che l'azienda ha trasferito la produzione?",
@@ -97,7 +117,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "6"},
+    "pairID": "10"},
 
   {"sentence_good_no_extraction": "Luisa ha preparato l’illustrazione dopo che Gianni ha inviato il libro all’editore.",
     "sentence_bad_extraction": "Che cosa Luisa ha preparato l’illustrazione dopo che Gianni ha inviato all’editore?",
@@ -106,7 +126,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "8"},
+    "pairID": "11"},
 
   {"sentence_good_no_extraction": "Luisa cerca un libro sull'argomento dopo aver guardato un programma televisivo. ",
     "sentence_bad_extraction": "Che cosa Luisa cerca un libro sull'argomento dopo aver guardato?",
@@ -115,7 +135,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "10"},
+    "pairID": "12"},
 
   {"sentence_good_no_extraction": "Luisa ha rinviato le vacanze dopo aver visto le previsioni del tempo.",
     "sentence_bad_extraction": "Che cosa Luisa ha rinviato le vacanze dopo aver visto?",
@@ -124,8 +144,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "11"},
-
+    "pairID": "13"},
 
   {"sentence_good_no_extraction": "Luisa ha preso la decisione dopo aver parlato con Chiara.",
     "sentence_bad_extraction": "Con chi Luisa ha preso la decisione dopo aver parlato?",
@@ -134,7 +153,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "13"},
+    "pairID": "14"},
 
   {"sentence_good_no_extraction": "Chiara ha telefonato a Gianni dopo aver organizzato una festa.",
     "sentence_bad_extraction": "Che cosa Chiara ha telefonato a Gianni dopo aver organizzato?",
@@ -143,7 +162,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "14"},
+    "pairID": "15"},
 
   {"sentence_good_no_extraction": "Luisa ha lasciato la penna sul tavolo dopo aver concluso la riunione.",
     "sentence_bad_extraction": "Che cosa Luisa ha lasciato la penna sul tavolo dopo aver concluso?",
@@ -152,7 +171,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "15"},
+    "pairID": "16"},
 
   {"sentence_good_no_extraction": "Luisa ha riscritto il capitolo dopo che l’editore le ha mandato delle note.",
     "sentence_bad_extraction": "Che cosa Luisa ha riscritto il capitolo dopo che l’editore le ha mandato?",
@@ -161,7 +180,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "16"},
+    "pairID": "17"},
 
   {"sentence_good_no_extraction": "Il giornalista ha aggiornato l’articolo dopo che l’azienda ha fatto trapelare la notizia.",
     "sentence_bad_extraction": "Che cosa il giornalista ha aggiornato l’articolo dopo che l’azienda ha fatto trapelare?",
@@ -170,7 +189,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "17"},
+    "pairID": "18"},
 
   {"sentence_good_no_extraction": "Gianni è andato al cinema dopo aver saputo dell’uscita del film.",
     "sentence_bad_extraction": "Di che cosa Gianni è andato al cinema dopo aver saputo?",
@@ -179,9 +198,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "whether_island",
-    "pairID": "18"},
-
-
+    "pairID": "19"},
 
   {"sentence_good_no_extraction": "Gianni ha risolto il problema di matematica dopo aver studiato la teoria.",
     "sentence_bad_extraction": "Che cosa Gianni ha risolto il problema di matematica dopo aver studiato?",
@@ -327,14 +344,7 @@
     "island_subcategory": "whether_island",
     "pairID": "35"},
 
-  {"sentence_good_no_extraction": "Gianni scriverà una recensione se l'editore pubblicherà il libro.",
-    "sentence_bad_extraction": "Che cosa Gianni scriverà una recensione se l'editore pubblicherà?",
-    "sentence_good_no_island": "Se l'editore pubblicherà cosa Gianni scriverà una recensione se l'editore pubblicherà?",
-    "field": "syntax",
-    "linguistics_term": "island_effects",
-    "UID": "wh_island",
-    "island_subcategory": "whether_island",
-    "pairID": "36"},
+
 
   {"sentence_good_no_extraction": "La ricetta verrà riformulata se contiene un errore.",
     "sentence_bad_extraction": "Che cosa la ricetta verrà riformulata se contiene?",
@@ -345,14 +355,7 @@
     "island_subcategory": "whether_island",
     "pairID": "37"},
 
-  {"sentence_good_no_extraction": "Le modalità di esame verranno modificate se causeranno notevoli problemi.",
-    "sentence_bad_extraction": "Che cosa le modalità di esame verranno modificate se causeranno?",
-    "sentence_good_no_island": "Se causeranno cosa le modalità di esame verranno modificate?",
-    "field": "syntax",
-    "linguistics_term": "island_effects",
-    "UID": "wh_island",
-    "island_subcategory": "whether_island",
-    "pairID": "38"},
+
 
   {"sentence_good_no_extraction": "Le azioni aumenteranno di valore se l'azienda metterà in commercio il prodotto.",
     "sentence_bad_extraction": "Che cosa le azioni aumenteranno di valore se l'azienda metterà in commercio?",
@@ -363,9 +366,9 @@
     "island_subcategory": "whether_island",
     "pairID": "39"},
 
-  {"sentence_good_no_extraction": "Luisa telefonerà a Gianni se non ricoda l'indirizzo di Chiara.",
-    "sentence_bad_extraction": "Che cosa Luisa telefonerà a Gianni se non ricoda?",
-    "sentence_good_no_island": "Se non ricoda cosa Luisa telefonerà a Gianni?",
+  {"sentence_good_no_extraction": "Luisa telefonerà a Gianni se non ricorda l'indirizzo di Chiara.",
+    "sentence_bad_extraction": "Che cosa Luisa telefonerà a Gianni se non ricorda?",
+    "sentence_good_no_island": "Se non ricorda cosa Luisa telefonerà a Gianni?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
