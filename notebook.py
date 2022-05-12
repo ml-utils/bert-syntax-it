@@ -339,8 +339,8 @@ def main():
         print('error, tokenizer is null')
         return
 
+    #
     bert_utils.check_unknown_words(tokenizer)
-
     sentence_to_analizse = 'Di che cosa Marco si chiede se è stata riparata da ***Luca***?'
     topk_tokens, topk_probs, topk_probs_nonsoftmax = analize_sentence(bert, tokenizer, sentence_to_analizse)
     print(f'sentence: {sentence_to_analizse}')
@@ -348,8 +348,8 @@ def main():
 
     testsets_dir = './outputs/syntactic_tests_it/'
     testset_files = ['variations_tests.jsonl'
-                     ##'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
-                     ##'wh_whether_island.jsonl'
+                     ,'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
+                     'wh_whether_island.jsonl'
                      ]
     for test_file in testset_files:
         run_testset(testsets_dir, test_file, bert, tokenizer)
@@ -389,6 +389,7 @@ def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tok
         base_sentence_less_acceptable, second_sentence_less_acceptable, \
         acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
         penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
+        logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence, \
         oov_counts \
             = bert_utils.analize_example(bert, tokenizer, example_idx, sentence_data)
         #return
@@ -472,9 +473,16 @@ def print_example(example, acceprability_diff, compare_with_base_sentence = True
     else:
         diff_descr = 'accept_diff_w_2nd_sent'
 
-    print(f'{diff_descr}: {acceprability_diff:.3f}, '
-          f'(PenLP values: {penLP_base_sentence:.1f}, {penLP_bad_sentence:.1f}, {penLP_2nd_good_sentence:.1f}), '
+    print(f'{diff_descr}: {rnd(acceprability_diff,3)}, '
+          f'(PenLP values: {rnd(penLP_base_sentence,1)}, {rnd(penLP_bad_sentence,1)}, {rnd(penLP_2nd_good_sentence,1)}), '
           f'example (oov_counts: {oov_counts}): ({example_idx}, \'{sentence_good}\', \'{sentence_bad}\'')
+
+
+def rnd(num, decimal_places):
+    if num is not None:
+        return round(num, decimal_places)
+    else:
+        return None
 
 
 def get_perc(value, total):
@@ -482,7 +490,57 @@ def get_perc(value, total):
     return f'{perc:.1f} %'
 
 
+def interactive_mode():
+    print(f'interactive mode')
+
+    # load model than wait for input sentences
+    model_name = f'models/bert-base-italian-xxl-cased/'
+    eval_suite = 'it'
+    bert, tokenizer = init_bert_model(model_name, do_lower_case=False)
+
+    print(f'model loaded, waiting for sentences..')
+
+    # given two sentences, print PenLPs, and diff btw PenLPs
+    end_program = False
+    while not end_program:
+        good_sentence = input('Enter first sentence (good): ')
+        if good_sentence == 'exit':
+            return
+        bad_sentence = input('Enter 2nd sentence (bad): ')
+
+        example = {'good_sentence': good_sentence, 'bad_sentence': bad_sentence, 'good_sentence2': None}
+
+        base_sentence_less_acceptable, second_sentence_less_acceptable, \
+        acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
+        penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
+        logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence, \
+        oov_counts \
+            = bert_utils.analize_example(bert, tokenizer, -1, example)
+        diff_penLP = round(penLP_base_sentence - penLP_bad_sentence, 3)
+
+        bert_utils.print_red(f'PenLP:')
+        print(f'Diff {bert_utils.red_txt(diff_penLP)}, '
+              f'good ({penLP_base_sentence:.1f}), bad ({penLP_bad_sentence:.1f}): {good_sentence} || {bad_sentence}')
+
+        # analize both sentences with topk for each masking
+        if diff_penLP >= 0:
+            print_detailed_sentence_info(bert, tokenizer, good_sentence)
+            print_detailed_sentence_info(bert, tokenizer, bad_sentence)
+
+
+def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
+    bert_utils.print_red(f'printing details for sentence {sentence_txt}')
+    tokens = tokenizer.tokenize(sentence_txt)
+    sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
+    bert_utils.estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose=True)
+
+
 if __name__ == "__main__":
-    main()
+
+    if len(sys.argv) > 1:
+        interactive_mode()
+    else:
+        print(f'running main function')
+        main()
 
 
