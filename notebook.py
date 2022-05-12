@@ -347,8 +347,8 @@ def main():
     print(f'topk: {topk_tokens}, top_probs: {topk_probs}, topk_probs_nonsoftmax: {topk_probs_nonsoftmax}')
 
     testsets_dir = './outputs/syntactic_tests_it/'
-    testset_files = ['variations_tests.jsonl'
-                     ,'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
+    testset_files = [#'variations_tests.jsonl',
+                     'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
                      'wh_whether_island.jsonl'
                      ]
     for test_file in testset_files:

@@ -9,6 +9,11 @@ from pytorch_pretrained_bert.modeling import BertPreTrainedModel
 import numpy as np
 
 
+GOOD_SENTENCE_1_IDX = 0
+SENTENCE_BAD_EXTRACTION_IDX = 1
+GOOD_SENTENCE_2_IDX = 2
+
+
 def load_testset_data(file_path):
     with open(file_path, mode='r', encoding="utf-8") as json_file:
         #json_list = list(json_file)
@@ -53,7 +58,8 @@ def get_sentences_from_example(example : dict):
     return sentences
 
 
-def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example_idx: int, example):
+def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example_idx: int, example,
+                    score_based_on='softmax'):
     """
     :param bert:
     :param tokenizer:
@@ -63,7 +69,6 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
 
     sentences = get_sentences_from_example(example)
 
-    sentence_bad_extraction_idx = 1
     unk_token = '[UNK]'
 
     tokens_by_sentence = []
@@ -80,14 +85,14 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
                   f'{sentences[sentence_idx]}')
 
     # the ungrammatical sentence must not be shorter than the other three sentences
-    sentence_bad_tokens_count = len(tokens_by_sentence[sentence_bad_extraction_idx])
+    sentence_bad_tokens_count = len(tokens_by_sentence[SENTENCE_BAD_EXTRACTION_IDX])
     for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
         if len(sentence_tokens) < sentence_bad_tokens_count:
             print(f'example {example_idx}:  sentence {sentence_idx} ({sentences[sentence_idx]}) has less tokens '
                   f'({len(sentence_tokens)}) '
                   f'than the bad sentence ({sentence_bad_tokens_count})')
         if len(sentence_tokens) == 0:
-            print(sentences[sentence_bad_extraction_idx])
+            print(sentences[SENTENCE_BAD_EXTRACTION_IDX])
 
     # todo: check if the bad sentence has higher probability estimate than the other three
     sentence_probability_estimates = []
@@ -111,38 +116,12 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
             this_sentence_estimate_normalized_logitis += math.log(word_logitis)
         sentences_estimates_normalized_logitis.append(this_sentence_estimate_normalized_logitis)
 
-    penLP_bad_sentence = sentence_probability_estimates[sentence_bad_extraction_idx]
-    penLP_base_sentence = sentence_probability_estimates[0]
-    logitis_normalized_bad_sentence = sentences_estimates_normalized_logitis[sentence_bad_extraction_idx]
-    logitis_normalized_base_sentence = sentences_estimates_normalized_logitis[0]
-
-    penLP_2nd_good_sentence = None
-    logitis_normalized_2nd_good_sentence = None
-    if len(sentence_probability_estimates) > 2:
-        penLP_2nd_good_sentence = sentence_probability_estimates[2]
-        logitis_normalized_2nd_good_sentence = sentences_estimates_normalized_logitis[2]
-
-    base_sentence_less_acceptable = False
-    second_sentence_less_acceptable = False
-    acceptability_diff_base_sentence = 0
-    acceptability_diff_second_sentence = 0
-    for sentence_idx, sentence_prob in enumerate(sentence_probability_estimates):
-        if sentence_idx == 0:
-            acceptability_diff_base_sentence = sentence_prob - penLP_bad_sentence
-        elif sentence_idx == 2:
-            acceptability_diff_second_sentence = sentence_prob - penLP_bad_sentence
-
-        if sentence_prob < penLP_bad_sentence:
-            print_orange(f'\nexample {example_idx} (oov_count: {oov_counts}): '
-                         f'sentence {sentence_idx} ({sentences[sentence_idx]}, '
-                         f'has less PenLP ({sentence_prob:.1f}) '
-                         f'than the bad sentence ({penLP_bad_sentence:.1f}) ({sentences[sentence_bad_extraction_idx]})')
-            sentence_ids = tokenizer.convert_tokens_to_ids(tokens_by_sentence[sentence_idx])
-            estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose = True)
-            if sentence_idx == 0:
-                base_sentence_less_acceptable = True
-            elif sentence_idx == 2:
-                second_sentence_less_acceptable = True
+    base_sentence_less_acceptable, second_sentence_less_acceptable, \
+    acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
+           penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
+           logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence \
+        = get_acceptability_diffs(bert, tokenizer, sentence_probability_estimates, sentences_estimates_normalized_logitis,
+                            example_idx, oov_counts, sentences, tokens_by_sentence)
 
     return base_sentence_less_acceptable, second_sentence_less_acceptable, \
            acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
@@ -166,6 +145,47 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     #
     # todo: skip examples that don't have at least 3 sentences
     # ..
+
+
+def get_acceptability_diffs(bert, tokenizer, sentence_probability_estimates, sentences_estimates_normalized_logitis,
+                            example_idx, oov_counts, sentences, tokens_by_sentence):
+    penLP_bad_sentence = sentence_probability_estimates[SENTENCE_BAD_EXTRACTION_IDX]
+    penLP_base_sentence = sentence_probability_estimates[GOOD_SENTENCE_1_IDX]
+    logitis_normalized_bad_sentence = sentences_estimates_normalized_logitis[SENTENCE_BAD_EXTRACTION_IDX]
+    logitis_normalized_base_sentence = sentences_estimates_normalized_logitis[GOOD_SENTENCE_1_IDX]
+
+    penLP_2nd_good_sentence = None
+    logitis_normalized_2nd_good_sentence = None
+    if len(sentence_probability_estimates) > 2:
+        penLP_2nd_good_sentence = sentence_probability_estimates[GOOD_SENTENCE_2_IDX]
+        logitis_normalized_2nd_good_sentence = sentences_estimates_normalized_logitis[GOOD_SENTENCE_2_IDX]
+
+    base_sentence_less_acceptable = False
+    second_sentence_less_acceptable = False
+    acceptability_diff_base_sentence = 0
+    acceptability_diff_second_sentence = 0
+    for sentence_idx, sentence_prob in enumerate(sentence_probability_estimates):
+        if sentence_idx == 0:
+            acceptability_diff_base_sentence = sentence_prob - penLP_bad_sentence
+        elif sentence_idx == 2:
+            acceptability_diff_second_sentence = sentence_prob - penLP_bad_sentence
+
+        if sentence_prob < penLP_bad_sentence:
+            print_orange(f'\nexample {example_idx} (oov_count: {oov_counts}): '
+                         f'sentence {sentence_idx} ({sentences[sentence_idx]}, '
+                         f'has less PenLP ({sentence_prob:.1f}) '
+                         f'than the bad sentence ({penLP_bad_sentence:.1f}) ({sentences[SENTENCE_BAD_EXTRACTION_IDX]})')
+            sentence_ids = tokenizer.convert_tokens_to_ids(tokens_by_sentence[sentence_idx])
+            estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose = True)
+            if sentence_idx == 0:
+                base_sentence_less_acceptable = True
+            elif sentence_idx == 2:
+                second_sentence_less_acceptable = True
+
+    return base_sentence_less_acceptable, second_sentence_less_acceptable, \
+           acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
+           penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
+           logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence
 
 
 def count_split_words_in_sentence(sentence_tokens):
