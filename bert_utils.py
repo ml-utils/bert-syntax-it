@@ -65,11 +65,11 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     unk_token = '[UNK]'
 
     tokens_by_sentence = []
-    num_of_oov_split_words_by_sentence = []
+    oov_counts = []
     for sentence in sentences:
         tokens = tokenizer.tokenize(sentence)
         tokens_by_sentence.append(tokens)
-        num_of_oov_split_words_by_sentence.append(count_split_words_in_sentence(tokens))
+        oov_counts.append(count_split_words_in_sentence(tokens))
 
     for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
         if unk_token in sentence_tokens:
@@ -92,28 +92,35 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
         # prob = estimate_sentence_probability_from_text(bert, tokenizer, sentence)
         prob = get_PenLP(bert, tokenizer, sentence, tokens_by_sentence[sentence_idx])
         sentence_probability_estimates.append(prob)
-    bad_sentence_prob = sentence_probability_estimates[sentence_bad_extraction_idx]
+    penLP_bad_sentence = sentence_probability_estimates[sentence_bad_extraction_idx]
+    penLP_base_sentence = sentence_probability_estimates[0]
+    penLP_2nd_good_sentence = sentence_probability_estimates[2]
     base_sentence_less_acceptable = False
     second_sentence_less_acceptable = False
     acceptability_diff_base_sentence = 0
     acceptability_diff_second_sentence = 0
     for sentence_idx, sentence_prob in enumerate(sentence_probability_estimates):
-        if sentence_prob < bad_sentence_prob:
-            print_orange(f'\nexample {example_idx}: sentence {sentence_idx} ({sentences[sentence_idx]}, '
-                         f'oov_count {num_of_oov_split_words_by_sentence[sentence_idx]}) '
-                         f'has less probability ({np.exp(sentence_prob)}) '
-                         f'than the bad sentence ({np.exp(bad_sentence_prob)}) ({sentences[sentence_bad_extraction_idx]}), '
-                         f'oov_count {num_of_oov_split_words_by_sentence[sentence_bad_extraction_idx]}) ')
+        if sentence_idx == 0:
+            acceptability_diff_base_sentence = sentence_prob - penLP_bad_sentence
+        elif sentence_idx == 2:
+            acceptability_diff_second_sentence = sentence_prob - penLP_bad_sentence
+
+        if sentence_prob < penLP_bad_sentence:
+            print_orange(f'\nexample {example_idx} (oov_count: {oov_counts}): '
+                         f'sentence {sentence_idx} ({sentences[sentence_idx]}, '
+                         f'has less PenLP ({sentence_prob:.1f}) '
+                         f'than the bad sentence ({penLP_bad_sentence:.1f}) ({sentences[sentence_bad_extraction_idx]})')
             sentence_ids = tokenizer.convert_tokens_to_ids(tokens_by_sentence[sentence_idx])
             estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose = True)
             if sentence_idx == 0:
                 base_sentence_less_acceptable = True
-                acceptability_diff_base_sentence = bad_sentence_prob - sentence_prob
             elif sentence_idx == 2:
                 second_sentence_less_acceptable = True
-                acceptability_diff_second_sentence = bad_sentence_prob - sentence_prob
 
-    return base_sentence_less_acceptable, second_sentence_less_acceptable, acceptability_diff_base_sentence, acceptability_diff_second_sentence
+    return base_sentence_less_acceptable, second_sentence_less_acceptable, \
+           acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
+           penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
+           oov_counts
     # todo: check if the lp (log prob) calculation is the same as in the perper Lau et al. 2020) for estimating sentence probability
     # check also if it reproduces the results from the paper (for english bert), and greenberg, and others
     # check differences btw english and italian bert
@@ -286,9 +293,11 @@ def estimate_sentence_probability(bert: BertPreTrainedModel, tokenizer: BertToke
         masked_sentence_ids[masked_index] = MASK_ID
         masked_sentence_ids = [CLS_ID] + masked_sentence_ids + [SEP_ID]
 
-        probability_of_this_masking, topk_tokens = get_sentence_probs_from_word_ids(bert, tokenizer, masked_sentence_ids,
-                                                                     [masked_word_id], masked_index+1)
-        sentence_prob_estimate += np.log(probability_of_this_masking[0])
+        probability_of_words_predictions_in_this_masking, topk_tokens \
+            = get_sentence_probs_from_word_ids(bert, tokenizer, masked_sentence_ids,
+                                               [masked_word_id], masked_index+1)
+        probability_of_this_masking = probability_of_words_predictions_in_this_masking[0]  # we specified only one word
+        sentence_prob_estimate += np.log(probability_of_this_masking)
         if verbose:
             print(f'testing {convert_ids_to_tokens(tokenizer, [masked_word_id])} '
                   f'at {masked_index+1} in sentence {convert_ids_to_tokens(tokenizer, masked_sentence_ids)}, '

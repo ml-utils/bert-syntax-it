@@ -347,8 +347,10 @@ def main():
     print(f'topk: {topk_tokens}, top_probs: {topk_probs}, topk_probs_nonsoftmax: {topk_probs_nonsoftmax}')
 
     testsets_dir = './outputs/syntactic_tests_it/'
-    testset_files = ['wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
-                     'wh_whether_island.jsonl']
+    testset_files = ['variations_tests.jsonl'
+                     ##'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
+                     ##'wh_whether_island.jsonl'
+                     ]
     for test_file in testset_files:
         run_testset(testsets_dir, test_file, bert, tokenizer)
 
@@ -378,26 +380,48 @@ def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tok
     no_errors_examples_indexes = []
     examples_by_base_sentence_acceptability_diff = {}
     examples_by_second_sentence_acceptability_diff = {}
+    second_sentences_by_penLP = {}
+    bad_sentences_by_penLP = {}
+    base_sentences_by_penLP = {}
     for example_idx, sentence_data in enumerate(testset_data['sentences']):
         #print(f"json_str, type: {type(sentence_data)}: {sentence_data}")
         # print_sentence_pairs_probabilities(bert, tokenizer, sentence_data)
         base_sentence_less_acceptable, second_sentence_less_acceptable, \
         acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
+        penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
+        oov_counts \
             = bert_utils.analize_example(bert, tokenizer, example_idx, sentence_data)
         #return
         sentences = bert_utils.get_sentences_from_example(sentence_data)
+
+        second_sentences_by_penLP[penLP_2nd_good_sentence] = sentences[2]
+        bad_sentences_by_penLP[penLP_bad_sentence] = sentences[1]
+        base_sentences_by_penLP[penLP_base_sentence] = sentences[0]
+        examples_by_base_sentence_acceptability_diff[acceptability_diff_base_sentence] \
+            = example_as_tuple(example_idx, penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence,
+               oov_counts, sentences[0], sentences[1])
+        examples_by_second_sentence_acceptability_diff[acceptability_diff_second_sentence] \
+            = example_as_tuple(example_idx, penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence,
+               oov_counts, sentences[2], sentences[1])
+
         if base_sentence_less_acceptable:
             error_count_base_sentence += 1
-            examples_by_base_sentence_acceptability_diff[acceptability_diff_base_sentence] \
-                = (example_idx, sentences[0], sentences[1])
         if second_sentence_less_acceptable:
             error_count_second_sentence += 1
-            examples_by_second_sentence_acceptability_diff[acceptability_diff_second_sentence] \
-                = (example_idx, sentences[1], sentences[2])
+
         if base_sentence_less_acceptable or second_sentence_less_acceptable:
             error_count_either += 1
         else:
             no_errors_examples_indexes.append(example_idx)
+
+    print(f'error count and accuracy rates from {examples_count} examples: '
+          f'base sentence {error_count_base_sentence} '
+          f'(acc: {get_perc(examples_count-error_count_base_sentence, examples_count)}), '
+          f'second sentence: {error_count_second_sentence} '
+          f'(acc: {get_perc(examples_count-error_count_second_sentence, examples_count)}), '
+          f'either: {error_count_either} '
+          f'(acc: {get_perc(examples_count-error_count_either, examples_count)}), '
+          f'filename: {filename}')
 
     print(f'error count out of {examples_count} examples: base sentence {error_count_base_sentence} '
           f'({get_perc(error_count_base_sentence, examples_count)}), second sentence: {error_count_second_sentence} '
@@ -412,10 +436,45 @@ def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tok
 
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, second sentence:')
     for acceprability_diff, example in dict(sorted(examples_by_second_sentence_acceptability_diff.items())).items():
-        print(f'accept_diff_2nd_sent: {acceprability_diff}, example: {example}')
+        print_example(example, acceprability_diff, compare_with_base_sentence=False)
+
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, base sentence:')
     for acceprability_diff, example in dict(sorted(examples_by_base_sentence_acceptability_diff.items())).items():
-        print(f'accept_diff_2nd_sent: {acceprability_diff}, example: {example}')
+        print_example(example, acceprability_diff, compare_with_base_sentence=True)
+
+    print_sentences_sorted_by_PenLP(second_sentences_by_penLP, 'second sentences sorted by PenLP:')
+    print_sentences_sorted_by_PenLP(bad_sentences_by_penLP, 'bad sentences sorted by PenLP:')
+    print_sentences_sorted_by_PenLP(base_sentences_by_penLP, 'base sentences sorted by PenLP:')
+
+
+def print_sentences_sorted_by_PenLP(sentences_by_penLP, msg):
+    bert_utils.print_orange(msg)
+    for PenLP, sentence in dict(sorted(sentences_by_penLP.items())).items():
+        print(f'{PenLP:.1f} {sentence}')
+
+
+def example_as_tuple(example_idx, penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence,
+               oov_counts, sentence_good, sentence_bad):
+    return (example_idx, penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence,
+               oov_counts, sentence_good, sentence_bad)
+
+
+def print_example(example, acceprability_diff, compare_with_base_sentence = True):
+    example_idx = example[0]
+    penLP_base_sentence = example[1]
+    penLP_bad_sentence = example[2]
+    penLP_2nd_good_sentence = example[3]
+    oov_counts = example[4]
+    sentence_good = example[5]
+    sentence_bad = example[6]
+    if compare_with_base_sentence:
+        diff_descr = 'accept_diff_w_base_sent'
+    else:
+        diff_descr = 'accept_diff_w_2nd_sent'
+
+    print(f'{diff_descr}: {acceprability_diff:.3f}, '
+          f'(PenLP values: {penLP_base_sentence:.1f}, {penLP_bad_sentence:.1f}, {penLP_2nd_good_sentence:.1f}), '
+          f'example (oov_counts: {oov_counts}): ({example_idx}, \'{sentence_good}\', \'{sentence_bad}\'')
 
 
 def get_perc(value, total):
