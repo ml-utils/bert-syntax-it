@@ -392,8 +392,8 @@
 
 {"sentence_good_no_extraction": "Davvero Gianni si chiede se per Luisa il tempo sia passato velocemente?",
   "sentence_bad_extraction": "Di che cosa Gianni si chiede se sia passato velocemente per Luisa?",
-  "sentence_good_extraction_resumption": "",
-  "sentence_good_extraction_as_subject": "Di che cosa Gianni si chiede se sia passato velocemente per Luisa?",
+  "sentence_good_extraction_resumption": "Di che cosa Gianni si chiede se sia passato velocemente per Luisa?",
+  "sentence_good_extraction_as_subject": "",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -508,16 +508,7 @@
   "linguistics_term": "island_effects",
   "UID": "wh_island",
   "island_subcategory": "whether_island",
-  "pairID": "50"},
+  "pairID": "50"}
 
-     {"sentence_good_no_extraction": "Davvero Gianni si chiede se Luca sa disegnare bene?",
-  "sentence_bad_extraction": "Come Gianni si chiede se Luca sa disegnare?",
-  "sentence_good_extraction_resumption": "",
-  "sentence_good_extraction_as_subject": "",
-  "field": "syntax",
-  "linguistics_term": "island_effects",
-  "UID": "wh_island",
-  "island_subcategory": "whether_island",
-  "pairID": "51"}
 ]
 }

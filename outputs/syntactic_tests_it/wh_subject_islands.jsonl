@@ -363,8 +363,8 @@
   "pairID": "35"},
 
   {"sentence_good_no_extraction": "Sostieni che le foto di quell’artista abbiano scandalizzato il pubblico?",
-  "sentence_bad_extraction": "Di chi Sostieni che le foto abbiano scandalizzato il pubblico?",
-  "sentence_good_no_island": "Le foto di chi pensi abbiano scandalizzato il pubblico?",
+  "sentence_bad_extraction": "Di chi sostieni che le foto abbiano scandalizzato il pubblico?",
+  "sentence_good_no_island": "Le foto di chi sostieni abbiano scandalizzato il pubblico?",
   "sentence_good_no_island_as_subject": "",
   "field": "syntax",
   "linguistics_term": "island_effects",

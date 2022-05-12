@@ -21,7 +21,7 @@
   "pairID": "1"},
 
       {"sentence_good_no_extraction": "Hai fatto l’affermazione che io avrei rubato una macchina?",
-  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che io avrei rubato",
+  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che io avrei rubato?",
   "sentence_good_no_island": "L'altro giorno, cosa hai affermato che io avrei rubato?",
   "sentence_good_no_island_as_subject": "Cosa hai affermato che è stata rubata da me?",
   "field": "syntax",
@@ -90,7 +90,7 @@
   "island_subcategory": "whether_island",
   "pairID": "8"},
 
-            {"sentence_good_no_extraction": "Gianni ha fatto l’avermazione che Luisa ha visto la camera di Carla?",
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha visto la camera di Carla?",
   "sentence_bad_extraction": "Che cosa Gianni ha fatto l’affermazione che Luisa ha visto?",
   "sentence_good_no_island": "Che cosa Gianni ha affermato che Luisa ha visto?",
   "sentence_good_no_island_as_subject": "Che cosa Gianni ha affermato che è stata vista da Luisa?",
@@ -113,7 +113,7 @@
   {"sentence_good_no_extraction": "Conoscevi la novità che ti avrebbero affidato l’incarico?",
   "sentence_bad_extraction": "Cosa conoscevi la novità che ti avrebbero affidato?",
   "sentence_good_no_island": "Cosa sapevi che ti avrebbero affidato?",
-  "sentence_good_no_island_as_subject": "Cosa ti era noto che ti avrebbero affidato",
+  "sentence_good_no_island_as_subject": "Cosa ti era noto che ti avrebbero affidato?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -263,7 +263,7 @@
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che i dirigenti hanno deliberatamente eluso la disposizione ministeriale?",
   "sentence_bad_extraction": "Che cosa Gianni ha fatto l’affermazione che i dirigenti hanno deliberatamente eluso?",
   "sentence_good_no_island": "Che cosa l'altro Gianni ha affermato che i dirigenti hanno deliberatamente eluso?",
-  "sentence_good_no_island_as_subject": "Che cosa l'altro Gianni ha affermato che è stata deliberatamente elusa dai dirigenti",
+  "sentence_good_no_island_as_subject": "Che cosa l'altro Gianni ha affermato che è stata deliberatamente elusa dai dirigenti?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -332,7 +332,7 @@
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha citato quell’articolo di legge?",
   "sentence_bad_extraction": "Che cosa Gianni ha fatto l’affermazione che Luisa ha citato?",
-  "sentence_good_no_island": "Che cosa Gianni ha affermato che Luisa ha citato",
+  "sentence_good_no_island": "Che cosa Gianni ha affermato che Luisa ha citato?",
   "sentence_good_no_island_as_subject": "Che cosa Gianni ha affermato che è stato citato da Luisa?",
   "field": "syntax",
   "linguistics_term": "island_effects",
@@ -501,7 +501,7 @@
   "pairID": "49"},
 
   {"sentence_good_no_extraction": "Chi conosceva la novità che avrebbero affidato a te l’incarico?",
-  "sentence_bad_extraction": "A chi conoscevi la novita che avrebbero affidato l’incarico?",
+  "sentence_bad_extraction": "A chi conoscevi la novità che avrebbero affidato l’incarico?",
   "sentence_good_no_island": "Di chi sapevi già che gli sarebbe stato affidato l’incarico?",
   "sentence_good_no_island_as_subject": "",
   "field": "syntax",
@@ -542,7 +542,7 @@
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Mario ha litigato con il Preside?",
   "sentence_bad_extraction": "Con chi Gianni ha fatto l’affermazione che Mario ha litigato?",
-  "sentence_good_no_island": "",
+  "sentence_good_no_island": "Con chi Gianni ha affermato che Mario ha litigato?",
   "sentence_good_no_island_as_subject": "",
   "field": "syntax",
   "linguistics_term": "island_effects",

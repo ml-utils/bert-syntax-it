@@ -245,7 +245,7 @@
     "island_subcategory": "whether_island",
     "pairID": "24"},
 
-  {"sentence_good_no_extraction": "La commissione ha escluso quei candidati  dopo averne accertato le scorrettezze.",
+  {"sentence_good_no_extraction": "La commissione ha escluso quei candidati dopo averne accertato le scorrettezze.",
     "sentence_bad_extraction": "Che cosa la commissione ha escluso quei candidati dopo averne accertato?",
     "sentence_good_no_island": "Dopo averne accertato cosa la commissione ha escluso quei candidati ?",
     "field": "syntax",
