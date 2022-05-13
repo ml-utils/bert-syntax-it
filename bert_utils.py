@@ -72,14 +72,14 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     tokens_by_sentence, oov_counts = __get_example_tokens_and_oov_counts(tokenizer, sentences)
     __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence)
 
-    sentence_probability_estimates, logitis_by_sentence, sentences_estimates_normalized_logitis \
+    penLP_by_sentence, words_logitis_by_sentence, normalized_logitis_by_sentence \
         = __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence)
 
     base_sentence_less_acceptable, second_sentence_less_acceptable, \
     acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
-           penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
-           logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence \
-        = __get_acceptability_diffs(bert, tokenizer, sentence_probability_estimates, sentences_estimates_normalized_logitis,
+    penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
+    logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence \
+        = __get_acceptability_diffs(bert, tokenizer, penLP_by_sentence, normalized_logitis_by_sentence,
                                     example_idx, oov_counts, sentences, tokens_by_sentence)
 
     return base_sentence_less_acceptable, second_sentence_less_acceptable, \
@@ -87,7 +87,8 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
            penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
            logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence, \
            oov_counts
-    # todo: check if the lp (log prob) calculation is the same as in the perper Lau et al. 2020) for estimating sentence probability
+    # todo: check if the lp (log prob) calculation is the same as in the perper Lau et al. 2020)
+    #  for estimating sentence probability
     # check also if it reproduces the results from the paper (for english bert), and greenberg, and others
     # check differences btw english and italian bert
     # check diff btw bert base and large
@@ -107,29 +108,29 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
 
 
 def __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence):
-    sentence_probability_estimates = []
-    logitis_by_sentence = []
+    penLP_by_sentence = []
+    words_logitis_by_sentence = []
     max_logitis = 0
     for sentence_idx, sentence in enumerate(sentences):
         if sentence is not None and len(sentence) > 0:
             # prob = estimate_sentence_probability_from_text(bert, tokenizer, sentence)
-            pen_lp, logitis_nonnegative = get_sentence_scores(bert, tokenizer, sentence,
+            pen_lp, logitis_nonnegative_for_each_word = get_sentence_scores(bert, tokenizer, sentence,
                                                               tokens_by_sentence[sentence_idx])
-            sentence_probability_estimates.append(pen_lp)
-            logitis_by_sentence.append(logitis_nonnegative)
-            if max(logitis_nonnegative) > max_logitis:
-                max_logitis = max(logitis_nonnegative)
+            penLP_by_sentence.append(pen_lp)
+            words_logitis_by_sentence.append(logitis_nonnegative_for_each_word)
+            if max(logitis_nonnegative_for_each_word) > max_logitis:
+                max_logitis = max(logitis_nonnegative_for_each_word)
     normalized_logitis_by_sentence = []
-    sentences_estimates_normalized_logitis = []
-    for sentence_idx, sentence_logitis in enumerate(logitis_by_sentence):
+    normalized_logitis_by_sentence = []
+    for sentence_idx, sentence_logitis in enumerate(words_logitis_by_sentence):
         normalized_logitis_by_sentence.append([word_logitis / max_logitis for word_logitis in sentence_logitis])
         this_sentence_estimate_normalized_logitis = 0
         for word_logitis in normalized_logitis_by_sentence[sentence_idx]:
             # do math.log of each word score and add to the total
             this_sentence_estimate_normalized_logitis += math.log(word_logitis)
-        sentences_estimates_normalized_logitis.append(this_sentence_estimate_normalized_logitis)
+        normalized_logitis_by_sentence.append(this_sentence_estimate_normalized_logitis)
 
-    return sentence_probability_estimates, logitis_by_sentence, sentences_estimates_normalized_logitis
+    return penLP_by_sentence, words_logitis_by_sentence, normalized_logitis_by_sentence
 
 
 def __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence):
