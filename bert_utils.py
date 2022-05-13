@@ -165,6 +165,15 @@ def __get_example_tokens_and_oov_counts(tokenizer, sentences):
     return tokens_by_sentence, oov_counts
 
 
+def get_score_descr(score_based_on):
+    if score_based_on == sentence_score_bases.SOFTMAX:
+        return 'PenLP'
+    elif score_based_on == sentence_score_bases.NORMALIZED_LOGITIS:
+        return 'PenNormLogitis'
+    else:
+        return score_based_on
+
+
 def __get_acceptability_diffs(bert, tokenizer, penLP_by_sentence, normalized_logitis_by_sentence,
                               example_idx, oov_counts, sentences, tokens_by_sentence,
                               score_based_on=sentence_score_bases.SOFTMAX):
@@ -172,6 +181,7 @@ def __get_acceptability_diffs(bert, tokenizer, penLP_by_sentence, normalized_log
         score_by_sentence = penLP_by_sentence
     elif score_based_on == sentence_score_bases.NORMALIZED_LOGITIS:
         score_by_sentence = normalized_logitis_by_sentence
+    score_descr = get_score_descr(score_based_on)
 
     score_bad_sentence = score_by_sentence[SENTENCE_BAD_EXTRACTION_IDX]
     score_base_sentence = score_by_sentence[GOOD_SENTENCE_1_IDX]
@@ -193,7 +203,7 @@ def __get_acceptability_diffs(bert, tokenizer, penLP_by_sentence, normalized_log
         if sentence_score < score_bad_sentence:
             print_orange(f'\nexample {example_idx} (oov_count: {oov_counts}): '
                          f'sentence {sentence_idx} ({sentences[sentence_idx]}, '
-                         f'has less PenLP ({sentence_score:.1f}) '
+                         f'has less {score_descr} ({sentence_score:.1f}) '
                          f'than the bad sentence ({score_bad_sentence:.1f}) ({sentences[SENTENCE_BAD_EXTRACTION_IDX]})')
             sentence_ids = tokenizer.convert_tokens_to_ids(tokens_by_sentence[sentence_idx])
             estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose = True)

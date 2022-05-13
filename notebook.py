@@ -28,6 +28,8 @@ import bert_utils
 from bert_utils import load_testset_data, analize_sentence, get_probs_for_words, tokenize_sentence, \
     estimate_sentence_probability_from_text
 from bert_utils import sentence_score_bases
+from bert_utils import get_score_descr
+
 
 def load_it():
     cc = Counter()
@@ -352,7 +354,7 @@ def main():
                      'wh_whether_island.jsonl'
                      ]
     for test_file in testset_files:
-        run_testset(testsets_dir, test_file, bert, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
+        run_testset(testsets_dir, test_file, bert, tokenizer, score_based_on=sentence_score_bases.NORMALIZED_LOGITIS)
 
     # run_eval(eval_suite, bert, tokenizer)
     #prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
@@ -360,16 +362,6 @@ def main():
     #print(f'prob1: {prob1}, prob2: {prob2}')
     #eval_it(bert, tokenizer)
     #custom_eval("What is your name?", bert, tokenizer)
-
-
-def get_score_descr(score_based_on):
-    if score_based_on == sentence_score_bases.SOFTMAX:
-        return 'PenLP'
-    elif score_based_on == sentence_score_bases.NORMALIZED_LOGITIS:
-        return 'PenNormLogitis'
-    else:
-        return score_based_on
-
 
 def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tokenizer: BertTokenizer,
                 score_based_on=sentence_score_bases.SOFTMAX):
