@@ -362,7 +362,17 @@ def main():
     #custom_eval("What is your name?", bert, tokenizer)
 
 
-def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tokenizer: BertTokenizer):
+def get_score_descr(score_based_on):
+    if score_based_on == 'softmax':
+        return 'PenLP'
+    elif score_based_on == 'normalized_logitis':
+        return 'PenNormLogitis'
+    else:
+        return score_based_on
+
+
+def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tokenizer: BertTokenizer,
+                score_based_on='softmax'):
     filepath = os.path.join(testsets_dir, filename)
     bert_utils.print_orange(f'running test {filepath}')
     testset_data = bert_utils.load_testset_data(filepath)
@@ -380,9 +390,9 @@ def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tok
     no_errors_examples_indexes = []
     examples_by_base_sentence_acceptability_diff = {}
     examples_by_second_sentence_acceptability_diff = {}
-    second_sentences_by_penLP = {}
-    bad_sentences_by_penLP = {}
-    base_sentences_by_penLP = {}
+    second_sentences_by_score = {}
+    bad_sentences_by_score = {}
+    base_sentences_by_score = {}
     for example_idx, sentence_data in enumerate(testset_data['sentences']):
         #print(f"json_str, type: {type(sentence_data)}: {sentence_data}")
         # print_sentence_pairs_probabilities(bert, tokenizer, sentence_data)
@@ -390,19 +400,19 @@ def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tok
         acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
         score_base_sentence, score_bad_sentence, score_2nd_good_sentence, \
         oov_counts \
-            = bert_utils.analize_example(bert, tokenizer, example_idx, sentence_data)
+            = bert_utils.analize_example(bert, tokenizer, example_idx, sentence_data, score_based_on)
         #return
         sentences = bert_utils.get_sentences_from_example(sentence_data)
 
-        second_sentences_by_penLP[score_2nd_good_sentence] = sentences[2]
-        bad_sentences_by_penLP[score_bad_sentence] = sentences[1]
-        base_sentences_by_penLP[score_base_sentence] = sentences[0]
+        second_sentences_by_score[score_2nd_good_sentence] = sentences[2]
+        bad_sentences_by_score[score_bad_sentence] = sentences[1]
+        base_sentences_by_score[score_base_sentence] = sentences[0]
         examples_by_base_sentence_acceptability_diff[acceptability_diff_base_sentence] \
-            = example_as_tuple(example_idx, score_base_sentence, score_bad_sentence, score_2nd_good_sentence,
-               oov_counts, sentences[0], sentences[1])
+            = get_example_analysis_as_tuple(example_idx, score_base_sentence, score_bad_sentence, score_2nd_good_sentence,
+                                            oov_counts, sentences[0], sentences[1])
         examples_by_second_sentence_acceptability_diff[acceptability_diff_second_sentence] \
-            = example_as_tuple(example_idx, score_base_sentence, score_bad_sentence, score_2nd_good_sentence,
-               oov_counts, sentences[2], sentences[1])
+            = get_example_analysis_as_tuple(example_idx, score_base_sentence, score_bad_sentence, score_2nd_good_sentence,
+                                            oov_counts, sentences[2], sentences[1])
 
         if base_sentence_less_acceptable:
             error_count_base_sentence += 1
@@ -414,7 +424,7 @@ def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tok
         else:
             no_errors_examples_indexes.append(example_idx)
 
-    print(f'error count and accuracy rates from {examples_count} examples: '
+    bert_utils.print_red(f'error count and accuracy rates from {examples_count} examples: '
           f'base sentence {error_count_base_sentence} '
           f'(acc: {get_perc(examples_count-error_count_base_sentence, examples_count)}), '
           f'second sentence: {error_count_second_sentence} '
@@ -435,45 +445,47 @@ def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tok
         print(f'{bert_utils.get_sentences_from_example(no_error_example)}')
 
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, second sentence:')
-    for acceprability_diff, example in dict(sorted(examples_by_second_sentence_acceptability_diff.items())).items():
-        print_example(example, acceprability_diff, compare_with_base_sentence=False)
+    for acceprability_diff, example_analysis in dict(sorted(examples_by_second_sentence_acceptability_diff.items())).items():
+        print_example(example_analysis, acceprability_diff, score_based_on, compare_with_base_sentence=False)
 
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, base sentence:')
-    for acceprability_diff, example in dict(sorted(examples_by_base_sentence_acceptability_diff.items())).items():
-        print_example(example, acceprability_diff, compare_with_base_sentence=True)
+    for acceprability_diff, example_analysis in dict(sorted(examples_by_base_sentence_acceptability_diff.items())).items():
+        print_example(example_analysis, acceprability_diff, score_based_on, compare_with_base_sentence=True)
 
-    print_sentences_sorted_by_PenLP(second_sentences_by_penLP, 'second sentences sorted by PenLP:')
-    print_sentences_sorted_by_PenLP(bad_sentences_by_penLP, 'bad sentences sorted by PenLP:')
-    print_sentences_sorted_by_PenLP(base_sentences_by_penLP, 'base sentences sorted by PenLP:')
+    score_descr = get_score_descr(score_based_on)
+    print_sentences_sorted_by_score(second_sentences_by_score, f'second sentences sorted by {score_descr}:')
+    print_sentences_sorted_by_score(bad_sentences_by_score, f'bad sentences sorted by {score_descr}:')
+    print_sentences_sorted_by_score(base_sentences_by_score, f'base sentences sorted by {score_descr}:')
 
 
-def print_sentences_sorted_by_PenLP(sentences_by_penLP, msg):
+def print_sentences_sorted_by_score(sentences_by_score, msg):
     bert_utils.print_orange(msg)
-    for PenLP, sentence in dict(sorted(sentences_by_penLP.items())).items():
-        print(f'{PenLP:.1f} {sentence}')
+    for score, sentence in dict(sorted(sentences_by_score.items())).items():
+        print(f'{score:.1f} {sentence}')
 
 
-def example_as_tuple(example_idx, penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence,
-               oov_counts, sentence_good, sentence_bad):
-    return (example_idx, penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence,
-               oov_counts, sentence_good, sentence_bad)
+def get_example_analysis_as_tuple(example_idx, score_base_sentence, score_bad_sentence, score_2nd_good_sentence,
+                                  oov_counts, sentence_good, sentence_bad):
+    return (example_idx, score_base_sentence, score_bad_sentence, score_2nd_good_sentence,
+            oov_counts, sentence_good, sentence_bad)
 
 
-def print_example(example, acceprability_diff, compare_with_base_sentence = True):
-    example_idx = example[0]
-    penLP_base_sentence = example[1]
-    penLP_bad_sentence = example[2]
-    penLP_2nd_good_sentence = example[3]
-    oov_counts = example[4]
-    sentence_good = example[5]
-    sentence_bad = example[6]
+def print_example(example_analysis, acceprability_diff, score_based_on, compare_with_base_sentence = True):
+    example_idx = example_analysis[0]
+    penLP_base_sentence = example_analysis[1]
+    penLP_bad_sentence = example_analysis[2]
+    penLP_2nd_good_sentence = example_analysis[3]
+    oov_counts = example_analysis[4]
+    sentence_good = example_analysis[5]
+    sentence_bad = example_analysis[6]
     if compare_with_base_sentence:
         diff_descr = 'accept_diff_w_base_sent'
     else:
         diff_descr = 'accept_diff_w_2nd_sent'
 
+    score_descr = get_score_descr(score_based_on)
     print(f'{diff_descr}: {rnd(acceprability_diff,3)}, '
-          f'(PenLP values: {rnd(penLP_base_sentence,1)}, {rnd(penLP_bad_sentence,1)}, {rnd(penLP_2nd_good_sentence,1)}), '
+          f'({score_descr} values: {rnd(penLP_base_sentence,1)}, {rnd(penLP_bad_sentence,1)}, {rnd(penLP_2nd_good_sentence,1)}), '
           f'example (oov_counts: {oov_counts}): ({example_idx}, \'{sentence_good}\', \'{sentence_bad}\'')
 
 
