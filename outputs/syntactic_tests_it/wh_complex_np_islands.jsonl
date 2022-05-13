@@ -7,7 +7,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "0"},
 
     {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che io avrei sollevato un’eccezione?",
@@ -17,7 +17,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "1"},
 
       {"sentence_good_no_extraction": "Hai fatto l’affermazione che io avrei rubato una macchina?",
@@ -27,7 +27,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "2"},
 
       {"sentence_good_no_extraction": "Hai fatto l’indiscrezione che Gianni avrebbe presentato il manoscritto all’editore?",
@@ -37,7 +37,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "3"}
 ,
       {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa avrebbe ristretto i freni della bicicletta?",
@@ -47,7 +47,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "4"},
 
       {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha affidato il caso all’avvocato?",
@@ -57,7 +57,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "5"},
 
         {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha pagato la parcella dell’avvocato?",
@@ -67,7 +67,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "6"},
 
           {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha recensito il libro?",
@@ -77,7 +77,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "7"},
 
           {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che si sono fatti una foto davanti al monumento?",
@@ -87,7 +87,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "8"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha visto la camera di Carla?",
@@ -97,7 +97,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "9"},
 
             {"sentence_good_no_extraction": "Gianni ha difeso la proposta che si vendano le azioni?",
@@ -107,7 +107,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "10"},
 
   {"sentence_good_no_extraction": "Conoscevi la novità che ti avrebbero affidato l’incarico?",
@@ -117,7 +117,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "11"},
 
   {"sentence_good_no_extraction": "Chi ha fatto l’insinuazione che io non avrei letto il libro?",
@@ -127,7 +127,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "12"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto la richiesta che la relazione venga fatta su questo argomento?",
@@ -137,7 +137,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "13"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha riordinato la sua stanza?",
@@ -147,7 +147,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "14"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha lasciato la penna sul tavolo?",
@@ -157,7 +157,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "15"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha trovato il libro molto interessante?",
@@ -167,7 +167,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "16"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che la commissione ha acquisito la documentazione?",
@@ -177,7 +177,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "17"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che non ci possiamo fidare dei sondaggi?",
@@ -187,7 +187,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "18"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa non era al corrente della situazione?",
@@ -197,7 +197,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "19"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha confermato la notizia?",
@@ -207,7 +207,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "20"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha preso la parola?",
@@ -217,7 +217,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "21"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Mario ha mandato una cartolina?",
@@ -227,7 +227,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "22"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa tiene la macchina al mare?",
@@ -237,7 +237,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "23"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha parlato di questo argomento?",
@@ -247,7 +247,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "24"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha parcheggiato l’auto in centro?",
@@ -257,7 +257,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "25"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che i dirigenti hanno deliberatamente eluso la disposizione ministeriale?",
@@ -267,7 +267,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "26"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Carlo si è messo a giocare a carte?",
@@ -277,7 +277,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "27"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha notato l’atteggiamento di Carlo?",
@@ -287,7 +287,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "28"},
 
     {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha tratto l’informazione da questo libro?",
@@ -297,7 +297,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "29"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che l’assessore ha inaugurato l’ospedale?",
@@ -307,7 +307,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "30"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che gli emendamenti sono confluiti nella proposta del gruppo?",
@@ -317,7 +317,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "31"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha fatto riferimento a quell’articolo di legge?",
@@ -327,7 +327,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "32"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha citato quell’articolo di legge?",
@@ -337,7 +337,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "33"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che l’autogrill dista solo pochi chilometri dall’inizio dell’autostrada?",
@@ -347,7 +347,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "34"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha raccolto quelle piante in montagna?",
@@ -357,7 +357,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "35"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha riscritto l’articolo?",
@@ -367,7 +367,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "36"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa cerca un libro da leggere?",
@@ -377,7 +377,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "37"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha versato la quota annuale?",
@@ -387,7 +387,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "38"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che la Francia ha debellato il morbo?",
@@ -397,7 +397,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "39"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa si è sbarazzata del problema?",
@@ -407,7 +407,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "40"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha aguzzato l’ingegno?",
@@ -417,7 +417,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "41"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che da settembre in Italia è aumentata la disoccupazione?",
@@ -427,7 +427,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "42"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa è riuscita a ricavare molti soldi da quel lavoro?",
@@ -437,7 +437,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "43"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha assunto il farmaco a stomaco vuoto?",
@@ -447,7 +447,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "44"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha analizzato l’evento nei minimi dettagli?",
@@ -457,7 +457,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "45"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa cambiato operatore telefonico?",
@@ -467,7 +467,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "46"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che le idee verdi senza colore dormono furiosamente?",
@@ -477,7 +477,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "47"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha eseguito il piano alla pefezione?",
@@ -487,7 +487,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "48"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha progettato una soluzione alternativa?",
@@ -497,7 +497,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "49"},
 
   {"sentence_good_no_extraction": "Chi conosceva la novità che avrebbero affidato a te l’incarico?",
@@ -507,7 +507,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "50"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che la commissione ha escluso quei candidati?",
@@ -517,7 +517,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "51"},
 
   {"sentence_good_no_extraction": "Gianni ha discusso la notizia che l’assessore ha interpellato il sindaco?",
@@ -527,7 +527,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "52"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa non ricorda il cognome di Chiara?",
@@ -537,7 +537,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "53"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Mario ha litigato con il Preside?",
@@ -547,7 +547,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "54"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che l’avvocato abita al piano di sopra?",
@@ -557,7 +557,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "55"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha aspettato Carla davanti alla stazione?",
@@ -567,7 +567,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "56"},
 
   {"sentence_good_no_extraction": "Gianni ha criticato la proposta che l’azienda sia trasferita in Romania?",
@@ -577,7 +577,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "57"},
 
   {"sentence_good_no_extraction": "Gianni ha difeso la proposta che il viaggio sia rimandato a Maggio?",
@@ -587,7 +587,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "58"},
 
   {"sentence_good_no_extraction": "Gianni ha fatto la richiesta che il lavoro fosse fatto velocemente?",
@@ -597,7 +597,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "59"},
 
   {"sentence_good_no_extraction": "Gianni ha avanzato la proposta che la relazione fosse fatta su tale argomento?",
@@ -607,7 +607,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "complex_np_island",
   "pairID": "60"}
 ]
 }

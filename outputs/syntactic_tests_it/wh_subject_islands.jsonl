@@ -6,7 +6,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "0"},
 
   {"sentence_good_no_extraction": "Credi che il bilancio della società abbia un deficit di due milioni?",
@@ -15,7 +15,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "1"},
 
   {"sentence_good_no_extraction": "Sostieni che l’agenda di questa settimana abbia un eccesso di appuntamenti?",
@@ -25,7 +25,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "2"},
 
   {"sentence_good_no_extraction": "Sostieni che l’agenda di Gianni abbia un eccesso di appuntamenti?",
@@ -35,7 +35,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "3"},
 
   {"sentence_good_no_extraction": "Sostieni che il calendario dei lavori sia troppo fitto?",
@@ -45,7 +45,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "4"},
 
   {"sentence_good_no_extraction": "Pensi che la legalizzazione delle droghe ridurrà drasticamente i profitti delle mafie?",
@@ -55,7 +55,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "5"},
 
   {"sentence_good_no_extraction": "Credi che l’utilizzo di energie rinnovabili invertità l’aumento della temperatura globale?",
@@ -65,7 +65,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "6"},
 
   {"sentence_good_no_extraction": "Sostieni che la diffusione delle auto elettriche migliorerà la qualità dell’aria?",
@@ -75,7 +75,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "7"},
 
   {"sentence_good_no_extraction": "Pensi che il consumo di energia causerà un aumento del costo della bolletta?",
@@ -85,7 +85,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "8"},
 
   {"sentence_good_no_extraction": "Credi che la domanda di energia abbia causato un aumento dei prezzi?",
@@ -95,7 +95,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "9"},
 
   {"sentence_good_no_extraction": "Sostieni che il comitato del referendum abbia completato la raccolta delle firme?",
@@ -105,7 +105,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "10"},
 
 
@@ -116,7 +116,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "11"},
 
 
@@ -127,7 +127,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "12"},
 
 
@@ -138,7 +138,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "13"},
 
 
@@ -149,7 +149,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "14"},
 
   {"sentence_good_no_extraction": "Credi che la bici da città abbia le ruote sgonfie?",
@@ -159,7 +159,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "15"},
 
   {"sentence_good_no_extraction": "Sostieni che la catena della bici abbia bisogno di lubrificazione?",
@@ -169,17 +169,17 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "16"},
 
-  {"sentence_good_no_extraction": "Pensi il manuale di linguistica abbia duecento pagine?",
+  {"sentence_good_no_extraction": "Pensi che il manuale di linguistica abbia duecento pagine?",
   "sentence_bad_extraction": "Di che cosa pensi che il manuale abbia duecento pagine?",
   "sentence_good_no_island": "Il manuale di che cosa pensi che abbia duecento pagine?",
   "sentence_good_no_island_as_subject": "",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "17"},
 
   {"sentence_good_no_extraction": "Credi che l’ascensore dell’edificio abbia una capienza di dieci persone?",
@@ -189,7 +189,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "18"},
 
   {"sentence_good_no_extraction": "Sostieni che il problema di matematica abbia piu' di una soluzione?",
@@ -199,7 +199,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "19"},
 
   {"sentence_good_no_extraction": "Pensi che la ricetta del farmaco contenga un errore della azienda ospedaliera?",
@@ -209,7 +209,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "20"},
 
   {"sentence_good_no_extraction": "Credi che l'indice di disoccupazione abbia subito un incremento di diversi punti?",
@@ -219,7 +219,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "21"},
 
   {"sentence_good_no_extraction": "Sostieni che le modalità di esame abbiano causato notevoli problemi?",
@@ -229,7 +229,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "22"},
 
   {"sentence_good_no_extraction": "Pensi che le uova da bere siano le più fresche?",
@@ -239,7 +239,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "23"},
 
   {"sentence_good_no_extraction": "Credi che il trasferimento dell’azienda sia stato deciso?",
@@ -249,7 +249,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "24"},
 
   {"sentence_good_no_extraction": "Sostieni che la torta di mele abbia causato un problema di stomaco?",
@@ -259,7 +259,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "25"},
 
   {"sentence_good_no_extraction": "Pensi che la borsa di tela si abbini bene col vestito di cotone?",
@@ -269,7 +269,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "26"},
 
   {"sentence_good_no_extraction": "Credi che l’autore del libro sia sopravvalutato?",
@@ -279,7 +279,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "27"},
 
   {"sentence_good_no_extraction": "Sostieni che lo sciroppo contro la tosse abbia causato quegli effetti collaterali?",
@@ -289,7 +289,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "28"},
 
   {"sentence_good_no_extraction": "Pensi che il piatto di ceramica sia più fragile del barattolo di vetro?",
@@ -299,7 +299,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "29"},
 
   {"sentence_good_no_extraction": "Credi che la la cinghia di trasmissione interferisca con l'albero del motore?",
@@ -309,7 +309,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "30"},
 
   {"sentence_good_no_extraction": "Sostieni che l’indice del documento vada aggiornato?",
@@ -319,7 +319,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "31"},
 
   {"sentence_good_no_extraction": "Pensi che l’incertezza di Gianni vada a vantaggio degli interessi di Luisa?",
@@ -329,7 +329,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "32"},
 
   {"sentence_good_no_extraction": "Di chi credi che il quadro di Maria raffiguri la nascita di Venere?",
@@ -339,7 +339,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "33"},
 
   {"sentence_good_no_extraction": "Sostieni che la risposta di Luisa getti luce sul nocciolo del problema?",
@@ -349,7 +349,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "34"},
 
   {"sentence_good_no_extraction": "Credi che l'abbonamento di Luisa sia aumentato di prezzo?",
@@ -359,7 +359,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "35"},
 
   {"sentence_good_no_extraction": "Sostieni che le foto di quell’artista abbiano scandalizzato il pubblico?",
@@ -369,7 +369,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "36"},
 
   {"sentence_good_no_extraction": "Pensi che i libri di quell’autore abbiano causato tanta polemica?",
@@ -379,7 +379,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "37"},
 
   {"sentence_good_no_extraction": "Credi che la storia su Gianni abbia divertito Luisa?",
@@ -389,7 +389,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "38"},
 
   {"sentence_good_no_extraction": "Sostieni che il l’indirizzo di Chiara sia difficile da ricordare?",
@@ -399,7 +399,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "39"},
 
   {"sentence_good_no_extraction": "Credi che la riunione con i colleghi sia stata interrotta con una scusa?",
@@ -409,7 +409,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "40"},
 
   {"sentence_good_no_extraction": "Pensi che il regalo del lobbista abbia suscitato la voce sul senatore?",
@@ -419,7 +419,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "41"},
 
   {"sentence_good_no_extraction": "Sostieni che il voto di Gianni gli abbia alzato la media di un punto?",
@@ -429,7 +429,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "42"},
 
   {"sentence_good_no_extraction": "Credi che la promozione di Gianni abbia aumentato la possibilità di andare in vacanza?",
@@ -439,7 +439,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "43"},
 
   {"sentence_good_no_extraction": "Pensi che l’intenzione di Gianni sia di supportare la scelta di Luisa?",
@@ -449,7 +449,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "44"},
 
   {"sentence_good_no_extraction": "Sostieni che il treno delle quattro venga da Milano?",
@@ -459,7 +459,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "45"},
 
   {"sentence_good_no_extraction": "Credi che i giornali di oggi siano già in edicola?",
@@ -469,7 +469,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "46"},
 
   {"sentence_good_no_extraction": "Pensi che il treno per Milano parta alle quattro?",
@@ -479,7 +479,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "47"},
 
   {"sentence_good_no_extraction": "Sostieni che il viaggio a Parigi sia stato rimandato a Maggio?",
@@ -489,7 +489,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "48"},
 
   {"sentence_good_no_extraction": "Credi che la gita nel bosco sarà finita entro sera?",
@@ -499,7 +499,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "49"},
 
   {"sentence_good_no_extraction": "Come pensi che la riunione di ieri sia finita?",
@@ -509,7 +509,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "50"},
 
   {"sentence_good_no_extraction": "Sostieni che il patrimonio di Luisa sia aumentato di valore?",
@@ -519,7 +519,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "whether_island",
+  "island_subcategory": "subject_island",
   "pairID": "51"}
 ]
 }
