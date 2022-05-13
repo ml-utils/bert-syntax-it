@@ -118,17 +118,18 @@ def __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence):
             words_logitis_by_sentence.append(logitis_nonnegative_for_each_word)
             if max(logitis_nonnegative_for_each_word) > max_logitis:
                 max_logitis = max(logitis_nonnegative_for_each_word)
-    normalized_logitis_by_sentence = []
-    normalized_logitis_by_sentence = []
+    words_normalized_logitis_by_sentence = []
+    sentences_estimates_normalized_logitis = []
     for sentence_idx, sentence_logitis in enumerate(words_logitis_by_sentence):
-        normalized_logitis_by_sentence.append([word_logitis / max_logitis for word_logitis in sentence_logitis])
+        words_normalized_logitis_by_sentence.append([word_logitis / max_logitis for word_logitis in sentence_logitis])
         this_sentence_estimate_normalized_logitis = 0
-        for word_logitis in normalized_logitis_by_sentence[sentence_idx]:
+        #print(f'words_normalized_logitis_by_sentence[sentence_idx]: {words_normalized_logitis_by_sentence[sentence_idx]}')
+        for word_logitis in words_normalized_logitis_by_sentence[sentence_idx]:
             # do math.log of each word score and add to the total
             this_sentence_estimate_normalized_logitis += math.log(word_logitis)
-        normalized_logitis_by_sentence.append(this_sentence_estimate_normalized_logitis)
+        sentences_estimates_normalized_logitis .append(this_sentence_estimate_normalized_logitis)
 
-    return penLP_by_sentence, words_logitis_by_sentence, normalized_logitis_by_sentence
+    return penLP_by_sentence, words_logitis_by_sentence, sentences_estimates_normalized_logitis
 
 
 def __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence):

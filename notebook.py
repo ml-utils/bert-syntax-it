@@ -388,21 +388,20 @@ def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tok
         # print_sentence_pairs_probabilities(bert, tokenizer, sentence_data)
         base_sentence_less_acceptable, second_sentence_less_acceptable, \
         acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
-        penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
-        logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence, \
+        score_base_sentence, score_bad_sentence, score_2nd_good_sentence, \
         oov_counts \
             = bert_utils.analize_example(bert, tokenizer, example_idx, sentence_data)
         #return
         sentences = bert_utils.get_sentences_from_example(sentence_data)
 
-        second_sentences_by_penLP[penLP_2nd_good_sentence] = sentences[2]
-        bad_sentences_by_penLP[penLP_bad_sentence] = sentences[1]
-        base_sentences_by_penLP[penLP_base_sentence] = sentences[0]
+        second_sentences_by_penLP[score_2nd_good_sentence] = sentences[2]
+        bad_sentences_by_penLP[score_bad_sentence] = sentences[1]
+        base_sentences_by_penLP[score_base_sentence] = sentences[0]
         examples_by_base_sentence_acceptability_diff[acceptability_diff_base_sentence] \
-            = example_as_tuple(example_idx, penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence,
+            = example_as_tuple(example_idx, score_base_sentence, score_bad_sentence, score_2nd_good_sentence,
                oov_counts, sentences[0], sentences[1])
         examples_by_second_sentence_acceptability_diff[acceptability_diff_second_sentence] \
-            = example_as_tuple(example_idx, penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence,
+            = example_as_tuple(example_idx, score_base_sentence, score_bad_sentence, score_2nd_good_sentence,
                oov_counts, sentences[2], sentences[1])
 
         if base_sentence_less_acceptable:
