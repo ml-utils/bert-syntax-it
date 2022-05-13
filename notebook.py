@@ -27,7 +27,7 @@ from pytorch_pretrained_bert.modeling import BertPreTrainedModel
 import bert_utils
 from bert_utils import load_testset_data, analize_sentence, get_probs_for_words, tokenize_sentence, \
     estimate_sentence_probability_from_text
-
+from bert_utils import sentence_score_bases
 
 def load_it():
     cc = Counter()
@@ -352,7 +352,7 @@ def main():
                      'wh_whether_island.jsonl'
                      ]
     for test_file in testset_files:
-        run_testset(testsets_dir, test_file, bert, tokenizer)
+        run_testset(testsets_dir, test_file, bert, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
 
     # run_eval(eval_suite, bert, tokenizer)
     #prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
@@ -363,16 +363,16 @@ def main():
 
 
 def get_score_descr(score_based_on):
-    if score_based_on == 'softmax':
+    if score_based_on == sentence_score_bases.SOFTMAX:
         return 'PenLP'
-    elif score_based_on == 'normalized_logitis':
+    elif score_based_on == sentence_score_bases.NORMALIZED_LOGITIS:
         return 'PenNormLogitis'
     else:
         return score_based_on
 
 
 def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tokenizer: BertTokenizer,
-                score_based_on='softmax'):
+                score_based_on=sentence_score_bases.SOFTMAX):
     filepath = os.path.join(testsets_dir, filename)
     bert_utils.print_orange(f'running test {filepath}')
     testset_data = bert_utils.load_testset_data(filepath)

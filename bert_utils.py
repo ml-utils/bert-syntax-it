@@ -15,6 +15,11 @@ GOOD_SENTENCE_2_IDX = 2
 UNK_TOKEN = '[UNK]'
 
 
+class sentence_score_bases:
+    SOFTMAX = 0
+    NORMALIZED_LOGITIS = 1
+
+
 def load_testset_data(file_path):
     with open(file_path, mode='r', encoding="utf-8") as json_file:
         #json_list = list(json_file)
@@ -60,7 +65,7 @@ def get_sentences_from_example(example : dict):
 
 
 def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example_idx: int, example,
-                    score_based_on='softmax'):
+                    score_based_on=sentence_score_bases.SOFTMAX):
     """
     :param bert:
     :param tokenizer:
@@ -161,10 +166,11 @@ def __get_example_tokens_and_oov_counts(tokenizer, sentences):
 
 
 def __get_acceptability_diffs(bert, tokenizer, penLP_by_sentence, normalized_logitis_by_sentence,
-                              example_idx, oov_counts, sentences, tokens_by_sentence, score_based_on='softmax'):
-    if score_based_on == 'softmax':
+                              example_idx, oov_counts, sentences, tokens_by_sentence,
+                              score_based_on=sentence_score_bases.SOFTMAX):
+    if score_based_on == sentence_score_bases.SOFTMAX:
         score_by_sentence = penLP_by_sentence
-    elif score_based_on == 'normalized_logitis':
+    elif score_based_on == sentence_score_bases.NORMALIZED_LOGITIS:
         score_by_sentence = normalized_logitis_by_sentence
 
     score_bad_sentence = score_by_sentence[SENTENCE_BAD_EXTRACTION_IDX]
@@ -211,6 +217,8 @@ def count_split_words_in_sentence(sentence_tokens):
             split_words_in_sentence += 1
             token_of_previously_counted_split_word = True
     return split_words_in_sentence
+
+
 
 
 class bcolors:
@@ -502,7 +510,8 @@ def get_probs_for_words(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sen
 
 
 def get_sentence_probs_from_word_ids(bert: BertPreTrainedModel, tokenizer: BertTokenizer,
-                                     sentence_ids, masked_words_ids, masked_word_idx, scorebase = 'softmax'):
+                                     sentence_ids, masked_words_ids, masked_word_idx,
+                                     scorebase=sentence_score_bases.SOFTMAX):
     """
 
     :param bert:
@@ -522,10 +531,10 @@ def get_sentence_probs_from_word_ids(bert: BertPreTrainedModel, tokenizer: BertT
     # todo: implement for logitis_nonnegative
     # needs the max value among the two sentences to compare
 
-    if scorebase == 'softmax':
+    if scorebase == sentence_score_bases.SOFTMAX:
         scores = __get_scores_from_word_ids(res_softmax, masked_words_ids)
-    elif scorebase == 'logitis':
-        scores = __get_scores_from_word_ids(logitis,masked_words_ids)
+    elif scorebase == sentence_score_bases.NORMALIZED_LOGITIS:
+        scores = __get_scores_from_word_ids(logitis, masked_words_ids)
     else:
         raise Exception('Error, no scorebase defined.')
 
