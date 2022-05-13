@@ -12,6 +12,7 @@ import numpy as np
 GOOD_SENTENCE_1_IDX = 0
 SENTENCE_BAD_EXTRACTION_IDX = 1
 GOOD_SENTENCE_2_IDX = 2
+UNK_TOKEN = '[UNK]'
 
 
 def load_testset_data(file_path):
@@ -63,36 +64,13 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     """
     :param bert:
     :param tokenizer:
-    :param example: four sentences of an example
+    :param example: 2-4 sentences of an example
     :return:
     """
 
     sentences = get_sentences_from_example(example)
-
-    unk_token = '[UNK]'
-
-    tokens_by_sentence = []
-    oov_counts = []
-    for sentence in sentences:
-        if sentence is not None:
-            tokens = tokenizer.tokenize(sentence)
-            tokens_by_sentence.append(tokens)
-            oov_counts.append(count_split_words_in_sentence(tokens))
-
-    for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
-        if unk_token in sentence_tokens:
-            print_red(f'this sentence {sentence_idx} ({sentences[sentence_idx]}) has at least an UNK token: '
-                  f'{sentences[sentence_idx]}')
-
-    # the ungrammatical sentence must not be shorter than the other three sentences
-    sentence_bad_tokens_count = len(tokens_by_sentence[SENTENCE_BAD_EXTRACTION_IDX])
-    for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
-        if len(sentence_tokens) < sentence_bad_tokens_count:
-            print(f'example {example_idx}:  sentence {sentence_idx} ({sentences[sentence_idx]}) has less tokens '
-                  f'({len(sentence_tokens)}) '
-                  f'than the bad sentence ({sentence_bad_tokens_count})')
-        if len(sentence_tokens) == 0:
-            print(sentences[SENTENCE_BAD_EXTRACTION_IDX])
+    tokens_by_sentence, oov_counts = __get_example_tokens_and_oov_counts(tokenizer, sentences)
+    __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence)
 
     # todo: check if the bad sentence has higher probability estimate than the other three
     sentence_probability_estimates = []
@@ -120,8 +98,8 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
            penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
            logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence \
-        = get_acceptability_diffs(bert, tokenizer, sentence_probability_estimates, sentences_estimates_normalized_logitis,
-                            example_idx, oov_counts, sentences, tokens_by_sentence)
+        = __get_acceptability_diffs(bert, tokenizer, sentence_probability_estimates, sentences_estimates_normalized_logitis,
+                                    example_idx, oov_counts, sentences, tokens_by_sentence)
 
     return base_sentence_less_acceptable, second_sentence_less_acceptable, \
            acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
@@ -147,8 +125,35 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     # ..
 
 
-def get_acceptability_diffs(bert, tokenizer, sentence_probability_estimates, sentences_estimates_normalized_logitis,
-                            example_idx, oov_counts, sentences, tokens_by_sentence):
+def __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence):
+    for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
+        if UNK_TOKEN in sentence_tokens:
+            print_red(f'this sentence {sentence_idx} ({sentences[sentence_idx]}) has at least an UNK token: '
+                      f'{sentences[sentence_idx]}')
+
+    # the ungrammatical sentence must not be shorter than the other three sentences
+    sentence_bad_tokens_count = len(tokens_by_sentence[SENTENCE_BAD_EXTRACTION_IDX])
+    for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
+        if len(sentence_tokens) < sentence_bad_tokens_count:
+            print(f'example {example_idx}:  sentence {sentence_idx} ({sentences[sentence_idx]}) has less tokens '
+                  f'({len(sentence_tokens)}) '
+                  f'than the bad sentence ({sentence_bad_tokens_count})')
+        if len(sentence_tokens) == 0:
+            print(sentences[SENTENCE_BAD_EXTRACTION_IDX])
+
+
+def __get_example_tokens_and_oov_counts(tokenizer, sentences):
+    tokens_by_sentence = []
+    oov_counts = []
+    for sentence in sentences:
+        if sentence is not None:
+            tokens = tokenizer.tokenize(sentence)
+            tokens_by_sentence.append(tokens)
+            oov_counts.append(count_split_words_in_sentence(tokens))
+    return tokens_by_sentence, oov_counts
+
+def __get_acceptability_diffs(bert, tokenizer, sentence_probability_estimates, sentences_estimates_normalized_logitis,
+                              example_idx, oov_counts, sentences, tokens_by_sentence):
     penLP_bad_sentence = sentence_probability_estimates[SENTENCE_BAD_EXTRACTION_IDX]
     penLP_base_sentence = sentence_probability_estimates[GOOD_SENTENCE_1_IDX]
     logitis_normalized_bad_sentence = sentences_estimates_normalized_logitis[SENTENCE_BAD_EXTRACTION_IDX]
@@ -256,11 +261,11 @@ def check_unknown_words(tokenizer: BertTokenizer):
     # NB: the uncased model also strips any accent markers from words. Use bert cased.
 
     words_to_check = ['è']
-    print_token_info(tokenizer, '[UNK]')
-    unk = '[UNK]'
-    unk_tokens = tokenizer.tokenize(unk)
+    print_token_info(tokenizer, UNK_TOKEN)
+
+    unk_tokens = tokenizer.tokenize(UNK_TOKEN)
     unk_id = tokenizer.convert_tokens_to_ids(unk_tokens)
-    print(f'token {unk} ({unk_tokens}) has ids {unk_id}')
+    print(f'token {UNK_TOKEN} ({unk_tokens}) has ids {unk_id}')
     print_token_info(tokenizer, 'riparata')
     print_token_info(tokenizer, 'non')
     print_token_info(tokenizer, 'che')
