@@ -77,15 +77,13 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
 
     base_sentence_less_acceptable, second_sentence_less_acceptable, \
     acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
-    penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
-    logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence \
+    score_base_sentence, score_bad_sentence, score_2nd_good_sentence, \
         = __get_acceptability_diffs(bert, tokenizer, penLP_by_sentence, normalized_logitis_by_sentence,
-                                    example_idx, oov_counts, sentences, tokens_by_sentence)
+                                    example_idx, oov_counts, sentences, tokens_by_sentence, score_based_on)
 
     return base_sentence_less_acceptable, second_sentence_less_acceptable, \
            acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
-           penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
-           logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence, \
+           score_base_sentence, score_bad_sentence, score_2nd_good_sentence, \
            oov_counts
     # todo: check if the lp (log prob) calculation is the same as in the perper Lau et al. 2020)
     #  for estimating sentence probability
@@ -160,34 +158,36 @@ def __get_example_tokens_and_oov_counts(tokenizer, sentences):
             oov_counts.append(count_split_words_in_sentence(tokens))
     return tokens_by_sentence, oov_counts
 
-def __get_acceptability_diffs(bert, tokenizer, sentence_probability_estimates, sentences_estimates_normalized_logitis,
-                              example_idx, oov_counts, sentences, tokens_by_sentence):
-    penLP_bad_sentence = sentence_probability_estimates[SENTENCE_BAD_EXTRACTION_IDX]
-    penLP_base_sentence = sentence_probability_estimates[GOOD_SENTENCE_1_IDX]
-    logitis_normalized_bad_sentence = sentences_estimates_normalized_logitis[SENTENCE_BAD_EXTRACTION_IDX]
-    logitis_normalized_base_sentence = sentences_estimates_normalized_logitis[GOOD_SENTENCE_1_IDX]
 
-    penLP_2nd_good_sentence = None
-    logitis_normalized_2nd_good_sentence = None
-    if len(sentence_probability_estimates) > 2:
-        penLP_2nd_good_sentence = sentence_probability_estimates[GOOD_SENTENCE_2_IDX]
-        logitis_normalized_2nd_good_sentence = sentences_estimates_normalized_logitis[GOOD_SENTENCE_2_IDX]
+def __get_acceptability_diffs(bert, tokenizer, penLP_by_sentence, normalized_logitis_by_sentence,
+                              example_idx, oov_counts, sentences, tokens_by_sentence, score_based_on='softmax'):
+    if score_based_on == 'softmax':
+        score_by_sentence = penLP_by_sentence
+    elif score_based_on == 'normalized_logitis':
+        score_by_sentence = normalized_logitis_by_sentence
+
+    score_bad_sentence = score_by_sentence[SENTENCE_BAD_EXTRACTION_IDX]
+    score_base_sentence = score_by_sentence[GOOD_SENTENCE_1_IDX]
+    score_2nd_good_sentence = None
+
+    if len(score_by_sentence) > 2:
+        score_2nd_good_sentence = score_by_sentence[GOOD_SENTENCE_2_IDX]
 
     base_sentence_less_acceptable = False
     second_sentence_less_acceptable = False
     acceptability_diff_base_sentence = 0
     acceptability_diff_second_sentence = 0
-    for sentence_idx, sentence_prob in enumerate(sentence_probability_estimates):
-        if sentence_idx == 0:
-            acceptability_diff_base_sentence = sentence_prob - penLP_bad_sentence
-        elif sentence_idx == 2:
-            acceptability_diff_second_sentence = sentence_prob - penLP_bad_sentence
+    for sentence_idx, sentence_score in enumerate(score_by_sentence):
+        if sentence_idx == GOOD_SENTENCE_1_IDX:
+            acceptability_diff_base_sentence = sentence_score - score_bad_sentence
+        elif sentence_idx == GOOD_SENTENCE_2_IDX:
+            acceptability_diff_second_sentence = sentence_score - score_bad_sentence
 
-        if sentence_prob < penLP_bad_sentence:
+        if sentence_score < score_bad_sentence:
             print_orange(f'\nexample {example_idx} (oov_count: {oov_counts}): '
                          f'sentence {sentence_idx} ({sentences[sentence_idx]}, '
-                         f'has less PenLP ({sentence_prob:.1f}) '
-                         f'than the bad sentence ({penLP_bad_sentence:.1f}) ({sentences[SENTENCE_BAD_EXTRACTION_IDX]})')
+                         f'has less PenLP ({sentence_score:.1f}) '
+                         f'than the bad sentence ({score_bad_sentence:.1f}) ({sentences[SENTENCE_BAD_EXTRACTION_IDX]})')
             sentence_ids = tokenizer.convert_tokens_to_ids(tokens_by_sentence[sentence_idx])
             estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose = True)
             if sentence_idx == 0:
@@ -197,8 +197,7 @@ def __get_acceptability_diffs(bert, tokenizer, sentence_probability_estimates, s
 
     return base_sentence_less_acceptable, second_sentence_less_acceptable, \
            acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
-           penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
-           logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence
+           score_base_sentence, score_bad_sentence, score_2nd_good_sentence
 
 
 def count_split_words_in_sentence(sentence_tokens):
