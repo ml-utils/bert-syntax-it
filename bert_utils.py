@@ -72,27 +72,8 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     tokens_by_sentence, oov_counts = __get_example_tokens_and_oov_counts(tokenizer, sentences)
     __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence)
 
-    # todo: check if the bad sentence has higher probability estimate than the other three
-    sentence_probability_estimates = []
-    logitis_by_sentence = []
-    max_logitis = 0
-    for sentence_idx, sentence in enumerate(sentences):
-        if sentence is not None and len(sentence) > 0:
-            # prob = estimate_sentence_probability_from_text(bert, tokenizer, sentence)
-            pen_lp, logitis_nonnegative = get_sentence_scores(bert, tokenizer, sentence, tokens_by_sentence[sentence_idx])
-            sentence_probability_estimates.append(pen_lp)
-            logitis_by_sentence.append(logitis_nonnegative)
-            if max(logitis_nonnegative) > max_logitis:
-                max_logitis = max(logitis_nonnegative)
-    normalized_logitis_by_sentence = []
-    sentences_estimates_normalized_logitis = []
-    for sentence_idx, sentence_logitis in enumerate(logitis_by_sentence):
-        normalized_logitis_by_sentence.append([word_logitis / max_logitis for word_logitis in sentence_logitis])
-        this_sentence_estimate_normalized_logitis = 0
-        for word_logitis in normalized_logitis_by_sentence[sentence_idx]:
-            # do math.log of each word score and add to the total
-            this_sentence_estimate_normalized_logitis += math.log(word_logitis)
-        sentences_estimates_normalized_logitis.append(this_sentence_estimate_normalized_logitis)
+    sentence_probability_estimates, logitis_by_sentence, sentences_estimates_normalized_logitis \
+        = __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence)
 
     base_sentence_less_acceptable, second_sentence_less_acceptable, \
     acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
@@ -123,6 +104,32 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     #
     # todo: skip examples that don't have at least 3 sentences
     # ..
+
+
+def __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence):
+    sentence_probability_estimates = []
+    logitis_by_sentence = []
+    max_logitis = 0
+    for sentence_idx, sentence in enumerate(sentences):
+        if sentence is not None and len(sentence) > 0:
+            # prob = estimate_sentence_probability_from_text(bert, tokenizer, sentence)
+            pen_lp, logitis_nonnegative = get_sentence_scores(bert, tokenizer, sentence,
+                                                              tokens_by_sentence[sentence_idx])
+            sentence_probability_estimates.append(pen_lp)
+            logitis_by_sentence.append(logitis_nonnegative)
+            if max(logitis_nonnegative) > max_logitis:
+                max_logitis = max(logitis_nonnegative)
+    normalized_logitis_by_sentence = []
+    sentences_estimates_normalized_logitis = []
+    for sentence_idx, sentence_logitis in enumerate(logitis_by_sentence):
+        normalized_logitis_by_sentence.append([word_logitis / max_logitis for word_logitis in sentence_logitis])
+        this_sentence_estimate_normalized_logitis = 0
+        for word_logitis in normalized_logitis_by_sentence[sentence_idx]:
+            # do math.log of each word score and add to the total
+            this_sentence_estimate_normalized_logitis += math.log(word_logitis)
+        sentences_estimates_normalized_logitis.append(this_sentence_estimate_normalized_logitis)
+
+    return sentence_probability_estimates, logitis_by_sentence, sentences_estimates_normalized_logitis
 
 
 def __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence):
