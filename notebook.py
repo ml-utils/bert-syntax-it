@@ -376,11 +376,11 @@ def run_tests_lau_et_al():
 def main():
     print('main')
     print('importing gpt_tests..')
-    from gpt_tests import main as main2
+    #from gpt_tests import main as main2
     print('imported.')
-    main2()
+    # main2()
     model_name, eval_suite = arg_parse()
-    # run_tests_it()
+    run_tests_it()
 
     # run_eval(eval_suite, bert, tokenizer)
     #prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
@@ -543,7 +543,7 @@ def interactive_mode():
         base_sentence_less_acceptable, second_sentence_less_acceptable, \
         acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
         penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
-        logitis_normalized_bad_sentence, logitis_normalized_base_sentence, logitis_normalized_2nd_good_sentence, \
+        logits_normalized_bad_sentence, logits_normalized_base_sentence, logits_normalized_2nd_good_sentence, \
         oov_counts \
             = bert_utils.analize_example(bert, tokenizer, -1, example)
         diff_penLP = round(penLP_base_sentence - penLP_bad_sentence, 3)
