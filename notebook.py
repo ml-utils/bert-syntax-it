@@ -326,10 +326,10 @@ def print_sentence_pairs_probabilities(bert: BertPreTrainedModel, tokenizer: Ber
     print(f'prob_sentence_good_extraction_as_subject: {prob_sentence_good_extraction_as_subject}')
 
 
-def main():
-    print('main')
+def run_tests_it():
+    # todo: also run the italian testsets here on Gpt.
+    # Gpt is unidirectional, estimate sentence acceptability on gpt?
 
-    model_name, eval_suite = arg_parse()
     model_name = 'bert-base-uncased'  # NB bert large uncased is about 1GB
     model_name = f'''models/bert-base-italian-uncased/'''
     model_name = f'''models/bert-base-italian-cased/'''
@@ -349,12 +349,38 @@ def main():
     print(f'topk: {topk_tokens}, top_probs: {topk_probs}, topk_probs_nonsoftmax: {topk_probs_nonsoftmax}')
 
     testsets_dir = './outputs/syntactic_tests_it/'
-    testset_files = [#'variations_tests.jsonl',
+    testset_files = [#'variations_tests.jsonl'
                      'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
                      'wh_whether_island.jsonl'
                      ]
     for test_file in testset_files:
-        run_testset(testsets_dir, test_file, bert, tokenizer, score_based_on=sentence_score_bases.NORMALIZED_LOGITIS)
+        run_testset(testsets_dir, test_file, bert, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
+
+
+def run_tests_goldberg():
+    # todo: use sentence acceptability estimates (PenLP e PenNL), and see results on goldberg testset
+    # also for blimp testset with tests non intended for bert, compare with the results on gpt and other models
+    return 0
+
+
+def run_tests_blimp():
+    # todo
+    return 0
+
+
+def run_tests_lau_et_al():
+    # todo
+    return 0
+
+
+def main():
+    print('main')
+    print('importing gpt_tests..')
+    from gpt_tests import main as main2
+    print('imported.')
+    main2()
+    model_name, eval_suite = arg_parse()
+    # run_tests_it()
 
     # run_eval(eval_suite, bert, tokenizer)
     #prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
@@ -362,6 +388,7 @@ def main():
     #print(f'prob1: {prob1}, prob2: {prob2}')
     #eval_it(bert, tokenizer)
     #custom_eval("What is your name?", bert, tokenizer)
+
 
 def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tokenizer: BertTokenizer,
                 score_based_on=sentence_score_bases.SOFTMAX):
