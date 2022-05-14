@@ -17,7 +17,7 @@ UNK_TOKEN = '[UNK]'
 
 class sentence_score_bases:
     SOFTMAX = 0
-    NORMALIZED_LOGITIS = 1
+    NORMALIZED_LOGITS = 1
 
 
 def load_testset_data(file_path):
@@ -168,8 +168,8 @@ def __get_example_tokens_and_oov_counts(tokenizer, sentences):
 def get_score_descr(score_based_on):
     if score_based_on == sentence_score_bases.SOFTMAX:
         return 'PenLP'
-    elif score_based_on == sentence_score_bases.NORMALIZED_LOGITIS:
-        return 'PenNormLogitis'
+    elif score_based_on == sentence_score_bases.NORMALIZED_LOGITS:
+        return 'PenNormLogits'
     else:
         return score_based_on
 
@@ -179,7 +179,7 @@ def __get_acceptability_diffs(bert, tokenizer, penLP_by_sentence, normalized_log
                               score_based_on=sentence_score_bases.SOFTMAX):
     if score_based_on == sentence_score_bases.SOFTMAX:
         score_by_sentence = penLP_by_sentence
-    elif score_based_on == sentence_score_bases.NORMALIZED_LOGITIS:
+    elif score_based_on == sentence_score_bases.NORMALIZED_LOGITS:
         score_by_sentence = normalized_logits_by_sentence
     score_descr = get_score_descr(score_based_on)
 
@@ -543,7 +543,7 @@ def get_sentence_probs_from_word_ids(bert: BertPreTrainedModel, tokenizer: BertT
 
     if scorebase == sentence_score_bases.SOFTMAX:
         scores = __get_scores_from_word_ids(res_softmax, masked_words_ids)
-    elif scorebase == sentence_score_bases.NORMALIZED_LOGITIS:
+    elif scorebase == sentence_score_bases.NORMALIZED_LOGITS:
         scores = __get_scores_from_word_ids(logits, masked_words_ids)
     else:
         raise Exception('Error, no scorebase defined.')
