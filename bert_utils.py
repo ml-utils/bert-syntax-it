@@ -132,8 +132,9 @@ def __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence):
         for word_logits in words_normalized_logits_by_sentence[sentence_idx]:
             # do math.log of each word score and add to the total
             this_sentence_estimate_normalized_logits += math.log(word_logits)
-        sentences_estimates_normalized_logits .append(this_sentence_estimate_normalized_logits)
-
+        this_sentence_estimate_normalized_logits = get_pen_score(this_sentence_estimate_normalized_logits,
+                                                     len(tokens_by_sentence[sentence_idx]))
+        sentences_estimates_normalized_logits.append(this_sentence_estimate_normalized_logits)
     return penLP_by_sentence, words_logits_by_sentence, sentences_estimates_normalized_logits
 
 
@@ -274,9 +275,14 @@ def get_sentence_scores(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sen
     lp, logits_nonnegative = estimate_sentence_probability_from_text(bert, tokenizer, sentence)
     # lp = bert_get_logprobs(sentence_tokens, bert, tokenizer)
     # model_score(tokenize_input, tokenize_context, bert, tokenizer, device, args)
-    penalty = ((5 + text_len) ** 0.8 / (5 + 1) ** 0.8)
-    pen_lp = lp / penalty
+
+    pen_lp = get_pen_score(lp, text_len)
     return pen_lp, logits_nonnegative
+
+
+def get_pen_score(unnormalized_score, text_len):
+    penalty = ((5 + text_len) ** 0.8 / (5 + 1) ** 0.8)
+    return unnormalized_score / penalty
 
 
 def check_if_word_in_vocabulary():
