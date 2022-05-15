@@ -27,9 +27,8 @@ from pytorch_pretrained_bert.modeling import BertPreTrainedModel
 import bert_utils
 from bert_utils import load_testset_data, analize_sentence, get_probs_for_words, tokenize_sentence, \
     estimate_sentence_probability_from_text
-from bert_utils import sentence_score_bases
 from bert_utils import get_score_descr
-from lm_utils import model_types
+from lm_utils import *
 
 
 def load_it():
@@ -97,10 +96,11 @@ def eval_it(bert,tokenizer):
         bp = ps[1]
         print(gp > bp, case, tp, good_word, bad_word, s)
         if i % 100 == 0:
-            print(f'{bert_utils.bcolors.WARNING}{i}{bert_utils.bcolors.ENDC}')
+            print(f'{bcolors.WARNING}{i}{bcolors.ENDC}')
             print(i, time.time() - start, file=sys.stderr)
             start = time.time()
             sys.stdout.flush()
+
 
 def eval_marvin(bert,tokenizer):
     o = load_marvin()
@@ -447,7 +447,7 @@ def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tok
         else:
             no_errors_examples_indexes.append(example_idx)
 
-    bert_utils.print_red(f'error count and accuracy rates from {examples_count} examples: '
+    print_red(f'error count and accuracy rates from {examples_count} examples: '
           f'base sentence {error_count_base_sentence} '
           f'(acc: {get_perc(examples_count-error_count_base_sentence, examples_count)}), '
           f'second sentence: {error_count_second_sentence} '
@@ -552,7 +552,7 @@ def interactive_mode():
             = bert_utils.analize_example(bert, tokenizer, -1, example)
         diff_penLP = round(penLP_base_sentence - penLP_bad_sentence, 3)
 
-        bert_utils.print_red(f'PenLP:')
+        print_red(f'PenLP:')
         print(f'Diff {bert_utils.red_txt(diff_penLP)}, '
               f'good ({penLP_base_sentence:.1f}), bad ({penLP_bad_sentence:.1f}): {good_sentence} || {bad_sentence}')
 
@@ -563,7 +563,7 @@ def interactive_mode():
 
 
 def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
-    bert_utils.print_red(f'printing details for sentence {sentence_txt}')
+    print_red(f'printing details for sentence {sentence_txt}')
     tokens = tokenizer.tokenize(sentence_txt)
     sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
     bert_utils.estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose=True)

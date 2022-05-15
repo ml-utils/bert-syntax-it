@@ -8,17 +8,12 @@ from pytorch_pretrained_bert.tokenization import BertTokenizer
 from pytorch_pretrained_bert.modeling import BertPreTrainedModel
 import numpy as np
 
-from lm_utils import get_pen_score
+from lm_utils import *
 
 GOOD_SENTENCE_1_IDX = 0
 SENTENCE_BAD_EXTRACTION_IDX = 1
 GOOD_SENTENCE_2_IDX = 2
 UNK_TOKEN = '[UNK]'
-
-
-class sentence_score_bases:
-    SOFTMAX = 0
-    NORMALIZED_LOGITS = 1
 
 
 def load_testset_data(file_path):
@@ -231,37 +226,6 @@ def count_split_words_in_sentence(sentence_tokens):
     return split_words_in_sentence
 
 
-
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    RED = '\033[91m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-
-def red_txt(txt: str):
-    return f'{bcolors.RED}{txt}{bcolors.ENDC}'
-
-
-def print_red(txt: str):
-    print_in_color(txt, bcolors.RED)
-
-
-def print_orange(txt: str):
-    print_in_color(txt, bcolors.WARNING)
-
-
-def print_in_color(txt, color: bcolors):
-    print(f'{color}{txt}{bcolors.ENDC}')
-
-
 def generate_text_with_bert(bert: BertPreTrainedModel, tokenizer: BertTokenizer, starting_word = 'Il'):
     # convert tokens to ids, append mask to the end
     # get topk with k = 1
@@ -461,7 +425,6 @@ def bert_get_logprobs(tokenize_input, model, tokenizer):
     batched_segment_ids = []
 
     tokenize_combined = ["[CLS]"] + tokenize_input + ["[SEP]"]
-
 
     for i in range(len(tokenize_input)):
         # Mask a token that we will try to predict back with `BertForMaskedLM`
