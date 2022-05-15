@@ -8,6 +8,7 @@ from pytorch_pretrained_bert.tokenization import BertTokenizer
 from pytorch_pretrained_bert.modeling import BertPreTrainedModel
 import numpy as np
 
+from lm_utils import get_pen_score
 
 GOOD_SENTENCE_1_IDX = 0
 SENTENCE_BAD_EXTRACTION_IDX = 1
@@ -278,11 +279,6 @@ def get_sentence_scores(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sen
 
     pen_lp = get_pen_score(lp, text_len)
     return pen_lp, logits_nonnegative
-
-
-def get_pen_score(unnormalized_score, text_len):
-    penalty = ((5 + text_len) ** 0.8 / (5 + 1) ** 0.8)
-    return unnormalized_score / penalty
 
 
 def check_if_word_in_vocabulary():

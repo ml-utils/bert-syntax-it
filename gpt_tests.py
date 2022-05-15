@@ -2,6 +2,8 @@ import torch
 # from transformers import AutoConfig
 from transformers import GPT2Tokenizer, GPT2LMHeadModel  # pytorch_transformers
 
+from lm_utils import get_pen_score
+
 
 class ml_libraries:
     PYTORCH = 'pt'
@@ -107,7 +109,7 @@ def __get_gpt_sentence_score(model, tokenizer, text, verbose=False):
     tokenize_input = tokenizer.tokenize(text)
     sentence_score = get_gpt_sentence_score(model, tokenizer, tokenize_input, device)
     print(f'text lenght: {len(tokenize_input)}')
-    from bert_utils import get_pen_score
+
     sentence_score = get_pen_score(sentence_score, len(tokenize_input))
 
     if verbose:

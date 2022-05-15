@@ -29,6 +29,7 @@ from bert_utils import load_testset_data, analize_sentence, get_probs_for_words,
     estimate_sentence_probability_from_text
 from bert_utils import sentence_score_bases
 from bert_utils import get_score_descr
+from lm_utils import model_types
 
 
 def load_it():
@@ -350,7 +351,7 @@ def run_tests_it():
 
     testsets_dir = './outputs/syntactic_tests_it/'
     testset_files = [#'variations_tests.jsonl'
-                     'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
+                     #'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
                      'wh_whether_island.jsonl'
                      ]
     for test_file in testset_files:
@@ -373,14 +374,17 @@ def run_tests_lau_et_al():
     return 0
 
 
-def main():
+def main(model_type):
     print('main')
-    print('importing gpt_tests..')
-    #from gpt_tests import main as main2
-    print('imported.')
-    # main2()
     model_name, eval_suite = arg_parse()
-    run_tests_it()
+
+    if model_type == model_types.GPT:
+        print('importing gpt_tests..')
+        from gpt_tests import main as main2
+        print('imported.')
+        main2()
+    elif model_type == model_types.BERT:
+        run_tests_it()
 
     # run_eval(eval_suite, bert, tokenizer)
     #prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
@@ -571,6 +575,7 @@ if __name__ == "__main__":
         interactive_mode()
     else:
         print(f'running main function')
-        main()
+        model_type = model_types.GPT
+        main(model_type)
 
 
