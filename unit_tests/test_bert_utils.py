@@ -13,9 +13,8 @@ from transformers import BertForMaskedLM
 # from pytorch_transformers import GPT2Tokenizer, GPT2LMHeadModel
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 
-
-
-from torch import softmax
+# from torch import softmax
+from scipy.special import softmax
 
 import bert_utils, notebook
 from lm_utils import model_types, load_testset_data, get_sentences_from_example
@@ -73,7 +72,7 @@ class TestBertUtils(TestCase):
         testset_filepath = os.path.join(testsets_dir, testset_filename)
         testset_examples = (load_testset_data(testset_filepath))['sentences']
 
-        MAX_EXAMPLES = 5
+        MAX_EXAMPLES = 15
         for example_idx, example in tqdm(enumerate(testset_examples), total=min(len(testset_examples), MAX_EXAMPLES)):  # or
             if example_idx >= MAX_EXAMPLES:
                 break
@@ -84,8 +83,8 @@ class TestBertUtils(TestCase):
                 bert_sentence_lp_expected = get_sentence_score_JHLau(model_types.BERT, bert_model, bert_tokenizer,
                                                                      bert_tokenized_sentence, device=None)
                 with self.subTest(example=example_idx, sentence=sentence_idx):
-                    self.assertEqual(bert_sentence_lp_expected, bert_sentence_lp_actual)
-                    self.assertAlmostEqual(bert_sentence_lp_expected, bert_sentence_lp_actual, 3)
+                    # self.assertEqual(bert_sentence_lp_expected, bert_sentence_lp_actual)
+                    self.assertAlmostEqual(bert_sentence_lp_expected, bert_sentence_lp_actual, 4)
 
                 # gpt_sentence_lp_expected = get_sentence_score_JHLau(model_types.GPT, gpt_model, gpt_tokenizer,
                 #                                                    gpt_tokenized_sentence, device=None)

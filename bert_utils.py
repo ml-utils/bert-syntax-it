@@ -1,7 +1,8 @@
 import math
 
 import torch
-from torch.nn.functional import softmax
+# from torch.nn.functional import softmax
+from scipy.special import softmax
 from transformers import BertTokenizer, BertForMaskedLM as BertPreTrainedModel
 
 from transformers.modeling_outputs import MaskedLMOutput
