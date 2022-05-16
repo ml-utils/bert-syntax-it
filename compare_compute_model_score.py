@@ -2,10 +2,7 @@ import torch
 from transformers import GPT2Tokenizer, GPT2LMHeadModel  # pytorch_transformers
 
 from transformers import BertTokenizer, BertForMaskedLM
-# from pytorch_pretrained_bert.tokenization import BertTokenizer
-# from pytorch_pretrained_bert.modeling import BertPreTrainedModel
 from transformers import BertForMaskedLM
-# from pytorch_pretrained_bert import BertForMaskedLM
 
 from scipy.special import softmax
 import numpy as np
@@ -29,7 +26,7 @@ def run_testset(model_type, model_name, device, testset):
         model = GPT2LMHeadModel.from_pretrained(model_name)
         tokenizer = GPT2Tokenizer.from_pretrained(model_name)
     elif model_type == model_types.BERT:
-        model = BertPreTrainedModel.from_pretrained(model_name)  # BertForMaskedLM.from_pretrained(model_name)
+        model = BertForMaskedLM.from_pretrained(model_name)  # BertForMaskedLM.from_pretrained(model_name)
         tokenizer = BertTokenizer.from_pretrained(model_name,
                                               do_lower_case=(True if "uncased" in model_name else False))
     else:

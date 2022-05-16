@@ -6,15 +6,8 @@ import numpy as np
 import pandas as pd
 import torch
 
-# from pytorch_pretrained_bert import BertTokenizer
-# from pytorch_pretrained_bert.tokenization import BertTokenizer
-from pytorch_pretrained_bert.tokenization import BertTokenizer
-from transformers import BertTokenizer as BertTokenizer_Compare
-
-
-# from pytorch_pretrained_bert.modeling import BertPreTrainedModel
-from transformers import BertForMaskedLM as BertForMaskedLM_Compare
-from pytorch_pretrained_bert import BertForMaskedLM
+from transformers import BertTokenizer
+from transformers import BertForMaskedLM
 
 
 # from pytorch_transformers import GPT2Tokenizer, GPT2LMHeadModel
@@ -62,11 +55,11 @@ class TestBertUtils(TestCase):
 
         bert_model_name = f'../models/bert-base-italian-xxl-cased/'
         bert_model = BertForMaskedLM.from_pretrained(bert_model_name)  #
-        bert_model_compare = BertForMaskedLM_Compare.from_pretrained(bert_model_name)
+        # bert_model_compare = BertForMaskedLM_Compare.from_pretrained(bert_model_name)
         bert_tokenizer = BertTokenizer.from_pretrained(bert_model_name,
                                                        do_lower_case=(True if "uncased" in bert_model_name else False))
-        bert_tokenizer_compare = BertTokenizer_Compare.from_pretrained(bert_model_name,
-                                                       do_lower_case=(True if "uncased" in bert_model_name else False))
+        # bert_tokenizer_compare = BertTokenizer_Compare.from_pretrained(bert_model_name,
+        #                                               do_lower_case=(True if "uncased" in bert_model_name else False))
         # bert_tokenized_sentence = bert_tokenizer.tokenize(sentence1)
         # bert_text_len = len(bert_tokenized_sentence)
 
@@ -81,17 +74,18 @@ class TestBertUtils(TestCase):
         testset_examples = (load_testset_data(testset_filepath))['sentences']
 
         MAX_EXAMPLES = 5
-        for example_idx, example in tqdm(enumerate(testset_examples), total=max(len(testset_examples), MAX_EXAMPLES)):  # or
+        for example_idx, example in tqdm(enumerate(testset_examples), total=min(len(testset_examples), MAX_EXAMPLES)):  # or
             if example_idx >= MAX_EXAMPLES:
                 break
             for sentence_idx, sentence in enumerate(get_sentences_from_example(example)):
                 bert_sentence_lp_actual, _ = bert_utils.estimate_sentence_probability_from_text(bert_model, bert_tokenizer, sentence)
-                bert_tokenized_sentence = bert_tokenizer_compare.tokenize(sentence)
+                bert_tokenized_sentence = bert_tokenizer.tokenize(sentence)
                 # gpt_text_len = len(gpt_tokenized_sentence)
-                bert_sentence_lp_expected = get_sentence_score_JHLau(model_types.BERT, bert_model_compare, bert_tokenizer_compare,
+                bert_sentence_lp_expected = get_sentence_score_JHLau(model_types.BERT, bert_model, bert_tokenizer,
                                                                      bert_tokenized_sentence, device=None)
                 with self.subTest(example=example_idx, sentence=sentence_idx):
                     self.assertEqual(bert_sentence_lp_expected, bert_sentence_lp_actual)
+                    self.assertAlmostEqual(bert_sentence_lp_expected, bert_sentence_lp_actual, 3)
 
                 # gpt_sentence_lp_expected = get_sentence_score_JHLau(model_types.GPT, gpt_model, gpt_tokenizer,
                 #                                                    gpt_tokenized_sentence, device=None)

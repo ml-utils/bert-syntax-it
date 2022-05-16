@@ -2,10 +2,9 @@ import math
 
 import torch
 from torch.nn.functional import softmax
-# from pytorch_pretrained_bert import BertForMaskedLM, tokenization
-# from pytorch_pretrained_bert.tokenization import BertTokenizer
-from pytorch_pretrained_bert.modeling import BertPreTrainedModel
-from transformers import BertTokenizer, BertForMaskedLM
+from transformers import BertTokenizer, BertForMaskedLM as BertPreTrainedModel
+
+from transformers.modeling_outputs import MaskedLMOutput
 
 import numpy as np
 
@@ -316,7 +315,8 @@ def get_bert_output(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentenc
     tens = torch.LongTensor(sentence_ids).unsqueeze(0)
 
     res_unsliced = bert(tens)
-
+    if isinstance(res_unsliced, MaskedLMOutput):
+        res_unsliced = res_unsliced.logits
     # print(f'masked_word_idx: {masked_word_idx}, type(res_unsliced): {type(res_unsliced)}')
     # masked_word_idx: 1, type(res_unsliced): <class 'transformers.modeling_outputs.MaskedLMOutput'>
     # masked_word_idx: 5, type(res_unsliced): <class 'torch.Tensor'>

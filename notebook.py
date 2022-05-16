@@ -19,9 +19,7 @@ import csv
 
 import torch
 
-# from pytorch_pretrained_bert.tokenization import BertTokenizer
-from pytorch_pretrained_bert.modeling import BertPreTrainedModel
-from transformers import BertTokenizer, BertForMaskedLM
+from transformers import BertTokenizer, BertForMaskedLM as BertPreTrainedModel
 
 import bert_utils
 from bert_utils import load_testset_data, analize_sentence, get_probs_for_words, tokenize_sentence, \
@@ -526,7 +524,7 @@ def run_tests_it(model_type):
 
     testsets_dir = './outputs/syntactic_tests_it/'
     testset_files = [#'variations_tests.jsonl'
-                     #'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
+                     'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
                      'wh_whether_island.jsonl'
                      ]
     for test_file in testset_files:

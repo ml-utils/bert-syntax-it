@@ -2,7 +2,8 @@ import os.path
 import json
 
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
-from pytorch_pretrained_bert import BertForMaskedLM, tokenization
+from transformers import BertTokenizer
+from transformers import BertForMaskedLM
 
 
 class model_types:
@@ -63,7 +64,7 @@ def load_model_and_tokenizer(model_type, model_name, dict_name=None, do_lower_ca
             vocab_filepath = model_name
         else:
             vocab_filepath = os.path.join(model_name, 'dict.txt')
-        tokenizer = tokenization.BertTokenizer.from_pretrained(vocab_filepath, do_lower_case=do_lower_case)
+        tokenizer = BertTokenizer.from_pretrained(vocab_filepath, do_lower_case=do_lower_case)
     else:
         print(f'Supported models: Bert, Gpt.')
         raise SystemExit
