@@ -14,13 +14,11 @@ Original file is located at
 
 import os.path
 from collections import Counter
-import json
 import argparse, sys
 import csv
 
 import torch
-from pytorch_pretrained_bert import BertForMaskedLM,tokenization
-from torch.nn.functional import softmax
+from pytorch_pretrained_bert import BertForMaskedLM, tokenization
 from pytorch_pretrained_bert.tokenization import BertTokenizer
 from pytorch_pretrained_bert.modeling import BertPreTrainedModel
 
@@ -522,8 +520,7 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
 def run_tests_it(model_type):
 
     if model_type == model_types.GPT:
-        print(f'gpt run not implemented.')
-        return 0
+        model_name = "GroNLP/gpt2-small-italian"
     elif model_type == model_types.BERT:
         model_name = 'bert-base-uncased'  # NB bert large uncased is about 1GB
         model_name = f'''models/bert-base-italian-uncased/'''
@@ -532,15 +529,15 @@ def run_tests_it(model_type):
         # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
         eval_suite = 'it'
 
-    bert, tokenizer = init_bert_model(model_name, do_lower_case=False)
+    do_lower_case = True if model_type == model_types.BERT and 'uncased' in model_name else False
+    model, tokenizer = init_bert_model(model_name, do_lower_case=do_lower_case)
     if tokenizer is None:
         print('error, tokenizer is null')
         return
 
-    #
     bert_utils.check_unknown_words(tokenizer)
     sentence_to_analizse = 'Di che cosa Marco si chiede se è stata riparata da ***Luca***?'
-    topk_tokens, topk_probs, topk_probs_nonsoftmax = analize_sentence(bert, tokenizer, sentence_to_analizse)
+    topk_tokens, topk_probs, topk_probs_nonsoftmax = analize_sentence(model, tokenizer, sentence_to_analizse)
     print(f'sentence: {sentence_to_analizse}')
     print(f'topk: {topk_tokens}, top_probs: {topk_probs}, topk_probs_nonsoftmax: {topk_probs_nonsoftmax}')
 
@@ -550,7 +547,7 @@ def run_tests_it(model_type):
                      'wh_whether_island.jsonl'
                      ]
     for test_file in testset_files:
-        run_testset(testsets_dir, test_file, bert, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
+        run_testset(testsets_dir, test_file, model, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
 
 
 def main(model_type):
