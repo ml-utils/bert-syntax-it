@@ -374,24 +374,7 @@ def run_tests_lau_et_al():
     return 0
 
 
-def main(model_type):
-    print('main')
-    model_name, eval_suite = arg_parse()
 
-    if model_type == model_types.GPT:
-        print('importing gpt_tests..')
-        from gpt_tests import main as main2
-        print('imported.')
-        main2()
-    elif model_type == model_types.BERT:
-        run_tests_it()
-
-    # run_eval(eval_suite, bert, tokenizer)
-    #prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
-    #prob2 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is name your?')
-    #print(f'prob1: {prob1}, prob2: {prob2}')
-    #eval_it(bert, tokenizer)
-    #custom_eval("What is your name?", bert, tokenizer)
 
 
 def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tokenizer: BertTokenizer,
@@ -569,13 +552,33 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
     bert_utils.estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose=True)
 
 
+def main(model_type):
+    print('main')
+    model_name, eval_suite = arg_parse()
+
+    if model_type == model_types.GPT:
+        print('importing gpt_tests..')
+        from gpt_tests import main as main2
+        print('imported.')
+        main2()
+    elif model_type == model_types.BERT:
+        run_tests_it()
+
+    # run_eval(eval_suite, bert, tokenizer)
+    #prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
+    #prob2 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is name your?')
+    #print(f'prob1: {prob1}, prob2: {prob2}')
+    #eval_it(bert, tokenizer)
+    #custom_eval("What is your name?", bert, tokenizer)
+
+
 if __name__ == "__main__":
 
     if len(sys.argv) > 1:
         interactive_mode()
     else:
         print(f'running main function')
-        model_type = model_types.GPT
+        model_type = model_types.BERT
         main(model_type)
 
 
