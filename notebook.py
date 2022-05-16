@@ -490,6 +490,14 @@ def interactive_mode():
             print_detailed_sentence_info(bert, tokenizer, bad_sentence)
 
 
+def basic_sentence_test(model, tokenizer):
+    bert_utils.check_unknown_words(tokenizer)
+    sentence_to_analizse = 'Di che cosa Marco si chiede se è stata riparata da ***Luca***?'
+    topk_tokens, topk_probs, topk_probs_nonsoftmax = analize_sentence(model, tokenizer, sentence_to_analizse)
+    print(f'sentence: {sentence_to_analizse}')
+    print(f'topk: {topk_tokens}, top_probs: {topk_probs}, topk_probs_nonsoftmax: {topk_probs_nonsoftmax}')
+
+
 def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
     print_red(f'printing details for sentence {sentence_txt}')
     tokens = tokenizer.tokenize(sentence_txt)
@@ -514,12 +522,6 @@ def run_tests_it(model_type):
     if tokenizer is None:
         print('error, tokenizer is null')
         raise SystemExit
-
-    bert_utils.check_unknown_words(tokenizer)
-    sentence_to_analizse = 'Di che cosa Marco si chiede se è stata riparata da ***Luca***?'
-    topk_tokens, topk_probs, topk_probs_nonsoftmax = analize_sentence(model, tokenizer, sentence_to_analizse)
-    print(f'sentence: {sentence_to_analizse}')
-    print(f'topk: {topk_tokens}, top_probs: {topk_probs}, topk_probs_nonsoftmax: {topk_probs_nonsoftmax}')
 
     testsets_dir = './outputs/syntactic_tests_it/'
     testset_files = [#'variations_tests.jsonl'
