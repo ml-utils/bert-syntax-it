@@ -322,7 +322,7 @@ def run_tests_lau_et_al():
     return 0
 
 
-def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tokenizer: BertTokenizer,
+def run_testset(testsets_dir: str, filename: str, model, tokenizer,
                 score_based_on=sentence_score_bases.SOFTMAX):
     filepath = os.path.join(testsets_dir, filename)
     bert_utils.print_orange(f'running test {filepath}')
@@ -351,7 +351,7 @@ def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tok
         acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
         score_base_sentence, score_bad_sentence, score_2nd_good_sentence, \
         oov_counts \
-            = bert_utils.analize_example(bert, tokenizer, example_idx, sentence_data, score_based_on)
+            = bert_utils.analize_example(model, tokenizer, example_idx, sentence_data, score_based_on)
         #return
         sentences = bert_utils.get_sentences_from_example(sentence_data)
 
