@@ -1,4 +1,5 @@
 import os.path
+import json
 
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from pytorch_pretrained_bert import BertForMaskedLM, tokenization
@@ -71,3 +72,14 @@ def load_model_and_tokenizer(model_type, model_name, dict_name=None, do_lower_ca
 
     model.eval()
     return model, tokenizer
+
+
+def load_testset_data(file_path):
+    with open(file_path, mode='r', encoding="utf-8") as json_file:
+        #json_list = list(json_file)
+        testset_data = json.load(json_file)
+
+        #for i in data:
+        #    print(i)
+
+    return testset_data

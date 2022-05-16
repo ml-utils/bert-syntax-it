@@ -1,4 +1,3 @@
-import json
 import math
 
 import torch
@@ -14,17 +13,6 @@ GOOD_SENTENCE_1_IDX = 0
 SENTENCE_BAD_EXTRACTION_IDX = 1
 GOOD_SENTENCE_2_IDX = 2
 UNK_TOKEN = '[UNK]'
-
-
-def load_testset_data(file_path):
-    with open(file_path, mode='r', encoding="utf-8") as json_file:
-        #json_list = list(json_file)
-        testset_data = json.load(json_file)
-
-        #for i in data:
-        #    print(i)
-
-    return testset_data
 
 
 def analize_sentence(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence: str):

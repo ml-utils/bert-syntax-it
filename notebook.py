@@ -325,8 +325,8 @@ def run_tests_lau_et_al():
 def run_testset(testsets_dir: str, filename: str, model, tokenizer,
                 score_based_on=sentence_score_bases.SOFTMAX):
     filepath = os.path.join(testsets_dir, filename)
-    bert_utils.print_orange(f'running test {filepath}')
-    testset_data = bert_utils.load_testset_data(filepath)
+    print_orange(f'running test {filepath}')
+    testset_data = load_testset_data(filepath)
     examples_count = len(testset_data['sentences'])
     print(f'examples_count: {examples_count}')
 
