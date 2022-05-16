@@ -327,36 +327,6 @@ def print_sentence_pairs_probabilities(bert: BertPreTrainedModel, tokenizer: Ber
     print(f'prob_sentence_good_extraction_as_subject: {prob_sentence_good_extraction_as_subject}')
 
 
-def run_tests_it():
-    # todo: also run the italian testsets here on Gpt.
-    # Gpt is unidirectional, estimate sentence acceptability on gpt?
-
-    model_name = 'bert-base-uncased'  # NB bert large uncased is about 1GB
-    model_name = f'''models/bert-base-italian-uncased/'''
-    model_name = f'''models/bert-base-italian-cased/'''
-    model_name = f'models/bert-base-italian-xxl-cased/'
-    # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
-    eval_suite = 'it'
-    bert, tokenizer = init_bert_model(model_name, do_lower_case=False)
-    if tokenizer is None:
-        print('error, tokenizer is null')
-        return
-
-    #
-    bert_utils.check_unknown_words(tokenizer)
-    sentence_to_analizse = 'Di che cosa Marco si chiede se è stata riparata da ***Luca***?'
-    topk_tokens, topk_probs, topk_probs_nonsoftmax = analize_sentence(bert, tokenizer, sentence_to_analizse)
-    print(f'sentence: {sentence_to_analizse}')
-    print(f'topk: {topk_tokens}, top_probs: {topk_probs}, topk_probs_nonsoftmax: {topk_probs_nonsoftmax}')
-
-    testsets_dir = './outputs/syntactic_tests_it/'
-    testset_files = [#'variations_tests.jsonl'
-                     #'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
-                     'wh_whether_island.jsonl'
-                     ]
-    for test_file in testset_files:
-        run_testset(testsets_dir, test_file, bert, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
-
 
 def run_tests_goldberg():
     # todo: use sentence acceptability estimates (PenLP e PenNL), and see results on goldberg testset
@@ -372,9 +342,6 @@ def run_tests_blimp():
 def run_tests_lau_et_al():
     # todo
     return 0
-
-
-
 
 
 def run_testset(testsets_dir: str, filename: str, bert: BertPreTrainedModel, tokenizer: BertTokenizer,
@@ -550,6 +517,37 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
     tokens = tokenizer.tokenize(sentence_txt)
     sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
     bert_utils.estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose=True)
+
+
+def run_tests_it():
+    # todo: also run the italian testsets here on Gpt.
+    # Gpt is unidirectional, estimate sentence acceptability on gpt?
+
+    model_name = 'bert-base-uncased'  # NB bert large uncased is about 1GB
+    model_name = f'''models/bert-base-italian-uncased/'''
+    model_name = f'''models/bert-base-italian-cased/'''
+    model_name = f'models/bert-base-italian-xxl-cased/'
+    # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
+    eval_suite = 'it'
+    bert, tokenizer = init_bert_model(model_name, do_lower_case=False)
+    if tokenizer is None:
+        print('error, tokenizer is null')
+        return
+
+    #
+    bert_utils.check_unknown_words(tokenizer)
+    sentence_to_analizse = 'Di che cosa Marco si chiede se è stata riparata da ***Luca***?'
+    topk_tokens, topk_probs, topk_probs_nonsoftmax = analize_sentence(bert, tokenizer, sentence_to_analizse)
+    print(f'sentence: {sentence_to_analizse}')
+    print(f'topk: {topk_tokens}, top_probs: {topk_probs}, topk_probs_nonsoftmax: {topk_probs_nonsoftmax}')
+
+    testsets_dir = './outputs/syntactic_tests_it/'
+    testset_files = [#'variations_tests.jsonl'
+                     #'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
+                     'wh_whether_island.jsonl'
+                     ]
+    for test_file in testset_files:
+        run_testset(testsets_dir, test_file, bert, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
 
 
 def main(model_type):
