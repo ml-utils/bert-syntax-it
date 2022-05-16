@@ -519,16 +519,19 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
     bert_utils.estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose=True)
 
 
-def run_tests_it():
-    # todo: also run the italian testsets here on Gpt.
-    # Gpt is unidirectional, estimate sentence acceptability on gpt?
+def run_tests_it(model_type):
 
-    model_name = 'bert-base-uncased'  # NB bert large uncased is about 1GB
-    model_name = f'''models/bert-base-italian-uncased/'''
-    model_name = f'''models/bert-base-italian-cased/'''
-    model_name = f'models/bert-base-italian-xxl-cased/'
-    # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
-    eval_suite = 'it'
+    if model_type == model_types.GPT:
+        print(f'gpt run not implemented.')
+        return 0
+    elif model_type == model_types.BERT:
+        model_name = 'bert-base-uncased'  # NB bert large uncased is about 1GB
+        model_name = f'''models/bert-base-italian-uncased/'''
+        model_name = f'''models/bert-base-italian-cased/'''
+        model_name = f'models/bert-base-italian-xxl-cased/'
+        # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
+        eval_suite = 'it'
+
     bert, tokenizer = init_bert_model(model_name, do_lower_case=False)
     if tokenizer is None:
         print('error, tokenizer is null')
@@ -560,7 +563,7 @@ def main(model_type):
         print('imported.')
         main2()
     elif model_type == model_types.BERT:
-        run_tests_it()
+        run_tests_it(model_type)
 
     # run_eval(eval_suite, bert, tokenizer)
     #prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
