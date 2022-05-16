@@ -18,7 +18,7 @@ import argparse, sys
 import csv
 
 import torch
-from pytorch_pretrained_bert import BertForMaskedLM, tokenization
+
 from pytorch_pretrained_bert.tokenization import BertTokenizer
 from pytorch_pretrained_bert.modeling import BertPreTrainedModel
 
@@ -166,26 +166,6 @@ def eval_gulordava(bert,tokenizer):
 # choose_eval()
 
 
-def init_bert_model(model_name, dict_name=None, do_lower_case=False) -> (BertPreTrainedModel, BertTokenizer):
-    # model_name = 'bert-large-uncased'
-    #if 'base' in sys.argv: model_name = 'bert-base-uncased'
-    print(f'model_name: {model_name}')
-    print("loading model:", model_name, file=sys.stderr)
-    bert = BertForMaskedLM.from_pretrained(model_name)
-    print("bert model loaded, getting the tokenizer..")
-
-    if dict_name is None:
-        vocab_filepath = model_name
-    else:
-        vocab_filepath = os.path.join(model_name, 'dict.txt')
-    tokenizer = tokenization.BertTokenizer.from_pretrained(vocab_filepath, do_lower_case=do_lower_case)
-
-    print("tokenizer ready.")
-
-    bert.eval()
-    return bert, tokenizer
-
-
 def run_eval(eval_suite, bert: BertPreTrainedModel, tokenizer: BertTokenizer):
     print(f'running eval, eval_suite: {eval_suite}')
     if 'it' == eval_suite:
@@ -262,7 +242,7 @@ def get_masked_word_probability(bert, tokenizer):
 
 
 def custom_eval(sentence, bert, tokenizer):
-    bert, tokenizer = init_bert_model('bert-base-uncased')
+    bert, tokenizer = load_model_and_tokenizer(model_types.BERT, 'bert-base-uncased')
 
     compare_tokens, compare_target_idx = tokenize_sentence(tokenizer, "What is ***your*** name?")
 
@@ -478,7 +458,7 @@ def interactive_mode():
     # load model than wait for input sentences
     model_name = f'models/bert-base-italian-xxl-cased/'
     eval_suite = 'it'
-    bert, tokenizer = init_bert_model(model_name, do_lower_case=False)
+    bert, tokenizer = load_model_and_tokenizer(model_types.BERT, model_name, do_lower_case=False)
 
     print(f'model loaded, waiting for sentences..')
 
@@ -530,10 +510,10 @@ def run_tests_it(model_type):
         eval_suite = 'it'
 
     do_lower_case = True if model_type == model_types.BERT and 'uncased' in model_name else False
-    model, tokenizer = init_bert_model(model_name, do_lower_case=do_lower_case)
+    model, tokenizer = load_model_and_tokenizer(model_type, model_name, do_lower_case=do_lower_case)
     if tokenizer is None:
         print('error, tokenizer is null')
-        return
+        raise SystemExit
 
     bert_utils.check_unknown_words(tokenizer)
     sentence_to_analizse = 'Di che cosa Marco si chiede se è stata riparata da ***Luca***?'

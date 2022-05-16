@@ -1,3 +1,9 @@
+import os.path
+
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from pytorch_pretrained_bert import BertForMaskedLM, tokenization
+
+
 class model_types:
     BERT = 0
     GPT = 1
@@ -40,3 +46,28 @@ def print_orange(txt: str):
 
 def print_in_color(txt, color: bcolors):
     print(f'{color}{txt}{bcolors.ENDC}')
+
+
+def load_model_and_tokenizer(model_type, model_name, dict_name=None, do_lower_case=False):
+    print(f'loading model_name: {model_name}..')
+
+    if model_type == model_types.GPT:
+        model = GPT2LMHeadModel.from_pretrained(model_name)
+        tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+    elif model_type == model_types.BERT:
+        model = BertForMaskedLM.from_pretrained(model_name)
+        print("Pretrained model loaded, getting the tokenizer..")
+
+        if dict_name is None:
+            vocab_filepath = model_name
+        else:
+            vocab_filepath = os.path.join(model_name, 'dict.txt')
+        tokenizer = tokenization.BertTokenizer.from_pretrained(vocab_filepath, do_lower_case=do_lower_case)
+    else:
+        print(f'Supported models: Bert, Gpt.')
+        raise SystemExit
+
+    print("tokenizer ready.")
+
+    model.eval()
+    return model, tokenizer
