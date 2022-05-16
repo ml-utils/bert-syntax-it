@@ -30,22 +30,7 @@ def analize_sentence(bert: BertPreTrainedModel, tokenizer: BertTokenizer, senten
     return get_topk(bert, tokenizer, sentence_ids, target_idx, k=5)
 
 
-def get_sentences_from_example(example : dict):
-    by_sentence_variant_name = False
 
-    if by_sentence_variant_name:
-        sentence_names_wh_wheter_islands = ['sentence_good_no_extraction', 'sentence_bad_extraction',
-                          'sentence_good_extraction_resumption', 'sentence_good_extraction_as_subject']
-        sentence_names_wh_complex_np_islands = ['sentence_good_no_extraction', 'sentence_bad_extraction',
-                                            'sentence_good_no_island', 'sentence_good_no_island_as_subject']
-        sentence_names = sentence_names_wh_complex_np_islands
-        sentences = []
-        for sentence_name in sentence_names:
-            sentences.append(example[sentence_name])
-    else:
-        sentences = list(example.values())[0:3]
-
-    return sentences
 
 
 def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example_idx: int, example,

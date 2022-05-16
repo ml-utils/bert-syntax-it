@@ -353,7 +353,7 @@ def run_testset(testsets_dir: str, filename: str, model, tokenizer,
         oov_counts \
             = bert_utils.analize_example(model, tokenizer, example_idx, sentence_data, score_based_on)
         #return
-        sentences = bert_utils.get_sentences_from_example(sentence_data)
+        sentences = get_sentences_from_example(sentence_data)
 
         second_sentences_by_score[score_2nd_good_sentence] = sentences[2]
         bad_sentences_by_score[score_bad_sentence] = sentences[1]
@@ -393,7 +393,7 @@ def run_testset(testsets_dir: str, filename: str, model, tokenizer,
     bert_utils.print_orange('Examples getting no errors:')
     for example_idx in no_errors_examples_indexes:
         no_error_example = testset_data['sentences'][example_idx]
-        print(f'{bert_utils.get_sentences_from_example(no_error_example)}')
+        print(f'{get_sentences_from_example(no_error_example)}')
 
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, second sentence:')
     for acceprability_diff, example_analysis in dict(sorted(examples_by_second_sentence_acceptability_diff.items())).items():
