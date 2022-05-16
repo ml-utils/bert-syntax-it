@@ -1,14 +1,32 @@
+import os
 from unittest import TestCase
+from tqdm import tqdm
 
-import numpy
-import torch
-from pytorch_pretrained_bert import BertTokenizer
+import numpy as np
 import pandas as pd
-from pytorch_pretrained_bert.modeling import BertPreTrainedModel
+import torch
+
+# from pytorch_pretrained_bert import BertTokenizer
+# from pytorch_pretrained_bert.tokenization import BertTokenizer
+from pytorch_pretrained_bert.tokenization import BertTokenizer
+from transformers import BertTokenizer as BertTokenizer_Compare
+
+
+# from pytorch_pretrained_bert.modeling import BertPreTrainedModel
+from transformers import BertForMaskedLM as BertForMaskedLM_Compare
+from pytorch_pretrained_bert import BertForMaskedLM
+
+
+# from pytorch_transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
+
+
+
 from torch import softmax
 
 import bert_utils, notebook
-from lm_utils import model_types
+from lm_utils import model_types, load_testset_data, get_sentences_from_example
+from compare_compute_model_score import get_sentence_score_JHLau
 
 
 class TestBertUtils(TestCase):
@@ -38,6 +56,46 @@ class TestBertUtils(TestCase):
         self.assertListEqual(res_topk_ids, res_softmax_topk_ids)
         self.assertListEqual(res_topk_ids, res_normalized_topk_ids)
 
+    def test_get_bert_sentence_score(self):
+
+        # sentence1 = "Gianni ha detto che il manuale di linguistia ha duecento pagine."
+
+        bert_model_name = f'../models/bert-base-italian-xxl-cased/'
+        bert_model = BertForMaskedLM.from_pretrained(bert_model_name)  #
+        bert_model_compare = BertForMaskedLM_Compare.from_pretrained(bert_model_name)
+        bert_tokenizer = BertTokenizer.from_pretrained(bert_model_name,
+                                                       do_lower_case=(True if "uncased" in bert_model_name else False))
+        bert_tokenizer_compare = BertTokenizer_Compare.from_pretrained(bert_model_name,
+                                                       do_lower_case=(True if "uncased" in bert_model_name else False))
+        # bert_tokenized_sentence = bert_tokenizer.tokenize(sentence1)
+        # bert_text_len = len(bert_tokenized_sentence)
+
+        gpt_model_name = '../models/GroNLP-gpt2-small-italian' # "GroNLP/gpt2-small-italian"
+        gpt_model = GPT2LMHeadModel.from_pretrained(gpt_model_name)
+        gpt_tokenizer = GPT2Tokenizer.from_pretrained(gpt_model_name)
+
+        testsets_dir = '../outputs/syntactic_tests_it/'
+        testset_filename = 'wh_adjunct_islands.jsonl'  #'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl', 'wh_whether_island.jsonl', 'variations_tests.jsonl'
+
+        testset_filepath = os.path.join(testsets_dir, testset_filename)
+        testset_examples = (load_testset_data(testset_filepath))['sentences']
+
+        MAX_EXAMPLES = 5
+        for example_idx, example in tqdm(enumerate(testset_examples), total=max(len(testset_examples), MAX_EXAMPLES)):  # or
+            if example_idx >= MAX_EXAMPLES:
+                break
+            for sentence_idx, sentence in enumerate(get_sentences_from_example(example)):
+                bert_sentence_lp_actual, _ = bert_utils.estimate_sentence_probability_from_text(bert_model, bert_tokenizer, sentence)
+                bert_tokenized_sentence = bert_tokenizer_compare.tokenize(sentence)
+                # gpt_text_len = len(gpt_tokenized_sentence)
+                bert_sentence_lp_expected = get_sentence_score_JHLau(model_types.BERT, bert_model_compare, bert_tokenizer_compare,
+                                                                     bert_tokenized_sentence, device=None)
+                with self.subTest(example=example_idx, sentence=sentence_idx):
+                    self.assertEqual(bert_sentence_lp_expected, bert_sentence_lp_actual)
+
+                # gpt_sentence_lp_expected = get_sentence_score_JHLau(model_types.GPT, gpt_model, gpt_tokenizer,
+                #                                                    gpt_tokenized_sentence, device=None)
+
 
 def test_get_acceptability_diffs():
     # TODO: test method before change with option to score method (softmax or logits)
@@ -59,7 +117,7 @@ def print_tensor_ids_as_tokens(tens: torch.Tensor, tokenizer: BertTokenizer, msg
     print(f'{msg} ({res_topk_tokens.size()}): {res_topk_tokens}')
 
 
-def test_bert_output(bert: BertPreTrainedModel, sentence_ids, verbose=False):
+def test_bert_output(bert, sentence_ids, verbose=False):
     tens = torch.LongTensor(sentence_ids).unsqueeze(0)
 
     res_unsliced = bert(tens)

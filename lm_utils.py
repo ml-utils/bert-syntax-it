@@ -101,3 +101,4 @@ def get_sentences_from_example(example : dict):
         sentences = list(example.values())[0:3]
 
     return sentences
+

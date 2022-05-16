@@ -19,8 +19,9 @@ import csv
 
 import torch
 
-from pytorch_pretrained_bert.tokenization import BertTokenizer
+# from pytorch_pretrained_bert.tokenization import BertTokenizer
 from pytorch_pretrained_bert.modeling import BertPreTrainedModel
+from transformers import BertTokenizer, BertForMaskedLM
 
 import bert_utils
 from bert_utils import load_testset_data, analize_sentence, get_probs_for_words, tokenize_sentence, \
@@ -513,7 +514,7 @@ def run_tests_it(model_type):
         model_name = 'bert-base-uncased'  # NB bert large uncased is about 1GB
         model_name = f'''models/bert-base-italian-uncased/'''
         model_name = f'''models/bert-base-italian-cased/'''
-        model_name = f'models/bert-base-italian-xxl-cased/'
+        model_name = f'./models/bert-base-italian-xxl-cased/'
         # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
         eval_suite = 'it'
 

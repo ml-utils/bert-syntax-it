@@ -1,10 +1,12 @@
 import math
 
 import torch
-from pytorch_pretrained_bert import BertForMaskedLM, tokenization
 from torch.nn.functional import softmax
-from pytorch_pretrained_bert.tokenization import BertTokenizer
+# from pytorch_pretrained_bert import BertForMaskedLM, tokenization
+# from pytorch_pretrained_bert.tokenization import BertTokenizer
 from pytorch_pretrained_bert.modeling import BertPreTrainedModel
+from transformers import BertTokenizer, BertForMaskedLM
+
 import numpy as np
 
 from lm_utils import *
@@ -30,9 +32,6 @@ def analize_sentence(bert: BertPreTrainedModel, tokenizer: BertTokenizer, senten
     return get_topk(bert, tokenizer, sentence_ids, target_idx, k=5)
 
 
-
-
-
 def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example_idx: int, example,
                     score_based_on=sentence_score_bases.SOFTMAX):
     """
@@ -44,7 +43,6 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
 
     sentences = get_sentences_from_example(example)
     tokens_by_sentence, oov_counts = __get_example_tokens_and_oov_counts(tokenizer, sentences)
-    __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence)
 
     penLP_by_sentence, words_logits_by_sentence, normalized_logits_by_sentence \
         = __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence)
@@ -105,6 +103,10 @@ def __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence):
                                                      len(tokens_by_sentence[sentence_idx]))
         sentences_estimates_normalized_logits.append(this_sentence_estimate_normalized_logits)
     return penLP_by_sentence, words_logits_by_sentence, sentences_estimates_normalized_logits
+
+
+def preprocessing_checks_to_example(example_idx, sentences, tokens_by_sentence):
+    __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence)
 
 
 def __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence):
@@ -314,6 +316,10 @@ def get_bert_output(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentenc
     tens = torch.LongTensor(sentence_ids).unsqueeze(0)
 
     res_unsliced = bert(tens)
+
+    # print(f'masked_word_idx: {masked_word_idx}, type(res_unsliced): {type(res_unsliced)}')
+    # masked_word_idx: 1, type(res_unsliced): <class 'transformers.modeling_outputs.MaskedLMOutput'>
+    # masked_word_idx: 5, type(res_unsliced): <class 'torch.Tensor'>
     res = res_unsliced[0, masked_word_idx]
 
     # todo: produce probabilities not with softmax (not using an exponential, to avoiding the maximization of top results),
@@ -461,7 +467,6 @@ def get_sentence_probs_from_word_ids(bert: BertPreTrainedModel, tokenizer: BertT
                                      sentence_ids, masked_words_ids, masked_word_idx,
                                      scorebase=sentence_score_bases.SOFTMAX):
     """
-
     :param bert:
     :param tokenizer:
     :param sentence_ids:
@@ -486,7 +491,8 @@ def get_sentence_probs_from_word_ids(bert: BertPreTrainedModel, tokenizer: BertT
     else:
         raise Exception('Error, no scorebase defined.')
 
-    return scores, topk_tokens, __get_scores_from_word_ids(logits_shifted_above_zero, masked_words_ids)
+    logits_nonnegative = __get_scores_from_word_ids(logits_shifted_above_zero, masked_words_ids)
+    return scores, topk_tokens, logits_nonnegative
 
 
 def __get_scores_from_word_ids(scores, word_ids_mask_predictions):
