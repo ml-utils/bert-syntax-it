@@ -73,7 +73,7 @@ class TestBertUtils(TestCase):
         testset_examples = (load_testset_data(testset_filepath))['sentences']
 
         MAX_EXAMPLES = 15
-        for example_idx, example in tqdm(enumerate(testset_examples), total=min(len(testset_examples), MAX_EXAMPLES)):  # or
+        for example_idx, example in tqdm(enumerate(testset_examples), total=min(len(testset_examples), MAX_EXAMPLES)):  # or enumerate(tqdm(testset_examples))
             if example_idx >= MAX_EXAMPLES:
                 break
             for sentence_idx, sentence in enumerate(get_sentences_from_example(example)):
@@ -86,8 +86,8 @@ class TestBertUtils(TestCase):
                     # self.assertEqual(bert_sentence_lp_expected, bert_sentence_lp_actual)
                     self.assertAlmostEqual(bert_sentence_lp_expected, bert_sentence_lp_actual, 4)
 
-                # gpt_sentence_lp_expected = get_sentence_score_JHLau(model_types.GPT, gpt_model, gpt_tokenizer,
-                #                                                    gpt_tokenized_sentence, device=None)
+                gpt_sentence_lp_expected = get_sentence_score_JHLau(model_types.GPT, gpt_model, gpt_tokenizer,
+                                                                    gpt_tokenized_sentence, device=None)
 
 
 def test_get_acceptability_diffs():

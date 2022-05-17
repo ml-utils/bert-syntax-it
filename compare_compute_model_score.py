@@ -1,4 +1,5 @@
 import torch
+from tqdm import tqdm
 from transformers import GPT2Tokenizer, GPT2LMHeadModel  # pytorch_transformers
 
 from transformers import BertTokenizer, BertForMaskedLM
@@ -10,17 +11,12 @@ import numpy as np
 from lm_utils import model_types, get_sentences_from_example
 
 
-def run_testset(model_type, model_name, device, testset):
-    # system scores
-    lps = []
-    mean_lps = []
-    pen_lps = []
-    div_lps = []
-    sub_lps = []
-    slors = []
-    pen_slors = []
-    sent_ids = []
+class DEVICES:
+    CPU = 'cpu'
+    CUDA = 'cuda:X'
 
+
+def load_model(model_type, model_name, device):
     # Load pre-trained model and tokenizer
     if model_type == model_types.GPT:
         model = GPT2LMHeadModel.from_pretrained(model_name)
@@ -28,7 +24,7 @@ def run_testset(model_type, model_name, device, testset):
     elif model_type == model_types.BERT:
         model = BertForMaskedLM.from_pretrained(model_name)  # BertForMaskedLM.from_pretrained(model_name)
         tokenizer = BertTokenizer.from_pretrained(model_name,
-                                              do_lower_case=(True if "uncased" in model_name else False))
+                                                  do_lower_case=(True if "uncased" in model_name else False))
     else:
         return
 
@@ -38,9 +34,23 @@ def run_testset(model_type, model_name, device, testset):
 
     # eval mode; no dropout
     model.eval()
+    return model, tokenizer
 
-    for example_idx, example_data in enumerate(testset['sentences']):
+
+def run_testset(model_type, model, tokenizer, device, testset):
+
+    sent_ids = []
+
+    from lm_utils import GOOD_SENTENCE_2_IDX, GOOD_SENTENCE_1_IDX, SENTENCE_BAD_IDX
+    correct_lps_1st_sentence = 0
+    correct_pen_lps_1st_sentence = 0
+    correct_lps_2nd_sentence = 0
+    correct_pen_lps_2nd_sentence = 0
+    for example_idx, example_data in enumerate(tqdm(testset['sentences'])):
         sentences = get_sentences_from_example(example_data)
+        lps = []
+        mean_lps = []
+        pen_lps = []
         for sent_id, sentence in enumerate(sentences):
             sentence_tokens = tokenizer.tokenize(sentence)
             text_len = len(sentence_tokens)
@@ -52,7 +62,25 @@ def run_testset(model_type, model_name, device, testset):
             mean_lps.append(lp / text_len)
             pen_lps.append(lp / penalty)
             sent_ids.append(sent_id)
+        if lps[GOOD_SENTENCE_1_IDX] > lps[SENTENCE_BAD_IDX]:
+            correct_lps_1st_sentence += 1
+        if pen_lps[GOOD_SENTENCE_1_IDX] > pen_lps[SENTENCE_BAD_IDX]:
+            correct_pen_lps_1st_sentence += 1
+        if lps[GOOD_SENTENCE_2_IDX] > lps[SENTENCE_BAD_IDX]:
+            correct_lps_2nd_sentence += 1
+        if pen_lps[GOOD_SENTENCE_2_IDX] > pen_lps[SENTENCE_BAD_IDX]:
+            correct_pen_lps_2nd_sentence += 1
 
+    examples_count = len(testset['sentences'])
+    print(f'test results report:')
+    print(f'acc. correct_lps_1st_sentence: {perc(correct_lps_1st_sentence, examples_count):.1f} %')
+    print(f'acc. correct_pen_lps_1st_sentence: {perc(correct_pen_lps_1st_sentence, examples_count):.1f} %')
+    print(f'acc. correct_lps_2nd_sentence: {perc(correct_lps_2nd_sentence, examples_count):.1f} %')
+    print(f'acc. correct_pen_lps_2nd_sentence: {perc(correct_pen_lps_2nd_sentence, examples_count):.1f} %')
+
+
+def perc(value, total):
+    return 100 * (value / total)
 
 # nb, for bert it uses softmax
 def get_sentence_score_JHLau(model_type: model_types, model, tokenizer, sentence_tokens, device):

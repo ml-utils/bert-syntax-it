@@ -6,6 +6,12 @@ from transformers import BertTokenizer
 from transformers import BertForMaskedLM
 
 
+GOOD_SENTENCE_1_IDX = 0
+SENTENCE_BAD_IDX = 1
+GOOD_SENTENCE_2_IDX = 2
+UNK_TOKEN = '[UNK]'
+
+
 class model_types:
     BERT = 0
     GPT = 1
@@ -70,6 +76,9 @@ def load_model_and_tokenizer(model_type, model_name, dict_name=None, do_lower_ca
         raise SystemExit
 
     print("tokenizer ready.")
+    # put model to device (GPU/CPU)
+    device = torch.device(device)
+    model.to(device)
 
     model.eval()
     return model, tokenizer

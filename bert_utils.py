@@ -11,11 +11,6 @@ import numpy as np
 
 from lm_utils import *
 
-GOOD_SENTENCE_1_IDX = 0
-SENTENCE_BAD_EXTRACTION_IDX = 1
-GOOD_SENTENCE_2_IDX = 2
-UNK_TOKEN = '[UNK]'
-
 
 def analize_sentence(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence: str):
     """
@@ -87,21 +82,24 @@ def __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence):
             pen_lp, logits_nonnegative_for_each_word = get_sentence_scores(bert, tokenizer, sentence,
                                                               tokens_by_sentence[sentence_idx])
             penLP_by_sentence.append(pen_lp)
-            words_logits_by_sentence.append(logits_nonnegative_for_each_word)
-            if max(logits_nonnegative_for_each_word) > max_logits:
-                max_logits = max(logits_nonnegative_for_each_word)
-    words_normalized_logits_by_sentence = []
+            if isinstance(bert, BertForMaskedLM):
+                words_logits_by_sentence.append(logits_nonnegative_for_each_word)
+                if max(logits_nonnegative_for_each_word) > max_logits:
+                    max_logits = max(logits_nonnegative_for_each_word)
+
     sentences_estimates_normalized_logits = []
-    for sentence_idx, sentence_logits in enumerate(words_logits_by_sentence):
-        words_normalized_logits_by_sentence.append([word_logits / max_logits for word_logits in sentence_logits])
-        this_sentence_estimate_normalized_logits = 0
-        #print(f'words_normalized_logits_by_sentence[sentence_idx]: {words_normalized_logits_by_sentence[sentence_idx]}')
-        for word_logits in words_normalized_logits_by_sentence[sentence_idx]:
-            # do math.log of each word score and add to the total
-            this_sentence_estimate_normalized_logits += math.log(word_logits)
-        this_sentence_estimate_normalized_logits = get_pen_score(this_sentence_estimate_normalized_logits,
-                                                     len(tokens_by_sentence[sentence_idx]))
-        sentences_estimates_normalized_logits.append(this_sentence_estimate_normalized_logits)
+    if isinstance(bert, BertForMaskedLM):
+        words_normalized_logits_by_sentence = []
+        for sentence_idx, sentence_logits in enumerate(words_logits_by_sentence):
+            words_normalized_logits_by_sentence.append([word_logits / max_logits for word_logits in sentence_logits])
+            this_sentence_estimate_normalized_logits = 0
+            #print(f'words_normalized_logits_by_sentence[sentence_idx]: {words_normalized_logits_by_sentence[sentence_idx]}')
+            for word_logits in words_normalized_logits_by_sentence[sentence_idx]:
+                # do math.log of each word score and add to the total
+                this_sentence_estimate_normalized_logits += math.log(word_logits)
+            this_sentence_estimate_normalized_logits = get_pen_score(this_sentence_estimate_normalized_logits,
+                                                         len(tokens_by_sentence[sentence_idx]))
+            sentences_estimates_normalized_logits.append(this_sentence_estimate_normalized_logits)
     return penLP_by_sentence, words_logits_by_sentence, sentences_estimates_normalized_logits
 
 
@@ -116,14 +114,14 @@ def __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence):
                       f'{sentences[sentence_idx]}')
 
     # the ungrammatical sentence must not be shorter than the other three sentences
-    sentence_bad_tokens_count = len(tokens_by_sentence[SENTENCE_BAD_EXTRACTION_IDX])
+    sentence_bad_tokens_count = len(tokens_by_sentence[SENTENCE_BAD_IDX])
     for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
         if len(sentence_tokens) < sentence_bad_tokens_count:
             print(f'example {example_idx}:  sentence {sentence_idx} ({sentences[sentence_idx]}) has less tokens '
                   f'({len(sentence_tokens)}) '
                   f'than the bad sentence ({sentence_bad_tokens_count})')
         if len(sentence_tokens) == 0:
-            print(sentences[SENTENCE_BAD_EXTRACTION_IDX])
+            print(sentences[SENTENCE_BAD_IDX])
 
 
 def __get_example_tokens_and_oov_counts(tokenizer, sentences):
@@ -149,16 +147,18 @@ def get_score_descr(score_based_on):
 def __get_acceptability_diffs(bert, tokenizer, penLP_by_sentence, normalized_logits_by_sentence,
                               example_idx, oov_counts, sentences, tokens_by_sentence,
                               score_based_on=sentence_score_bases.SOFTMAX):
-    if score_based_on == sentence_score_bases.SOFTMAX:
+    if isinstance(bert, BertForMaskedLM):
+        if score_based_on == sentence_score_bases.SOFTMAX:
+            score_by_sentence = penLP_by_sentence
+        elif score_based_on == sentence_score_bases.NORMALIZED_LOGITS:
+            score_by_sentence = normalized_logits_by_sentence
+        score_descr = get_score_descr(score_based_on)
+    elif isinstance(bert, GPT2LMHeadModel):
         score_by_sentence = penLP_by_sentence
-    elif score_based_on == sentence_score_bases.NORMALIZED_LOGITS:
-        score_by_sentence = normalized_logits_by_sentence
-    score_descr = get_score_descr(score_based_on)
 
-    score_bad_sentence = score_by_sentence[SENTENCE_BAD_EXTRACTION_IDX]
+    score_bad_sentence = score_by_sentence[SENTENCE_BAD_IDX]
     score_base_sentence = score_by_sentence[GOOD_SENTENCE_1_IDX]
     score_2nd_good_sentence = None
-
     if len(score_by_sentence) > 2:
         score_2nd_good_sentence = score_by_sentence[GOOD_SENTENCE_2_IDX]
 
@@ -176,7 +176,7 @@ def __get_acceptability_diffs(bert, tokenizer, penLP_by_sentence, normalized_log
             print_orange(f'\nexample {example_idx} (oov_count: {oov_counts}): '
                          f'sentence {sentence_idx} ({sentences[sentence_idx]}, '
                          f'has less {score_descr} ({sentence_score:.1f}) '
-                         f'than the bad sentence ({score_bad_sentence:.1f}) ({sentences[SENTENCE_BAD_EXTRACTION_IDX]})')
+                         f'than the bad sentence ({score_bad_sentence:.1f}) ({sentences[SENTENCE_BAD_IDX]})')
             sentence_ids = tokenizer.convert_tokens_to_ids(tokens_by_sentence[sentence_idx])
             estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose = True)
             if sentence_idx == 0:
@@ -318,9 +318,10 @@ def get_bert_output(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentenc
     res_unsliced = bert(tens)
     if isinstance(res_unsliced, MaskedLMOutput):
         res_unsliced = res_unsliced.logits
-    # print(f'masked_word_idx: {masked_word_idx}, type(res_unsliced): {type(res_unsliced)}')
+    print(f'masked_word_idx: {masked_word_idx}, type(res_unsliced): {type(res_unsliced)}')
     # masked_word_idx: 1, type(res_unsliced): <class 'transformers.modeling_outputs.MaskedLMOutput'>
     # masked_word_idx: 5, type(res_unsliced): <class 'torch.Tensor'>
+    # type(res_unsliced): <class 'transformers.modeling_outputs.CausalLMOutputWithCrossAttentions'>
     res = res_unsliced[0, masked_word_idx]
 
     # todo: produce probabilities not with softmax (not using an exponential, to avoiding the maximization of top results),

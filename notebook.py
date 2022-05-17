@@ -22,6 +22,8 @@ import torch
 from transformers import BertTokenizer, BertForMaskedLM as BertPreTrainedModel
 
 import bert_utils
+import compare_compute_model_score
+from compare_compute_model_score import DEVICES
 from bert_utils import load_testset_data, analize_sentence, get_probs_for_words, tokenize_sentence, \
     estimate_sentence_probability_from_text
 from bert_utils import get_score_descr
@@ -504,6 +506,18 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
     bert_utils.estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose=True)
 
 
+def run_blimp_en():
+    # todo same gpt2 as in the paper, comparable bert
+
+    # "GPT-2-large with 36 layers and 774M parameters.10 The model is pretrained on Radford et al.’s WebText dataset,
+    # which contains 40GB of English text extracted from Web pages and filtered for quality." Estimated that WebText
+    # contains about 8B tokens.
+    #
+    # ..
+
+    return 0
+
+
 def run_tests_it(model_type):
 
     if model_type == model_types.GPT:
@@ -516,32 +530,43 @@ def run_tests_it(model_type):
         # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
         eval_suite = 'it'
 
-    do_lower_case = True if model_type == model_types.BERT and 'uncased' in model_name else False
-    model, tokenizer = load_model_and_tokenizer(model_type, model_name, do_lower_case=do_lower_case)
-    if tokenizer is None:
-        print('error, tokenizer is null')
-        raise SystemExit
+    model, tokenizer = compare_compute_model_score.load_model(model_type, model_name, DEVICES.CPU)
 
     testsets_dir = './outputs/syntactic_tests_it/'
     testset_files = [#'variations_tests.jsonl'
                      'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
                      'wh_whether_island.jsonl'
                      ]
+
     for test_file in testset_files:
-        run_testset(testsets_dir, test_file, model, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
+        filepath = os.path.join(testsets_dir, test_file)
+        print_orange(f'running test {filepath}')
+        testset_data = load_testset_data(filepath)
+
+        if model_type == model_types.BERT:
+            # run_testset(testsets_dir, test_file, model, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
+            compare_compute_model_score.run_testset(model_type, model, tokenizer, DEVICES.CPU, testset_data)
+        elif model_type == model_types.GPT:
+            compare_compute_model_score.run_testset(model_type, model, tokenizer, DEVICES.CPU, testset_data)
 
 
 def main(model_type):
-    print('main')
-    model_name, eval_suite = arg_parse()
+    print('model_type: {model_type}')
+    # model_name, eval_suite = arg_parse()
 
-    if model_type == model_types.GPT:
-        print('importing gpt_tests..')
-        from gpt_tests import main as main2
-        print('imported.')
-        main2()
-    elif model_type == model_types.BERT:
-        run_tests_it(model_type)
+    # todo: run on the following testsets (minimal pairs):
+    # (use same pretrained models.. or comparable ones to those in the papers)
+    # blimp: ..
+    # golderg: ..
+    # Lau et al: https://github.com/ml-utils/acceptability-prediction-in-context/tree/0a274d1d9f70f389ddc6b6d796bd8f815833056c/code
+
+    run_tests_it(model_type)
+
+    # if model_type == model_types.GPT:
+    #    print('importing gpt_tests..')
+    #     from gpt_tests import main as main2
+    #    print('imported.')
+    #    main2()
 
     # run_eval(eval_suite, bert, tokenizer)
     #prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
@@ -557,7 +582,7 @@ if __name__ == "__main__":
         interactive_mode()
     else:
         print(f'running main function')
-        model_type = model_types.BERT
+        model_type = model_types.GPT
         main(model_type)
 
 
