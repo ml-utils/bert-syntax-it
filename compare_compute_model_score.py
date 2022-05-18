@@ -2,8 +2,8 @@ import torch
 from tqdm import tqdm
 from transformers import GPT2Tokenizer, GPT2LMHeadModel  # pytorch_transformers
 
-from transformers import BertTokenizer, BertForMaskedLM
-from transformers import BertForMaskedLM
+from transformers import BertTokenizer
+from transformers import BertForMaskedLM  # BertModel as BertForMaskedLM
 
 from scipy.special import softmax
 import numpy as np
@@ -19,8 +19,11 @@ class DEVICES:
 def load_model(model_type, model_name, device):
     # Load pre-trained model and tokenizer
     if model_type == model_types.GPT:
+        print(f'loading model {model_name}..')
         model = GPT2LMHeadModel.from_pretrained(model_name)
+        print(f'model loaded. Loading tokenizer {model_name}..')
         tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+        print(f'tokenizer loaded.')
     elif model_type == model_types.BERT:
         model = BertForMaskedLM.from_pretrained(model_name)  # BertForMaskedLM.from_pretrained(model_name)
         tokenizer = BertTokenizer.from_pretrained(model_name,
@@ -59,17 +62,18 @@ def run_testset(model_type, model, tokenizer, device, testset):
             # acceptability measures by sentence idx
             penalty = ((5 + text_len) ** 0.8 / (5 + 1) ** 0.8)
             lps.append(lp)
-            mean_lps.append(lp / text_len)
+            # mean_lps.append(lp / text_len)
             pen_lps.append(lp / penalty)
             sent_ids.append(sent_id)
         if lps[GOOD_SENTENCE_1_IDX] > lps[SENTENCE_BAD_IDX]:
             correct_lps_1st_sentence += 1
         if pen_lps[GOOD_SENTENCE_1_IDX] > pen_lps[SENTENCE_BAD_IDX]:
             correct_pen_lps_1st_sentence += 1
-        if lps[GOOD_SENTENCE_2_IDX] > lps[SENTENCE_BAD_IDX]:
-            correct_lps_2nd_sentence += 1
-        if pen_lps[GOOD_SENTENCE_2_IDX] > pen_lps[SENTENCE_BAD_IDX]:
-            correct_pen_lps_2nd_sentence += 1
+        if len(sentences) > 2:
+            if lps[GOOD_SENTENCE_2_IDX] > lps[SENTENCE_BAD_IDX]:
+                correct_lps_2nd_sentence += 1
+            if pen_lps[GOOD_SENTENCE_2_IDX] > pen_lps[SENTENCE_BAD_IDX]:
+                correct_pen_lps_2nd_sentence += 1
 
     examples_count = len(testset['sentences'])
     print(f'test results report:')

@@ -18,12 +18,14 @@ import argparse, sys
 import csv
 
 import torch
+from tqdm import tqdm
 
 from transformers import BertTokenizer, BertForMaskedLM as BertPreTrainedModel
 
 import bert_utils
 import compare_compute_model_score
 from compare_compute_model_score import DEVICES
+from compare_compute_model_score import run_testset, load_model
 from bert_utils import load_testset_data, analize_sentence, get_probs_for_words, tokenize_sentence, \
     estimate_sentence_probability_from_text
 from bert_utils import get_score_descr
@@ -323,7 +325,7 @@ def run_tests_lau_et_al():
     return 0
 
 
-def run_testset(testsets_dir: str, filename: str, model, tokenizer,
+def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
                 score_based_on=sentence_score_bases.SOFTMAX):
     filepath = os.path.join(testsets_dir, filename)
     print_orange(f'running test {filepath}')
@@ -506,16 +508,58 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
     bert_utils.estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose=True)
 
 
+# todo same gpt2 as in the paper, comparable bert
+
+# "GPT-2-large with 36 layers and 774M parameters.10 The model is pretrained on Radford et al.’s WebText dataset,
+# which contains 40GB of English text extracted from Web pages and filtered for quality." Estimated that WebText
+# contains about 8B tokens.
+#
+# ..
+# huggingface.co: gpt2-large (model detail info?)(n_layer": 36,)
+# "The OpenAI team wanted to train this model on a corpus as large as possible. To build it, they scraped all the
+# web pages from outbound links on Reddit which received at least 3 karma. Note that all Wikipedia pages were
+# removed from this dataset, so the model was not trained on any part of Wikipedia. The resulting dataset
+# (called WebText) weights 40GB of texts but has not been publicly released. You can find a list of the top 1,000
+# domains present in WebText here."
+# https://huggingface.co/tftransformers/gpt2-large
+#
+# vs bert-large-uncased https://huggingface.co/bert-large-uncased
+# 336M parameters. "pretrained on BookCorpus, a dataset consisting of 11,038 unpublished books and English Wikipedia
+# (excluding lists, tables and headers)." trained  "for one million steps with a batch size of 256"
+#
+# vs https://huggingface.co/roberta-large
+# training data: 160GB of text
+#
+# todo: load blimp testset,
+#  run each file,
+#   extract json lines, pair of sentences from each
+#  print accuracy results, compare with those in the paper
+# adjunct island, gpt2 expected accuracy 91%
+# 100%|██████████| 1000/1000 [37:03<00:00,  2.22s/it]test results report:
+# acc. correct_lps_1st_sentence: 90.2 %
+# acc. correct_pen_lps_1st_sentence: 90.2 %
 def run_blimp_en():
-    # todo same gpt2 as in the paper, comparable bert
+    testset_filepath = './outputs/blimp/from_blim_en/islands/adjunct_island.jsonl'
+    print(f'loading testset file {testset_filepath}..')
+    with open(testset_filepath, 'r') as json_file:
+        json_list = list(json_file)
+    print(f'testset loaded.')
 
-    # "GPT-2-large with 36 layers and 774M parameters.10 The model is pretrained on Radford et al.’s WebText dataset,
-    # which contains 40GB of English text extracted from Web pages and filtered for quality." Estimated that WebText
-    # contains about 8B tokens.
-    #
-    # ..
+    model_type = model_types.GPT # model_types.BERT
+    model_name = "gpt2-large"  # "bert-large-uncased" #   "roberta-large" #  #
+    model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
-    return 0
+    examples = []
+    for json_str in tqdm(json_list):
+        example = json.loads(json_str)
+        # print(f"result: {example}")
+        # print(isinstance(example, dict))
+        sentence_good = example['sentence_good']
+        sentence_bad = example['sentence_bad']
+        examples.append({'sentence_good': sentence_good, 'sentence_bad': sentence_bad, 'sentence_good_2nd': ""})
+    testset = {'sentences': examples}
+
+    run_testset(model_type, model, tokenizer, DEVICES.CPU, testset)
 
 
 def run_tests_it(model_type):
@@ -526,11 +570,12 @@ def run_tests_it(model_type):
         model_name = 'bert-base-uncased'  # NB bert large uncased is about 1GB
         model_name = f'''models/bert-base-italian-uncased/'''
         model_name = f'''models/bert-base-italian-cased/'''
+        model_name = f'dbmdz/bert-base-italian-xxl-cased'
         model_name = f'./models/bert-base-italian-xxl-cased/'
         # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
         eval_suite = 'it'
 
-    model, tokenizer = compare_compute_model_score.load_model(model_type, model_name, DEVICES.CPU)
+    model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
     testsets_dir = './outputs/syntactic_tests_it/'
     testset_files = [#'variations_tests.jsonl'
@@ -545,9 +590,9 @@ def run_tests_it(model_type):
 
         if model_type == model_types.BERT:
             # run_testset(testsets_dir, test_file, model, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
-            compare_compute_model_score.run_testset(model_type, model, tokenizer, DEVICES.CPU, testset_data)
+            run_testset(model_type, model, tokenizer, DEVICES.CPU, testset_data)
         elif model_type == model_types.GPT:
-            compare_compute_model_score.run_testset(model_type, model, tokenizer, DEVICES.CPU, testset_data)
+            run_testset(model_type, model, tokenizer, DEVICES.CPU, testset_data)
 
 
 def main(model_type):
@@ -581,7 +626,9 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         interactive_mode()
     else:
-        print(f'running main function')
+        run_blimp_en()
+        raise SystemExit
+        print(f'choosing model type ..')
         model_type = model_types.GPT
         main(model_type)
 
