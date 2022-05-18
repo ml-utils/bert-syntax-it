@@ -3,12 +3,13 @@ from tqdm import tqdm
 from transformers import GPT2Tokenizer, GPT2LMHeadModel  # pytorch_transformers
 
 from transformers import BertTokenizer
-from transformers import BertForMaskedLM  # BertModel as BertForMaskedLM
+from transformers import BertForMaskedLM  # BertModel as BertForMaskedLM  #
 
 from scipy.special import softmax
 import numpy as np
 
 from lm_utils import model_types, get_sentences_from_example
+from lm_utils import GOOD_SENTENCE_2_IDX, GOOD_SENTENCE_1_IDX, SENTENCE_BAD_IDX
 
 
 class DEVICES:
@@ -25,9 +26,12 @@ def load_model(model_type, model_name, device):
         tokenizer = GPT2Tokenizer.from_pretrained(model_name)
         print(f'tokenizer loaded.')
     elif model_type == model_types.BERT:
+        print(f'loading model {model_name}..')
         model = BertForMaskedLM.from_pretrained(model_name)  # BertForMaskedLM.from_pretrained(model_name)
+        print(f'model loaded. Loading tokenizer {model_name}..')
         tokenizer = BertTokenizer.from_pretrained(model_name,
                                                   do_lower_case=(True if "uncased" in model_name else False))
+        print(f'tokenizer loaded.')
     else:
         return
 
@@ -44,7 +48,6 @@ def run_testset(model_type, model, tokenizer, device, testset):
 
     sent_ids = []
 
-    from lm_utils import GOOD_SENTENCE_2_IDX, GOOD_SENTENCE_1_IDX, SENTENCE_BAD_IDX
     correct_lps_1st_sentence = 0
     correct_pen_lps_1st_sentence = 0
     correct_lps_2nd_sentence = 0
@@ -55,10 +58,10 @@ def run_testset(model_type, model, tokenizer, device, testset):
         mean_lps = []
         pen_lps = []
         for sent_id, sentence in enumerate(sentences):
-            sentence_tokens = tokenizer.tokenize(sentence)
+            sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
             text_len = len(sentence_tokens)
             lp = get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, device)
-
+            # print(f'lp: {lp}')
             # acceptability measures by sentence idx
             penalty = ((5 + text_len) ** 0.8 / (5 + 1) ** 0.8)
             lps.append(lp)
@@ -86,8 +89,12 @@ def run_testset(model_type, model, tokenizer, device, testset):
 def perc(value, total):
     return 100 * (value / total)
 
+
 # nb, for bert it uses softmax
-def get_sentence_score_JHLau(model_type: model_types, model, tokenizer, sentence_tokens, device):
+def get_sentence_score_JHLau(model_type: model_types, model: BertForMaskedLM, tokenizer, sentence_tokens, device):
+
+    if len(sentence_tokens) == 0:
+        return -200
 
     if model_type == model_types.GPT:
 
@@ -97,7 +104,6 @@ def get_sentence_score_JHLau(model_type: model_types, model, tokenizer, sentence
         labels = torch.tensor([[tokenizer.bos_token_id] + tokenizer.convert_tokens_to_ids(sentence_tokens)], device=device)
         labels[:,:1] = -1
         loss = model(tensor_input, labels=tensor_input)
-
         return float(loss[0]) * -1.0 * len(sentence_tokens)
 
     elif model_type == model_types.BERT:
@@ -128,11 +134,17 @@ def get_sentence_score_JHLau(model_type: model_types, model, tokenizer, sentence
         # Convert inputs to PyTorch tensors
         tokens_tensor = torch.tensor(batched_indexed_tokens, device=device)
         segment_tensor = torch.tensor(batched_segment_ids, device=device)
-
+        # print(f'sentence_tokens: {sentence_tokens}')
         # Predict all tokens
         with torch.no_grad():
             # print(f'type(model): {type(model)}')
             outputs = model(tokens_tensor, token_type_ids=segment_tensor)
+            # when using bert-large-uncased and transformers BertModel:
+            # type(outputs) : <class 'transformers.modeling_outputs.BaseModelOutputWithPoolingAndCrossAttentions'>
+            # fields: attentions, cross attentions, hidden states, last hidden state, past key values, pooler output
+            # nb fun(**arg): take a dictionary of key-value pairs and unpack it into keyword arguments in a function call.
+            # when using bert-large-uncased and transformers BertForMaskedLM:
+            # type(outputs) : MaskedLMOutput
             predictions = outputs[0]
 
         # go through each word and sum their logprobs

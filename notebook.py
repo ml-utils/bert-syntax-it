@@ -542,8 +542,8 @@ def run_blimp_en():
         json_list = list(json_file)
     print(f'testset loaded.')
 
-    model_type = model_types.GPT # model_types.BERT
-    model_name = "gpt2-large"  # "bert-large-uncased" #   "roberta-large" #  #
+    model_type = model_types.BERT  # model_types.GPT #
+    model_name = "bert-large-uncased"  # "bert-base-uncased"  #  "gpt2-large"  # "roberta-large" # 'dbmdz/bert-base-italian-xxl-cased' #
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
     examples = []
