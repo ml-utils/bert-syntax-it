@@ -20,10 +20,7 @@ import csv
 import torch
 from tqdm import tqdm
 
-from transformers import BertTokenizer, BertForMaskedLM as BertPreTrainedModel
-
 import bert_utils
-import compare_compute_model_score
 from compare_compute_model_score import DEVICES
 from compare_compute_model_score import run_testset, load_model
 from bert_utils import load_testset_data, analize_sentence, get_probs_for_words, tokenize_sentence, \
@@ -169,7 +166,7 @@ def eval_gulordava(bert,tokenizer):
 # choose_eval()
 
 
-def run_eval(eval_suite, bert: BertPreTrainedModel, tokenizer: BertTokenizer):
+def run_eval(eval_suite, bert, tokenizer: BertTokenizer):
     print(f'running eval, eval_suite: {eval_suite}')
     if 'it' == eval_suite:
         eval_it(bert, tokenizer)
@@ -287,7 +284,7 @@ def custom_eval(sentence, bert, tokenizer):
     input_ids = pad_sequences(input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post")
 
 
-def print_sentence_pairs_probabilities(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence_data):
+def print_sentence_pairs_probabilities(bert, tokenizer: BertTokenizer, sentence_data):
     sentence_good_no_extraction = sentence_data['sentence_good_no_extraction']
     sentence_bad_extraction = sentence_data['sentence_bad_extraction']
     sentence_good_extraction_resumption = sentence_data['sentence_good_extraction_resumption']
