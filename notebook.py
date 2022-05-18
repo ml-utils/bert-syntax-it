@@ -166,7 +166,7 @@ def eval_gulordava(bert,tokenizer):
 # choose_eval()
 
 
-def run_eval(eval_suite, bert, tokenizer: BertTokenizer):
+def run_eval(eval_suite, bert, tokenizer):
     print(f'running eval, eval_suite: {eval_suite}')
     if 'it' == eval_suite:
         eval_it(bert, tokenizer)
@@ -284,7 +284,7 @@ def custom_eval(sentence, bert, tokenizer):
     input_ids = pad_sequences(input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post")
 
 
-def print_sentence_pairs_probabilities(bert, tokenizer: BertTokenizer, sentence_data):
+def print_sentence_pairs_probabilities(bert, tokenizer, sentence_data):
     sentence_good_no_extraction = sentence_data['sentence_good_no_extraction']
     sentence_bad_extraction = sentence_data['sentence_bad_extraction']
     sentence_good_extraction_resumption = sentence_data['sentence_good_extraction_resumption']
@@ -542,8 +542,8 @@ def run_blimp_en():
         json_list = list(json_file)
     print(f'testset loaded.')
 
-    model_type = model_types.BERT  # model_types.GPT #
-    model_name = "bert-large-uncased"  # "bert-base-uncased"  #  "gpt2-large"  # "roberta-large" # 'dbmdz/bert-base-italian-xxl-cased' #
+    model_type = model_types.ROBERTA  # model_types.GPT #
+    model_name = "roberta-large" # "bert-large-uncased"  # "bert-base-uncased"  #  "gpt2-large"  #  'dbmdz/bert-base-italian-xxl-cased' #
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
     examples = []

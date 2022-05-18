@@ -1,10 +1,6 @@
 import os.path
 import json
 
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
-from transformers import BertTokenizer
-from transformers import BertForMaskedLM
-
 
 GOOD_SENTENCE_1_IDX = 0
 SENTENCE_BAD_IDX = 1
@@ -15,6 +11,7 @@ UNK_TOKEN = '[UNK]'
 class model_types:
     BERT = 0
     GPT = 1
+    ROBERTA = 2
 
 
 class sentence_score_bases:
@@ -58,6 +55,10 @@ def print_in_color(txt, color: bcolors):
 
 def load_model_and_tokenizer(model_type, model_name, dict_name=None, do_lower_case=False):
     print(f'loading model_name: {model_name}..')
+
+    from transformers import GPT2Tokenizer, GPT2LMHeadModel
+    from transformers import BertTokenizer
+    from transformers import BertForMaskedLM
 
     if model_type == model_types.GPT:
         model = GPT2LMHeadModel.from_pretrained(model_name)

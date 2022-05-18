@@ -4,6 +4,7 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel  # pytorch_transformers
 
 from transformers import BertTokenizer
 from transformers import BertForMaskedLM  # BertModel as BertForMaskedLM  #
+from transformers import RobertaTokenizer, RobertaForMaskedLM # RobertaModel
 
 from scipy.special import softmax
 import numpy as np
@@ -32,6 +33,12 @@ def load_model(model_type, model_name, device):
         tokenizer = BertTokenizer.from_pretrained(model_name,
                                                   do_lower_case=(True if "uncased" in model_name else False))
         print(f'tokenizer loaded.')
+    elif model_type == model_types.ROBERTA:
+        print(f'loading model {model_name}..')
+        model = RobertaForMaskedLM.from_pretrained(model_name)
+        print(f'model loaded. Loading tokenizer {model_name}..')
+        tokenizer = RobertaTokenizer.from_pretrained(model_name, do_lower_case=True)
+        print(f'tokenizer loaded.')
     else:
         return
 
@@ -55,13 +62,12 @@ def run_testset(model_type, model, tokenizer, device, testset):
     for example_idx, example_data in enumerate(tqdm(testset['sentences'])):
         sentences = get_sentences_from_example(example_data)
         lps = []
-        mean_lps = []
+        # mean_lps = []
         pen_lps = []
         for sent_id, sentence in enumerate(sentences):
             sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
             text_len = len(sentence_tokens)
             lp = get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, device)
-            # print(f'lp: {lp}')
             # acceptability measures by sentence idx
             penalty = ((5 + text_len) ** 0.8 / (5 + 1) ** 0.8)
             lps.append(lp)
@@ -91,7 +97,7 @@ def perc(value, total):
 
 
 # nb, for bert it uses softmax
-def get_sentence_score_JHLau(model_type: model_types, model: BertForMaskedLM, tokenizer, sentence_tokens, device):
+def get_sentence_score_JHLau(model_type: model_types, model, tokenizer, sentence_tokens, device):
 
     if len(sentence_tokens) == 0:
         return -200
@@ -106,7 +112,7 @@ def get_sentence_score_JHLau(model_type: model_types, model: BertForMaskedLM, to
         loss = model(tensor_input, labels=tensor_input)
         return float(loss[0]) * -1.0 * len(sentence_tokens)
 
-    elif model_type == model_types.BERT:
+    elif model_type == model_types.BERT or model_type == model_types.ROBERTA:
 
         batched_indexed_tokens = []
         batched_segment_ids = []
@@ -156,4 +162,5 @@ def get_sentence_score_JHLau(model_type: model_types, model: BertForMaskedLM, to
             lp += np.log(predicted_prob[tokenizer.convert_tokens_to_ids([tokenize_combined[masked_index]])[0]])
 
         return lp
-
+    else:
+        print(f'Error: unrecognized model type {model_type}')
