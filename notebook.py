@@ -573,8 +573,11 @@ def run_tests_it(model_type):
         model_name = f'''models/bert-base-italian-cased/'''
         model_name = f'dbmdz/bert-base-italian-xxl-cased'
         model_name = f'./models/bert-base-italian-xxl-cased/'
+        model_name = 'dbmdz/bert-base-italian-cased'
         # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
         eval_suite = 'it'
+    elif model_type == model_types.GILBERTO:
+        model_name ="idb-ita/gilberto-uncased-from-camembert"
 
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
@@ -589,7 +592,7 @@ def run_tests_it(model_type):
         print_orange(f'running test {filepath}')
         testset_data = load_testset_data(filepath)
 
-        if model_type == model_types.BERT:
+        if model_type == model_types.BERT or model_type == model_types.GILBERTO:
             # run_testset(testsets_dir, test_file, model, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
             run_testset(model_type, model, tokenizer, DEVICES.CPU, testset_data)
         elif model_type == model_types.GPT:
@@ -630,7 +633,7 @@ if __name__ == "__main__":
         #run_blimp_en()
         #raise SystemExit
         print(f'choosing model type ..')
-        model_type = model_types.BERT
+        model_type = model_types.GILBERTO
         main(model_type)
 
 

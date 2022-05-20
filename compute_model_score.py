@@ -2,7 +2,7 @@ from functools import reduce
 
 import torch
 from tqdm import tqdm
-from transformers import GPT2Tokenizer, GPT2LMHeadModel  # pytorch_transformers
+from transformers import GPT2Tokenizer, GPT2LMHeadModel, AutoModel, AutoTokenizer  # pytorch_transformers
 
 from transformers import BertTokenizer
 from transformers import BertForMaskedLM  # BertModel as BertForMaskedLM  #
@@ -40,6 +40,12 @@ def load_model(model_type, model_name, device):
         model = RobertaForMaskedLM.from_pretrained(model_name)
         print(f'model loaded. Loading tokenizer {model_name}..')
         tokenizer = RobertaTokenizer.from_pretrained(model_name, do_lower_case=True)
+        print(f'tokenizer loaded.')
+    elif model_type == model_types.GILBERTO:
+        print(f'loading model {model_name}..')
+        model = AutoModel.from_pretrained(model_name)
+        print(f'model loaded. Loading tokenizer {model_name}..')
+        tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
         print(f'tokenizer loaded.')
     else:
         return
@@ -177,7 +183,7 @@ def get_sentence_score_JHLau(model_type: model_types, model, tokenizer, sentence
         loss = model(tensor_input, labels=tensor_input)
         return float(loss[0]) * -1.0 * len(sentence_tokens), None
 
-    elif model_type == model_types.BERT or model_type == model_types.ROBERTA:
+    elif model_type in [model_types.BERT, model_types.ROBERTA]:  # , model_types.GILBERTO
 
         batched_indexed_tokens = []
         batched_segment_ids = []
