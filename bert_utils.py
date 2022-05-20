@@ -277,16 +277,16 @@ def get_bert_output2(bert: BertPreTrainedModel, tokenizer: BertTokenizer, senten
     res_sliced = res_sequeezed[masked_word_idx]
     res = res_sliced
     res_softmax = softmax(res.detach(), -1)
-    logits_min_abs = torch.abs(torch.min(res.detach()))
-    logits_shifted_above_zero = torch.add(res.detach(), logits_min_abs)
-    logits_sum = torch.sum(logits_shifted_above_zero)
-    res_normalized = torch.div(logits_shifted_above_zero, logits_sum)
+    logits_min = torch.min(res.detach())
+    logits_shifted_to_zero = torch.subtract(res.detach(), logits_min)
+    logits_sum = torch.sum(logits_shifted_to_zero)
+    res_normalized = torch.div(logits_shifted_to_zero, logits_sum)
     res_normalized_sum = torch.sum(res_normalized)
     if verbose:
         print(f'res size {res.size()} {res}')
         print(f'res_softmax size {res_softmax.size()} {res_softmax}')
         print(f'res_normalized size {res_normalized.size()} {res_normalized}')
-        print(f'logits_max {torch.max(res)}, logits_min_abs {logits_min_abs}')
+        print(f'logits_max {torch.max(res)}, logits_min {logits_min}')
 
         k = 5
         _, res_topk_ids = torch.topk(res, k)
@@ -328,10 +328,10 @@ def get_bert_output(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentenc
     #  then compare these probailities with the softmax ones, expecially for ungrammatical sentences
     res_softmax = softmax(res.detach(), -1)
 
-    logits_min_abs = torch.abs(torch.min(res.detach()))
-    logits_shifted_above_zero = torch.add(res.detach(), logits_min_abs)
-    logits_sum = torch.sum(logits_shifted_above_zero)
-    res_normalized = torch.div(logits_shifted_above_zero, logits_sum)
+    logits_min = torch.min(res.detach())
+    logits_shifted_from_zero = torch.subtract(res.detach(), logits_min)
+    logits_sum = torch.sum(logits_shifted_from_zero)
+    res_normalized = torch.div(logits_shifted_from_zero, logits_sum)
 
     if verbose:
         print(f'tens size {tens.size()}')
@@ -341,7 +341,7 @@ def get_bert_output(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentenc
         print(f'res_normalized size {res_normalized.size()}')
 
     #RuntimeError: Can't call numpy() on Tensor that requires grad. Use tensor.detach().numpy() instead.
-    return res, res_softmax, res_normalized, logits_shifted_above_zero
+    return res, res_softmax, res_normalized, logits_shifted_from_zero
 
 
 def convert_ids_to_tokens(tokenizer: BertTokenizer, ids):

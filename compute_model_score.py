@@ -1,3 +1,5 @@
+from functools import reduce
+
 import torch
 from tqdm import tqdm
 from transformers import GPT2Tokenizer, GPT2LMHeadModel  # pytorch_transformers
@@ -67,30 +69,60 @@ def run_testset(model_type, model, tokenizer, device, testset):
     correct_pen_lps_1st_sentence = 0
     correct_lps_2nd_sentence = 0
     correct_pen_lps_2nd_sentence = 0
+    correct_logweights_1st_sentence = 0
+    correct_logweights_2nd_sentence = 0
+    correct_pen_logweights_1st_sentence = 0
+    correct_pen_logweights_2nd_sentence = 0
     for example_idx, example_data in enumerate(tqdm(testset['sentences'])):
         sentences = get_sentences_from_example(example_data)
         lps = []
         # mean_lps = []
         pen_lps = []
+        sentence_log_weights = []
+        pen_sentence_log_weights = []
+        token_weights_by_sentence = []
+        min_token_weight = 200
+        max_token_weight = -200
+        normalized_weights = []
         for sent_id, sentence in enumerate(sentences):
             sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
             text_len = len(sentence_tokens)
-            lp = get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, device)
+            lp, token_weights = get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, device)
+            min_token_weight = min(min(token_weights), min_token_weight)
+            max_token_weight = max(max(token_weights), max_token_weight)
+            token_weights_by_sentence.append(token_weights)
             # acceptability measures by sentence idx
-            penalty = ((5 + text_len) ** 0.8 / (5 + 1) ** 0.8)
+            penalty = get_penalty_term(text_len)
             lps.append(lp)
             # mean_lps.append(lp / text_len)
             pen_lps.append(lp / penalty)
             sent_ids.append(sent_id)
+        # normalize token weights
+        max_token_weight -= min_token_weight  # normalize the max value
+        for sentence_idx, token_weights_this_sentence in enumerate(token_weights_by_sentence):
+            token_weights_by_sentence[sentence_idx] = [(x-min_token_weight)/max_token_weight for x in token_weights_this_sentence]
+            sentence_log_weight = reduce_to_log_product(token_weights_by_sentence[sentence_idx])
+            sentence_log_weights.append(sentence_log_weight)
+            text_lenght = len(token_weights_by_sentence[sentence_idx])
+            penalty = get_penalty_term(text_lenght)
+            pen_sentence_log_weights.append(sentence_log_weight / penalty)
         if lps[GOOD_SENTENCE_1_IDX] > lps[SENTENCE_BAD_IDX]:
             correct_lps_1st_sentence += 1
         if pen_lps[GOOD_SENTENCE_1_IDX] > pen_lps[SENTENCE_BAD_IDX]:
             correct_pen_lps_1st_sentence += 1
+        if sentence_log_weights[GOOD_SENTENCE_1_IDX] > sentence_log_weights[SENTENCE_BAD_IDX]:
+            correct_logweights_1st_sentence += 1
+        if pen_sentence_log_weights[GOOD_SENTENCE_1_IDX] > pen_sentence_log_weights[SENTENCE_BAD_IDX]:
+            correct_pen_logweights_1st_sentence += 1
         if len(sentences) > 2:
             if lps[GOOD_SENTENCE_2_IDX] > lps[SENTENCE_BAD_IDX]:
                 correct_lps_2nd_sentence += 1
             if pen_lps[GOOD_SENTENCE_2_IDX] > pen_lps[SENTENCE_BAD_IDX]:
                 correct_pen_lps_2nd_sentence += 1
+            if sentence_log_weights[GOOD_SENTENCE_2_IDX] > sentence_log_weights[SENTENCE_BAD_IDX]:
+                correct_logweights_2nd_sentence += 1
+            if pen_sentence_log_weights[GOOD_SENTENCE_2_IDX] > pen_sentence_log_weights[SENTENCE_BAD_IDX]:
+                correct_pen_logweights_2nd_sentence += 1
 
     examples_count = len(testset['sentences'])
     print(f'test results report:')
@@ -98,6 +130,31 @@ def run_testset(model_type, model, tokenizer, device, testset):
     print(f'acc. correct_pen_lps_1st_sentence: {perc(correct_pen_lps_1st_sentence, examples_count):.1f} %')
     print(f'acc. correct_lps_2nd_sentence: {perc(correct_lps_2nd_sentence, examples_count):.1f} %')
     print(f'acc. correct_pen_lps_2nd_sentence: {perc(correct_pen_lps_2nd_sentence, examples_count):.1f} %')
+
+    print(f'acc. correct_logweights_1st_sentence: {perc(correct_logweights_1st_sentence, examples_count):.1f} %')
+    print(f'acc. correct_pen_logweights_1st_sentence: {perc(correct_pen_logweights_1st_sentence, examples_count):.1f} %')
+    print(f'acc. correct_logweights_2nd_sentence: {perc(correct_logweights_2nd_sentence, examples_count):.1f} %')
+    print(f'acc. correct_pen_logweights_2nd_sentence: {perc(correct_pen_logweights_2nd_sentence, examples_count):.1f} %')
+
+
+def reduce_to_log_product(seq):
+    return reduce((lambda x, y: x + np.log(y)), seq, 0)
+
+
+def count_accurate_in_example(scores_by_sentence):
+    correct_1st_sentence_comparison = 0
+    if scores_by_sentence[GOOD_SENTENCE_1_IDX] > scores_by_sentence[SENTENCE_BAD_IDX]:
+        correct_1st_sentence_comparison = 1
+
+    correct_2nd_sentence_comparison = 0
+    if len(scores_by_sentence) > 2:
+        if scores_by_sentence[GOOD_SENTENCE_2_IDX] > scores_by_sentence[SENTENCE_BAD_IDX]:
+            correct_2nd_sentence_comparison = 1
+
+    return correct_1st_sentence_comparison, correct_2nd_sentence_comparison
+
+def get_penalty_term(text_lenght):
+    return (5 + text_lenght) ** 0.8 / (5 + 1) ** 0.8
 
 
 def perc(value, total):
@@ -108,7 +165,7 @@ def perc(value, total):
 def get_sentence_score_JHLau(model_type: model_types, model, tokenizer, sentence_tokens, device):
 
     if len(sentence_tokens) == 0:
-        return -200
+        return -200, None
 
     if model_type == model_types.GPT:
 
@@ -118,7 +175,7 @@ def get_sentence_score_JHLau(model_type: model_types, model, tokenizer, sentence
         labels = torch.tensor([[tokenizer.bos_token_id] + tokenizer.convert_tokens_to_ids(sentence_tokens)], device=device)
         labels[:,:1] = -1
         loss = model(tensor_input, labels=tensor_input)
-        return float(loss[0]) * -1.0 * len(sentence_tokens)
+        return float(loss[0]) * -1.0 * len(sentence_tokens), None
 
     elif model_type == model_types.BERT or model_type == model_types.ROBERTA:
 
@@ -163,12 +220,18 @@ def get_sentence_score_JHLau(model_type: model_types, model, tokenizer, sentence
 
         # go through each word and sum their logprobs
         lp = 0.0
+        #     logits_min_abs = torch.abs(torch.min(res.detach()))
+        #     logits_shifted_above_zero = torch.add(res.detach(), logits_min_abs)
+        #     logits_sum = torch.sum(logits_shifted_above_zero)
+        #     res_normalized = torch.div(logits_shifted_above_zero, logits_sum)
+        tokens_scores = []
         for i in range(len(sentence_tokens)):
             masked_index = i + 1 + 0  # not use_context variant
             predicted_score = predictions[i, masked_index]
+            token_score = predicted_score[tokenizer.convert_tokens_to_ids([tokenize_combined[masked_index]])[0]]
+            tokens_scores.append(float(token_score))
             predicted_prob = softmax(predicted_score.cpu().numpy())
             lp += np.log(predicted_prob[tokenizer.convert_tokens_to_ids([tokenize_combined[masked_index]])[0]])
-
-        return lp
+        return lp, tokens_scores
     else:
         print(f'Error: unrecognized model type {model_type}')

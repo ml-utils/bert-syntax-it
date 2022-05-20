@@ -80,13 +80,13 @@ class TestBertUtils(TestCase):
                 bert_sentence_lp_actual, _ = bert_utils.estimate_sentence_probability_from_text(bert_model, bert_tokenizer, sentence)
                 bert_tokenized_sentence = bert_tokenizer.tokenize(sentence)
                 # gpt_text_len = len(gpt_tokenized_sentence)
-                bert_sentence_lp_expected = get_sentence_score_JHLau(model_types.BERT, bert_model, bert_tokenizer,
+                bert_sentence_lp_expected, _ = get_sentence_score_JHLau(model_types.BERT, bert_model, bert_tokenizer,
                                                                      bert_tokenized_sentence, device=None)
                 with self.subTest(example=example_idx, sentence=sentence_idx):
                     # self.assertEqual(bert_sentence_lp_expected, bert_sentence_lp_actual)
                     self.assertAlmostEqual(bert_sentence_lp_expected, bert_sentence_lp_actual, 4)
 
-                #gpt_sentence_lp_expected = get_sentence_score_JHLau(model_types.GPT, gpt_model, gpt_tokenizer,
+                #gpt_sentence_lp_expected, _ = get_sentence_score_JHLau(model_types.GPT, gpt_model, gpt_tokenizer,
                 #                                                    gpt_tokenized_sentence, device=None)
 
 
