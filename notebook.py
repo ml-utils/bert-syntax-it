@@ -633,7 +633,7 @@ if __name__ == "__main__":
         #run_blimp_en()
         #raise SystemExit
         print(f'choosing model type ..')
-        model_type = model_types.GILBERTO
+        model_type = model_types.GPT
         main(model_type)
 
 

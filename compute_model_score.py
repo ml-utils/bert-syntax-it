@@ -94,41 +94,45 @@ def run_testset(model_type, model, tokenizer, device, testset):
             sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
             text_len = len(sentence_tokens)
             lp, token_weights = get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, device)
-            min_token_weight = min(min(token_weights), min_token_weight)
-            max_token_weight = max(max(token_weights), max_token_weight)
-            token_weights_by_sentence.append(token_weights)
+            if model_type in [model_types.BERT, model_types.ROBERTA]:
+                min_token_weight = min(min(token_weights), min_token_weight)
+                max_token_weight = max(max(token_weights), max_token_weight)
+                token_weights_by_sentence.append(token_weights)
             # acceptability measures by sentence idx
             penalty = get_penalty_term(text_len)
             lps.append(lp)
             # mean_lps.append(lp / text_len)
             pen_lps.append(lp / penalty)
             sent_ids.append(sent_id)
-        # normalize token weights
-        max_token_weight -= min_token_weight  # normalize the max value
-        for sentence_idx, token_weights_this_sentence in enumerate(token_weights_by_sentence):
-            token_weights_by_sentence[sentence_idx] = [(x-min_token_weight)/max_token_weight for x in token_weights_this_sentence]
-            sentence_log_weight = reduce_to_log_product(token_weights_by_sentence[sentence_idx])
-            sentence_log_weights.append(sentence_log_weight)
-            text_lenght = len(token_weights_by_sentence[sentence_idx])
-            penalty = get_penalty_term(text_lenght)
-            pen_sentence_log_weights.append(sentence_log_weight / penalty)
+        if model_type in [model_types.BERT, model_types.ROBERTA]:
+            # normalize token weights
+            max_token_weight -= min_token_weight  # normalize the max value
+            for sentence_idx, token_weights_this_sentence in enumerate(token_weights_by_sentence):
+                token_weights_by_sentence[sentence_idx] = [(x-min_token_weight)/max_token_weight for x in token_weights_this_sentence]
+                sentence_log_weight = reduce_to_log_product(token_weights_by_sentence[sentence_idx])
+                sentence_log_weights.append(sentence_log_weight)
+                text_lenght = len(token_weights_by_sentence[sentence_idx])
+                penalty = get_penalty_term(text_lenght)
+                pen_sentence_log_weights.append(sentence_log_weight / penalty)
         if lps[GOOD_SENTENCE_1_IDX] > lps[SENTENCE_BAD_IDX]:
             correct_lps_1st_sentence += 1
         if pen_lps[GOOD_SENTENCE_1_IDX] > pen_lps[SENTENCE_BAD_IDX]:
             correct_pen_lps_1st_sentence += 1
-        if sentence_log_weights[GOOD_SENTENCE_1_IDX] > sentence_log_weights[SENTENCE_BAD_IDX]:
-            correct_logweights_1st_sentence += 1
-        if pen_sentence_log_weights[GOOD_SENTENCE_1_IDX] > pen_sentence_log_weights[SENTENCE_BAD_IDX]:
-            correct_pen_logweights_1st_sentence += 1
+        if model_type in [model_types.BERT, model_types.ROBERTA]:
+            if sentence_log_weights[GOOD_SENTENCE_1_IDX] > sentence_log_weights[SENTENCE_BAD_IDX]:
+                correct_logweights_1st_sentence += 1
+            if pen_sentence_log_weights[GOOD_SENTENCE_1_IDX] > pen_sentence_log_weights[SENTENCE_BAD_IDX]:
+                correct_pen_logweights_1st_sentence += 1
         if len(sentences) > 2:
             if lps[GOOD_SENTENCE_2_IDX] > lps[SENTENCE_BAD_IDX]:
                 correct_lps_2nd_sentence += 1
             if pen_lps[GOOD_SENTENCE_2_IDX] > pen_lps[SENTENCE_BAD_IDX]:
                 correct_pen_lps_2nd_sentence += 1
-            if sentence_log_weights[GOOD_SENTENCE_2_IDX] > sentence_log_weights[SENTENCE_BAD_IDX]:
-                correct_logweights_2nd_sentence += 1
-            if pen_sentence_log_weights[GOOD_SENTENCE_2_IDX] > pen_sentence_log_weights[SENTENCE_BAD_IDX]:
-                correct_pen_logweights_2nd_sentence += 1
+            if model_type in [model_types.BERT, model_types.ROBERTA]:
+                if sentence_log_weights[GOOD_SENTENCE_2_IDX] > sentence_log_weights[SENTENCE_BAD_IDX]:
+                    correct_logweights_2nd_sentence += 1
+                if pen_sentence_log_weights[GOOD_SENTENCE_2_IDX] > pen_sentence_log_weights[SENTENCE_BAD_IDX]:
+                    correct_pen_logweights_2nd_sentence += 1
 
     examples_count = len(testset['sentences'])
     print(f'test results report:')
@@ -137,10 +141,11 @@ def run_testset(model_type, model, tokenizer, device, testset):
     print(f'acc. correct_lps_2nd_sentence: {perc(correct_lps_2nd_sentence, examples_count):.1f} %')
     print(f'acc. correct_pen_lps_2nd_sentence: {perc(correct_pen_lps_2nd_sentence, examples_count):.1f} %')
 
-    print(f'acc. correct_logweights_1st_sentence: {perc(correct_logweights_1st_sentence, examples_count):.1f} %')
-    print(f'acc. correct_pen_logweights_1st_sentence: {perc(correct_pen_logweights_1st_sentence, examples_count):.1f} %')
-    print(f'acc. correct_logweights_2nd_sentence: {perc(correct_logweights_2nd_sentence, examples_count):.1f} %')
-    print(f'acc. correct_pen_logweights_2nd_sentence: {perc(correct_pen_logweights_2nd_sentence, examples_count):.1f} %')
+    if model_type in [model_types.BERT, model_types.ROBERTA]:
+        print(f'acc. correct_logweights_1st_sentence: {perc(correct_logweights_1st_sentence, examples_count):.1f} %')
+        print(f'acc. correct_pen_logweights_1st_sentence: {perc(correct_pen_logweights_1st_sentence, examples_count):.1f} %')
+        print(f'acc. correct_logweights_2nd_sentence: {perc(correct_logweights_2nd_sentence, examples_count):.1f} %')
+        print(f'acc. correct_pen_logweights_2nd_sentence: {perc(correct_pen_logweights_2nd_sentence, examples_count):.1f} %')
 
 
 def reduce_to_log_product(seq):
