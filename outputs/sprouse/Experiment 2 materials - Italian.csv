@@ -1,0 +1,257 @@
+Island Type;Clause type;Condition 1;Condition 2;item number;sentence
+Adjunct island;WH;Long;Island;1;Cosa ti irriti se dimentico in ufficio?
+Adjunct island;WH;Long;non-island;1;Cosa pensi che io abbia dimenticato in ufficio?
+Adjunct island;WH;Short;Island;1;Chi si irrita se dimentico la borsa in ufficio?
+Adjunct island;WH;Short;non-island;1;Chi pensa che io abbia dimenticato la borsa in ufficio?
+Adjunct island;WH;Long;Island;2;Cosa sei contento se compro all’asta?
+Adjunct island;WH;Long;non-island;2;Cosa ti auguri che io abbia comprato all’asta?
+Adjunct island;WH;Short;Island;2;Chi è contento se compro un dipinto all’asta?
+Adjunct island;WH;Short;non-island;2;Chi si augura che io abbia comprato un dipinto all’asta?
+Adjunct island;WH;Long;Island;3;Cosa ti preoccupi se lascio in macchina?
+Adjunct island;WH;Long;non-island;3;Cosa credi che io abbia lasciato in macchina?
+Adjunct island;WH;Short;Island;3;Chi si preoccupa se lascio le chiavi in macchina?
+Adjunct island;WH;Short;non-island;3;Chi crede che io abbia lasciato le chiavi in macchina?
+Adjunct island;WH;Long;Island;4;Cosa ti arrabbi se presento al concorso d’arte?
+Adjunct island;WH;Long;non-island;4;Cosa pensi che presenterò un disegno al concorso d’arte?
+Adjunct island;WH;Short;Island;4;Chi si arrabbia se presento un disegno al concorso d’arte?
+Adjunct island;WH;Short;non-island;4;Chi pensa che presenterò un disegno al concorso d’arte?
+Adjunct island;WH;Long;Island;5;Cosa ti lamenti se apro di notte?
+Adjunct island;WH;Long;non-island;5;Cosa temi che io apra di notte?
+Adjunct island;WH;Short;Island;5;Chi si lamenta se apro la finestra di notte?
+Adjunct island;WH;Short;non-island;5;Chi teme che io apra la finestra di notte?
+Adjunct island;WH;Long;Island;6;Cosa dormi meglio se accendo di notte?
+Adjunct island;WH;Long;non-island;6;Cosa vuoi che io accenda di notte?
+Adjunct island;WH;Short;Island;6;Chi dorme meglio se accendo l’aria condizionata di notte?
+Adjunct island;WH;Short;non-island;6;Chi vuole che io accenda l’aria condizionata di notte?
+Adjunct island;WH;Long;Island;7;Cosa ti stupisci se scrivo alla lavagna?
+Adjunct island;WH;Long;non-island;7;Cosa richiedi che io scriva alla lavagna?
+Adjunct island;WH;Short;Island;7;Chi si stupisce se scrivo l’equazione alla lavagna?
+Adjunct island;WH;Short;non-island;7;Chi richiede che io scriva l’equazione alla lavagna?
+Adjunct island;WH;Long;Island;8;Cosa ti infuri se uso in classe?
+Adjunct island;WH;Long;non-island;8;Cosa dici che io abbia usato in classe?
+Adjunct island;WH;Short;Island;8;Chi si infuria se uso il cellulare in classe?
+Adjunct island;WH;Short;non-island;8;Chi dice che io abbia usato il cellulare in classe?
+Adjunct island;RC;Long;Island;9;Ho rivisto la donna dalla quale restituirai i soldi al tuo capoufficio se sarai pagato.
+Adjunct island;RC;Long;non-island;9;Ho rivisto la donna alla quale mi hanno raccontato che devi restituire dei soldi.
+Adjunct island;RC;Short;Island;9;Ho rivisto la donna alla quale restituirai i soldi se sarai pagato dal tuo capo.
+Adjunct island;RC;Short;non-island;9;Ho rivisto la donna alla quale ho raccontato che devo restituirti dei soldi.
+Adjunct island;RC;Long;Island;10;Ho parlato con l’ufficiale dal quale scriverò una lettera di protesta se tu sarai insultato.
+Adjunct island;RC;Long;non-island;10;Ho parlato con l’ufficiale dal quale mi avevano detto che sei stato insultato.
+Adjunct island;RC;Short;Island;10;Ho parlato con l’ufficiale al quale scriverò una lettera di protesta se tu sarai insultato dal capitano.
+Adjunct island;RC;Short;non-island;10;Ho parlato con l’ufficiale al quale ho detto che sei stato insultato dal capitano.
+Adjunct island;RC;Long;Island;11;Mi sono imbattuto nel ragazzo con il quale racconteremo tutto se litigherai.
+Adjunct island;RC;Long;non-island;11;Mi sono imbattuto nel ragazzo con il quale mi hanno raccontato che tu hai litigato.
+Adjunct island;RC;Short;Island;11;Mi sono imbattuto nel ragazzo al quale racconteremo tutto se litigherai con Massimo.
+Adjunct island;RC;Short;non-island;11;Mi sono imbattuto nel ragazzo al quale ho raccontato che tu hai litigato con Massimo.
+Adjunct island;RC;Long;Island;12;Conosco il poliziotto dal quale sporgerò denuncia ai carabinieri se l’assessore ha ricevuto una tangente. 
+Adjunct island;RC;Long;non-island;12;Conosco il poliziotto dal quale ti ho mostrato che l’assessore ha ricevuto una tangente.
+Adjunct island;RC;Short;Island;12;Conosco il poliziotto al quale sporgerò denuncia se l’assessore ha ricevuto una tangente.
+Adjunct island;RC;Short;non-island;12;Conosco il poliziotto al quale ho mostrato che l’assessore ha ricevuto una tangente.
+Adjunct island;RC;Long;Island;13;Hanno intervistato il manager su cui ci abbasseranno lo stipendio se Andrea farà nuove rivelazioni.
+Adjunct island;RC;Long;non-island;13;Hanno intervistato il manager su cui mi hanno detto che Andrea ha fatto nuove rivelazioni.
+Adjunct island;RC;Short;Island;13;Hanno intervistato il manager a cui abbasseranno lo stipendio se Andrea farà nuove rivelazioni.
+Adjunct island;RC;Short;non-island;13;Hanno intervistato il manager a cui ho detto che Andrea ha fatto nuove rivelazioni su di lui.
+Adjunct island;RC;Long;Island;14;Ho visto lo studente da cui devi stare attento se vuoi copiare tutte le risposte.
+Adjunct island;RC;Long;non-island;14;Ho visto lo studente dal quale mi hai confessato che vuoi copiare tutte le risposte.
+Adjunct island;RC;Short;Island;14;Ho visto lo studente a cui devi stare attento se vuoi copiare tutte le risposte da Maria.
+Adjunct island;RC;Short;non-island;14;Ho visto lo studente a cui hai confessato che vuoi copiare tutte le risposte da Maria.
+Adjunct island;RC;Long;Island;15;Maria conosce lo studente a cui ti regaleranno una chitarra se darai una mano a scuola.
+Adjunct island;RC;Long;non-island;15;Maria conosce lo studente a cui mi hanno detto che hanno regalato una chitarra.
+Adjunct island;RC;Short;Island;15;Maria conosce lo studente a cui regaleranno una chitarra se ti darà una mano a scuola.
+Adjunct island;RC;Short;non-island;15;Maria conosce lo studente a cui ho detto che ti hanno regalato una chitarra.
+Adjunct island;RC;Long;Island;16;Ieri ho conosciuto il ragazzo con cui rivolgerò nuovamente la parola solo se Lia si sposerà.
+Adjunct island;RC;Long;non-island;16;Ieri ho conosciuto il ragazzo con il quale si dice che Lia voglia sposarsi.
+Adjunct island;RC;Short;Island;16;Ieri ho conosciuto il ragazzo a cui rivolgerò nuovamente la parola solo se si sposerà con Lia.
+Adjunct island;RC;Short;non-island;16;Ieri ho conosciuto il ragazzo di cui si dice che voglia sposarsi con Lia.
+Complex NP;WH;Long;Island;17;Cosa hai messo in dubbio la previsione che io avrei vinto?
+Complex NP;WH;Long;non-island;17;Cosa hai messo in dubbio che io avrei vinto?
+Complex NP;WH;Short;Island;17;Chi ha messo in dubbio la previsione che io avrei vinto il concorso?
+Complex NP;WH;Short;non-island;17;Chi ha messo in dubbio che io avrei vinto il concorso?
+Complex NP;WH;Long;Island;18;Cosa hai fatto l’insinuazione che io avrei trafugato?
+Complex NP;WH;Long;non-island;18;Cosa hai insinuato che io avrei trafugato?
+Complex NP;WH;Short;Island;18;Chi ha fatto l’insinuazione che io avrei trafugato dei documenti?
+Complex NP;WH;Short;non-island;18;Chi ha insinuato che io avrei trafugato dei documenti?
+Complex NP;WH;Long;Island;19;Cosa hai sparso la voce che io avrei superato?
+Complex NP;WH;Long;non-island;19;Cosa hai detto che io avrei superato?
+Complex NP;WH;Short;Island;19;Chi ha sparso la voce che io avrei superato la prova?
+Complex NP;WH;Short;non-island;19;Chi ha detto che io avrei superato la prova?
+Complex NP;WH;Long;Island;20;Cosa hai negato il fatto che io avrei comprato?
+Complex NP;WH;Long;non-island;20;Cosa hai negato che io avrei comprato?
+Complex NP;WH;Short;Island;20;Chi ha negato il fatto che io avrei comprato una casa?
+Complex NP;WH;Short;non-island;20;Chi ha negato che io avrei comprato una casa?
+Complex NP;WH;Long;Island;21;Cosa hai fatto l’affermazione che io avrei rubato?
+Complex NP;WH;Long;non-island;21;Cosa hai affermato che io avrei rubato?
+Complex NP;WH;Short;Island;21;Chi ha fatto l’affermazione che io avrei rubato una macchina?
+Complex NP;WH;Short;non-island;21;Chi ha affermato che io avrei rubato una macchina?
+Complex NP;WH;Long;Island;22;Cosa hai fatto la richiesta che io organizzassi?
+Complex NP;WH;Long;non-island;22;Cosa hai richiesto che io organizzassi?
+Complex NP;WH;Short;Island;22;Chi ha fatto la richiesta che io organizzassi l'incontro?
+Complex NP;WH;Short;non-island;22;Chi ha richiesto che io organizzassi l'incontro?
+Complex NP;WH;Long;Island;23;Cosa hai messo in dubbio il fatto che io avrei potuto rompere?
+Complex NP;WH;Long;non-island;23;Cosa hai dubitato che io avrei potuto rompere?
+Complex NP;WH;Short;Island;23;Chi ha messo in dubbio il fatto che io avrei potuto rompere il vaso?
+Complex NP;WH;Short;non-island;23;Chi ha dubitato che io avrei potuto rompere il vaso?
+Complex NP;WH;Long;Island;24;Cosa hai sentito la storia che io avrei venduto?
+Complex NP;WH;Long;non-island;24;Cosa hai sentito che io avrei venduto?
+Complex NP;WH;Short;Island;24;Chi ha raccontato la storia che io avrei venduto la barca?
+Complex NP;WH;Short;non-island;24;Chi ha raccontato che io avrei venduto la barca?
+Complex NP;RC;Long;Island;25;Ho parlato di nuovo con il professore da cui ho accennato il fatto che sei stato insultato. 
+Complex NP;RC;Long;non-island;25;Ho parlato di nuovo con il professore da cui mi avevano detto che eri stato insultato.
+Complex NP;RC;Short;Island;25;Ho parlato di nuovo con il professore a cui ho accennato il fatto che sei stato insultato.
+Complex NP;RC;Short;non-island;25;Ho parlato di nuovo con il professore a cui ho detto che sei stato insultato.
+Complex NP;RC;Long;Island;26;Mi sono imbattuto nel ragazzo con cui mi hanno riferito il fatto che tu hai di nuovo litigato.
+Complex NP;RC;Long;non-island;26;Mi sono imbattuto nel ragazzo con cui mi hanno detto che tu hai di nuovo litigato.
+Complex NP;RC;Short;Island;26;Mi sono imbattuto nel ragazzo a cui ho riferito il fatto che tu hai di nuovo litigato con Massimo.
+Complex NP;RC;Short;non-island;26;Mi sono imbattuto nel ragazzo a cui ho detto che tu hai di nuovo litigato con Massimo.
+Complex NP;RC;Long;Island;27;Conosco bene il tizio dal quale ti ho mostrato la prova che l’assessore ha ricevuto una tangente.
+Complex NP;RC;Long;non-island;27;Conosco bene il tizio dal quale ti ho mostrato che l’assessore ha ricevuto una tangente.
+Complex NP;RC;Short;Island;27;Conosco bene il tizio al quale ho mostrato la prova che l’assessore ha ricevuto una tangente.
+Complex NP;RC;Short;non-island;27;Conosco bene il tizio al quale ho mostrato che l’assessore ha ricevuto una tangente.
+Complex NP;RC;Long;Island;28;Ho visto lo studente dal quale hai sostenuto la tesi che Marco ha copiato tutte le risposte.
+Complex NP;RC;Long;non-island;28;Ho visto lo studente dal quale hai ammesso che hai copiato tutte le risposte.
+Complex NP;RC;Short;Island;28;Ho visto lo studente con il quale hai sostenuto la tesi che Marco ha copiato tutte le risposte.
+Complex NP;RC;Short;non-island;28;Ho visto lo studente al quale hai ammesso che hai copiato tutte le risposte.
+Complex NP;RC;Long;Island;29;Ho telefonato alla persona verso la quale hai fatto notare il fatto che Piero ha un atteggiamento ostile.
+Complex NP;RC;Long;non-island;29;Ho telefonato alla persona verso la quale hai fatto notare che Piero ha un atteggiamento ostile.
+Complex NP;RC;Short;Island;29;Ho telefonato alla persona alla quale hai fatto notare il fatto che Piero ha un atteggiamento ostile verso di noi.
+Complex NP;RC;Short;non-island;29;Ho telefonato alla persona alla quale hai fatto notare che Piero ha un atteggiamento ostile verso di noi.
+Complex NP;RC;Long;Island;30;Il giocatore più forte è il ragazzo sul quale ti ho suggerito l’idea che dovremmo concentrarci di più.
+Complex NP;RC;Long;non-island;30;Il giocatore più promettente è il ragazzo sul quale ti ho suggerito che dovremmo concentrarci di più.
+Complex NP;RC;Short;Island;30;Il giocatore più promettente è il ragazzo al quale ho suggerito l’idea che dovrebbe concentrarsi di più.
+Complex NP;RC;Short;non-island;30;Il giocatore più promettente è il ragazzo al quale ho suggerito che dovrebbe concentrarsi di più. 
+Complex NP;RC;Long;Island;31;Maria conosce il musicista al quale mi è stato rivelato il fatto che hanno regalato una chitarra.
+Complex NP;RC;Long;non-island;31;Maria conosce il musicista al quale mi è stato rivelato che hanno regalato una chitarra.
+Complex NP;RC;Short;Island;31;Maria conosce il musicista al quale ho rivelato il fatto che ti hanno regalato una chitarra.
+Complex NP;RC;Short;non-island;31;Maria conosce il musicista al quale ho rivelato che ti hanno regalato una chitarra.
+Complex NP;RC;Long;Island;32;Ieri ho conosciuto il giovane del quale ho preso in considerazione l’ipotesi che Lia sia innamorata. 
+Complex NP;RC;Long;non-island;32;Ieri ho conosciuto il giovane del quale si dice che Lia sia innamorata.
+Complex NP;RC;Short;Island;32;Ieri ho conosciuto il giovane grazie al quale ho preso in considerazione l’ipotesi che tu sia innamorato di Lia.
+Complex NP;RC;Short;non-island;32;Ieri ho conosciuto il giovane del quale si dice che sia innamorato di Lia.
+Subject Island;WH;Long;Island;33;Di chi pensi che l’articolo abbia causato l’irritazione del direttore?
+Subject Island;WH;Long;non-island;33;Chi pensi che abbia iniziato la conversazione?
+Subject Island;WH;Short;Island;33;Di chi pensi che l’articolo del direttore abbia causato l’irritazione?
+Subject Island;WH;Short;non-island;33;Chi pensi che la conversazione abbia offeso?
+Subject Island;WH;Long;Island;34;Di chi pensi che il pianto abbia interrotto lo spettacolo del comico?
+Subject Island;WH;Long;non-island;34;Chi pensi che abbia interrotto lo spettacolo?
+Subject Island;WH;Short;Island;34;Di chi pensi che il pianto del bambino abbia interrotto lo spettacolo?
+Subject Island;WH;Short;non-island;34;Chi pensi che lo spettacolo abbia divertito?
+Subject Island;WH;Long;Island;35;Di chi pensi che il quadro raffiguri la nascita di Venere?
+Subject Island;WH;Long;non-island;35;Chi pensi che abbia dipinto il quadro?
+Subject Island;WH;Short;Island;35;Di chi pensi che il quadro di Maria raffiguri la nascita?
+Subject Island;WH;Short;non-island;35;Chi pensi che il quadro raffiguri?
+Subject Island;WH;Long;Island;36;Di chi pensi che il rimprovero abbia calmato l’euforia del ragazzo?
+Subject Island;WH;Long;non-island;36;Chi pensi che abbia subito il rimprovero?
+Subject Island;WH;Short;Island;36;Di chi pensi che il rimprovero del poliziotto abbia calmato l’euforia?
+Subject Island;WH;Short;non-island;36;Chi pensi che il rimprovero abbia calmato?
+Subject Island;WH;Long;Island;37;Di chi pensi che la lezione abbia attirato l’attenzione del professore?
+Subject Island;WH;Long;non-island;37;Chi pensi che abbia seguito la lezione?
+Subject Island;WH;Short;Island;37;Di chi pensi che la lezione del professore abbia attirato l’attenzione?
+Subject Island;WH;Short;non-island;37;Chi credi che la lezione abbia coinvolto?
+Subject Island;WH;Long;Island;38;Di chi pensi che lo scritto abbia colpito i sentimenti del preside?
+Subject Island;WH;Long;non-island;38;Chi pensi che abbia letto il tema?
+Subject Island;WH;Short;Island;38;Di chi pensi che lo scritto dello studente abbia colpito i sentimenti?
+Subject Island;WH;Short;non-island;38;Chi credi che il tema abbia colpito?
+Subject Island;WH;Long;Island;39;Di chi pensi che la candela abbia scottato le dita del vecchio?
+Subject Island;WH;Long;non-island;39;Chi pensi che abbia acceso la candela?
+Subject Island;WH;Short;Island;39;Di chi pensi che la candela del vecchio abbia scottato le dita?
+Subject Island;WH;Short;non-island;39;Chi credi che la candela abbia scottato?
+Subject Island;WH;Long;Island;40;Di chi pensi che la festa abbia infastidito il riposo dell’anziano?
+Subject Island;WH;Long;non-island;40;Chi pensi che abbia organizzato la festa?
+Subject Island;WH;Short;Island;40;Di chi pensi che la festa del quartiere abbia infastidito il riposo?
+Subject Island;WH;Short;non-island;40;Chi credi che la festa abbia infastidito?
+Subject Island;RC;Long;Island;41;Ho incontrato il giornalista del quale pensi che l'articolo abbia causato il licenziamento del direttore.
+Subject Island;RC;Long;non-island;41;Ho incontrato il giornalista che pensi che abbia fatto arrabbiare il direttore.
+Subject Island;RC;Short;Island;41;Ho incontrato il giornalista del quale pensi che l'articolo del direttore abbia causato il licenziamento.
+Subject Island;RC;Short;non-island;41;Ho incontrato il giornalista che pensi che il direttore abbia fatto licenziare.
+Subject Island;RC;Long;Island;42;Ho intervistato il politico di cui pensi che il comizio abbia interrotto il concerto del cantante.
+Subject Island;RC;Long;non-island;42;Ho intervistato  la cantante che pensi che abbia interrotto lo spettacolo.
+Subject Island;RC;Short;Island;42;Ho intervistato il politico di cui pensi che il concerto del cantante abbia interrotto il comizio.
+Subject Island;RC;Short;non-island;42;Ho intervistato il politico che pensi che il cantante abbia offeso.
+Subject Island;RC;Long;Island;43;Conosco l'artista di cui pensi che il quadro raffiguri la nascita di Venere.
+Subject Island;RC;Long;non-island;43;Conosco l'artista che pensi che abbia dipinto il quadro.
+Subject Island;RC;Short;Island;43;Conosco l'artista di cui pensi che il quadro di Maria raffiguri la nascita.
+Subject Island;RC;Short;non-island;43;Conosco l'artista che pensi che il quadro raffiguri.
+Subject Island;RC;Long;Island;44;Quello è l'uomo di cui pensi che il discorso abbia riacceso la speranza del Presidente.
+Subject Island;RC;Long;non-island;44;Quello è l'uomo che pensi che abbia rassicurato il Presidente.
+Subject Island;RC;Short;Island;44;Quello è l'uomo di cui pensi che il discorso del Presidente abbia riacceso la speranza.
+Subject Island;RC;Short;non-island;44;Quello è l'uomo che pensi che il Presidente abbia rassicurato.
+Subject Island;RC;Long;Island;45;Conosco bene lo studente di cui pensi che la bravura abbia suscitato l'ammirazione del professore.
+Subject Island;RC;Long;non-island;45;Conosco bene lo studente che pensi che abbia umiliato il professore.
+Subject Island;RC;Short;Island;45;Conosco bene lo studente di cui pensi che la bravura del professore abbia suscitato l’ammirazione.
+Subject Island;RC;Short;non-island;45;Conosco bene lo studente che pensi che il professore abbia umiliato.
+Subject Island;RC;Long;Island;46;Conosco il docente del quale pensi che lo scritto abbia colpito i sentimenti del preside.
+Subject Island;RC;Long;non-island;46;Conosco il docente che pensi che abbia letto il tema.
+Subject Island;RC;Short;Island;46;Conosco il docente del quale pensi che lo scritto dello studente abbia colpito i sentimenti.
+Subject Island;RC;Short;non-island;46;Conosco il docente che pensi che il tema abbia colpito.
+Subject Island;RC;Long;Island;47;Ho parlato con la persona di cui pensi che il fratello abbia accusato il sindaco di Milano.
+Subject Island;RC;Long;non-island;47;Ho parlato con la persona di cui pensi che abbia accusato il sindaco di Milano.
+Subject Island;RC;Short;Island;47;Ho parlato con la persona di cui pensi che il sindaco di Milano abbia accusato il fratello.
+Subject Island;RC;Short;non-island;47;Ho parlato con la persona che pensi che il sindaco abbia accusato.
+Subject Island;RC;Long;Island;48;Ho appena visto la ragazza di cui pensi che la festa abbia infastidito il riposo dell'anziano.
+Subject Island;RC;Long;non-island;48;Ho appena visto la ragazza che pensi che abbia rovinato la festa.
+Subject Island;RC;Short;Island;48;Ho appena visto la ragazza di cui pensi che la festa del quartiere abbia infastidito il riposo.
+Subject Island;RC;Short;non-island;48;Ho appena visto la ragazza che pensi che la festa abbia infastidito.
+wh island;RC;Long;Island;49;Ho letto la proposta per la quale gli immigrati chiedono quando voteranno.
+wh island;RC;Long;non-island;49;Ho letto la proposta a favore della quale gli immigrati affermano che voteranno.
+wh island;RC;Short;Island;49;Ho letto la proposta nella quale si chiede quando gli immigrati voteranno.
+wh island;RC;Short;non-island;49;Ho letto la proposta nella quale si afferma che gli immigrati voteranno.
+wh island;RC;Long;Island;50;Ho riconosciuto l’individuo da cui ho mostrato dove l’assessore ha ricevuto una tangente.
+wh island;RC;Long;non-island;50;Ho riconosciuto l’individuo da cui ho mostrato che l’assessore ha ricevuto una tangente.
+wh island;RC;Short;Island;50;Ho riconosciuto l’individuo a cui ho mostrato dove l’assessore ha ricevuto una tangente.
+wh island;RC;Short;non-island;50;Ho riconosciuto l’individuo a cui ho mostrato che l’assessore ha ricevuto una tangente.
+wh island;RC;Long;Island;51;Ho conosciuto il ragazzo con il quale hanno chiesto come mai Giulia sia fidanzata. 
+wh island;RC;Long;non-island;51;Ho conosciuto il ragazzo con il quale si dice che Giulia sia fidanzata.
+wh island;RC;Short;Island;51;Ho conosciuto il ragazzo al quale hanno chiesto come mai si sia fidanzato con Giulia.
+wh island;RC;Short;non-island;51;Ho conosciuto il ragazzo del quale si dice che sia fidanzato con Giulia.
+wh island;RC;Long;Island;52;Maria conosce il musicista a cui ti chiedi quando abbiano regalato una chitarra.
+wh island;RC;Long;non-island;52;Maria conosce il musicista a cui mi è stato rivelato che hanno regalato una chitarra.
+wh island;RC;Short;Island;52;Maria conosce il musicista a cui ho chiesto quando ti hanno regalato una chitarra.
+wh island;RC;Short;non-island;52;Maria conosce il musicista a cui ho rivelato che ti hanno regalato una chitarra.
+wh island;RC;Long;Island;53;Ieri ho visto il poliziotto del quale ti ho domandato perché Lara sia innamorata. 
+wh island;RC;Long;non-island;53;Ieri ho visto il poliziotto del quale si dice che Lara sia innamorata.
+wh island;RC;Short;Island;53;Ieri ho visto il poliziotto al quale ho domandato perché sia innamorato di Lara.
+wh island;RC;Short;non-island;53;Ieri ho visto il poliziotto del quale si dice che sia innamorato di Lara.
+wh island;RC;Long;Island;54;Ho visto lo studente dal quale hai domandato come mai copiavo sempre i compiti.
+wh island;RC;Long;non-island;54;Ho visto lo studente dal quale hai confessato che copiavi sempre i compiti
+wh island;RC;Short;Island;54;Ho visto lo studente al quale hai domandato come mai copiava sempre i compiti.
+wh island;RC;Short;non-island;54;Ho visto lo studente al quale hai confessato che copiavi sempre i compiti.
+wh island;RC;Long;Island;55;Ho telefonato all’uomo verso cui hai chiesto perché Andrea ha un atteggiamento ostile.
+wh island;RC;Long;non-island;55;Ho telefonato all’uomo verso il quale hai fatto notare che Andrea ha un atteggiamento ostile.
+wh island;RC;Short;Island;55;Ho telefonato all’uomo a cui hai chiesto perché Andrea ha un atteggiamento ostile verso di noi.
+wh island;RC;Short;non-island;55;Ho telefonato all’uomo a cui hai fatto notare che Andrea ha un atteggiamento ostile verso di noi.
+wh island;RC;Long;Island;56;Il giocatore più promettente è il ragazzo su cui ho suggerito in che modo dovremmo concentrarci.
+wh island;RC;Long;non-island;56;Il giocatore più promettente è il ragazzo sul quale ho suggerito che dovremmo concentrarci di più.
+wh island;RC;Short;Island;56;Il giocatore più promettente è il ragazzo a cui ho suggerito in che modo dovrebbe concentrarsi.
+wh island;RC;Short;non-island;56;Il giocatore più promettente è il ragazzo a cui ho suggerito che dovrebbe concentrarsi di più. 
+Whether Island;WH;Long;Island;57;Cosa ti domandi se io abbia scritto?
+Whether Island;WH;Long;non-island;57;Cosa pensi che io abbia scritto?
+Whether Island;WH;Short;Island;57;Chi si domanda se io abbia scritto una lettera?
+Whether Island;WH;Short;non-island;57;Chi pensa che io abbia scritto una lettera?
+Whether Island;WH;Long;Island;58;Cosa ti domandi se io abbia rubato?
+Whether Island;WH;Long;non-island;58;Cosa pensi che io abbia rubato?
+Whether Island;WH;Short;Island;58;Chi si domanda se io abbia rubato un cellulare?
+Whether Island;WH;Short;non-island;58;Chi pensa che io abbia rubato un cellulare?
+Whether Island;WH;Long;Island;59;Cosa ti domandi se io abbia comprato?
+Whether Island;WH;Long;non-island;59;Cosa pensi che io abbia comprato?
+Whether Island;WH;Short;Island;59;Chi si domanda se io abbia comprato una casa?
+Whether Island;WH;Short;non-island;59;Chi pensa che io abbia comprato una casa?
+Whether Island;WH;Long;Island;60;Cosa ti domandi se io abbia mangiato?
+Whether Island;WH;Long;non-island;60;Cosa pensi che io abbia mangiato?
+Whether Island;WH;Short;Island;60;Chi si domanda se io abbia mangiato l’insalata?
+Whether Island;WH;Short;non-island;60;Chi pensa che io abbia mangiato l’insalata?
+Whether Island;WH;Long;Island;61;Cosa ti chiedi se io abbia letto?
+Whether Island;WH;Long;non-island;61;Cosa pensi che io abbia letto?
+Whether Island;WH;Short;Island;61;Chi si chiede se io abbia letto il libro?
+Whether Island;WH;Short;non-island;61;Chi pensa che io abbia letto il libro?
+Whether Island;WH;Long;Island;62;Cosa ti chiedi se io abbia visto?
+Whether Island;WH;Long;non-island;62;Cosa pensi che io abbia visto?
+Whether Island;WH;Short;Island;62;Chi si chiede se io abbia visto il film?
+Whether Island;WH;Short;non-island;62;Chi pensa che io abbia visto il film?
+Whether Island;WH;Long;Island;63;Cosa ti chiedi se io abbia iniziato?
+Whether Island;WH;Long;non-island;63;Cosa pensi che io abbia iniziato?
+Whether Island;WH;Short;Island;63;Chi si chiede se io abbia iniziato la dieta?
+Whether Island;WH;Short;non-island;63;Chi pensa che io abbia iniziato la dieta?
+Whether Island;WH;Long;Island;64;Cosa ti chiedi se io abbia preparato?
+Whether Island;WH;Long;non-island;64;Cosa pensi che io abbia preparato?
+Whether Island;WH;Short;Island;64;Chi si chiede se io abbia preparato una torta?
+Whether Island;WH;Short;non-island;64;Chi pensa che io abbia preparato una torta?

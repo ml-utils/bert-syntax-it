@@ -1,0 +1,24 @@
+{"sentence_good": "Cosa pensi che io abbia dimenticato in ufficio?", "sentence_bad": "Cosa ti irriti se dimentico in ufficio?", "conditions": "long_nonisland"}
+{"sentence_good": "Chi pensa che io abbia dimenticato la borsa in ufficio?", "sentence_bad": "Cosa ti irriti se dimentico in ufficio?", "conditions": "short_nonisland"}
+{"sentence_good": "Chi si irrita se dimentico la borsa in ufficio?", "sentence_bad": "Cosa ti irriti se dimentico in ufficio?", "conditions": "short_island"}
+{"sentence_good": "Cosa ti auguri che io abbia comprato all\u2019asta?", "sentence_bad": "Cosa sei contento se compro all\u2019asta?", "conditions": "long_nonisland"}
+{"sentence_good": "Chi si augura che io abbia comprato un dipinto all\u2019asta?", "sentence_bad": "Cosa sei contento se compro all\u2019asta?", "conditions": "short_nonisland"}
+{"sentence_good": "Chi \u00e8 contento se compro un dipinto all\u2019asta?", "sentence_bad": "Cosa sei contento se compro all\u2019asta?", "conditions": "short_island"}
+{"sentence_good": "Cosa credi che io abbia lasciato in macchina?", "sentence_bad": "Cosa ti preoccupi se lascio in macchina?", "conditions": "long_nonisland"}
+{"sentence_good": "Chi crede che io abbia lasciato le chiavi in macchina?", "sentence_bad": "Cosa ti preoccupi se lascio in macchina?", "conditions": "short_nonisland"}
+{"sentence_good": "Chi si preoccupa se lascio le chiavi in macchina?", "sentence_bad": "Cosa ti preoccupi se lascio in macchina?", "conditions": "short_island"}
+{"sentence_good": "Cosa pensi che presenter\u00f2 un disegno al concorso d\u2019arte?", "sentence_bad": "Cosa ti arrabbi se presento al concorso d\u2019arte?", "conditions": "long_nonisland"}
+{"sentence_good": "Chi pensa che presenter\u00f2 un disegno al concorso d\u2019arte?", "sentence_bad": "Cosa ti arrabbi se presento al concorso d\u2019arte?", "conditions": "short_nonisland"}
+{"sentence_good": "Chi si arrabbia se presento un disegno al concorso d\u2019arte?", "sentence_bad": "Cosa ti arrabbi se presento al concorso d\u2019arte?", "conditions": "short_island"}
+{"sentence_good": "Cosa temi che io apra di notte?", "sentence_bad": "Cosa ti lamenti se apro di notte?", "conditions": "long_nonisland"}
+{"sentence_good": "Chi teme che io apra la finestra di notte?", "sentence_bad": "Cosa ti lamenti se apro di notte?", "conditions": "short_nonisland"}
+{"sentence_good": "Chi si lamenta se apro la finestra di notte?", "sentence_bad": "Cosa ti lamenti se apro di notte?", "conditions": "short_island"}
+{"sentence_good": "Cosa vuoi che io accenda di notte?", "sentence_bad": "Cosa dormi meglio se accendo di notte?", "conditions": "long_nonisland"}
+{"sentence_good": "Chi vuole che io accenda l\u2019aria condizionata di notte?", "sentence_bad": "Cosa dormi meglio se accendo di notte?", "conditions": "short_nonisland"}
+{"sentence_good": "Chi dorme meglio se accendo l\u2019aria condizionata di notte?", "sentence_bad": "Cosa dormi meglio se accendo di notte?", "conditions": "short_island"}
+{"sentence_good": "Cosa richiedi che io scriva alla lavagna?", "sentence_bad": "Cosa ti stupisci se scrivo alla lavagna?", "conditions": "long_nonisland"}
+{"sentence_good": "Chi richiede che io scriva l\u2019equazione alla lavagna?", "sentence_bad": "Cosa ti stupisci se scrivo alla lavagna?", "conditions": "short_nonisland"}
+{"sentence_good": "Chi si stupisce se scrivo l\u2019equazione alla lavagna?", "sentence_bad": "Cosa ti stupisci se scrivo alla lavagna?", "conditions": "short_island"}
+{"sentence_good": "Cosa dici che io abbia usato in classe?", "sentence_bad": "Cosa ti infuri se uso in classe?", "conditions": "long_nonisland"}
+{"sentence_good": "Chi dice che io abbia usato il cellulare in classe?", "sentence_bad": "Cosa ti infuri se uso in classe?", "conditions": "short_nonisland"}
+{"sentence_good": "Chi si infuria se uso il cellulare in classe?", "sentence_bad": "Cosa ti infuri se uso in classe?", "conditions": "short_island"}
