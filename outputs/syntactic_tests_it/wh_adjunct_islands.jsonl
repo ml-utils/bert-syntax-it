@@ -126,7 +126,7 @@
     "island_subcategory": "adjunct_island",
     "pairID": "11"},
 
-  {"sentence_good_no_extraction": "Il tuo amico cerca un libro sull'argomento dopo aver guardato un programma televisivo. ",
+  {"sentence_good_no_extraction": "Il tuo amico cerca un libro sull'argomento dopo aver guardato un programma televisivo.",
     "sentence_bad_extraction": "Che cosa il tuo amico cerca un libro sull'argomento dopo aver guardato?",
     "sentence_good_no_island": "Dopo aver guardato cosa il tuo amico cerca un libro sull'argomento?",
     "field": "syntax",
@@ -352,7 +352,7 @@
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
     "pairID": "37"},
-  
+
   {"sentence_good_no_extraction": "Le azioni aumenteranno di valore se l'azienda metterà in commercio il prodotto.",
     "sentence_bad_extraction": "Che cosa le azioni aumenteranno di valore se l'azienda metterà in commercio?",
     "sentence_good_no_island": "Se l'azienda metterà in commercio cosa le azioni aumenteranno di valore?",
