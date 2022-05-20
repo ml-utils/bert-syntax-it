@@ -10,7 +10,7 @@ import os.path
 import pandas
 from tqdm import tqdm
 
-from compare_compute_model_score import DEVICES, load_model, run_testset
+from compute_model_score import DEVICES, load_model, run_testset
 from lm_utils import model_types
 
 

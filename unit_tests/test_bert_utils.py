@@ -18,7 +18,7 @@ from scipy.special import softmax
 
 import bert_utils, notebook
 from lm_utils import model_types, load_testset_data, get_sentences_from_example
-from compare_compute_model_score import get_sentence_score_JHLau
+from compute_model_score import get_sentence_score_JHLau
 
 
 class TestBertUtils(TestCase):

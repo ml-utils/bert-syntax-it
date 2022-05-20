@@ -52,7 +52,15 @@ def load_model(model_type, model_name, device):
 
 
 def run_testset(model_type, model, tokenizer, device, testset):
-
+    """
+    Adapted from https://github.com/jhlau/acceptability-prediction-in-context/blob/master/code/compute_model_score.py
+    :param model_type:
+    :param model:
+    :param tokenizer:
+    :param device:
+    :param testset:
+    :return:
+    """
     sent_ids = []
 
     correct_lps_1st_sentence = 0

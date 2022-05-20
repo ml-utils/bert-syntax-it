@@ -21,12 +21,16 @@ import torch
 from tqdm import tqdm
 
 import bert_utils
-from compare_compute_model_score import DEVICES
-from compare_compute_model_score import run_testset, load_model
+from compute_model_score import DEVICES
+from compute_model_score import run_testset, load_model
 from bert_utils import load_testset_data, analize_sentence, get_probs_for_words, tokenize_sentence, \
     estimate_sentence_probability_from_text
 from bert_utils import get_score_descr
 from lm_utils import *
+
+
+def run_agreement_tests():
+    return 0
 
 
 def load_it():
@@ -536,14 +540,14 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
 # acc. correct_lps_1st_sentence: 90.2 %
 # acc. correct_pen_lps_1st_sentence: 90.2 %
 def run_blimp_en():
-    testset_filepath = './outputs/blimp/from_blim_en/islands/adjunct_island.jsonl'
+    testset_filepath = './outputs/blimp/from_blim_en/islands/complex_NP_island.jsonl'  # wh_island.jsonl' # adjunct_island.jsonl'
     print(f'loading testset file {testset_filepath}..')
     with open(testset_filepath, 'r') as json_file:
         json_list = list(json_file)
     print(f'testset loaded.')
 
-    model_type = model_types.ROBERTA  # model_types.GPT #
-    model_name = "roberta-large" # "bert-large-uncased"  # "bert-base-uncased"  #  "gpt2-large"  #  'dbmdz/bert-base-italian-xxl-cased' #
+    model_type = model_types.GPT # model_types.ROBERTA  #
+    model_name = "gpt2-large"  # "roberta-large" # "bert-large-uncased"  # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
     examples = []
@@ -623,10 +627,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         interactive_mode()
     else:
-        run_blimp_en()
-        raise SystemExit
+        #run_blimp_en()
+        #raise SystemExit
         print(f'choosing model type ..')
-        model_type = model_types.GPT
+        model_type = model_types.BERT
         main(model_type)
 
 
