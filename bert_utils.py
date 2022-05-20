@@ -318,7 +318,7 @@ def get_bert_output(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentenc
     res_unsliced = bert(tens)
     if isinstance(res_unsliced, MaskedLMOutput):
         res_unsliced = res_unsliced.logits
-    print(f'masked_word_idx: {masked_word_idx}, type(res_unsliced): {type(res_unsliced)}')
+    #print(f'masked_word_idx: {masked_word_idx}, type(res_unsliced): {type(res_unsliced)}')
     # masked_word_idx: 1, type(res_unsliced): <class 'transformers.modeling_outputs.MaskedLMOutput'>
     # masked_word_idx: 5, type(res_unsliced): <class 'torch.Tensor'>
     # type(res_unsliced): <class 'transformers.modeling_outputs.CausalLMOutputWithCrossAttentions'>
