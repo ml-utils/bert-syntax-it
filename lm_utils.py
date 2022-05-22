@@ -13,6 +13,7 @@ class model_types:
     GPT = 1
     ROBERTA = 2
     GILBERTO = 3
+    GEPPETTO = 4
 
 
 class sentence_score_bases:

@@ -566,6 +566,8 @@ def run_tests_it(model_type):
 
     if model_type == model_types.GPT:
         model_name = "GroNLP/gpt2-small-italian"
+    if model_type == model_types.GEPPETTO:
+        model_name = "LorenzoDeMattei/GePpeTto"
     elif model_type == model_types.BERT:
         model_name = 'bert-base-uncased'  # NB bert large uncased is about 1GB
         model_name = f'''models/bert-base-italian-uncased/'''
@@ -591,10 +593,10 @@ def run_tests_it(model_type):
         print_orange(f'running test {filepath}')
         testset_data = load_testset_data(filepath)
 
-        if model_type == model_types.BERT or model_type == model_types.GILBERTO:
+        if model_type in [model_types.BERT, model_types.GILBERTO, model_types.ROBERTA]:
             # run_testset(testsets_dir, test_file, model, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
             run_testset(model_type, model, tokenizer, DEVICES.CPU, testset_data)
-        elif model_type == model_types.GPT:
+        elif model_type in [model_types.GPT, model_types.GEPPETTO]:
             run_testset(model_type, model, tokenizer, DEVICES.CPU, testset_data)
 
 
@@ -632,7 +634,7 @@ def main():
         #run_blimp_en()
         #raise SystemExit
         print(f'choosing model type ..')
-        model_type = model_types.GPT
+        model_type = model_types.GEPPETTO
         run_tests_for_model_type(model_type)
 
 

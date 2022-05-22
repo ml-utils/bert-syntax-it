@@ -2,7 +2,8 @@ from functools import reduce
 
 import torch
 from tqdm import tqdm
-from transformers import GPT2Tokenizer, GPT2LMHeadModel, AutoModel, AutoTokenizer  # pytorch_transformers
+from transformers import GPT2Tokenizer, GPT2LMHeadModel, GPT2Model, \
+    CamembertForMaskedLM, CamembertTokenizer  # pytorch_transformers # AutoModel, AutoTokenizer, \
 
 from transformers import BertTokenizer
 from transformers import BertForMaskedLM  # BertModel as BertForMaskedLM  #
@@ -28,6 +29,12 @@ def load_model(model_type, model_name, device):
         print(f'model loaded. Loading tokenizer {model_name}..')
         tokenizer = GPT2Tokenizer.from_pretrained(model_name)
         print(f'tokenizer loaded.')
+    elif model_type == model_types.GEPPETTO:
+         print(f'loading model {model_name}..')
+         model = GPT2LMHeadModel.from_pretrained(model_name)  # GPT2Model
+         print(f'model loaded. Loading tokenizer {model_name}..')
+         tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+         print(f'tokenizer loaded.')
     elif model_type == model_types.BERT:
         print(f'loading model {model_name}..')
         model = BertForMaskedLM.from_pretrained(model_name)  # BertForMaskedLM.from_pretrained(model_name)
@@ -35,18 +42,18 @@ def load_model(model_type, model_name, device):
         tokenizer = BertTokenizer.from_pretrained(model_name,
                                                   do_lower_case=(True if "uncased" in model_name else False))
         print(f'tokenizer loaded.')
-    elif model_type == model_types.ROBERTA:
+    elif model_type in [model_types.ROBERTA]:
         print(f'loading model {model_name}..')
         model = RobertaForMaskedLM.from_pretrained(model_name)
         print(f'model loaded. Loading tokenizer {model_name}..')
         tokenizer = RobertaTokenizer.from_pretrained(model_name, do_lower_case=True)
         print(f'tokenizer loaded.')
     elif model_type == model_types.GILBERTO:
-        print(f'loading model {model_name}..')
-        model = AutoModel.from_pretrained(model_name)
-        print(f'model loaded. Loading tokenizer {model_name}..')
-        tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
-        print(f'tokenizer loaded.')
+         print(f'loading model {model_name}..')
+         model = CamembertForMaskedLM.from_pretrained(model_name)
+         print(f'model loaded. Loading tokenizer {model_name}..')
+         tokenizer = CamembertTokenizer.from_pretrained(model_name, do_lower_case=True)
+         print(f'tokenizer loaded.')
     else:
         return
 
@@ -94,7 +101,7 @@ def run_testset(model_type, model, tokenizer, device, testset):
             sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
             text_len = len(sentence_tokens)
             lp, token_weights = get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, device)
-            if model_type in [model_types.BERT, model_types.ROBERTA]:
+            if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
                 min_token_weight = min(min(token_weights), min_token_weight)
                 max_token_weight = max(max(token_weights), max_token_weight)
                 token_weights_by_sentence.append(token_weights)
@@ -104,7 +111,7 @@ def run_testset(model_type, model, tokenizer, device, testset):
             # mean_lps.append(lp / text_len)
             pen_lps.append(lp / penalty)
             sent_ids.append(sent_id)
-        if model_type in [model_types.BERT, model_types.ROBERTA]:
+        if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
             # normalize token weights
             max_token_weight -= min_token_weight  # normalize the max value
             for sentence_idx, token_weights_this_sentence in enumerate(token_weights_by_sentence):
@@ -118,7 +125,7 @@ def run_testset(model_type, model, tokenizer, device, testset):
             correct_lps_1st_sentence += 1
         if pen_lps[GOOD_SENTENCE_1_IDX] > pen_lps[SENTENCE_BAD_IDX]:
             correct_pen_lps_1st_sentence += 1
-        if model_type in [model_types.BERT, model_types.ROBERTA]:
+        if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
             if sentence_log_weights[GOOD_SENTENCE_1_IDX] > sentence_log_weights[SENTENCE_BAD_IDX]:
                 correct_logweights_1st_sentence += 1
             if pen_sentence_log_weights[GOOD_SENTENCE_1_IDX] > pen_sentence_log_weights[SENTENCE_BAD_IDX]:
@@ -128,7 +135,7 @@ def run_testset(model_type, model, tokenizer, device, testset):
                 correct_lps_2nd_sentence += 1
             if pen_lps[GOOD_SENTENCE_2_IDX] > pen_lps[SENTENCE_BAD_IDX]:
                 correct_pen_lps_2nd_sentence += 1
-            if model_type in [model_types.BERT, model_types.ROBERTA]:
+            if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
                 if sentence_log_weights[GOOD_SENTENCE_2_IDX] > sentence_log_weights[SENTENCE_BAD_IDX]:
                     correct_logweights_2nd_sentence += 1
                 if pen_sentence_log_weights[GOOD_SENTENCE_2_IDX] > pen_sentence_log_weights[SENTENCE_BAD_IDX]:
@@ -141,7 +148,7 @@ def run_testset(model_type, model, tokenizer, device, testset):
     print(f'acc. correct_lps_2nd_sentence: {perc(correct_lps_2nd_sentence, examples_count):.1f} %')
     print(f'acc. correct_pen_lps_2nd_sentence: {perc(correct_pen_lps_2nd_sentence, examples_count):.1f} %')
 
-    if model_type in [model_types.BERT, model_types.ROBERTA]:
+    if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
         print(f'acc. correct_logweights_1st_sentence: {perc(correct_logweights_1st_sentence, examples_count):.1f} %')
         print(f'acc. correct_pen_logweights_1st_sentence: {perc(correct_pen_logweights_1st_sentence, examples_count):.1f} %')
         print(f'acc. correct_logweights_2nd_sentence: {perc(correct_logweights_2nd_sentence, examples_count):.1f} %')
@@ -149,7 +156,7 @@ def run_testset(model_type, model, tokenizer, device, testset):
 
 
 def reduce_to_log_product(seq):
-    return reduce((lambda x, y: x + np.log(y)), seq, 0)
+    return reduce((lambda x, y: x + np.log(y)), seq, 0) # fixme: RuntimeWarning: divide by zero encountered in log
 
 
 def count_accurate_in_example(scores_by_sentence):
@@ -178,7 +185,7 @@ def get_sentence_score_JHLau(model_type: model_types, model, tokenizer, sentence
     if len(sentence_tokens) == 0:
         return -200, None
 
-    if model_type == model_types.GPT:
+    if model_type in [model_types.GPT, model_types.GEPPETTO]:
 
         # not use context variant:
         #prepend the sentence with <|endoftext|> token, so that the loss is computed correctly
@@ -188,7 +195,7 @@ def get_sentence_score_JHLau(model_type: model_types, model, tokenizer, sentence
         loss = model(tensor_input, labels=tensor_input)
         return float(loss[0]) * -1.0 * len(sentence_tokens), None
 
-    elif model_type in [model_types.BERT, model_types.ROBERTA]:  # , model_types.GILBERTO
+    elif model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:  #
 
         batched_indexed_tokens = []
         batched_segment_ids = []
