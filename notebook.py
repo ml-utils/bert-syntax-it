@@ -7,10 +7,10 @@ Original file is located at
     https://colab.research.google.com/drive/1PKYTH2q2bncPfBxLnZg5LQ7fCbklBkCc
 """
 
-#!git clone https://github.com/ml-utils/bert-syntax-it.git
+# !git clone https://github.com/ml-utils/bert-syntax-it.git
 
-#!pip install folium==0.2.1
-#!pip install pytorch-pretrained-bert
+# !pip install folium==0.2.1
+# !pip install pytorch-pretrained-bert
 import json
 import os.path
 from collections import Counter
@@ -47,8 +47,8 @@ def load_it():
         assert(len(g)==len(ug)),(g,ug)
         diffs = [i for i,pair in enumerate(zip(g,ug)) if pair[0]!=pair[1]]
         if (len(diffs)!=1):
-            #print(diffs)
-            #print(g,ug)
+            # print(diffs)
+            # print(g,ug)
             continue
         assert(len(diffs)==1),diffs
         gv=g[diffs[0]]   # good
@@ -71,8 +71,8 @@ def load_marvin():
         assert(len(g)==len(ug)),(g,ug)
         diffs = [i for i,pair in enumerate(zip(g,ug)) if pair[0]!=pair[1]]
         if (len(diffs)!=1):
-            #print(diffs)
-            #print(g,ug)
+            # print(diffs)
+            # print(g,ug)
             continue    
         assert(len(diffs)==1),diffs
         gv=g[diffs[0]]   # good
@@ -583,7 +583,7 @@ def run_tests_it(model_type):
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
     testsets_dir = './outputs/syntactic_tests_it/'
-    testset_files = [#'variations_tests.jsonl'
+    testset_files = [# 'variations_tests.jsonl'
                      'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
                      'wh_whether_island.jsonl'
                      ]
@@ -619,11 +619,11 @@ def run_tests_for_model_type(model_type):
     #    main2()
 
     # run_eval(eval_suite, bert, tokenizer)
-    #prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
-    #prob2 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is name your?')
-    #print(f'prob1: {prob1}, prob2: {prob2}')
-    #eval_it(bert, tokenizer)
-    #custom_eval("What is your name?", bert, tokenizer)
+    # prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
+    # prob2 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is name your?')
+    # print(f'prob1: {prob1}, prob2: {prob2}')
+    # eval_it(bert, tokenizer)
+    # custom_eval("What is your name?", bert, tokenizer)
 
 
 def main():
@@ -631,8 +631,8 @@ def main():
     if len(sys.argv) > 1:
         interactive_mode()
     else:
-        #run_blimp_en()
-        #raise SystemExit
+        # run_blimp_en()
+        # raise SystemExit
         print(f'choosing model type ..')
         model_type = model_types.GEPPETTO
         run_tests_for_model_type(model_type)
