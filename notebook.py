@@ -11,7 +11,7 @@ Original file is located at
 
 #!pip install folium==0.2.1
 #!pip install pytorch-pretrained-bert
-
+import json
 import os.path
 from collections import Counter
 import argparse, sys
@@ -23,10 +23,11 @@ from tqdm import tqdm
 import bert_utils
 from compute_model_score import DEVICES
 from compute_model_score import run_testset, load_model
-from bert_utils import load_testset_data, analize_sentence, get_probs_for_words, tokenize_sentence, \
-    estimate_sentence_probability_from_text
+from bert_utils import analize_sentence, get_probs_for_words, tokenize_sentence, \
+    estimate_sentence_probability_from_text, bert_get_logprobs
 from bert_utils import get_score_descr
-from lm_utils import *
+from lm_utils import load_testset_data, bcolors, load_model_and_tokenizer, model_types, sentence_score_bases, \
+    print_orange, get_sentences_from_example, print_red
 
 
 def run_agreement_tests():
@@ -240,7 +241,6 @@ import numpy as np
 from scipy.special import softmax
 
 
-
 def get_masked_word_probability(bert, tokenizer):
     return 0
 
@@ -307,7 +307,6 @@ def print_sentence_pairs_probabilities(bert, tokenizer, sentence_data):
     print(f'prob_sentence_bad_extraction: {prob_sentence_bad_extraction}')
     print(f'prob_sentence_good_extraction_resumption: {prob_sentence_good_extraction_resumption}')
     print(f'prob_sentence_good_extraction_as_subject: {prob_sentence_good_extraction_as_subject}')
-
 
 
 def run_tests_goldberg():

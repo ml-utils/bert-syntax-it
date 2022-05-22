@@ -9,7 +9,8 @@ from transformers.modeling_outputs import MaskedLMOutput
 
 import numpy as np
 
-from lm_utils import *
+from lm_utils import sentence_score_bases, get_sentences_from_example, get_pen_score, UNK_TOKEN, print_red, \
+    SENTENCE_BAD_IDX, GOOD_SENTENCE_1_IDX, GOOD_SENTENCE_2_IDX, print_orange
 
 
 def analize_sentence(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence: str):
