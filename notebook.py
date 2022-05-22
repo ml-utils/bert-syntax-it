@@ -14,7 +14,7 @@ Original file is located at
 import json
 import os.path
 from collections import Counter
-import argparse, sys
+import sys
 import csv
 
 import torch
