@@ -23,10 +23,12 @@ from tqdm import tqdm
 import bert_utils
 from compute_model_score import DEVICES
 from compute_model_score import run_testset, load_model
-from bert_utils import analize_sentence, get_probs_for_words, tokenize_sentence, \
-    estimate_sentence_probability_from_text, bert_get_logprobs
+from bert_utils import analize_sentence, get_probs_for_words, \
+    tokenize_sentence, estimate_sentence_probability_from_text, \
+    bert_get_logprobs
 from bert_utils import get_score_descr
-from lm_utils import load_testset_data, bcolors, load_model_and_tokenizer, model_types, sentence_score_bases, \
+from lm_utils import load_testset_data, bcolors, load_model_and_tokenizer, \
+    model_types, sentence_score_bases, \
     print_orange, get_sentences_from_example, print_red
 
 
@@ -36,7 +38,9 @@ def run_agreement_tests():
 
 def load_it():
     cc = Counter()
-    # note: I edited the LM_Syneval/src/make_templates.py script, and run "python LM_Syneval/src/make_templates.py LM_Syneval/data/templates/ > marvin_linzen_dataset.tsv"
+    # note: I edited the LM_Syneval/src/make_templates.py script, and run
+    # "python LM_Syneval/src/make_templates.py LM_Syneval/data/templates/ >
+    # marvin_linzen_dataset.tsv"
     out = []
     for line in open("it_dataset.tsv"):
         case = line.strip().split("\t")
@@ -61,7 +65,9 @@ def load_it():
 
 def load_marvin():
     cc = Counter()
-    # note: I edited the LM_Syneval/src/make_templates.py script, and run "python LM_Syneval/src/make_templates.py LM_Syneval/data/templates/ > marvin_linzen_dataset.tsv"
+    # note: I edited the LM_Syneval/src/make_templates.py script, and run
+    # "python LM_Syneval/src/make_templates.py LM_Syneval/data/templates/ >
+    # marvin_linzen_dataset.tsv"
     out = []
     for line in open("marvin_linzen_dataset.tsv"):
         case = line.strip().split("\t")
@@ -127,20 +133,23 @@ def eval_marvin(bert, tokenizer):
 
 
 def eval_lgd(bert, tokenizer):
-    for i, line in enumerate(open("lgd_dataset_with_is_are.tsv", encoding="utf8")):
+    for i, line in enumerate(open("lgd_dataset_with_is_are.tsv",
+                                  encoding="utf8")):
         na, _, masked, good, bad = line.strip().split("\t")
         ps = get_probs_for_words(bert, tokenizer, masked, good, bad)
         if ps is None: continue
         gp = ps[0]
         bp = ps[1]
-        print(str(gp > bp), na, good, gp, bad, bp, masked.encode("utf8"), sep=u"\t")
+        print(str(gp > bp), na, good, gp, bad, bp, masked.encode("utf8"),
+              sep=u"\t")
         if i % 100 == 0:
             print(i, file=sys.stderr)
             sys.stdout.flush()
 
 
 def read_gulordava():
-    rows = csv.DictReader(open("generated.tab", encoding="utf8"), delimiter="\t")
+    rows = csv.DictReader(open("generated.tab", encoding="utf8"),
+                          delimiter="\t")
     data = []
     for row in rows:
         row2 = next(rows)
@@ -165,7 +174,8 @@ def eval_gulordava(bert, tokenizer):
         if ps is None: continue
         gp = ps[0]
         bp = ps[1]
-        print(str(gp > bp), natt, good, gp, bad, bp, masked.encode("utf8"), sep=u"\t")
+        print(str(gp > bp), natt, good, gp, bad, bp, masked.encode("utf8"),
+              sep=u"\t")
         if i % 100 == 0:
             print(i, file=sys.stderr)
             sys.stdout.flush()
@@ -220,7 +230,7 @@ def arg_parse():
             elif currentArgument in ("-b", "--bert_model"):
 
                 argValue = argumentList[arg_idx + 1]
-                print(f'currentArgument: {currentArgument}, argValue: {argValue}')
+                print(f'{currentArgument=}, {argValue=}')
                 if argValue == 'base':
                     model_name = 'bert-base-uncased'
                 else:
@@ -229,7 +239,7 @@ def arg_parse():
 
             elif currentArgument in ("-e", "--eval_suite"):
                 argValue = argumentList[arg_idx + 1]
-                print(f'currentArgument: {currentArgument}, argValue: {argValue}')
+                print(f'{currentArgument=}, {argValue=}')
                 eval_suite = argValue
 
     except getopt.error as err:
@@ -249,13 +259,16 @@ def get_masked_word_probability(bert, tokenizer):
 
 
 def custom_eval(sentence, bert, tokenizer):
-    bert, tokenizer = load_model_and_tokenizer(model_types.BERT, 'bert-base-uncased')
+    bert, tokenizer = load_model_and_tokenizer(model_types.BERT,
+                                               'bert-base-uncased')
 
-    compare_tokens, compare_target_idx = tokenize_sentence(tokenizer, "What is ***your*** name?")
+    compare_tokens, compare_target_idx \
+        = tokenize_sentence(tokenizer, "What is ***your*** name?")
 
     bare_sentence_tokens = tokenizer.tokenize(sentence)
 
-    paper_logprobs = bert_get_logprobs(bare_sentence_tokens, None, bert, tokenizer, device=None)
+    paper_logprobs = bert_get_logprobs(bare_sentence_tokens, None, bert,
+                                       tokenizer, device=None)
 
     tokens_list = ['[CLS]'] + bare_sentence_tokens + ['[SEP]']
     target_idx = 3
@@ -284,40 +297,49 @@ def custom_eval(sentence, bert, tokenizer):
     # Set the maximum sequence length.
     MAX_LEN = 128
     # Pad our input tokens
-    input_ids = pad_sequences([tokenizer.convert_tokens_to_ids(txt) for txt in tokenized_texts],
-                              maxlen=MAX_LEN, dtype="long", truncating="post", padding="post")
-    # Use the BERT tokenizer to convert the tokens to their index numbers in the BERT vocabulary
+    input_ids = pad_sequences([tokenizer.convert_tokens_to_ids(txt) for txt
+                               in tokenized_texts],
+                              maxlen=MAX_LEN, dtype="long", truncating="post",
+                              padding="post")
+    # Use the BERT tokenizer to convert the tokens to their index numbers in
+    # the BERT vocabulary
     input_ids = [tokenizer.convert_tokens_to_ids(x) for x in tokenized_texts]
-    input_ids = pad_sequences(input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post")
+    input_ids = pad_sequences(input_ids, maxlen=MAX_LEN, dtype="long",
+                              truncating="post", padding="post")
 
 
 def print_sentence_pairs_probabilities(bert, tokenizer, sentence_data):
     sentence_good_no_extraction = sentence_data['sentence_good_no_extraction']
     sentence_bad_extraction = sentence_data['sentence_bad_extraction']
-    sentence_good_extraction_resumption = sentence_data['sentence_good_extraction_resumption']
-    sentence_good_extraction_as_subject = sentence_data['sentence_good_extraction_as_subject']
+    sentence_good_extraction_resumption \
+        = sentence_data['sentence_good_extraction_resumption']
+    sentence_good_extraction_as_subject \
+        = sentence_data['sentence_good_extraction_as_subject']
     print(f'sentence_good_no_extraction: {sentence_good_no_extraction}')
     print(f'sentence_bad_extraction: {sentence_bad_extraction}')
-    print(f'sentence_good_extraction_resumption: {sentence_good_extraction_resumption}')
-    print(f'sentence_good_extraction_as_subject: {sentence_good_extraction_as_subject}')
+    print(f'{sentence_good_extraction_resumption=}')
+    print(f'{sentence_good_extraction_as_subject=}')
 
-    prob_sentence_good_no_extraction = estimate_sentence_probability_from_text(bert, tokenizer,
-                                                                               sentence_good_no_extraction)
-    prob_sentence_bad_extraction = estimate_sentence_probability_from_text(bert, tokenizer, sentence_bad_extraction)
-    prob_sentence_good_extraction_resumption = estimate_sentence_probability_from_text(bert, tokenizer,
-                                                                                       sentence_good_extraction_resumption)
-    prob_sentence_good_extraction_as_subject = estimate_sentence_probability_from_text(bert, tokenizer,
-                                                                                       sentence_good_extraction_as_subject)
+    prob_sentence_good_no_extraction \
+        = estimate_sentence_probability_from_text(bert, tokenizer,
+                                                  sentence_good_no_extraction)
+    prob_sentence_bad_extraction \
+        = estimate_sentence_probability_from_text(bert, tokenizer,
+                                                  sentence_bad_extraction)
+    prob_sentence_good_extraction_resumption = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_extraction_resumption)
+    prob_sentence_good_extraction_as_subject = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_extraction_as_subject)
 
-    print(f'prob_sentence_good_no_extraction: {prob_sentence_good_no_extraction}')
+    print(f'{prob_sentence_good_no_extraction=}')
     print(f'prob_sentence_bad_extraction: {prob_sentence_bad_extraction}')
-    print(f'prob_sentence_good_extraction_resumption: {prob_sentence_good_extraction_resumption}')
-    print(f'prob_sentence_good_extraction_as_subject: {prob_sentence_good_extraction_as_subject}')
+    print(f'{prob_sentence_good_extraction_resumption}')
+    print(f'{prob_sentence_good_extraction_as_subject=}')
 
 
 def run_tests_goldberg():
-    # todo: use sentence acceptability estimates (PenLP e PenNL), and see results on goldberg testset
-    # also for blimp testset with tests non intended for bert, compare with the results on gpt and other models
+    # todo: use sentence acceptability estimates (PenLP e PenNL), and see
+    #  results on goldberg testset
+    # also for blimp testset with tests non intended for bert, compare with
+    # the results on gpt and other models
     return 0
 
 
@@ -339,11 +361,14 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
     examples_count = len(testset_data['sentences'])
     print(f'examples_count: {examples_count}')
 
-    # todo: add checks that there is enough variability / less repetitive examples (subjects proper names or pronouns,
+    # todo: add checks that there is enough variability / less repetitive
+    #  examples (subjects proper names or pronouns,
     #  plural and singular, 1st, 2nd and 3rd person, ..
 
-    # only_examples = [3, 6, 8, 10, 14, 15, 16, 18, 19, 21, 22, 23, 26, 29, 31, 32, 33, 39, 43, 46, 47, 48, 49]
-    # print(f'incorrect examples count: {len(only_examples)} out of 50 ({len(only_examples)/50})')
+    # only_examples = [3, 6, 8, 10, 14, 15, 16, 18, 19, 21, 22, 23, 26, 29,
+    # 31, 32, 33, 39, 43, 46, 47, 48, 49]
+    # print(f'incorrect examples count: {len(only_examples)} out of 50
+    # ({len(only_examples)/50})')
     error_count_base_sentence = 0
     error_count_second_sentence = 0
     error_count_either = 0
@@ -360,7 +385,8 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
         acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
         score_base_sentence, score_bad_sentence, score_2nd_good_sentence, \
         oov_counts \
-            = bert_utils.analize_example(model, tokenizer, example_idx, sentence_data, score_based_on)
+            = bert_utils.analize_example(model, tokenizer, example_idx,
+                                         sentence_data, score_based_on)
         # return
         sentences = get_sentences_from_example(sentence_data)
 
@@ -368,13 +394,17 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
         bad_sentences_by_score[score_bad_sentence] = sentences[1]
         base_sentences_by_score[score_base_sentence] = sentences[0]
         examples_by_base_sentence_acceptability_diff[acceptability_diff_base_sentence] \
-            = get_example_analysis_as_tuple(example_idx, score_base_sentence, score_bad_sentence,
+            = get_example_analysis_as_tuple(example_idx, score_base_sentence,
+                                            score_bad_sentence,
                                             score_2nd_good_sentence,
-                                            oov_counts, sentences[0], sentences[1])
+                                            oov_counts, sentences[0],
+                                            sentences[1])
         examples_by_second_sentence_acceptability_diff[acceptability_diff_second_sentence] \
-            = get_example_analysis_as_tuple(example_idx, score_base_sentence, score_bad_sentence,
+            = get_example_analysis_as_tuple(example_idx, score_base_sentence,
+                                            score_bad_sentence,
                                             score_2nd_good_sentence,
-                                            oov_counts, sentences[2], sentences[1])
+                                            oov_counts, sentences[2],
+                                            sentences[1])
 
         if base_sentence_less_acceptable:
             error_count_base_sentence += 1
@@ -386,7 +416,8 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
         else:
             no_errors_examples_indexes.append(example_idx)
 
-    print_red(f'error count and accuracy rates from {examples_count} examples: '
+    print_red(f'error count and accuracy rates from {examples_count} '
+              f'examples: '
               f'base sentence {error_count_base_sentence} '
               f'(acc: {get_perc(examples_count - error_count_base_sentence, examples_count)}), '
               f'second sentence: {error_count_second_sentence} '
