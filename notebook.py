@@ -324,8 +324,10 @@ def print_sentence_pairs_probabilities(bert, tokenizer, sentence_data):
     prob_sentence_bad_extraction \
         = estimate_sentence_probability_from_text(bert, tokenizer,
                                                   sentence_bad_extraction)
-    prob_sentence_good_extraction_resumption = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_extraction_resumption)
-    prob_sentence_good_extraction_as_subject = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_extraction_as_subject)
+    prob_sentence_good_extraction_resumption \
+        = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_extraction_resumption)
+    prob_sentence_good_extraction_as_subject \
+        = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_extraction_as_subject)
 
     print(f'{prob_sentence_good_no_extraction=}')
     print(f'prob_sentence_bad_extraction: {prob_sentence_bad_extraction}')
@@ -424,10 +426,13 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
               f'(acc: {get_perc(examples_count - error_count_either, examples_count)}), '
               f'filename: {filename}')
 
-    print(f'error count out of {examples_count} examples: base sentence {error_count_base_sentence} '
-          f'({get_perc(error_count_base_sentence, examples_count)}), second sentence: {error_count_second_sentence} '
-          f'({get_perc(error_count_second_sentence, examples_count)}), either: {error_count_either} '
-          f'({get_perc(error_count_either, examples_count)}), filename: {filename}')
+    print(f'error count out of {examples_count} examples: '
+          f'base sentence {error_count_base_sentence} '
+          f'({get_perc(error_count_base_sentence, examples_count)}), '
+          f'second sentence: {error_count_second_sentence} '
+          f'({get_perc(error_count_second_sentence, examples_count)}), '
+          f'either: {error_count_either} '
+          f'({get_perc(error_count_either, examples_count)}), {filename=}')
 
     # print examples getting no errors:
     bert_utils.print_orange('Examples getting no errors:')
@@ -435,20 +440,27 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
         no_error_example = testset_data['sentences'][example_idx]
         print(f'{get_sentences_from_example(no_error_example)}')
 
-    bert_utils.print_orange('examples sorted by sentence_acceptability diff, second sentence:')
-    for acceprability_diff, example_analysis in dict(
-            sorted(examples_by_second_sentence_acceptability_diff.items())).items():
-        print_example(example_analysis, acceprability_diff, score_based_on, compare_with_base_sentence=False)
+    bert_utils.print_orange('examples sorted by sentence_acceptability diff, '
+                            'second sentence:')
+    for acceprability_diff, example_analysis \
+            in dict(sorted(examples_by_second_sentence_acceptability_diff.items())).items():
+        print_example(example_analysis, acceprability_diff, score_based_on,
+                      compare_with_base_sentence=False)
 
-    bert_utils.print_orange('examples sorted by sentence_acceptability diff, base sentence:')
-    for acceprability_diff, example_analysis in dict(
-            sorted(examples_by_base_sentence_acceptability_diff.items())).items():
-        print_example(example_analysis, acceprability_diff, score_based_on, compare_with_base_sentence=True)
+    bert_utils.print_orange('examples sorted by sentence_acceptability diff, '
+                            'base sentence:')
+    for acceprability_diff, example_analysis \
+            in dict(sorted(examples_by_base_sentence_acceptability_diff.items())).items():
+        print_example(example_analysis, acceprability_diff, score_based_on,
+                      compare_with_base_sentence=True)
 
     score_descr = get_score_descr(score_based_on)
-    print_sentences_sorted_by_score(second_sentences_by_score, f'second sentences sorted by {score_descr}:')
-    print_sentences_sorted_by_score(bad_sentences_by_score, f'bad sentences sorted by {score_descr}:')
-    print_sentences_sorted_by_score(base_sentences_by_score, f'base sentences sorted by {score_descr}:')
+    print_sentences_sorted_by_score(second_sentences_by_score,
+                                    f'second sentences sorted by {score_descr}:')
+    print_sentences_sorted_by_score(bad_sentences_by_score,
+                                    f'bad sentences sorted by {score_descr}:')
+    print_sentences_sorted_by_score(base_sentences_by_score,
+                                    f'base sentences sorted by {score_descr}:')
 
 
 def print_sentences_sorted_by_score(sentences_by_score, msg):
@@ -457,13 +469,16 @@ def print_sentences_sorted_by_score(sentences_by_score, msg):
         print(f'{score:.1f} {sentence}')
 
 
-def get_example_analysis_as_tuple(example_idx, score_base_sentence, score_bad_sentence, score_2nd_good_sentence,
+def get_example_analysis_as_tuple(example_idx, score_base_sentence,
+                                  score_bad_sentence, score_2nd_good_sentence,
                                   oov_counts, sentence_good, sentence_bad):
-    return (example_idx, score_base_sentence, score_bad_sentence, score_2nd_good_sentence,
+    return (example_idx, score_base_sentence, score_bad_sentence,
+            score_2nd_good_sentence,
             oov_counts, sentence_good, sentence_bad)
 
 
-def print_example(example_analysis, acceprability_diff, score_based_on, compare_with_base_sentence=True):
+def print_example(example_analysis, acceprability_diff, score_based_on,
+                  compare_with_base_sentence=True):
     example_idx = example_analysis[0]
     penLP_base_sentence = example_analysis[1]
     penLP_bad_sentence = example_analysis[2]
@@ -478,8 +493,10 @@ def print_example(example_analysis, acceprability_diff, score_based_on, compare_
 
     score_descr = get_score_descr(score_based_on)
     print(f'{diff_descr}: {rnd(acceprability_diff, 3)}, '
-          f'({score_descr} values: {rnd(penLP_base_sentence, 1)}, {rnd(penLP_bad_sentence, 1)}, {rnd(penLP_2nd_good_sentence, 1)}), '
-          f'example (oov_counts: {oov_counts}): ({example_idx}, \'{sentence_good}\', \'{sentence_bad}\'')
+          f'({score_descr} values: {rnd(penLP_base_sentence, 1)}, '
+          f'{rnd(penLP_bad_sentence, 1)}, {rnd(penLP_2nd_good_sentence, 1)}), '
+          f'example (oov_counts: {oov_counts}): ({example_idx}, '
+          f'\'{sentence_good}\', \'{sentence_bad}\'')
 
 
 def rnd(num, decimal_places):
@@ -500,7 +517,8 @@ def interactive_mode():
     # load model than wait for input sentences
     model_name = 'models/bert-base-italian-xxl-cased/'
     # eval_suite = 'it'
-    bert, tokenizer = load_model_and_tokenizer(model_types.BERT, model_name, do_lower_case=False)
+    bert, tokenizer = load_model_and_tokenizer(model_types.BERT, model_name,
+                                               do_lower_case=False)
 
     print('model loaded, waiting for sentences..')
 
@@ -512,19 +530,22 @@ def interactive_mode():
             return
         bad_sentence = input('Enter 2nd sentence (bad): ')
 
-        example = {'good_sentence': good_sentence, 'bad_sentence': bad_sentence, 'good_sentence2': None}
+        example = {'good_sentence': good_sentence,
+                   'bad_sentence': bad_sentence, 'good_sentence2': None}
 
         base_sentence_less_acceptable, second_sentence_less_acceptable, \
         acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
         penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
-        logits_normalized_bad_sentence, logits_normalized_base_sentence, logits_normalized_2nd_good_sentence, \
-        oov_counts \
+        logits_normalized_bad_sentence, logits_normalized_base_sentence, \
+        logits_normalized_2nd_good_sentence, oov_counts \
             = bert_utils.analize_example(bert, tokenizer, -1, example)
         diff_penLP = round(penLP_base_sentence - penLP_bad_sentence, 3)
 
         print_red('PenLP:')
         print(f'Diff {red_txt(diff_penLP)}, '
-              f'good ({penLP_base_sentence:.1f}), bad ({penLP_bad_sentence:.1f}): {good_sentence} || {bad_sentence}')
+              f'good ({penLP_base_sentence:.1f}), '
+              f'bad ({penLP_bad_sentence:.1f}): '
+              f'{good_sentence} || {bad_sentence}')
 
         # analize both sentences with topk for each masking
         if diff_penLP >= 0:
@@ -534,31 +555,40 @@ def interactive_mode():
 
 def basic_sentence_test(model, tokenizer):
     bert_utils.check_unknown_words(tokenizer)
-    sentence_to_analizse = 'Di che cosa Marco si chiede se è stata riparata da ***Luca***?'
-    topk_tokens, topk_probs, topk_probs_nonsoftmax = analize_sentence(model, tokenizer, sentence_to_analizse)
+    sentence_to_analizse \
+        = 'Di che cosa Marco si chiede se è stata riparata da ***Luca***?'
+    topk_tokens, topk_probs, topk_probs_nonsoftmax \
+        = analize_sentence(model, tokenizer, sentence_to_analizse)
     print(f'sentence: {sentence_to_analizse}')
-    print(f'topk: {topk_tokens}, top_probs: {topk_probs}, topk_probs_nonsoftmax: {topk_probs_nonsoftmax}')
+    print(f' {topk_tokens=}, {topk_probs=}, {topk_probs_nonsoftmax=}')
 
 
 def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
     print_red(f'printing details for sentence {sentence_txt}')
     tokens = tokenizer.tokenize(sentence_txt)
     sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
-    bert_utils.estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose=True)
+    bert_utils.estimate_sentence_probability(bert, tokenizer, sentence_ids,
+                                             verbose=True)
 
 
 # todo same gpt2 as in the paper, comparable bert
 
-# "GPT-2-large with 36 layers and 774M parameters.10 The model is pretrained on Radford et al.’s WebText dataset,
-# which contains 40GB of English text extracted from Web pages and filtered for quality." Estimated that WebText
+# "GPT-2-large with 36 layers and 774M parameters.10 The model is pretrained
+# on Radford et al.’s WebText dataset,
+# which contains 40GB of English text extracted from Web pages and filtered
+# for quality." Estimated that WebText
 # contains about 8B tokens.
 #
 # ..
 # huggingface.co: gpt2-large (model detail info?)(n_layer": 36,)
-# "The OpenAI team wanted to train this model on a corpus as large as possible. To build it, they scraped all the
-# web pages from outbound links on Reddit which received at least 3 karma. Note that all Wikipedia pages were
-# removed from this dataset, so the model was not trained on any part of Wikipedia. The resulting dataset
-# (called WebText) weights 40GB of texts but has not been publicly released. You can find a list of the top 1,000
+# "The OpenAI team wanted to train this model on a corpus as large as possible.
+# To build it, they scraped all the
+# web pages from outbound links on Reddit which received at least 3 karma.
+# Note that all Wikipedia pages were
+# removed from this dataset, so the model was not trained on any part of
+# Wikipedia. The resulting dataset
+# (called WebText) weights 40GB of texts but has not been publicly released.
+# You can find a list of the top 1,000
 # domains present in WebText here."
 # https://huggingface.co/tftransformers/gpt2-large
 #
@@ -578,14 +608,17 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
 # acc. correct_lps_1st_sentence: 90.2 %
 # acc. correct_pen_lps_1st_sentence: 90.2 %
 def run_blimp_en():
-    testset_filepath = './outputs/blimp/from_blim_en/islands/complex_NP_island.jsonl'  # wh_island.jsonl' # adjunct_island.jsonl'
+    testset_filepath \
+        = './outputs/blimp/from_blim_en/islands/complex_NP_island.jsonl'
+    # wh_island.jsonl' # adjunct_island.jsonl'
     print(f'loading testset file {testset_filepath}..')
     with open(testset_filepath, 'r') as json_file:
         json_list = list(json_file)
     print('testset loaded.')
 
     model_type = model_types.GPT  # model_types.ROBERTA  #
-    model_name = "gpt2-large"  # "roberta-large" # "bert-large-uncased"  # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
+    model_name = "gpt2-large"  # "roberta-large" # "bert-large-uncased"
+    # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
     examples = []
@@ -595,7 +628,8 @@ def run_blimp_en():
         # print(isinstance(example, dict))
         sentence_good = example['sentence_good']
         sentence_bad = example['sentence_bad']
-        examples.append({'sentence_good': sentence_good, 'sentence_bad': sentence_bad, 'sentence_good_2nd': ""})
+        examples.append({'sentence_good': sentence_good, 'sentence_bad':
+            sentence_bad, 'sentence_good_2nd': ""})
     testset = {'sentences': examples}
 
     run_testset(model_type, model, tokenizer, DEVICES.CPU, testset)
@@ -622,7 +656,8 @@ def run_tests_it(model_type):
 
     testsets_dir = './outputs/syntactic_tests_it/'
     testset_files = [  # 'variations_tests.jsonl'
-        'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
+        'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl',
+        'wh_subject_islands.jsonl',
         'wh_whether_island.jsonl'
     ]
 
@@ -631,11 +666,15 @@ def run_tests_it(model_type):
         print_orange(f'running test {filepath}')
         testset_data = load_testset_data(filepath)
 
-        if model_type in [model_types.BERT, model_types.GILBERTO, model_types.ROBERTA]:
-            # run_testset(testsets_dir, test_file, model, tokenizer, score_based_on=sentence_score_bases.SOFTMAX)
-            run_testset(model_type, model, tokenizer, DEVICES.CPU, testset_data)
+        if model_type in [model_types.BERT, model_types.GILBERTO,
+                          model_types.ROBERTA]:
+            # run_testset(testsets_dir, test_file, model, tokenizer,
+            # score_based_on=sentence_score_bases.SOFTMAX)
+            run_testset(model_type, model, tokenizer, DEVICES.CPU,
+                        testset_data)
         elif model_type in [model_types.GPT, model_types.GEPPETTO]:
-            run_testset(model_type, model, tokenizer, DEVICES.CPU, testset_data)
+            run_testset(model_type, model, tokenizer, DEVICES.CPU,
+                        testset_data)
 
 
 def run_tests_for_model_type(model_type):
@@ -646,7 +685,9 @@ def run_tests_for_model_type(model_type):
     # (use same pretrained models.. or comparable ones to those in the papers)
     # blimp: ..
     # golderg: ..
-    # Lau et al: https://github.com/ml-utils/acceptability-prediction-in-context/tree/0a274d1d9f70f389ddc6b6d796bd8f815833056c/code
+    # Lau et al: https://github.com/ml-utils/
+    # acceptability-prediction-in-context/tree/
+    # 0a274d1d9f70f389ddc6b6d796bd8f815833056c/code
 
     run_tests_it(model_type)
 
@@ -657,8 +698,10 @@ def run_tests_for_model_type(model_type):
     #    main2()
 
     # run_eval(eval_suite, bert, tokenizer)
-    # prob1 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is your name?')
-    # prob2 = estimate_sentence_probability_from_text(bert, tokenizer, 'What is name your?')
+    # prob1 = estimate_sentence_probability_from_text(bert, tokenizer,
+    # 'What is your name?')
+    # prob2 = estimate_sentence_probability_from_text(bert, tokenizer,
+    # 'What is name your?')
     # print(f'prob1: {prob1}, prob2: {prob2}')
     # eval_it(bert, tokenizer)
     # custom_eval("What is your name?", bert, tokenizer)
