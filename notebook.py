@@ -325,9 +325,11 @@ def print_sentence_pairs_probabilities(bert, tokenizer, sentence_data):
         = estimate_sentence_probability_from_text(bert, tokenizer,
                                                   sentence_bad_extraction)
     prob_sentence_good_extraction_resumption \
-        = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_extraction_resumption)
+        = estimate_sentence_probability_from_text(bert, tokenizer,
+                                                  sentence_good_extraction_resumption)
     prob_sentence_good_extraction_as_subject \
-        = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_extraction_as_subject)
+        = estimate_sentence_probability_from_text(bert, tokenizer,
+                                                  sentence_good_extraction_as_subject)
 
     print(f'{prob_sentence_good_no_extraction=}')
     print(f'prob_sentence_bad_extraction: {prob_sentence_bad_extraction}')
@@ -393,13 +395,15 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
         second_sentences_by_score[score_2nd_good_sentence] = sentences[2]
         bad_sentences_by_score[score_bad_sentence] = sentences[1]
         base_sentences_by_score[score_base_sentence] = sentences[0]
-        examples_by_base_sentence_acceptability_diff[acceptability_diff_base_sentence] \
+        examples_by_base_sentence_acceptability_diff[
+            acceptability_diff_base_sentence] \
             = get_example_analysis_as_tuple(example_idx, score_base_sentence,
                                             score_bad_sentence,
                                             score_2nd_good_sentence,
                                             oov_counts, sentences[0],
                                             sentences[1])
-        examples_by_second_sentence_acceptability_diff[acceptability_diff_second_sentence] \
+        examples_by_second_sentence_acceptability_diff[
+            acceptability_diff_second_sentence] \
             = get_example_analysis_as_tuple(example_idx, score_base_sentence,
                                             score_bad_sentence,
                                             score_2nd_good_sentence,
@@ -443,14 +447,16 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, '
                             'second sentence:')
     for acceprability_diff, example_analysis \
-            in dict(sorted(examples_by_second_sentence_acceptability_diff.items())).items():
+            in dict(sorted(
+        examples_by_second_sentence_acceptability_diff.items())).items():
         print_example(example_analysis, acceprability_diff, score_based_on,
                       compare_with_base_sentence=False)
 
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, '
                             'base sentence:')
     for acceprability_diff, example_analysis \
-            in dict(sorted(examples_by_base_sentence_acceptability_diff.items())).items():
+            in dict(
+        sorted(examples_by_base_sentence_acceptability_diff.items())).items():
         print_example(example_analysis, acceprability_diff, score_based_on,
                       compare_with_base_sentence=True)
 
@@ -593,8 +599,10 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
 # https://huggingface.co/tftransformers/gpt2-large
 #
 # vs bert-large-uncased https://huggingface.co/bert-large-uncased
-# 336M parameters. "pretrained on BookCorpus, a dataset consisting of 11,038 unpublished books and English Wikipedia
-# (excluding lists, tables and headers)." trained  "for one million steps with a batch size of 256"
+# 336M parameters. "pretrained on BookCorpus, a dataset consisting of 11,038
+# unpublished books and English Wikipedia
+# (excluding lists, tables and headers)." trained  "for one million steps
+# with a batch size of 256"
 #
 # vs https://huggingface.co/roberta-large
 # training data: 160GB of text
