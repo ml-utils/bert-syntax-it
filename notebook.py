@@ -446,9 +446,7 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
 
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, '
                             'second sentence:')
-    for acceprability_diff, example_analysis \
-            in dict(sorted(
-        examples_by_second_sentence_acceptability_diff.items())).items():
+    for acceprability_diff, example_analysis in dict(sorted(examples_by_second_sentence_acceptability_diff.items())).items():
         print_example(example_analysis, acceprability_diff, score_based_on,
                       compare_with_base_sentence=False)
 
