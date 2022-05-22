@@ -14,18 +14,19 @@ Original file is located at
 import json
 import os.path
 from collections import Counter
+# from collections import defaultdict
 import sys
 import csv
+import getopt
 
-import torch
+# import torch
 from tqdm import tqdm
 
 import bert_utils
 from compute_model_score import DEVICES
 from compute_model_score import run_testset, load_model
 from bert_utils import analize_sentence, get_probs_for_words, \
-    tokenize_sentence, estimate_sentence_probability_from_text, \
-    bert_get_logprobs
+    tokenize_sentence, estimate_sentence_probability_from_text
 from bert_utils import get_score_descr
 from lm_utils import load_testset_data, bcolors, load_model_and_tokenizer, \
     model_types, sentence_score_bases, \
@@ -93,15 +94,15 @@ def load_marvin():
 def eval_it(bert, tokenizer):
     o = load_it()
     print(len(o), file=sys.stderr)
-    from collections import defaultdict
     import time
-    rc = defaultdict(Counter)
-    tc = Counter()
+    # rc = defaultdict(Counter)
+    # tc = Counter()
     start = time.time()
     bert_utils.print_orange(f'{len(o)} sentences to process..')
     for i, (case, tp, s, good_word, bad_word) in enumerate(o):
         ps = get_probs_for_words(bert, tokenizer, s, good_word, bad_word)
-        if ps is None: ps = [0, 1]
+        if ps is None:
+            ps = [0, 1]
         gp = ps[0]
         bp = ps[1]
         print(gp > bp, case, tp, good_word, bad_word, s)
@@ -115,14 +116,15 @@ def eval_it(bert, tokenizer):
 def eval_marvin(bert, tokenizer):
     o = load_marvin()
     print(len(o), file=sys.stderr)
-    from collections import defaultdict
+
     import time
-    rc = defaultdict(Counter)
-    tc = Counter()
+    # rc = defaultdict(Counter)
+    # tc = Counter()
     start = time.time()
     for i, (case, tp, s, g, b) in enumerate(o):
         ps = get_probs_for_words(bert, tokenizer, s, g, b)
-        if ps is None: ps = [0, 1]
+        if ps is None:
+            ps = [0, 1]
         gp = ps[0]
         bp = ps[1]
         print(gp > bp, case, tp, g, b, s)
@@ -137,7 +139,8 @@ def eval_lgd(bert, tokenizer):
                                   encoding="utf8")):
         na, _, masked, good, bad = line.strip().split("\t")
         ps = get_probs_for_words(bert, tokenizer, masked, good, bad)
-        if ps is None: continue
+        if ps is None:
+            continue
         gp = ps[0]
         bp = ps[1]
         print(str(gp > bp), na, good, gp, bad, bp, masked.encode("utf8"),
@@ -171,7 +174,8 @@ def eval_gulordava(bert, tokenizer):
             print("skipping is/are")
             continue
         ps = get_probs_for_words(bert, tokenizer, masked, good, bad)
-        if ps is None: continue
+        if ps is None:
+            continue
         gp = ps[0]
         bp = ps[1]
         print(str(gp > bp), natt, good, gp, bad, bp, masked.encode("utf8"),
@@ -201,16 +205,14 @@ def arg_parse():
     # Python program to demonstrate
     # command line arguments
 
-    import getopt, sys
-
     # Remove 1st argument from the
     # list of command line arguments
     argumentList = sys.argv[1:]
 
-    options = "be:"
+    # options = "be:"
 
     # Long options
-    long_options = ["bert_model", "eval_suite"]
+    # long_options = ["bert_model", "eval_suite"]
 
     DEFAULT_MODEL = 'bert-large-uncased'
     DEFAULT_EVAL_SUITE = 'lgd'
@@ -250,10 +252,6 @@ def arg_parse():
     return model_name, eval_suite
 
 
-import numpy as np
-from scipy.special import softmax
-
-
 def get_masked_word_probability(bert, tokenizer):
     return 0
 
@@ -267,8 +265,8 @@ def custom_eval(sentence, bert, tokenizer):
 
     bare_sentence_tokens = tokenizer.tokenize(sentence)
 
-    paper_logprobs = bert_get_logprobs(bare_sentence_tokens, None, bert,
-                                       tokenizer, device=None)
+    # paper_logprobs = bert_get_logprobs(bare_sentence_tokens, None, bert,
+    #                                   tokenizer, device=None)
 
     tokens_list = ['[CLS]'] + bare_sentence_tokens + ['[SEP]']
     target_idx = 3
@@ -278,34 +276,34 @@ def custom_eval(sentence, bert, tokenizer):
     print(f'tokens: {tokens_list}, masked_word: {masked_word}')
     print(f'compare_tokens: {compare_tokens}')
 
-    input_ids = tokenizer.convert_tokens_to_ids(tokens_list)
+    # input_ids = tokenizer.convert_tokens_to_ids(tokens_list)
 
-    try:
-        masked_word_id = tokenizer.convert_tokens_to_ids([masked_word])
-    except KeyError:
-        print(f"unable to convert {masked_word} to id")
-        return None
-    tens = torch.LongTensor(input_ids).unsqueeze(0)
+    # try:
+    #     masked_word_id = tokenizer.convert_tokens_to_ids([masked_word])
+    # except KeyError:
+    #     print(f"unable to convert {masked_word} to id")
+    #     return None
+    # tens = torch.LongTensor(input_ids).unsqueeze(0)
 
-    res_unsliced = bert(tens)
-    res = res_unsliced[0, target_idx]
+    # res_unsliced = bert(tens)
+    # res = res_unsliced[0, target_idx]
 
     # res=torch.nn.functional.softmax(res,-1)
 
-    pred = bert("What is [MASK] name?")
+    # pred = bert("What is [MASK] name?")
 
     # Set the maximum sequence length.
-    MAX_LEN = 128
+    # MAX_LEN = 128
     # Pad our input tokens
-    input_ids = pad_sequences([tokenizer.convert_tokens_to_ids(txt) for txt
-                               in tokenized_texts],
-                              maxlen=MAX_LEN, dtype="long", truncating="post",
-                              padding="post")
+    # input_ids = pad_sequences([tokenizer.convert_tokens_to_ids(txt) for txt
+    #                            in tokenized_texts],
+    #                         maxlen=MAX_LEN, dtype="long", truncating="post",
+    #                           padding="post")
     # Use the BERT tokenizer to convert the tokens to their index numbers in
     # the BERT vocabulary
-    input_ids = [tokenizer.convert_tokens_to_ids(x) for x in tokenized_texts]
-    input_ids = pad_sequences(input_ids, maxlen=MAX_LEN, dtype="long",
-                              truncating="post", padding="post")
+    # input_ids = [tokenizer.convert_tokens_to_ids(x) for x in tokenized_texts]
+    # input_ids = pad_sequences(input_ids, maxlen=MAX_LEN, dtype="long",
+    #                          truncating="post", padding="post")
 
 
 def print_sentence_pairs_probabilities(bert, tokenizer, sentence_data):
