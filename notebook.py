@@ -30,7 +30,7 @@ from bert_utils import analize_sentence, get_probs_for_words, \
 from bert_utils import get_score_descr
 from lm_utils import load_testset_data, bcolors, load_model_and_tokenizer, \
     model_types, sentence_score_bases, \
-    print_orange, get_sentences_from_example, print_red
+    print_orange, get_sentences_from_example, print_red, red_txt
 
 
 def run_agreement_tests():
@@ -495,14 +495,14 @@ def get_perc(value, total):
 
 
 def interactive_mode():
-    print(f'interactive mode')
+    print('interactive mode')
 
     # load model than wait for input sentences
-    model_name = f'models/bert-base-italian-xxl-cased/'
-    eval_suite = 'it'
+    model_name = 'models/bert-base-italian-xxl-cased/'
+    # eval_suite = 'it'
     bert, tokenizer = load_model_and_tokenizer(model_types.BERT, model_name, do_lower_case=False)
 
-    print(f'model loaded, waiting for sentences..')
+    print('model loaded, waiting for sentences..')
 
     # given two sentences, print PenLPs, and diff btw PenLPs
     end_program = False
@@ -522,8 +522,8 @@ def interactive_mode():
             = bert_utils.analize_example(bert, tokenizer, -1, example)
         diff_penLP = round(penLP_base_sentence - penLP_bad_sentence, 3)
 
-        print_red(f'PenLP:')
-        print(f'Diff {bert_utils.red_txt(diff_penLP)}, '
+        print_red('PenLP:')
+        print(f'Diff {red_txt(diff_penLP)}, '
               f'good ({penLP_base_sentence:.1f}), bad ({penLP_bad_sentence:.1f}): {good_sentence} || {bad_sentence}')
 
         # analize both sentences with topk for each masking
@@ -582,7 +582,7 @@ def run_blimp_en():
     print(f'loading testset file {testset_filepath}..')
     with open(testset_filepath, 'r') as json_file:
         json_list = list(json_file)
-    print(f'testset loaded.')
+    print('testset loaded.')
 
     model_type = model_types.GPT  # model_types.ROBERTA  #
     model_name = "gpt2-large"  # "roberta-large" # "bert-large-uncased"  # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
@@ -608,13 +608,13 @@ def run_tests_it(model_type):
         model_name = "LorenzoDeMattei/GePpeTto"
     elif model_type == model_types.BERT:
         model_name = 'bert-base-uncased'  # NB bert large uncased is about 1GB
-        model_name = f'''models/bert-base-italian-uncased/'''
-        model_name = f'''models/bert-base-italian-cased/'''
-        model_name = f'dbmdz/bert-base-italian-xxl-cased'
-        model_name = f'./models/bert-base-italian-xxl-cased/'
+        model_name = '''models/bert-base-italian-uncased/'''
+        model_name = '''models/bert-base-italian-cased/'''
+        model_name = 'dbmdz/bert-base-italian-xxl-cased'
+        model_name = './models/bert-base-italian-xxl-cased/'
         model_name = 'dbmdz/bert-base-italian-cased'
         # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
-        eval_suite = 'it'
+        # eval_suite = 'it'
     elif model_type == model_types.GILBERTO:
         model_name = "idb-ita/gilberto-uncased-from-camembert"
 
@@ -670,7 +670,7 @@ def main():
     else:
         # run_blimp_en()
         # raise SystemExit
-        print(f'choosing model type ..')
+        print('choosing model type ..')
         model_type = model_types.GEPPETTO
         run_tests_for_model_type(model_type)
 
