@@ -122,10 +122,13 @@ def run_sprouse_test(filepath, model_type, model, tokenizer, device):
     run_testset(model_type, model, tokenizer, device, testset)
 
 
-if __name__ == "__main__":
-    model_type = model_types.BERT # model_types.GPT # model_types.ROBERTA  #
-    model_name = 'dbmdz/bert-base-italian-xxl-cased' # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
+def main():
+    model_type = model_types.BERT  # model_types.GPT # model_types.ROBERTA  #
+    model_name = 'dbmdz/bert-base-italian-xxl-cased'  # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
     device = DEVICES.CPU
     model, tokenizer = load_model(model_type, model_name, device)
     run_sprouse_tests(model_type, model, tokenizer, device)
 
+
+if __name__ == "__main__":
+    main()

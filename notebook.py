@@ -598,7 +598,7 @@ def run_tests_it(model_type):
             run_testset(model_type, model, tokenizer, DEVICES.CPU, testset_data)
 
 
-def main(model_type):
+def run_tests_for_model_type(model_type):
     print('model_type: {model_type}')
     # model_name, eval_suite = arg_parse()
 
@@ -624,7 +624,7 @@ def main(model_type):
     #custom_eval("What is your name?", bert, tokenizer)
 
 
-if __name__ == "__main__":
+def main():
 
     if len(sys.argv) > 1:
         interactive_mode()
@@ -633,6 +633,9 @@ if __name__ == "__main__":
         #raise SystemExit
         print(f'choosing model type ..')
         model_type = model_types.GPT
-        main(model_type)
+        run_tests_for_model_type(model_type)
 
+
+if __name__ == "__main__":
+    main()
 

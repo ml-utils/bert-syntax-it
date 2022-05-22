@@ -43,12 +43,16 @@ def test_sentence(sentence: str):
     return
 
 
-def main():
+def print_profession_nouns():
     for noun in vocab_it.nouns_professions:
         print(noun + ' ')
 
 
-if __name__ == "__main__":
+def main():
     # main()
-    #t_determiner_noun_agreement_1()
+    # t_determiner_noun_agreement_1()
     print('main')
+
+
+if __name__ == "__main__":
+    main()
