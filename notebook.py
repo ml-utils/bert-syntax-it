@@ -40,23 +40,24 @@ def load_it():
     out = []
     for line in open("it_dataset.tsv"):
         case = line.strip().split("\t")
-        cc[case[1]]+=1
-        g,ug = case[-2],case[-1]
+        cc[case[1]] += 1
+        g, ug = case[-2], case[-1]
         g = g.split()
         ug = ug.split()
-        assert(len(g)==len(ug)),(g,ug)
-        diffs = [i for i,pair in enumerate(zip(g,ug)) if pair[0]!=pair[1]]
-        if (len(diffs)!=1):
+        assert (len(g) == len(ug)), (g, ug)
+        diffs = [i for i, pair in enumerate(zip(g, ug)) if pair[0] != pair[1]]
+        if len(diffs) != 1:
             # print(diffs)
             # print(g,ug)
             continue
-        assert(len(diffs)==1),diffs
-        gv=g[diffs[0]]   # good
-        ugv=ug[diffs[0]] # bad
-        g[diffs[0]]="***mask***"
+        assert (len(diffs) == 1), diffs
+        gv = g[diffs[0]]  # good
+        ugv = ug[diffs[0]]  # bad
+        g[diffs[0]] = "***mask***"
         g.append(".")
-        out.append((case[0],case[1]," ".join(g),gv,ugv))
+        out.append((case[0], case[1], " ".join(g), gv, ugv))
     return out
+
 
 def load_marvin():
     cc = Counter()
@@ -64,26 +65,26 @@ def load_marvin():
     out = []
     for line in open("marvin_linzen_dataset.tsv"):
         case = line.strip().split("\t")
-        cc[case[1]]+=1
-        g,ug = case[-2],case[-1]
+        cc[case[1]] += 1
+        g, ug = case[-2], case[-1]
         g = g.split()
         ug = ug.split()
-        assert(len(g)==len(ug)),(g,ug)
-        diffs = [i for i,pair in enumerate(zip(g,ug)) if pair[0]!=pair[1]]
-        if (len(diffs)!=1):
+        assert (len(g) == len(ug)), (g, ug)
+        diffs = [i for i, pair in enumerate(zip(g, ug)) if pair[0] != pair[1]]
+        if len(diffs) != 1:
             # print(diffs)
             # print(g,ug)
-            continue    
-        assert(len(diffs)==1),diffs
-        gv=g[diffs[0]]   # good
-        ugv=ug[diffs[0]] # bad
-        g[diffs[0]]="***mask***"
+            continue
+        assert (len(diffs) == 1), diffs
+        gv = g[diffs[0]]  # good
+        ugv = ug[diffs[0]]  # bad
+        g[diffs[0]] = "***mask***"
         g.append(".")
-        out.append((case[0],case[1]," ".join(g),gv,ugv))
+        out.append((case[0], case[1], " ".join(g), gv, ugv))
     return out
 
 
-def eval_it(bert,tokenizer):
+def eval_it(bert, tokenizer):
     o = load_it()
     print(len(o), file=sys.stderr)
     from collections import defaultdict
@@ -105,68 +106,70 @@ def eval_it(bert,tokenizer):
             sys.stdout.flush()
 
 
-def eval_marvin(bert,tokenizer):
+def eval_marvin(bert, tokenizer):
     o = load_marvin()
-    print(len(o),file=sys.stderr)
+    print(len(o), file=sys.stderr)
     from collections import defaultdict
     import time
     rc = defaultdict(Counter)
     tc = Counter()
     start = time.time()
-    for i,(case,tp,s,g,b) in enumerate(o):
-        ps = get_probs_for_words(bert,tokenizer,s,g,b)
-        if ps is None: ps = [0,1]
+    for i, (case, tp, s, g, b) in enumerate(o):
+        ps = get_probs_for_words(bert, tokenizer, s, g, b)
+        if ps is None: ps = [0, 1]
         gp = ps[0]
         bp = ps[1]
-        print(gp>bp,case,tp,g,b,s)
-        if i % 100==0:
-            print(i,time.time()-start,file=sys.stderr)
-            start=time.time()
+        print(gp > bp, case, tp, g, b, s)
+        if i % 100 == 0:
+            print(i, time.time() - start, file=sys.stderr)
+            start = time.time()
             sys.stdout.flush()
 
-def eval_lgd(bert,tokenizer):
-    for i,line in enumerate(open("lgd_dataset_with_is_are.tsv",encoding="utf8")):
-        na,_,masked,good,bad = line.strip().split("\t")
-        ps = get_probs_for_words(bert,tokenizer,masked,good,bad)
+
+def eval_lgd(bert, tokenizer):
+    for i, line in enumerate(open("lgd_dataset_with_is_are.tsv", encoding="utf8")):
+        na, _, masked, good, bad = line.strip().split("\t")
+        ps = get_probs_for_words(bert, tokenizer, masked, good, bad)
         if ps is None: continue
         gp = ps[0]
         bp = ps[1]
-        print(str(gp>bp),na,good,gp,bad,bp,masked.encode("utf8"),sep=u"\t")
-        if i%100 == 0:
-            print(i,file=sys.stderr)
+        print(str(gp > bp), na, good, gp, bad, bp, masked.encode("utf8"), sep=u"\t")
+        if i % 100 == 0:
+            print(i, file=sys.stderr)
             sys.stdout.flush()
 
 
 def read_gulordava():
-    rows = csv.DictReader(open("generated.tab",encoding="utf8"),delimiter="\t")
-    data=[]
+    rows = csv.DictReader(open("generated.tab", encoding="utf8"), delimiter="\t")
+    data = []
     for row in rows:
-        row2=next(rows)
-        assert(row['sent']==row2['sent'])
-        assert(row['class']=='correct')
-        assert(row2['class']=='wrong')
-        sent = row['sent'].lower().split()[:-1] # dump the <eos> token.
+        row2 = next(rows)
+        assert (row['sent'] == row2['sent'])
+        assert (row['class'] == 'correct')
+        assert (row2['class'] == 'wrong')
+        sent = row['sent'].lower().split()[:-1]  # dump the <eos> token.
         good_form = row['form']
-        bad_form  = row2['form']
-        sent[int(row['len_prefix'])]="***mask***"
+        bad_form = row2['form']
+        sent[int(row['len_prefix'])] = "***mask***"
         sent = " ".join(sent)
-        data.append((sent,row['n_attr'],good_form,bad_form))
+        data.append((sent, row['n_attr'], good_form, bad_form))
     return data
 
 
-def eval_gulordava(bert,tokenizer):
-    for i,(masked,natt,good,bad) in enumerate(read_gulordava()):
-        if good in ["is","are"]:
+def eval_gulordava(bert, tokenizer):
+    for i, (masked, natt, good, bad) in enumerate(read_gulordava()):
+        if good in ["is", "are"]:
             print("skipping is/are")
             continue
-        ps = get_probs_for_words(bert,tokenizer,masked,good,bad)
+        ps = get_probs_for_words(bert, tokenizer, masked, good, bad)
         if ps is None: continue
         gp = ps[0]
         bp = ps[1]
-        print(str(gp>bp),natt,good,gp,bad,bp,masked.encode("utf8"),sep=u"\t")
-        if i%100 == 0:
-            print(i,file=sys.stderr)
+        print(str(gp > bp), natt, good, gp, bad, bp, masked.encode("utf8"), sep=u"\t")
+        if i % 100 == 0:
+            print(i, file=sys.stderr)
             sys.stdout.flush()
+
 
 # choose_eval()
 
@@ -176,11 +179,11 @@ def run_eval(eval_suite, bert, tokenizer):
     if 'it' == eval_suite:
         eval_it(bert, tokenizer)
     elif 'marvin' == eval_suite:
-        eval_marvin(bert,tokenizer)
+        eval_marvin(bert, tokenizer)
     elif 'gul' == eval_suite:
-        eval_gulordava(bert,tokenizer)
+        eval_gulordava(bert, tokenizer)
     else:
-        eval_lgd(bert,tokenizer)
+        eval_lgd(bert, tokenizer)
 
 
 def arg_parse():
@@ -209,14 +212,14 @@ def arg_parse():
         print(f'argumentList: {argumentList}')
 
         # checking each argument
-        for arg_idx, currentArgument  in enumerate(argumentList):
+        for arg_idx, currentArgument in enumerate(argumentList):
             print(f'persing currentArgument {currentArgument}')
             if currentArgument in ("-h", "--Help"):
                 print("Displaying Help")
 
             elif currentArgument in ("-b", "--bert_model"):
 
-                argValue = argumentList[arg_idx+1]
+                argValue = argumentList[arg_idx + 1]
                 print(f'currentArgument: {currentArgument}, argValue: {argValue}')
                 if argValue == 'base':
                     model_name = 'bert-base-uncased'
@@ -272,7 +275,7 @@ def custom_eval(sentence, bert, tokenizer):
     tens = torch.LongTensor(input_ids).unsqueeze(0)
 
     res_unsliced = bert(tens)
-    res=res_unsliced[0, target_idx]
+    res = res_unsliced[0, target_idx]
 
     # res=torch.nn.functional.softmax(res,-1)
 
@@ -298,10 +301,13 @@ def print_sentence_pairs_probabilities(bert, tokenizer, sentence_data):
     print(f'sentence_good_extraction_resumption: {sentence_good_extraction_resumption}')
     print(f'sentence_good_extraction_as_subject: {sentence_good_extraction_as_subject}')
 
-    prob_sentence_good_no_extraction = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_no_extraction)
+    prob_sentence_good_no_extraction = estimate_sentence_probability_from_text(bert, tokenizer,
+                                                                               sentence_good_no_extraction)
     prob_sentence_bad_extraction = estimate_sentence_probability_from_text(bert, tokenizer, sentence_bad_extraction)
-    prob_sentence_good_extraction_resumption = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_extraction_resumption)
-    prob_sentence_good_extraction_as_subject = estimate_sentence_probability_from_text(bert, tokenizer, sentence_good_extraction_as_subject)
+    prob_sentence_good_extraction_resumption = estimate_sentence_probability_from_text(bert, tokenizer,
+                                                                                       sentence_good_extraction_resumption)
+    prob_sentence_good_extraction_as_subject = estimate_sentence_probability_from_text(bert, tokenizer,
+                                                                                       sentence_good_extraction_as_subject)
 
     print(f'prob_sentence_good_no_extraction: {prob_sentence_good_no_extraction}')
     print(f'prob_sentence_bad_extraction: {prob_sentence_bad_extraction}')
@@ -326,7 +332,7 @@ def run_tests_lau_et_al():
 
 
 def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
-                score_based_on=sentence_score_bases.SOFTMAX):
+                     score_based_on=sentence_score_bases.SOFTMAX):
     filepath = os.path.join(testsets_dir, filename)
     print_orange(f'running test {filepath}')
     testset_data = load_testset_data(filepath)
@@ -348,24 +354,26 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
     bad_sentences_by_score = {}
     base_sentences_by_score = {}
     for example_idx, sentence_data in enumerate(testset_data['sentences']):
-        #print(f"json_str, type: {type(sentence_data)}: {sentence_data}")
+        # print(f"json_str, type: {type(sentence_data)}: {sentence_data}")
         # print_sentence_pairs_probabilities(bert, tokenizer, sentence_data)
         base_sentence_less_acceptable, second_sentence_less_acceptable, \
         acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
         score_base_sentence, score_bad_sentence, score_2nd_good_sentence, \
         oov_counts \
             = bert_utils.analize_example(model, tokenizer, example_idx, sentence_data, score_based_on)
-        #return
+        # return
         sentences = get_sentences_from_example(sentence_data)
 
         second_sentences_by_score[score_2nd_good_sentence] = sentences[2]
         bad_sentences_by_score[score_bad_sentence] = sentences[1]
         base_sentences_by_score[score_base_sentence] = sentences[0]
         examples_by_base_sentence_acceptability_diff[acceptability_diff_base_sentence] \
-            = get_example_analysis_as_tuple(example_idx, score_base_sentence, score_bad_sentence, score_2nd_good_sentence,
+            = get_example_analysis_as_tuple(example_idx, score_base_sentence, score_bad_sentence,
+                                            score_2nd_good_sentence,
                                             oov_counts, sentences[0], sentences[1])
         examples_by_second_sentence_acceptability_diff[acceptability_diff_second_sentence] \
-            = get_example_analysis_as_tuple(example_idx, score_base_sentence, score_bad_sentence, score_2nd_good_sentence,
+            = get_example_analysis_as_tuple(example_idx, score_base_sentence, score_bad_sentence,
+                                            score_2nd_good_sentence,
                                             oov_counts, sentences[2], sentences[1])
 
         if base_sentence_less_acceptable:
@@ -379,13 +387,13 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
             no_errors_examples_indexes.append(example_idx)
 
     print_red(f'error count and accuracy rates from {examples_count} examples: '
-          f'base sentence {error_count_base_sentence} '
-          f'(acc: {get_perc(examples_count-error_count_base_sentence, examples_count)}), '
-          f'second sentence: {error_count_second_sentence} '
-          f'(acc: {get_perc(examples_count-error_count_second_sentence, examples_count)}), '
-          f'either: {error_count_either} '
-          f'(acc: {get_perc(examples_count-error_count_either, examples_count)}), '
-          f'filename: {filename}')
+              f'base sentence {error_count_base_sentence} '
+              f'(acc: {get_perc(examples_count - error_count_base_sentence, examples_count)}), '
+              f'second sentence: {error_count_second_sentence} '
+              f'(acc: {get_perc(examples_count - error_count_second_sentence, examples_count)}), '
+              f'either: {error_count_either} '
+              f'(acc: {get_perc(examples_count - error_count_either, examples_count)}), '
+              f'filename: {filename}')
 
     print(f'error count out of {examples_count} examples: base sentence {error_count_base_sentence} '
           f'({get_perc(error_count_base_sentence, examples_count)}), second sentence: {error_count_second_sentence} '
@@ -399,11 +407,13 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
         print(f'{get_sentences_from_example(no_error_example)}')
 
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, second sentence:')
-    for acceprability_diff, example_analysis in dict(sorted(examples_by_second_sentence_acceptability_diff.items())).items():
+    for acceprability_diff, example_analysis in dict(
+            sorted(examples_by_second_sentence_acceptability_diff.items())).items():
         print_example(example_analysis, acceprability_diff, score_based_on, compare_with_base_sentence=False)
 
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, base sentence:')
-    for acceprability_diff, example_analysis in dict(sorted(examples_by_base_sentence_acceptability_diff.items())).items():
+    for acceprability_diff, example_analysis in dict(
+            sorted(examples_by_base_sentence_acceptability_diff.items())).items():
         print_example(example_analysis, acceprability_diff, score_based_on, compare_with_base_sentence=True)
 
     score_descr = get_score_descr(score_based_on)
@@ -424,7 +434,7 @@ def get_example_analysis_as_tuple(example_idx, score_base_sentence, score_bad_se
             oov_counts, sentence_good, sentence_bad)
 
 
-def print_example(example_analysis, acceprability_diff, score_based_on, compare_with_base_sentence = True):
+def print_example(example_analysis, acceprability_diff, score_based_on, compare_with_base_sentence=True):
     example_idx = example_analysis[0]
     penLP_base_sentence = example_analysis[1]
     penLP_bad_sentence = example_analysis[2]
@@ -438,8 +448,8 @@ def print_example(example_analysis, acceprability_diff, score_based_on, compare_
         diff_descr = 'accept_diff_w_2nd_sent'
 
     score_descr = get_score_descr(score_based_on)
-    print(f'{diff_descr}: {rnd(acceprability_diff,3)}, '
-          f'({score_descr} values: {rnd(penLP_base_sentence,1)}, {rnd(penLP_bad_sentence,1)}, {rnd(penLP_2nd_good_sentence,1)}), '
+    print(f'{diff_descr}: {rnd(acceprability_diff, 3)}, '
+          f'({score_descr} values: {rnd(penLP_base_sentence, 1)}, {rnd(penLP_bad_sentence, 1)}, {rnd(penLP_2nd_good_sentence, 1)}), '
           f'example (oov_counts: {oov_counts}): ({example_idx}, \'{sentence_good}\', \'{sentence_bad}\'')
 
 
@@ -545,7 +555,7 @@ def run_blimp_en():
         json_list = list(json_file)
     print(f'testset loaded.')
 
-    model_type = model_types.GPT # model_types.ROBERTA  #
+    model_type = model_types.GPT  # model_types.ROBERTA  #
     model_name = "gpt2-large"  # "roberta-large" # "bert-large-uncased"  # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
@@ -563,7 +573,6 @@ def run_blimp_en():
 
 
 def run_tests_it(model_type):
-
     if model_type == model_types.GPT:
         model_name = "GroNLP/gpt2-small-italian"
     if model_type == model_types.GEPPETTO:
@@ -578,15 +587,15 @@ def run_tests_it(model_type):
         # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
         eval_suite = 'it'
     elif model_type == model_types.GILBERTO:
-        model_name ="idb-ita/gilberto-uncased-from-camembert"
+        model_name = "idb-ita/gilberto-uncased-from-camembert"
 
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
     testsets_dir = './outputs/syntactic_tests_it/'
-    testset_files = [# 'variations_tests.jsonl'
-                     'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
-                     'wh_whether_island.jsonl'
-                     ]
+    testset_files = [  # 'variations_tests.jsonl'
+        'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl',
+        'wh_whether_island.jsonl'
+    ]
 
     for test_file in testset_files:
         filepath = os.path.join(testsets_dir, test_file)
@@ -627,7 +636,6 @@ def run_tests_for_model_type(model_type):
 
 
 def main():
-
     if len(sys.argv) > 1:
         interactive_mode()
     else:
@@ -640,4 +648,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
