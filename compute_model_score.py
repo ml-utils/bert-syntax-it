@@ -87,40 +87,8 @@ def run_testset(model_type, model, tokenizer, device, testset):
     correct_pen_logweights_1st_sentence = 0
     correct_pen_logweights_2nd_sentence = 0
     for example_idx, example_data in enumerate(tqdm(testset['sentences'])):
-        sentences = get_sentences_from_example(example_data)
-        lps = []
-        # mean_lps = []
-        pen_lps = []
-        sentence_log_weights = []
-        pen_sentence_log_weights = []
-        token_weights_by_sentence = []
-        min_token_weight = 200
-        max_token_weight = -200
-        normalized_weights = []
-        for sent_id, sentence in enumerate(sentences):
-            sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
-            text_len = len(sentence_tokens)
-            lp, token_weights = get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, device)
-            if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
-                min_token_weight = min(min(token_weights), min_token_weight)
-                max_token_weight = max(max(token_weights), max_token_weight)
-                token_weights_by_sentence.append(token_weights)
-            # acceptability measures by sentence idx
-            penalty = get_penalty_term(text_len)
-            lps.append(lp)
-            # mean_lps.append(lp / text_len)
-            pen_lps.append(lp / penalty)
-            sent_ids.append(sent_id)
-        if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
-            # normalize token weights
-            max_token_weight -= min_token_weight  # normalize the max value
-            for sentence_idx, token_weights_this_sentence in enumerate(token_weights_by_sentence):
-                token_weights_by_sentence[sentence_idx] = [(x-min_token_weight)/max_token_weight for x in token_weights_this_sentence]
-                sentence_log_weight = reduce_to_log_product(token_weights_by_sentence[sentence_idx])
-                sentence_log_weights.append(sentence_log_weight)
-                text_lenght = len(token_weights_by_sentence[sentence_idx])
-                penalty = get_penalty_term(text_lenght)
-                pen_sentence_log_weights.append(sentence_log_weight / penalty)
+        lps, pen_lps, pen_sentence_log_weights, sentence_log_weights, sentences = get_example_scores(
+            device, example_data, model, model_type, sent_ids, tokenizer)
         if lps[GOOD_SENTENCE_1_IDX] > lps[SENTENCE_BAD_IDX]:
             correct_lps_1st_sentence += 1
         if pen_lps[GOOD_SENTENCE_1_IDX] > pen_lps[SENTENCE_BAD_IDX]:
@@ -153,6 +121,54 @@ def run_testset(model_type, model, tokenizer, device, testset):
         print(f'acc. correct_pen_logweights_1st_sentence: {perc(correct_pen_logweights_1st_sentence, examples_count):.1f} %')
         print(f'acc. correct_logweights_2nd_sentence: {perc(correct_logweights_2nd_sentence, examples_count):.1f} %')
         print(f'acc. correct_pen_logweights_2nd_sentence: {perc(correct_pen_logweights_2nd_sentence, examples_count):.1f} %')
+
+
+def get_example_scores(device, example_data, model, model_type, sent_ids,
+                       tokenizer, sprouse_format = False):
+    sentences = get_sentences_from_example(example_data, sprouse_format=sprouse_format)
+    lps = []
+    # mean_lps = []
+    pen_lps = []
+    sentence_log_weights = []
+    pen_sentence_log_weights = []
+    token_weights_by_sentence = []
+    min_token_weight = 200
+    max_token_weight = -200
+    normalized_weights = []
+    for sent_id, sentence in enumerate(sentences):
+        sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
+        text_len = len(sentence_tokens)
+        lp, token_weights = get_sentence_score_JHLau(model_type, model,
+                                                     tokenizer,
+                                                     sentence_tokens, device)
+        if model_type in [model_types.BERT, model_types.ROBERTA,
+                          model_types.GILBERTO]:
+            min_token_weight = min(min(token_weights), min_token_weight)
+            max_token_weight = max(max(token_weights), max_token_weight)
+            token_weights_by_sentence.append(token_weights)
+        # acceptability measures by sentence idx
+        penalty = get_penalty_term(text_len)
+        lps.append(lp)
+        # mean_lps.append(lp / text_len)
+        pen_lps.append(lp / penalty)
+        sent_ids.append(sent_id)
+    if model_type in [model_types.BERT, model_types.ROBERTA,
+                      model_types.GILBERTO]:
+        # normalize token weights
+        max_token_weight -= min_token_weight  # normalize the max value
+        for sentence_idx, token_weights_this_sentence in enumerate(
+                token_weights_by_sentence):
+            token_weights_by_sentence[sentence_idx] = [
+                (x - min_token_weight) / max_token_weight for x in
+                token_weights_this_sentence]
+            sentence_log_weight = reduce_to_log_product(
+                token_weights_by_sentence[sentence_idx])
+            sentence_log_weights.append(sentence_log_weight)
+            text_lenght = len(token_weights_by_sentence[sentence_idx])
+            penalty = get_penalty_term(text_lenght)
+            pen_sentence_log_weights.append(sentence_log_weight / penalty)
+    return lps, pen_lps, pen_sentence_log_weights, sentence_log_weights, \
+           sentences
 
 
 def reduce_to_log_product(seq):
