@@ -8,9 +8,11 @@ import json
 import os.path
 
 import pandas
+from matplotlib import pyplot as plt
 from tqdm import tqdm
 
-from compute_model_score import DEVICES, load_model, run_testset
+from compute_model_score import DEVICES, load_model, run_testset, \
+    get_example_scores
 from lm_utils import model_types
 
 
@@ -28,22 +30,42 @@ def get_sentence_from_row(C1, C2, current_item_sentences):
     single_row_df = (current_item_sentences.loc[(current_item_sentences[C1_col] == C1)
                                 & (current_item_sentences[C2_col] == C2)])
     #print(single_row_df.info())
-    return single_row_df.iloc[0][SENTENCE]
+    sentence = single_row_df.iloc[0][SENTENCE]
+    return sentence
 
 
 def write_sentence_pair(f, sentence_bad, good_sentence, conditions):
-    sentence_pair = {'sentence_good': good_sentence, 'sentence_bad': sentence_bad,
+    sentence_pair = {'sentence_good': good_sentence,
+                     'sentence_bad': sentence_bad,
                       'conditions': conditions}
     f.write(json.dumps(sentence_pair) + "\n")
 
 
-def create_test_jsonl_files_tests(model, tokenizer, testfile):
+def read_sentences_item(example):
+
+    parsed = dict()
+
+    return parsed
+
+
+def write_sentence_item(f, sentence_bad, good_sentence_long_nonisland,
+                        good_sentence_short_nonisland,
+                        good_sentence_short_island):
+    sentence_item = {'short_nonisland': good_sentence_short_nonisland,
+                     'long_nonisland': good_sentence_long_nonisland,
+                     'short_island': good_sentence_short_island,
+                     'sentence_bad': sentence_bad}
+    json_string = (json.dumps(sentence_item, ensure_ascii=False) + "\n")  # .encode('utf8')
+    f.write(json_string)
+
+
+def create_test_jsonl_files_tests():
     # open csv file
     # parse ..
     testset_filepath = './outputs/sprouse/Experiment 2 materials - Italian.csv'
     examples = []  # sentence pairs
 
-    df = pandas.read_csv(testset_filepath, sep=';', header=0)
+    df = pandas.read_csv(testset_filepath, sep=';', header=0, encoding='utf-8')
     #print(df.head(2))
     #print(df.info())
 
@@ -86,26 +108,52 @@ def create_test_jsonl_files_tests(model, tokenizer, testfile):
                 good_sentence_short_nonisland = get_sentence_from_row('Short', 'non-island', current_item_sentences)
                 good_sentence_short_island = get_sentence_from_row('Short', 'Island', current_item_sentences)
 
-                with open(filepath, 'a') as f:
-                    write_sentence_pair(f, sentence_bad, good_sentence_long_nonisland, 'long_nonisland')
-                    write_sentence_pair(f, sentence_bad, good_sentence_short_nonisland, 'short_nonisland')
-                    write_sentence_pair(f, sentence_bad, good_sentence_short_island, 'short_island')
+                with open(filepath, mode='a', encoding="utf-8") as f:
+                    write_sentence_item(f, sentence_bad,
+                                        good_sentence_long_nonisland,
+                                        good_sentence_short_nonisland,
+                                        good_sentence_short_island)
 
 
 def run_sprouse_tests(model_type, model, tokenizer, device):
     testset_filepath = './outputs/blimp/from_blim_en/islands/complex_NP_island.jsonl'  # wh_island.jsonl' # adjunct_island.jsonl'
-    phenomena = ['rc_adjunct_island',
-                 'rc_complex_np', 'rc_subject_island', 'rc_wh_island',
+    phenomena = [#'rc_adjunct_island',
+                 #'rc_complex_np', 'rc_subject_island', 'rc_wh_island', # fixme: rc_wh_island empty file
                  'wh_adjunct_island', 'wh_complex_np', 'wh_subject_island', 'wh_whether_island']
     for phenomenon_name in phenomena:
         filename = phenomenon_name + '.jsonl'
         filepath = os.path.join('./outputs/sprouse/', filename)
-        run_sprouse_test(filepath, model_type, model, tokenizer, device)
+        score_averages = run_sprouse_test(filepath, model_type, model, tokenizer, device)
+        plot_results(phenomenon_name, score_averages, 'lp')
+
+
+def plot_results(phenomenon_name, score_averages, score_descr):
+
+    # todo: plot values
+    #     lp_averages = [lp_short_nonisland_average, lp_long_nonisland_avg,
+    #                    lp_short_island_avg, lp_long_island_avg]
+
+    # nonisland line
+    short_nonisland_average = [0, score_averages[0]]
+    long_nonisland_avg = [1, score_averages[1]]
+    x_values = [short_nonisland_average[0], long_nonisland_avg[0]]
+    y_values = [short_nonisland_average[1], long_nonisland_avg[1]]
+    plt.plot(x_values, y_values)
+
+    # island line
+    short_island_avg = [0, score_averages[2]]
+    long_island_avg = [1, score_averages[3]]
+    x_values = [short_island_avg[0], long_island_avg[0]]
+    y_values = [short_island_avg[1], long_island_avg[1]]
+    plt.plot(x_values, y_values, linestyle="--")
+    plt.title(phenomenon_name)
+    plt.ylabel(f"{score_descr} values")
+    plt.show()
 
 
 def run_sprouse_test(filepath, model_type, model, tokenizer, device):
     print(f'loading testset file {filepath}..')
-    with open(filepath, 'r') as json_file:
+    with open(filepath, mode='r', encoding="utf-8") as json_file:
         json_list = list(json_file)
     print(f'testset loaded.')
 
@@ -114,15 +162,55 @@ def run_sprouse_test(filepath, model_type, model, tokenizer, device):
         example = json.loads(json_str)
         # print(f"result: {example}")
         # print(isinstance(example, dict))
-        sentence_good = example['sentence_good']
-        sentence_bad = example['sentence_bad']
-        examples.append({'sentence_good': sentence_good, 'sentence_bad': sentence_bad, 'sentence_good_2nd': ""})
+        # parsed_example = read_sentences_item(example)
+        # sentence_good = example['sentence_good']
+        # sentence_bad = example['sentence_bad']
+        examples.append(example)  # {'sentence_good': sentence_good, 'sentence_bad': sentence_bad, 'sentence_good_2nd': ""})
     testset = {'sentences': examples}
 
-    run_testset(model_type, model, tokenizer, device, testset)
+    # run_testset(model_type, model, tokenizer, device, testset)
+    lp_averages = run_sprouse_test_helper(model_type, model, tokenizer, device, testset)
+    print(f'{lp_averages=}')
+    return lp_averages
+
+
+def run_sprouse_test_helper(model_type, model, tokenizer, device, testset):
+    sent_ids = []
+
+    examples_count = len(testset['sentences'])
+    lp_short_nonisland_average = 0
+    lp_long_nonisland_avg = 0
+    lp_short_island_avg = 0
+    lp_long_island_avg = 0
+    penlp_short_nonisland_average = 0
+
+    for example_idx, example_data in enumerate(tqdm(testset['sentences'])):
+        lps, pen_lps, pen_sentence_log_weights, sentence_log_weights, sentences = get_example_scores(
+            device, example_data, model, model_type, sent_ids, tokenizer, sprouse_format = True)
+
+    #     sentence_item = {'short_nonisland': good_sentence_short_nonisland,
+    #                      'short_island': good_sentence_short_island,
+    #                      'long_nonisland': good_sentence_long_nonisland,
+    #                      'sentence_bad': sentence_bad}
+
+        lp_short_nonisland_average += lps[0]
+        lp_long_nonisland_avg += lps[1]
+        lp_short_island_avg += lps[2]
+        lp_long_island_avg += lps[3]
+        penlp_short_nonisland_average += pen_lps[0]
+    lp_short_nonisland_average /= examples_count
+    lp_long_nonisland_avg /= examples_count
+    lp_short_island_avg /= examples_count
+    lp_long_island_avg /= examples_count
+    penlp_short_nonisland_average /= examples_count
+    lp_averages = [lp_short_nonisland_average, lp_long_nonisland_avg,
+                   lp_short_island_avg, lp_long_island_avg]
+    return lp_averages
 
 
 def main():
+    # create_test_jsonl_files_tests()
+
     model_type = model_types.BERT  # model_types.GPT # model_types.ROBERTA  #
     model_name = 'dbmdz/bert-base-italian-xxl-cased'  # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
     device = DEVICES.CPU
@@ -132,3 +220,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def plot_all_phenomena(phenomena_names, lp_avg_scores):
+    for idx, phenomenon in enumerate(phenomena_names):
+        plot_results(phenomenon, lp_avg_scores[idx], 'lp')
