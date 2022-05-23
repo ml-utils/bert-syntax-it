@@ -98,10 +98,12 @@ def load_testset_data(file_path):
     return testset_data
 
 
-def get_sentences_from_example(example : dict):
+def get_sentences_from_example(example: dict, sprouse_format = False):
     by_sentence_variant_name = False
 
-    if by_sentence_variant_name:
+    if sprouse_format:
+        sentences = list(example.values())[0:4]
+    elif by_sentence_variant_name:
         sentence_names_wh_wheter_islands = ['sentence_good_no_extraction', 'sentence_bad_extraction',
                           'sentence_good_extraction_resumption', 'sentence_good_extraction_as_subject']
         sentence_names_wh_complex_np_islands = ['sentence_good_no_extraction', 'sentence_bad_extraction',
