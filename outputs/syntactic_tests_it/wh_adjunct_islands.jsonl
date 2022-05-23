@@ -351,9 +351,9 @@
     "island_subcategory": "adjunct_island",
     "pairID": "5"},
 
-    {"sentence_good_no_extraction": 'Chi riscontrerà notevoli problemi se il rettore modificherà le modalità di esame?',
-    "sentence_bad_extraction": 'Che cosa i docenti riscontreranno notevoli problemi se il rettore modificherà?',
-    "sentence_good_no_island": 'Se il rettore modificherà cosa, i docenti riscontreranno notevoli problemi?',
+    {"sentence_good_no_extraction": "Chi riscontrerà notevoli problemi se il rettore modificherà le modalità di esame?",
+    "sentence_bad_extraction": "Che cosa i docenti riscontreranno notevoli problemi se il rettore modificherà?",
+    "sentence_good_no_island": "Se il rettore modificherà cosa, i docenti riscontreranno notevoli problemi?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
