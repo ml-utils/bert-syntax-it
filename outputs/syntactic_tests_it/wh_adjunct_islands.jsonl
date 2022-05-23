@@ -182,7 +182,7 @@
 
   {"sentence_good_no_extraction": "Chi ha escluso quei candidati dopo averne accertato le scorrettezze?",
     "sentence_bad_extraction": "Che cosa la commissione ha escluso quei candidati dopo averne accertato?",
-    "sentence_good_no_island": "Dopo averne accertato cosa, la commissione ha escluso quei candidati ?",
+    "sentence_good_no_island": "Dopo averne accertato cosa, la commissione ha escluso quei candidati?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
@@ -209,7 +209,7 @@
 
   {"sentence_good_no_extraction": "Chi ha scritto delle note mentre leggeva il libro?",
     "sentence_bad_extraction": "Che cosa l'intellettuale ha scritto delle note mentre leggeva?",
-    "sentence_good_no_island": "Mentre leggeva cosa, l'intelletuale ha scritto delle note?",
+    "sentence_good_no_island": "Mentre leggeva cosa, l'intellettuale ha scritto delle note?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
@@ -444,6 +444,15 @@
     {"sentence_good_no_extraction": "Chi farà una passeggiata per schiarirsi le idee?",
     "sentence_bad_extraction": "Che cosa Luisa farà una passeggiata per schiarirsi?",
     "sentence_good_no_island": "Per schiarirsi cosa, Luisa farà una passeggiata?",
+    "field": "syntax",
+    "linguistics_term": "island_effects",
+    "UID": "wh_island",
+    "island_subcategory": "adjunct_island",
+    "pairID": "42"},
+
+      {"sentence_good_no_extraction": "Cosa si terrà tra pochi giorni se il governo non ritira il decreto?",
+    "sentence_bad_extraction": "Che cosa la manifestazione si terrà tra pochi giorni se il governo non ritira?",
+    "sentence_good_no_island": "Se il governo non ritira cosa, la manifestazione si terrà tra pochi giorni?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
