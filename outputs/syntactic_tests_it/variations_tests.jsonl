@@ -15,7 +15,7 @@
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
-  "island_subcategory": "",
+  "island_subcategory": "subject_island",
     "pairID": "1"},
 
     {"sentence_good_no_extraction": "Gianni ha detto che il libro di linguistia ha duecento pagine.",
