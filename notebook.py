@@ -616,31 +616,35 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
 # acc. correct_lps_1st_sentence: 90.2 %
 # acc. correct_pen_lps_1st_sentence: 90.2 %
 def run_blimp_en():
-    testset_filepath \
-        = './outputs/blimp/from_blim_en/islands/complex_NP_island.jsonl'
-    # wh_island.jsonl' # adjunct_island.jsonl'
-    print(f'loading testset file {testset_filepath}..')
-    with open(testset_filepath, 'r') as json_file:
-        json_list = list(json_file)
-    print('testset loaded.')
-
     model_type = model_types.GPT  # model_types.ROBERTA  #
-    model_name = 'gpt2' # "gpt2-large"  # "roberta-large" # "bert-large-uncased"
+    model_name = "gpt2-medium"  # "gpt2-large"  # 'gpt2' # "roberta-large" # "bert-large-uncased"
     # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
-    examples = []
-    for json_str in tqdm(json_list):
-        example = json.loads(json_str)
-        # print(f"result: {example}")
-        # print(isinstance(example, dict))
-        sentence_good = example['sentence_good']
-        sentence_bad = example['sentence_bad']
-        examples.append({'sentence_good': sentence_good, 'sentence_bad':
-            sentence_bad, 'sentence_good_2nd': ""})
-    testset = {'sentences': examples}
+    testset_filenames = ['wh_island.jsonl', 'adjunct_island.jsonl',
+                         'complex_NP_island.jsonl']
+    testset_dir_path = './outputs/blimp/from_blim_en/islands/'
+    for testset_filename in testset_filenames:
+        testset_filepath = os.path.join(testset_dir_path, testset_filename)
+        # './outputs/blimp/from_blim_en/islands/adjunct_island.jsonl'
 
-    run_testset(model_type, model, tokenizer, DEVICES.CPU, testset)
+        print(f'loading testset file {testset_filepath}..')
+        with open(testset_filepath, 'r') as json_file:
+            json_list = list(json_file)
+        print('testset loaded.')
+
+        examples = []
+        for json_str in tqdm(json_list):
+            example = json.loads(json_str)
+            # print(f"result: {example}")
+            # print(isinstance(example, dict))
+            sentence_good = example['sentence_good']
+            sentence_bad = example['sentence_bad']
+            examples.append({'sentence_good': sentence_good, 'sentence_bad':
+                sentence_bad, 'sentence_good_2nd': ""})
+        testset = {'sentences': examples}
+
+        run_testset(model_type, model, tokenizer, DEVICES.CPU, testset)
 
 
 def run_tests_it(model_type):
