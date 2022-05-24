@@ -28,7 +28,7 @@ def analize_sentence(bert: BertPreTrainedModel, tokenizer: BertTokenizer, senten
     return get_topk(bert, tokenizer, sentence_ids, target_idx, k=5)
 
 
-def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example_idx: int, example,
+def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example_idx: int, example, sentences_per_example,
                     score_based_on=sentence_score_bases.SOFTMAX):
     """
     :param bert:
@@ -37,7 +37,7 @@ def analize_example(bert: BertPreTrainedModel, tokenizer: BertTokenizer, example
     :return:
     """
 
-    sentences = get_sentences_from_example(example)
+    sentences = get_sentences_from_example(example, sentences_per_example)
     tokens_by_sentence, oov_counts = __get_example_tokens_and_oov_counts(tokenizer, sentences)
 
     penLP_by_sentence, words_logits_by_sentence, normalized_logits_by_sentence \

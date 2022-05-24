@@ -176,7 +176,7 @@ def run_sprouse_test(filepath, model_type, model, tokenizer, device):
 
 def run_sprouse_test_helper(model_type, model, tokenizer, device, testset):
     sent_ids = []
-
+    sentences_per_example = 4
     examples_count = len(testset['sentences'])
     lp_short_nonisland_average = 0
     lp_long_nonisland_avg = 0
@@ -186,7 +186,8 @@ def run_sprouse_test_helper(model_type, model, tokenizer, device, testset):
 
     for example_idx, example_data in enumerate(tqdm(testset['sentences'])):
         lps, pen_lps, pen_sentence_log_weights, sentence_log_weights, sentences = get_example_scores(
-            device, example_data, model, model_type, sent_ids, tokenizer, sprouse_format = True)
+            device, example_data, model, model_type, sent_ids, tokenizer,
+            sentences_per_example, sprouse_format = True)
 
     #     sentence_item = {'short_nonisland': good_sentence_short_nonisland,
     #                      'short_island': good_sentence_short_island,

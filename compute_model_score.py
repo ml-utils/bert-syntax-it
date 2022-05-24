@@ -66,7 +66,7 @@ def load_model(model_type, model_name, device):
     return model, tokenizer
 
 
-def run_testset(model_type, model, tokenizer, device, testset):
+def run_testset(model_type, model, tokenizer, device, testset, sentences_per_example):
     """
     Adapted from https://github.com/jhlau/acceptability-prediction-in-context/blob/master/code/compute_model_score.py
     :param model_type:
@@ -88,7 +88,7 @@ def run_testset(model_type, model, tokenizer, device, testset):
     correct_pen_logweights_2nd_sentence = 0
     for example_idx, example_data in enumerate(tqdm(testset['sentences'])):
         lps, pen_lps, pen_sentence_log_weights, sentence_log_weights, sentences = get_example_scores(
-            device, example_data, model, model_type, sent_ids, tokenizer)
+            device, example_data, model, model_type, sent_ids, tokenizer, sentences_per_example)
         if lps[sent_idx.GOOD_1] > lps[sent_idx.BAD]:
             correct_lps_1st_sentence += 1
         if pen_lps[sent_idx.GOOD_1] > pen_lps[sent_idx.BAD]:
@@ -124,8 +124,9 @@ def run_testset(model_type, model, tokenizer, device, testset):
 
 
 def get_example_scores(device, example_data, model, model_type, sent_ids,
-                       tokenizer, sprouse_format = False):
-    sentences = get_sentences_from_example(example_data, sprouse_format=sprouse_format)
+                       tokenizer, sentences_per_example, sprouse_format = False):
+    sentences = get_sentences_from_example(example_data, sentences_per_example,
+                                           sprouse_format=sprouse_format)
     lps = []
     # mean_lps = []
     pen_lps = []
@@ -137,6 +138,8 @@ def get_example_scores(device, example_data, model, model_type, sent_ids,
     normalized_weights = []
     for sent_id, sentence in enumerate(sentences):
         sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
+        if len(sentence_tokens) == 0:
+            print(f'Warning: sentence of lenght 0: {sentence} from example: {example_data}')
         text_len = len(sentence_tokens)
         lp, token_weights = get_sentence_score_JHLau(model_type, model,
                                                      tokenizer,

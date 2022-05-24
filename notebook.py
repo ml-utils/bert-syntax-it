@@ -356,6 +356,7 @@ def run_tests_lau_et_al():
 
 
 def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
+                     sentences_per_example,
                      score_based_on=sentence_score_bases.SOFTMAX):
     filepath = os.path.join(testsets_dir, filename)
     print_orange(f'running test {filepath}')
@@ -388,9 +389,11 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
         score_base_sentence, score_bad_sentence, score_2nd_good_sentence, \
         oov_counts \
             = bert_utils.analize_example(model, tokenizer, example_idx,
-                                         sentence_data, score_based_on)
+                                         sentence_data, sentences_per_example,
+                                         score_based_on)
         # return
-        sentences = get_sentences_from_example(sentence_data)
+        sentences = get_sentences_from_example(sentence_data,
+                                               sentences_per_example)
 
         second_sentences_by_score[score_2nd_good_sentence] = sentences[2]
         bad_sentences_by_score[score_bad_sentence] = sentences[1]
@@ -442,7 +445,7 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
     bert_utils.print_orange('Examples getting no errors:')
     for example_idx in no_errors_examples_indexes:
         no_error_example = testset_data['sentences'][example_idx]
-        print(f'{get_sentences_from_example(no_error_example)}')
+        print(f'{get_sentences_from_example(no_error_example, 2)}')
 
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, '
                             'second sentence:')
@@ -538,13 +541,14 @@ def interactive_mode():
 
         example = {'good_sentence': good_sentence,
                    'bad_sentence': bad_sentence, 'good_sentence2': None}
-
+        sentences_per_example = 2
         base_sentence_less_acceptable, second_sentence_less_acceptable, \
         acceptability_diff_base_sentence, acceptability_diff_second_sentence, \
         penLP_base_sentence, penLP_bad_sentence, penLP_2nd_good_sentence, \
         logits_normalized_bad_sentence, logits_normalized_base_sentence, \
         logits_normalized_2nd_good_sentence, oov_counts \
-            = bert_utils.analize_example(bert, tokenizer, -1, example)
+            = bert_utils.analize_example(bert, tokenizer, -1, example,
+                                         sentences_per_example)
         diff_penLP = round(penLP_base_sentence - penLP_bad_sentence, 3)
 
         print_red('PenLP:')
@@ -616,8 +620,8 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
 # acc. correct_lps_1st_sentence: 90.2 %
 # acc. correct_pen_lps_1st_sentence: 90.2 %
 def run_blimp_en():
-    model_type = model_types.GPT  # model_types.ROBERTA  #
-    model_name = "gpt2-medium"  # "gpt2-large"  # 'gpt2' # "roberta-large" # "bert-large-uncased"
+    model_type = model_types.ROBERTA  # model_types.GPT  #
+    model_name = "roberta-base" #"gpt2-medium"  # "gpt2-large"  # 'gpt2' # "roberta-large" # "bert-large-uncased"
     # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
@@ -643,8 +647,9 @@ def run_blimp_en():
             examples.append({'sentence_good': sentence_good, 'sentence_bad':
                 sentence_bad, 'sentence_good_2nd': ""})
         testset = {'sentences': examples}
-
-        run_testset(model_type, model, tokenizer, DEVICES.CPU, testset)
+        sentences_per_example = 2
+        run_testset(model_type, model, tokenizer, DEVICES.CPU, testset,
+                    sentences_per_example)
 
 
 def run_tests_it(model_type):
@@ -673,7 +678,7 @@ def run_tests_it(model_type):
         # 'wh_subject_islands.jsonl',
         #'wh_whether_island.jsonl'
     ]
-
+    sentences_per_example = 3
     for test_file in testset_files:
         filepath = os.path.join(testsets_dir, test_file)
         print_orange(f'running test {filepath}')
@@ -684,10 +689,10 @@ def run_tests_it(model_type):
             # run_testset(testsets_dir, test_file, model, tokenizer,
             # score_based_on=sentence_score_bases.SOFTMAX)
             run_testset(model_type, model, tokenizer, DEVICES.CPU,
-                        testset_data)
+                        testset_data, sentences_per_example)
         elif model_type in [model_types.GPT, model_types.GEPPETTO]:
             run_testset(model_type, model, tokenizer, DEVICES.CPU,
-                        testset_data)
+                        testset_data, sentences_per_example)
 
 
 def run_tests_for_model_type(model_type):
@@ -724,11 +729,11 @@ def main():
     if len(sys.argv) > 1:
         interactive_mode()
     else:
-        # run_blimp_en()
+        run_blimp_en()
         # raise SystemExit
-        print('choosing model type ..')
-        model_type = model_types.BERT
-        run_tests_for_model_type(model_type)
+        #print('choosing model type ..')
+        #model_type = model_types.BERT
+        #run_tests_for_model_type(model_type)
 
 
 if __name__ == "__main__":

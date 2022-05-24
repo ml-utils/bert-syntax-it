@@ -76,7 +76,7 @@ class TestBertUtils(TestCase):
         for example_idx, example in tqdm(enumerate(testset_examples), total=min(len(testset_examples), MAX_EXAMPLES)):  # or enumerate(tqdm(testset_examples))
             if example_idx >= MAX_EXAMPLES:
                 break
-            for sentence_idx, sentence in enumerate(get_sentences_from_example(example)):
+            for sentence_idx, sentence in enumerate(get_sentences_from_example(example, 2)):
                 bert_sentence_lp_actual, _ = bert_utils.estimate_sentence_probability_from_text(bert_model, bert_tokenizer, sentence)
                 bert_tokenized_sentence = bert_tokenizer.tokenize(sentence)
                 # gpt_text_len = len(gpt_tokenized_sentence)
