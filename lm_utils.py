@@ -1,13 +1,18 @@
 import os.path
 import json
+import cython
+
+class sent_idx:
+    GOOD_1: int = 0 # GOOD_1 = cython.declare(cython.int, 0)  #GOOD_SENTENCE_1_IDX : int = 0
+    BAD: int = 1
+    GOOD_2 : int = 2
 
 
-GOOD_SENTENCE_1_IDX = 0
-SENTENCE_BAD_IDX = 1
-GOOD_SENTENCE_2_IDX = 2
-UNK_TOKEN = '[UNK]'
+class special_tokens:
+    UNK_TOKEN : str = '[UNK]'
 
 
+@cython.cclass
 class model_types:
     BERT = 0
     GPT = 1
@@ -80,8 +85,8 @@ def load_model_and_tokenizer(model_type, model_name, dict_name=None, do_lower_ca
 
     print("tokenizer ready.")
     # put model to device (GPU/CPU)
-    device = torch.device(device)
-    model.to(device)
+    # device = torch.device(device)
+    # model.to(device)
 
     model.eval()
     return model, tokenizer

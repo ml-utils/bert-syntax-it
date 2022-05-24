@@ -9,8 +9,8 @@ from transformers.modeling_outputs import MaskedLMOutput
 
 import numpy as np
 
-from lm_utils import sentence_score_bases, get_sentences_from_example, get_pen_score, UNK_TOKEN, print_red, \
-    SENTENCE_BAD_IDX, GOOD_SENTENCE_1_IDX, GOOD_SENTENCE_2_IDX, print_orange
+from lm_utils import sentence_score_bases, get_sentences_from_example, \
+    get_pen_score, special_tokens, print_red, sent_idx, print_orange
 
 
 def analize_sentence(bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence: str):
@@ -110,19 +110,19 @@ def preprocessing_checks_to_example(example_idx, sentences, tokens_by_sentence):
 
 def __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence):
     for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
-        if UNK_TOKEN in sentence_tokens:
+        if special_tokens.UNK_TOKEN in sentence_tokens:
             print_red(f'this sentence {sentence_idx} ({sentences[sentence_idx]}) has at least an UNK token: '
                       f'{sentences[sentence_idx]}')
 
     # the ungrammatical sentence must not be shorter than the other three sentences
-    sentence_bad_tokens_count = len(tokens_by_sentence[SENTENCE_BAD_IDX])
+    sentence_bad_tokens_count = len(tokens_by_sentence[sent_idx.BAD])
     for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
         if len(sentence_tokens) < sentence_bad_tokens_count:
             print(f'example {example_idx}:  sentence {sentence_idx} ({sentences[sentence_idx]}) has less tokens '
                   f'({len(sentence_tokens)}) '
                   f'than the bad sentence ({sentence_bad_tokens_count})')
         if len(sentence_tokens) == 0:
-            print(sentences[SENTENCE_BAD_IDX])
+            print(sentences[sent_idx.BAD])
 
 
 def __get_example_tokens_and_oov_counts(tokenizer, sentences):
@@ -157,27 +157,27 @@ def __get_acceptability_diffs(bert, tokenizer, penLP_by_sentence, normalized_log
     elif isinstance(bert, GPT2LMHeadModel):
         score_by_sentence = penLP_by_sentence
 
-    score_bad_sentence = score_by_sentence[SENTENCE_BAD_IDX]
-    score_base_sentence = score_by_sentence[GOOD_SENTENCE_1_IDX]
+    score_bad_sentence = score_by_sentence[sent_idx.BAD]
+    score_base_sentence = score_by_sentence[sent_idx.GOOD_1]
     score_2nd_good_sentence = None
     if len(score_by_sentence) > 2:
-        score_2nd_good_sentence = score_by_sentence[GOOD_SENTENCE_2_IDX]
+        score_2nd_good_sentence = score_by_sentence[sent_idx.GOOD_2]
 
     base_sentence_less_acceptable = False
     second_sentence_less_acceptable = False
     acceptability_diff_base_sentence = 0
     acceptability_diff_second_sentence = 0
     for sentence_idx, sentence_score in enumerate(score_by_sentence):
-        if sentence_idx == GOOD_SENTENCE_1_IDX:
+        if sentence_idx == sent_idx.GOOD_1:
             acceptability_diff_base_sentence = sentence_score - score_bad_sentence
-        elif sentence_idx == GOOD_SENTENCE_2_IDX:
+        elif sentence_idx == sent_idx.GOOD_2:
             acceptability_diff_second_sentence = sentence_score - score_bad_sentence
 
         if sentence_score < score_bad_sentence:
             print_orange(f'\nexample {example_idx} (oov_count: {oov_counts}): '
                          f'sentence {sentence_idx} ({sentences[sentence_idx]}, '
                          f'has less {score_descr} ({sentence_score:.1f}) '
-                         f'than the bad sentence ({score_bad_sentence:.1f}) ({sentences[SENTENCE_BAD_IDX]})')
+                         f'than the bad sentence ({score_bad_sentence:.1f}) ({sentences[sent_idx.BAD]})')
             sentence_ids = tokenizer.convert_tokens_to_ids(tokens_by_sentence[sentence_idx])
             estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose = True)
             if sentence_idx == 0:
@@ -229,11 +229,11 @@ def check_unknown_words(tokenizer: BertTokenizer):
     # NB: the uncased model also strips any accent markers from words. Use bert cased.
 
     words_to_check = ['è']
-    print_token_info(tokenizer, UNK_TOKEN)
+    print_token_info(tokenizer, special_tokens.UNK_TOKEN)
 
-    unk_tokens = tokenizer.tokenize(UNK_TOKEN)
+    unk_tokens = tokenizer.tokenize(special_tokens.UNK_TOKEN)
     unk_id = tokenizer.convert_tokens_to_ids(unk_tokens)
-    print(f'token {UNK_TOKEN} ({unk_tokens}) has ids {unk_id}')
+    print(f'token {special_tokens.UNK_TOKEN} ({unk_tokens}) has ids {unk_id}')
     print_token_info(tokenizer, 'riparata')
     print_token_info(tokenizer, 'non')
     print_token_info(tokenizer, 'che')

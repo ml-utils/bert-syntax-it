@@ -13,7 +13,7 @@ from scipy.special import softmax
 import numpy as np
 
 from lm_utils import model_types, get_sentences_from_example
-from lm_utils import GOOD_SENTENCE_2_IDX, GOOD_SENTENCE_1_IDX, SENTENCE_BAD_IDX
+from lm_utils import sent_idx
 
 
 class DEVICES:
@@ -89,24 +89,24 @@ def run_testset(model_type, model, tokenizer, device, testset):
     for example_idx, example_data in enumerate(tqdm(testset['sentences'])):
         lps, pen_lps, pen_sentence_log_weights, sentence_log_weights, sentences = get_example_scores(
             device, example_data, model, model_type, sent_ids, tokenizer)
-        if lps[GOOD_SENTENCE_1_IDX] > lps[SENTENCE_BAD_IDX]:
+        if lps[sent_idx.GOOD_1] > lps[sent_idx.BAD]:
             correct_lps_1st_sentence += 1
-        if pen_lps[GOOD_SENTENCE_1_IDX] > pen_lps[SENTENCE_BAD_IDX]:
+        if pen_lps[sent_idx.GOOD_1] > pen_lps[sent_idx.BAD]:
             correct_pen_lps_1st_sentence += 1
         if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
-            if sentence_log_weights[GOOD_SENTENCE_1_IDX] > sentence_log_weights[SENTENCE_BAD_IDX]:
+            if sentence_log_weights[sent_idx.GOOD_1] > sentence_log_weights[sent_idx.BAD]:
                 correct_logweights_1st_sentence += 1
-            if pen_sentence_log_weights[GOOD_SENTENCE_1_IDX] > pen_sentence_log_weights[SENTENCE_BAD_IDX]:
+            if pen_sentence_log_weights[sent_idx.GOOD_1] > pen_sentence_log_weights[sent_idx.BAD]:
                 correct_pen_logweights_1st_sentence += 1
         if len(sentences) > 2:
-            if lps[GOOD_SENTENCE_2_IDX] > lps[SENTENCE_BAD_IDX]:
+            if lps[sent_idx.GOOD_2] > lps[sent_idx.BAD]:
                 correct_lps_2nd_sentence += 1
-            if pen_lps[GOOD_SENTENCE_2_IDX] > pen_lps[SENTENCE_BAD_IDX]:
+            if pen_lps[sent_idx.GOOD_2] > pen_lps[sent_idx.BAD]:
                 correct_pen_lps_2nd_sentence += 1
             if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
-                if sentence_log_weights[GOOD_SENTENCE_2_IDX] > sentence_log_weights[SENTENCE_BAD_IDX]:
+                if sentence_log_weights[sent_idx.GOOD_2] > sentence_log_weights[sent_idx.BAD]:
                     correct_logweights_2nd_sentence += 1
-                if pen_sentence_log_weights[GOOD_SENTENCE_2_IDX] > pen_sentence_log_weights[SENTENCE_BAD_IDX]:
+                if pen_sentence_log_weights[sent_idx.GOOD_2] > pen_sentence_log_weights[sent_idx.BAD]:
                     correct_pen_logweights_2nd_sentence += 1
 
     examples_count = len(testset['sentences'])
@@ -177,12 +177,12 @@ def reduce_to_log_product(seq):
 
 def count_accurate_in_example(scores_by_sentence):
     correct_1st_sentence_comparison = 0
-    if scores_by_sentence[GOOD_SENTENCE_1_IDX] > scores_by_sentence[SENTENCE_BAD_IDX]:
+    if scores_by_sentence[sent_idx.GOOD_1] > scores_by_sentence[sent_idx.BAD]:
         correct_1st_sentence_comparison = 1
 
     correct_2nd_sentence_comparison = 0
     if len(scores_by_sentence) > 2:
-        if scores_by_sentence[GOOD_SENTENCE_2_IDX] > scores_by_sentence[SENTENCE_BAD_IDX]:
+        if scores_by_sentence[sent_idx.GOOD_2] > scores_by_sentence[sent_idx.BAD]:
             correct_2nd_sentence_comparison = 1
 
     return correct_1st_sentence_comparison, correct_2nd_sentence_comparison
@@ -196,7 +196,7 @@ def perc(value, total):
 
 
 # nb, for bert it uses softmax
-def get_sentence_score_JHLau(model_type: model_types, model, tokenizer, sentence_tokens, device):
+def get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, device):
 
     if len(sentence_tokens) == 0:
         return -200, None
