@@ -9,7 +9,7 @@ class sent_idx:
 
 
 class special_tokens:
-    UNK_TOKEN : str = '[UNK]'
+    UNK : str = '[UNK]'
 
 
 @cython.cclass

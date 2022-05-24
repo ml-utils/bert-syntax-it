@@ -110,7 +110,7 @@ def preprocessing_checks_to_example(example_idx, sentences, tokens_by_sentence):
 
 def __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence):
     for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
-        if special_tokens.UNK_TOKEN in sentence_tokens:
+        if special_tokens.UNK in sentence_tokens:
             print_red(f'this sentence {sentence_idx} ({sentences[sentence_idx]}) has at least an UNK token: '
                       f'{sentences[sentence_idx]}')
 
@@ -229,11 +229,11 @@ def check_unknown_words(tokenizer: BertTokenizer):
     # NB: the uncased model also strips any accent markers from words. Use bert cased.
 
     words_to_check = ['è']
-    print_token_info(tokenizer, special_tokens.UNK_TOKEN)
+    print_token_info(tokenizer, special_tokens.UNK)
 
-    unk_tokens = tokenizer.tokenize(special_tokens.UNK_TOKEN)
+    unk_tokens = tokenizer.tokenize(special_tokens.UNK)
     unk_id = tokenizer.convert_tokens_to_ids(unk_tokens)
-    print(f'token {special_tokens.UNK_TOKEN} ({unk_tokens}) has ids {unk_id}')
+    print(f'token {special_tokens.UNK} ({unk_tokens}) has ids {unk_id}')
     print_token_info(tokenizer, 'riparata')
     print_token_info(tokenizer, 'non')
     print_token_info(tokenizer, 'che')
