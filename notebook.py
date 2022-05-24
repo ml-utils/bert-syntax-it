@@ -446,7 +446,8 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
 
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, '
                             'second sentence:')
-    for acceprability_diff, example_analysis in dict(sorted(examples_by_second_sentence_acceptability_diff.items())).items():
+    sorted_examples = dict(sorted(examples_by_second_sentence_acceptability_diff.items())).items()
+    for acceprability_diff, example_analysis in sorted_examples:
         print_example(example_analysis, acceprability_diff, score_based_on,
                       compare_with_base_sentence=False)
 
@@ -460,7 +461,8 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
 
     score_descr = get_score_descr(score_based_on)
     print_sentences_sorted_by_score(second_sentences_by_score,
-                                    f'second sentences sorted by {score_descr}:')
+                                    f'second sentences sorted by '
+                                    f'{score_descr}:')
     print_sentences_sorted_by_score(bad_sentences_by_score,
                                     f'bad sentences sorted by {score_descr}:')
     print_sentences_sorted_by_score(base_sentences_by_score,
@@ -623,7 +625,7 @@ def run_blimp_en():
     print('testset loaded.')
 
     model_type = model_types.GPT  # model_types.ROBERTA  #
-    model_name = "gpt2-large"  # "roberta-large" # "bert-large-uncased"
+    model_name = 'gpt2' # "gpt2-large"  # "roberta-large" # "bert-large-uncased"
     # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
@@ -662,9 +664,10 @@ def run_tests_it(model_type):
 
     testsets_dir = './outputs/syntactic_tests_it/'
     testset_files = [  # 'variations_tests.jsonl'
-        'wh_adjunct_islands.jsonl', 'wh_complex_np_islands.jsonl',
-        'wh_subject_islands.jsonl',
-        'wh_whether_island.jsonl'
+        'wh_adjunct_islands.jsonl'
+        # , 'wh_complex_np_islands.jsonl',
+        # 'wh_subject_islands.jsonl',
+        #'wh_whether_island.jsonl'
     ]
 
     for test_file in testset_files:
@@ -720,7 +723,7 @@ def main():
         # run_blimp_en()
         # raise SystemExit
         print('choosing model type ..')
-        model_type = model_types.GEPPETTO
+        model_type = model_types.BERT
         run_tests_for_model_type(model_type)
 
 
