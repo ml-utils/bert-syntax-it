@@ -9,9 +9,9 @@
   "island_subcategory": "complex_np_island",
   "pairID": "0"},
 
-  {"sentence_good_no_extraction": "Chi ha messo in dubbio la previsione che io avrei vinto il concorso?",
-  "sentence_bad_extraction": "Cosa hai messo in dubbio la previsione che io avrei vinto?",
-  "sentence_good_no_island": "Cosa hai messo in dubbio che io avrei vinto?",
+ {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che la decisione avrebbe creato un precedente?",
+  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che la decisione avrebbe creato?",
+  "sentence_good_no_island": "Cosa hai affermato che la decisione avrebbe creato?",
   "sentence_good_no_island_as_subject": "",
   "field": "syntax",
   "linguistics_term": "island_effects",
@@ -28,9 +28,10 @@
   "island_subcategory": "complex_np_island",
   "pairID": "2"},
 
-  {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che io avrei rubato una macchina?",
-  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che io avrei rubato?",
-  "sentence_good_no_island": "Cosa hai affermato che io avrei rubato?",
+  {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che gli incentivi avrebbero diminuito la disoccupazione?",
+  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che gli incentivi avrebbero diminuito?",
+  "sentence_good_no_island": "Cosa hai affermato che gli incentivi avrebbero diminuito?",
+  "sentence_good_no_island_as_subject": "",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -425,7 +426,7 @@
   "island_subcategory": "complex_np_island",
   "pairID": "45"},
 
-    {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che Luisa avrebbe risolto problema?",
+  {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che Luisa avrebbe risolto problema?",
   "sentence_bad_extraction": "Cosa hai fatto l’affermazione che Luisa avrebbe risolto?",
   "sentence_good_no_island": "Cosa hai affermato che Luisa avrebbe risolto?",
   "field": "syntax",
@@ -443,26 +444,22 @@
   "island_subcategory": "complex_np_island",
   "pairID": "47"},
 
-  {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che la decisione avrebbe creato un precedente?",
-  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che la decisione avrebbe creato?",
-  "sentence_good_no_island": "Cosa hai affermato che la decisione avrebbe creato?",
-  "sentence_good_no_island_as_subject": "",
+  {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che il consiglio di amministrazione avrebbe redatto il programma?",
+  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che il consiglio di amministrazione avrebbe redatto?",
+  "sentence_good_no_island": "Cosa hai affermato che il consiglio di amministrazione avrebbe redatto?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
   "island_subcategory": "complex_np_island",
   "pairID": "48"},
 
-  {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che gli incentivi avrebbero diminuito la disoccupazione?",
-  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che gli incentivi avrebbero diminuito?",
-  "sentence_good_no_island": "Cosa hai affermato che gli incentivi avrebbero diminuito?",
-  "sentence_good_no_island_as_subject": "",
+  {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che l'impresa avrebbe pareggiato il bilancio?",
+  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che l'impresa avrebbe pareggiato?",
+  "sentence_good_no_island": "Cosa hai affermato che l'impresa avrebbe pareggiato?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
   "island_subcategory": "complex_np_island",
-  "pairID": "49"},
-
-  
+  "pairID": "49"}
 ]
 }
