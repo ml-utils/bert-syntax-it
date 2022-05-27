@@ -2,9 +2,6 @@ from functools import reduce
 
 import numpy as np
 import torch
-from lm_utils import get_sentences_from_example
-from lm_utils import model_types
-from lm_utils import sent_idx
 from scipy.special import softmax
 from tqdm import tqdm
 from transformers import BertForMaskedLM  # BertModel as BertForMaskedLM  #
@@ -15,6 +12,10 @@ from transformers import GPT2LMHeadModel
 from transformers import GPT2Tokenizer
 from transformers import RobertaForMaskedLM
 from transformers import RobertaTokenizer
+
+from .lm_utils import get_sentences_from_example
+from .lm_utils import model_types
+from .lm_utils import sent_idx
 
 
 class DEVICES:

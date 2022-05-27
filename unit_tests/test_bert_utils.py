@@ -3,17 +3,19 @@ from unittest import TestCase
 
 import pandas as pd
 import torch
+from linguistic_tests.bert_utils import estimate_sentence_probability_from_text
+from linguistic_tests.bert_utils import get_bert_output2
+from linguistic_tests.bert_utils import print_orange
+from linguistic_tests.bert_utils import tokenize_sentence
+from linguistic_tests.compute_model_score import get_sentence_score_JHLau
+from linguistic_tests.lm_utils import get_sentences_from_example
+from linguistic_tests.lm_utils import load_model_and_tokenizer
+from linguistic_tests.lm_utils import load_testset_data
+from linguistic_tests.lm_utils import model_types
 from scipy.special import softmax
 from tqdm import tqdm
 from transformers import BertForMaskedLM
 from transformers import BertTokenizer
-
-import bert_utils
-import notebook
-from compute_model_score import get_sentence_score_JHLau
-from lm_utils import get_sentences_from_example
-from lm_utils import load_testset_data
-from lm_utils import model_types
 
 # from pytorch_transformers import GPT2Tokenizer, GPT2LMHeadModel
 # from torch import softmax
@@ -23,14 +25,14 @@ class TestBertUtils(TestCase):
     def test_get_bert_output(self):
         model_name = "models/bert-base-italian-xxl-cased/"
         # eval_suite = "it"
-        bert, tokenizer = notebook.load_model_and_tokenizer(
+        bert, tokenizer = load_model_and_tokenizer(
             model_types.BERT, model_name, do_lower_case=False
         )
 
         sentence = "Ha detto che il libro di ***mask*** ha 300 pagine."
-        tokens, masked_word_idx = bert_utils.tokenize_sentence(tokenizer, sentence)
+        tokens, masked_word_idx = tokenize_sentence(tokenizer, sentence)
         sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
-        res, res_softmax, res_normalized = bert_utils.get_bert_output2(
+        res, res_softmax, res_normalized = get_bert_output2(
             bert, tokenizer, sentence_ids, masked_word_idx, verbose=True
         )
         k = 5
@@ -94,10 +96,7 @@ class TestBertUtils(TestCase):
             for sentence_idx, sentence in enumerate(
                 get_sentences_from_example(example, 2)
             ):
-                (
-                    bert_sentence_lp_actual,
-                    _,
-                ) = bert_utils.estimate_sentence_probability_from_text(
+                (bert_sentence_lp_actual, _,) = estimate_sentence_probability_from_text(
                     bert_model, bert_tokenizer, sentence
                 )
                 bert_tokenized_sentence = bert_tokenizer.tokenize(sentence)
@@ -125,7 +124,7 @@ def test_get_acceptability_diffs():
 
 
 def print_tensor_ids_as_tokens(tens: torch.Tensor, tokenizer: BertTokenizer, msg):
-    bert_utils.print_orange("print_tensor_ids_as_tokens")
+    print_orange("print_tensor_ids_as_tokens")
     tens = torch.squeeze(tens)
     nparr = tens.numpy()
     df = pd.DataFrame(nparr)

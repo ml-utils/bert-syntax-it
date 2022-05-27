@@ -2,19 +2,20 @@ import math
 
 import numpy as np
 import torch
-from lm_utils import get_pen_score
-from lm_utils import get_sentences_from_example
-from lm_utils import print_orange
-from lm_utils import print_red
-from lm_utils import sent_idx
-from lm_utils import sentence_score_bases
-from lm_utils import special_tokens
 from scipy.special import softmax
 from transformers import BertForMaskedLM as BertForMaskedLM
 from transformers import BertForMaskedLM as BertPreTrainedModel
 from transformers import BertTokenizer
 from transformers import GPT2LMHeadModel
 from transformers.modeling_outputs import MaskedLMOutput
+
+from .lm_utils import get_pen_score
+from .lm_utils import get_sentences_from_example
+from .lm_utils import print_orange
+from .lm_utils import print_red
+from .lm_utils import sent_idx
+from .lm_utils import sentence_score_bases
+from .lm_utils import special_tokens
 
 
 def analize_sentence(

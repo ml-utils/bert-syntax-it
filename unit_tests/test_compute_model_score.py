@@ -1,9 +1,8 @@
 from random import random
 from unittest import TestCase
 
+from linguistic_tests.compute_model_score import reduce_to_log_product
 from numpy import log
-
-from compute_model_score import reduce_to_log_product
 
 
 class TestComputeModelScore(TestCase):

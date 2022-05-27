@@ -5,25 +5,29 @@ import os.path
 import sys
 from collections import Counter
 
-import bert_utils
-from bert_utils import analize_sentence
-from bert_utils import estimate_sentence_probability_from_text
-from bert_utils import get_probs_for_words
-from bert_utils import get_score_descr
-from bert_utils import tokenize_sentence
-from compute_model_score import DEVICES
-from compute_model_score import load_model
-from compute_model_score import run_testset
-from lm_utils import bcolors
-from lm_utils import get_sentences_from_example
-from lm_utils import load_model_and_tokenizer
-from lm_utils import load_testset_data
-from lm_utils import model_types
-from lm_utils import print_orange
-from lm_utils import print_red
-from lm_utils import red_txt
-from lm_utils import sentence_score_bases
 from tqdm import tqdm
+
+from .bert_utils import analize_example
+from .bert_utils import analize_sentence
+from .bert_utils import check_unknown_words
+from .bert_utils import estimate_sentence_probability
+from .bert_utils import estimate_sentence_probability_from_text
+from .bert_utils import get_probs_for_words
+from .bert_utils import get_score_descr
+from .bert_utils import tokenize_sentence
+from .compute_model_score import DEVICES
+from .compute_model_score import load_model
+from .compute_model_score import run_testset
+from .lm_utils import bcolors
+from .lm_utils import get_sentences_from_example
+from .lm_utils import load_model_and_tokenizer
+from .lm_utils import load_testset_data
+from .lm_utils import model_types
+from .lm_utils import print_orange
+from .lm_utils import print_red
+from .lm_utils import red_txt
+from .lm_utils import sentence_score_bases
+
 
 # from collections import defaultdict
 # import torch
@@ -95,7 +99,7 @@ def eval_it(bert, tokenizer):
     # rc = defaultdict(Counter)
     # tc = Counter()
     start = time.time()
-    bert_utils.print_orange(f"{len(o)} sentences to process..")
+    print_orange(f"{len(o)} sentences to process..")
     for i, (case, tp, s, good_word, bad_word) in enumerate(o):
         ps = get_probs_for_words(bert, tokenizer, s, good_word, bad_word)
         if ps is None:
@@ -394,7 +398,7 @@ def run_testset_bert(
             score_bad_sentence,
             score_2nd_good_sentence,
             oov_counts,
-        ) = bert_utils.analize_example(
+        ) = analize_example(
             model,
             tokenizer,
             example_idx,
@@ -464,14 +468,12 @@ def run_testset_bert(
     )
 
     # print examples getting no errors:
-    bert_utils.print_orange("Examples getting no errors:")
+    print_orange("Examples getting no errors:")
     for example_idx in no_errors_examples_indexes:
         no_error_example = testset_data["sentences"][example_idx]
         print(f"{get_sentences_from_example(no_error_example, 2)}")
 
-    bert_utils.print_orange(
-        "examples sorted by sentence_acceptability diff, " "second sentence:"
-    )
+    print_orange("examples sorted by sentence_acceptability diff, " "second sentence:")
     sorted_examples = dict(
         sorted(examples_by_second_sentence_acceptability_diff.items())
     ).items()
@@ -483,9 +485,7 @@ def run_testset_bert(
             compare_with_base_sentence=False,
         )
 
-    bert_utils.print_orange(
-        "examples sorted by sentence_acceptability diff, " "base sentence:"
-    )
+    print_orange("examples sorted by sentence_acceptability diff, " "base sentence:")
     for acceprability_diff, example_analysis in dict(
         sorted(examples_by_base_sentence_acceptability_diff.items())
     ).items():
@@ -509,7 +509,7 @@ def run_testset_bert(
 
 
 def print_sentences_sorted_by_score(sentences_by_score, msg):
-    bert_utils.print_orange(msg)
+    print_orange(msg)
     for score, sentence in dict(sorted(sentences_by_score.items())).items():
         print(f"{score:.1f} {sentence}")
 
@@ -612,9 +612,7 @@ def interactive_mode():
             logits_normalized_base_sentence,
             logits_normalized_2nd_good_sentence,
             oov_counts,
-        ) = bert_utils.analize_example(
-            bert, tokenizer, -1, example, sentences_per_example
-        )
+        ) = analize_example(bert, tokenizer, -1, example, sentences_per_example)
         diff_penLP = round(penLP_base_sentence - penLP_bad_sentence, 3)
 
         print_red("PenLP:")
@@ -632,7 +630,7 @@ def interactive_mode():
 
 
 def basic_sentence_test(model, tokenizer):
-    bert_utils.check_unknown_words(tokenizer)
+    check_unknown_words(tokenizer)
     sentence_to_analizse = (
         "Di che cosa Marco si chiede se è stata riparata da ***Luca***?"
     )
@@ -647,9 +645,7 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
     print_red(f"printing details for sentence {sentence_txt}")
     tokens = tokenizer.tokenize(sentence_txt)
     sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
-    bert_utils.estimate_sentence_probability(
-        bert, tokenizer, sentence_ids, verbose=True
-    )
+    estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose=True)
 
 
 # todo same gpt2 as in the paper, comparable bert
