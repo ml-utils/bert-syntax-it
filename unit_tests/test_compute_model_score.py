@@ -1,6 +1,8 @@
 from random import random
 from unittest import TestCase
+
 from numpy import log
+
 from compute_model_score import reduce_to_log_product
 
 
@@ -13,4 +15,3 @@ class TestComputeModelScore(TestCase):
         expected = log(a) + log(b)
 
         self.assertEqual(actual, expected)
-
