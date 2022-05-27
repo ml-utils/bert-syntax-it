@@ -621,7 +621,7 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
 # acc. correct_pen_lps_1st_sentence: 90.2 %
 def run_blimp_en():
     model_type = model_types.ROBERTA  # model_types.GPT  #
-    model_name = "roberta-base" #"gpt2-medium"  # "gpt2-large"  # 'gpt2' # "roberta-large" # "bert-large-uncased"
+    model_name = "roberta-large" # "roberta-base" #"gpt2-medium"  # "gpt2-large"  # 'gpt2' #  "bert-large-uncased"
     # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
@@ -725,6 +725,45 @@ def run_tests_for_model_type(model_type):
     # custom_eval("What is your name?", bert, tokenizer)
 
 
+def profile_slowdowns():
+    import cProfile
+    import pstats
+
+    model_type = model_types.ROBERTA  # model_types.GPT  #
+    model_name = "roberta-large" # "roberta-base" #"gpt2-medium"  # "gpt2-large"  # 'gpt2' #  "bert-large-uncased"
+    model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
+
+    testset_dir_path = './outputs/blimp/from_blim_en/islands/'
+    testset_filename = 'mini_wh_island.jsonl'
+    testset_filepath = os.path.join(testset_dir_path, testset_filename)
+
+
+    print(f'loading testset file {testset_filepath}..')
+    with open(testset_filepath, 'r') as json_file:
+        json_list = list(json_file)
+    print('testset loaded.')
+
+    examples = []
+    for json_str in tqdm(json_list):
+        example = json.loads(json_str)
+
+
+        sentence_good = example['sentence_good']
+        sentence_bad = example['sentence_bad']
+        examples.append({'sentence_good': sentence_good, 'sentence_bad':
+            sentence_bad, 'sentence_good_2nd': ""})
+    testset = {'sentences': examples}
+    sentences_per_example = 2
+
+    with cProfile.Profile() as pr:
+        run_testset(model_type, model, tokenizer, DEVICES.CPU, testset,
+                    sentences_per_example)
+
+    stats = pstats.Stats(pr)
+    stats.sort_stats(pstats.SortKey.TIME)
+    stats.print_stats()
+
+
 def main():
     if len(sys.argv) > 1:
         interactive_mode()
@@ -738,3 +777,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # profile_slowdowns()
