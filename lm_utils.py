@@ -5,7 +5,8 @@ import cython
 
 
 class sent_idx:
-    GOOD_1: int = 0  # GOOD_1 = cython.declare(cython.int, 0)
+    GOOD_1: int = 0
+    # GOOD_1 = cython.declare(cython.int, 0)
     # GOOD_SENTENCE_1_IDX : int = 0
     BAD: int = 1
     GOOD_2: int = 2

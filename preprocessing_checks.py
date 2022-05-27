@@ -55,7 +55,6 @@ def print_profession_nouns():
 
 
 def main():
-    # main()
     # t_determiner_noun_agreement_1()
     print("main")
 

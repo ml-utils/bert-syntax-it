@@ -17,8 +17,6 @@ from lm_utils import sent_idx
 from lm_utils import sentence_score_bases
 from lm_utils import special_tokens
 
-# from torch.nn.functional import softmax
-
 
 def analize_sentence(
     bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence: str
