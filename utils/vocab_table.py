@@ -1,33 +1,41 @@
 # Authors: Alex Warstadt
 # Functions for accessing vocab matrices
+import os
+import re
 
 import numpy as np
+
 from utils.data_type import data_type
-import re
-import os
 
 
-def generate_vocabulary():
-    print('starting to generate vocabulary..')
-    vocab_path = os.path.join("/".join(os.path.join(os.path.dirname(os.path.abspath(__file__))).split("/")[:-1]), "vocabulary.csv")
-    vocab_it_path = os.path.join("/".join(os.path.join(os.path.dirname(os.path.abspath(__file__))).split("/")[:-1]), "vocabulary_it.csv")
-    global vocab
-    vocab = np.genfromtxt(vocab_it_path, delimiter=",", names=True, dtype=data_type)
-    # decode apostrophe
-    for entry in vocab:
-        entry[0] = re.sub("!", "'", entry[0])
+# global vocab
+# def generate_vocabulary():
+print("starting to generate vocabulary..")
+# vocab_path = os.path.join(
+#     "/".join(
+#         os.path.join(os.path.dirname(os.path.abspath(__file__))).split("/")[:-1]
+#     ),
+#     "vocabulary.csv",
+# )
+vocab_it_path = os.path.join(
+    "/".join(os.path.join(os.path.dirname(os.path.abspath(__file__))).split("/")[:-1]),
+    "vocabulary_it.csv",
+)
 
-    # Remove if you want to keep in OOV words
+vocab = np.genfromtxt(vocab_it_path, delimiter=",", names=True, dtype=data_type)
+# decode apostrophe
+for entry in vocab:
+    entry[0] = re.sub("!", "'", entry[0])
 
-    vocab = np.array(list(filter(lambda x: x["OOV_inductive_biases"] != "1", vocab)))
-    print('Vocabulary generated.')
+# Remove if you want to keep in OOV words
+
+vocab = np.array(list(filter(lambda x: x["OOV_inductive_biases"] != "1", vocab)))
+print("Vocabulary generated.")
+print(f"vocab lenght is {len(vocab)}")
+# return vocab
 
 
-generate_vocabulary()
-print(f'vocab lenght is {len(vocab)}')
-
-
-def get_all(label, value, table=vocab):
+def get_all(label, value, table=vocab):  # table=vocab
     """
     :param label: string. field name.
     :param value: string. label.
@@ -38,18 +46,21 @@ def get_all(label, value, table=vocab):
     # return np.array(list(filter(lambda x: condition_is_match_disj(value, x[label]), table)), dtype=data_type)
     return np.array(list(filter(lambda x: x[label] == value, table)), dtype=table.dtype)
 
-def get_all_conjunctive(labels_values, table=vocab):
+
+def get_all_conjunctive(labels_values, table=vocab):  # table=vocab
     """
     :param labels_values: list of (l,v) pairs: [(l1, v1), (l2, v2), (l3, v3)]
     :return: vocab items with the given value for each label
     """
     to_return = table
     for label, value in labels_values:
-        to_return = np.array(list(filter(lambda x: x[label] == value, to_return)), dtype=table.dtype)
+        to_return = np.array(
+            list(filter(lambda x: x[label] == value, to_return)), dtype=table.dtype
+        )
     return to_return
 
 
-def get_matches_of(row, label, table=vocab):
+def get_matches_of(row, label, table=vocab):  # table=vocab
     """
     :param row: ndarray row. functor vocab item.
     :param label: string. field containing selectional restrictions.
@@ -68,7 +79,7 @@ def get_matches_of(row, label, table=vocab):
         return np.array(matches, dtype=table.dtype)
 
 
-def get_matches_of_conj(rows_labels, table=vocab):
+def get_matches_of_conj(rows_labels, table=vocab):  # table=vocab
     """
     :param rows_labels: list of (r,l) pairs: [(r1, l1), (r2, l2), (r3, l3)]
     :param table: ndarray of vocab items.
@@ -80,11 +91,14 @@ def get_matches_of_conj(rows_labels, table=vocab):
         if value == "":
             pass
         else:
-            to_return = np.array(list(filter(lambda x: is_match_disj(x, value), to_return)), dtype=table.dtype)
+            to_return = np.array(
+                list(filter(lambda x: is_match_disj(x, value), to_return)),
+                dtype=table.dtype,
+            )
     return to_return
 
 
-def get_matched_by(row, label, table=vocab):
+def get_matched_by(row, label, table=vocab):  # table=vocab
     """
     :param row: ndarray row. selected vocab item.
     :param label: string. field containing selectional restrictions.
@@ -102,13 +116,14 @@ def get_matched_by(row, label, table=vocab):
 def conj_list(conjunction):
     """
     :param disjunct: a string corresponding to a conjunction of selectional restrictions
-    :return: a list of k, v pairs 
+    :return: a list of k, v pairs
     """
     try:
         to_return = [(v.split("=")[0], v.split("=")[1]) for v in conjunction.split("^")]
         return to_return
     except IndexError:
         pass
+
 
 def is_match_disj(row, disjunction):
     """
@@ -125,6 +140,7 @@ def is_match_disj(row, disjunction):
             match = match or is_match_conj(row, d)
         return match
 
+
 def is_match_conj(row, conjunction):
     """
     :param row: a vocab item
@@ -140,6 +156,7 @@ def is_match_conj(row, conjunction):
             pass
     return match
 
+
 def condition_is_match_disj(condition, disjunction):
     """
     :param condition: a string representing a selectional condition
@@ -154,6 +171,7 @@ def condition_is_match_disj(condition, disjunction):
         for d in disjuncts:
             match = match or condition_is_match_conj(condition, d)
         return match
+
 
 def condition_is_match_conj(condition, conjunction):
     """
@@ -171,5 +189,4 @@ def condition_is_match_conj(condition, conjunction):
     return match
 
 
-
-
+# generate_vocabulary()
