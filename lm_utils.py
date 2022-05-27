@@ -2,14 +2,16 @@ import os.path
 import json
 import cython
 
+
 class sent_idx:
-    GOOD_1: int = 0 # GOOD_1 = cython.declare(cython.int, 0)  #GOOD_SENTENCE_1_IDX : int = 0
+    GOOD_1: int = 0  # GOOD_1 = cython.declare(cython.int, 0)
+    # GOOD_SENTENCE_1_IDX : int = 0
     BAD: int = 1
-    GOOD_2 : int = 2
+    GOOD_2: int = 2
 
 
 class special_tokens:
-    UNK : str = '[UNK]'
+    UNK: str = '[UNK]'
 
 
 @cython.cclass
@@ -60,7 +62,8 @@ def print_in_color(txt, color: bcolors):
     print(f'{color}{txt}{bcolors.ENDC}')
 
 
-def load_model_and_tokenizer(model_type, model_name, dict_name=None, do_lower_case=False):
+def load_model_and_tokenizer(model_type, model_name,
+                             dict_name=None, do_lower_case=False):
     print(f'loading model_name: {model_name}..')
 
     from transformers import GPT2Tokenizer, GPT2LMHeadModel
@@ -78,9 +81,10 @@ def load_model_and_tokenizer(model_type, model_name, dict_name=None, do_lower_ca
             vocab_filepath = model_name
         else:
             vocab_filepath = os.path.join(model_name, 'dict.txt')
-        tokenizer = BertTokenizer.from_pretrained(vocab_filepath, do_lower_case=do_lower_case)
+        tokenizer = BertTokenizer.from_pretrained(vocab_filepath,
+                                                  do_lower_case=do_lower_case)
     else:
-        print(f'Supported models: Bert, Gpt.')
+        print('Supported models: Bert, Gpt.')
         raise SystemExit
 
     print("tokenizer ready.")
@@ -94,10 +98,10 @@ def load_model_and_tokenizer(model_type, model_name, dict_name=None, do_lower_ca
 
 def load_testset_data(file_path):
     with open(file_path, mode='r', encoding="utf-8") as json_file:
-        #json_list = list(json_file)
+        # json_list = list(json_file)
         testset_data = json.load(json_file)
 
-        #for i in data:
+        # for i in data:
         #    print(i)
 
     return testset_data
@@ -108,10 +112,14 @@ def get_sentences_from_example(example: dict, sentences_per_example=2,
     by_sentence_variant_name = False
 
     if by_sentence_variant_name:
-        sentence_names_wh_wheter_islands = ['sentence_good_no_extraction', 'sentence_bad_extraction',
-                          'sentence_good_extraction_resumption', 'sentence_good_extraction_as_subject']
-        sentence_names_wh_complex_np_islands = ['sentence_good_no_extraction', 'sentence_bad_extraction',
-                                            'sentence_good_no_island', 'sentence_good_no_island_as_subject']
+        # sentence_names_wh_wheter_islands = ['sentence_good_no_extraction',
+        #                                     'sentence_bad_extraction',
+        #                                     'sentence_good_extraction_resumption',
+        #                                     'sentence_good_extraction_as_subject']
+        sentence_names_wh_complex_np_islands = ['sentence_good_no_extraction',
+                                                'sentence_bad_extraction',
+                                                'sentence_good_no_island',
+                                                'sentence_good_no_island_as_subject']
         sentence_names = sentence_names_wh_complex_np_islands
         sentences = []
         for sentence_name in sentence_names:
@@ -120,4 +128,3 @@ def get_sentences_from_example(example: dict, sentences_per_example=2,
         sentences = list(example.values())[0:sentences_per_example]  #
 
     return sentences
-
