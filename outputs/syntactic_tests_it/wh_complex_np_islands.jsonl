@@ -9,9 +9,9 @@
   "island_subcategory": "complex_np_island",
   "pairID": "0"},
 
- {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che la decisione avrebbe creato un precedente?",
-  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che la decisione avrebbe creato?",
-  "sentence_good_no_island": "Cosa hai affermato che la decisione avrebbe creato?",
+ {"sentence_good_no_extraction": "Chi ha sostenuto la tesi che che la decisione avrebbe creato un precedente?",
+  "sentence_bad_extraction": "Cosa hai sostenuto la tesi che la decisione avrebbe creato?",
+  "sentence_good_no_island": "Cosa hai sostenuto che la decisione avrebbe creato?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -74,7 +74,7 @@
 
   {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che l’azienda avrebbe trasferito la produzione in Romania?",
   "sentence_bad_extraction": "Cosa hai fatto l’affermazione che l’azienda avrebbe trasferito in Romania?",
-  "sentence_good_no_island": "Cosa hai affermato che l’azienda avrebbe trasferito in Romania?", 
+  "sentence_good_no_island": "Cosa hai affermato che l’azienda avrebbe trasferito in Romania?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -119,7 +119,7 @@
 
   {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che Teresa avrebbe già completato il lavoro?",
   "sentence_bad_extraction": "Cosa hai fatto l’affermazione che Teresa avrebbe già completato?",
-  "sentence_good_no_island": "Cosa hai affermato che Teresa avrebbe già completato?", 
+  "sentence_good_no_island": "Cosa hai affermato che Teresa avrebbe già completato?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -164,7 +164,7 @@
 
   {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che le idee verdi senza colore avrebbero dormito furiosamente?",
   "sentence_bad_extraction": "Cosa hai fatto l’affermazione che avrebbero dormito furiosamente?",
-  "sentence_good_no_island": "Cosa hai affermato che avrebbero dormito furiosamente?", 
+  "sentence_good_no_island": "Cosa hai affermato che avrebbero dormito furiosamente?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -173,7 +173,7 @@
 
   {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che Chiara avrebbe eseguito il piano alla pefezione?",
   "sentence_bad_extraction": "Cosa hai fatto l’affermazione che Chiara avrebbe eseguito alla pefezione?",
-  "sentence_good_no_island": "Cosa hai affermato che Chiara avrebbe eseguito alla pefezione?", 
+  "sentence_good_no_island": "Cosa hai affermato che Chiara avrebbe eseguito alla pefezione?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -182,7 +182,7 @@
 
   {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che il portavoce avrebbe confermato la notizia?",
   "sentence_bad_extraction": "Cosa hai fatto l’affermazione che il portavoce avrebbe confermato?",
-  "sentence_good_no_island": "Cosa hai affermato che il portavoce avrebbe confermato?", 
+  "sentence_good_no_island": "Cosa hai affermato che il portavoce avrebbe confermato?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -191,7 +191,7 @@
 
   {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che l'utente avrebbe cambiato operatore telefonico?",
   "sentence_bad_extraction": "Cosa hai fatto l’affermazione che l'utente avrebbe cambiato?",
-  "sentence_good_no_island": "Cosa hai affermato che l'utente avrebbe cambiato?", 
+  "sentence_good_no_island": "Cosa hai affermato che l'utente avrebbe cambiato?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -211,7 +211,7 @@
 
  {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che il turista avrebbe visitato il museo?",
   "sentence_bad_extraction": "Cosa hai fatto l’affermazione che il turista avrebbe visitato?",
-  "sentence_good_no_island": "Cosa hai affermato che il turista avrebbe visitato?", 
+  "sentence_good_no_island": "Cosa hai affermato che il turista avrebbe visitato?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -364,7 +364,7 @@
 
   {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che l'agenzia avrebbe diffuso il sondaggio?",
   "sentence_bad_extraction": "Cosa hai fatto l’affermazione che l'agenzia avrebbe diffuso?",
-  "sentence_good_no_island": "Cosa hai affermato che l'agenzia avrebbe diffuso?", 
+  "sentence_good_no_island": "Cosa hai affermato che l'agenzia avrebbe diffuso?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -391,7 +391,7 @@
 
   {"sentence_good_no_extraction": "Chi ha difeso la proposta che l'organizzatore rimandasse il viaggio?",
   "sentence_bad_extraction": "Cosa hai difeso la proposta che l'organizzatore rimandasse?",
-  "sentence_good_no_island": "Cosa hai proposto che l'organizzatore rimandasse?", 
+  "sentence_good_no_island": "Cosa hai proposto che l'organizzatore rimandasse?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
@@ -409,7 +409,7 @@
 
   {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che l’autogrill avrebbe aumentato i prezzi?",
   "sentence_bad_extraction": "Cosa hai fatto l’affermazione che l’autogrill avrebbe aumentato?",
-  "sentence_good_no_island": "Cosa hai affermato che l’autogrill avrebbe aumentato?", 
+  "sentence_good_no_island": "Cosa hai affermato che l’autogrill avrebbe aumentato?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
