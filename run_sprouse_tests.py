@@ -10,7 +10,7 @@ from compute_model_score import get_example_scores
 from compute_model_score import load_model
 from lm_utils import model_types
 
-# parse the csv file
+# todo: parse the csv file
 # 4 sentences for each examples (long vs short, island vs non island)
 # turn into 3 examples: island long vs the other 3 sentences
 # one file for each phenomena (2x4), ..8x3 examples in each file
