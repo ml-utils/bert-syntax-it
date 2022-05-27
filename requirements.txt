@@ -2,3 +2,4 @@ transformers==4.18.0
 pandas
 torch
 scipy
+cython
