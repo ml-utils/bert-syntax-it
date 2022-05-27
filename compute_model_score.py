@@ -41,9 +41,9 @@ def load_model(model_type, model_name, device):
         model = BertForMaskedLM.from_pretrained(
             model_name)  # BertForMaskedLM.from_pretrained(model_name)
         print(f'model loaded. Loading tokenizer {model_name}..')
+        do_lower_case = True if "uncased" in model_name else False
         tokenizer = BertTokenizer.from_pretrained(model_name,
-                                                  do_lower_case=(
-                                                      True if "uncased" in model_name else False))
+                                                  do_lower_case=do_lower_case)
         print('tokenizer loaded.')
     elif model_type in [model_types.ROBERTA]:
         print(f'loading model {model_name}..')
@@ -74,7 +74,8 @@ def load_model(model_type, model_name, device):
 def run_testset(model_type, model, tokenizer, device, testset,
                 sentences_per_example):
     """
-    Adapted from https://github.com/jhlau/acceptability-prediction-in-context/blob/master/code/compute_model_score.py
+    Adapted from https://github.com/jhlau/acceptability-prediction-in-context/
+    blob/master/code/compute_model_score.py
     :param model_type:
     :param model:
     :param tokenizer:
@@ -93,9 +94,10 @@ def run_testset(model_type, model, tokenizer, device, testset,
     correct_pen_logweights_1st_sentence = 0
     correct_pen_logweights_2nd_sentence = 0
     for example_idx, example_data in enumerate(tqdm(testset['sentences'])):
-        lps, pen_lps, pen_sentence_log_weights, sentence_log_weights, sentences = get_example_scores(
-            device, example_data, model, model_type, sent_ids, tokenizer,
-            sentences_per_example)
+        lps, pen_lps, pen_sentence_log_weights, \
+        sentence_log_weights, sentences \
+            = get_example_scores(device, example_data, model, model_type,
+                                 sent_ids, tokenizer, sentences_per_example)
         if lps[sent_idx.GOOD_1] > lps[sent_idx.BAD]:
             correct_lps_1st_sentence += 1
         if pen_lps[sent_idx.GOOD_1] > pen_lps[sent_idx.BAD]:
@@ -124,25 +126,17 @@ def run_testset(model_type, model, tokenizer, device, testset,
 
     examples_count = len(testset['sentences'])
     print('test results report:')
-    print(
-        f'acc. correct_lps_1st_sentence: {perc(correct_lps_1st_sentence, examples_count):.1f} %')
-    print(
-        f'acc. correct_pen_lps_1st_sentence: {perc(correct_pen_lps_1st_sentence, examples_count):.1f} %')
-    print(
-        f'acc. correct_lps_2nd_sentence: {perc(correct_lps_2nd_sentence, examples_count):.1f} %')
-    print(
-        f'acc. correct_pen_lps_2nd_sentence: {perc(correct_pen_lps_2nd_sentence, examples_count):.1f} %')
+    print(f'acc. correct_lps_1st_sentence: {perc(correct_lps_1st_sentence, examples_count):.1f} %')
+    print(f'acc. correct_pen_lps_1st_sentence: {perc(correct_pen_lps_1st_sentence, examples_count):.1f} %')
+    print(f'acc. correct_lps_2nd_sentence: {perc(correct_lps_2nd_sentence, examples_count):.1f} %')
+    print(f'acc. correct_pen_lps_2nd_sentence: {perc(correct_pen_lps_2nd_sentence, examples_count):.1f} %')
 
     if model_type in [model_types.BERT, model_types.ROBERTA,
                       model_types.GILBERTO]:
-        print(
-            f'acc. correct_logweights_1st_sentence: {perc(correct_logweights_1st_sentence, examples_count):.1f} %')
-        print(
-            f'acc. correct_pen_logweights_1st_sentence: {perc(correct_pen_logweights_1st_sentence, examples_count):.1f} %')
-        print(
-            f'acc. correct_logweights_2nd_sentence: {perc(correct_logweights_2nd_sentence, examples_count):.1f} %')
-        print(
-            f'acc. correct_pen_logweights_2nd_sentence: {perc(correct_pen_logweights_2nd_sentence, examples_count):.1f} %')
+        print(f'acc. correct_logweights_1st_sentence: {perc(correct_logweights_1st_sentence, examples_count):.1f} %')
+        print(f'acc. correct_pen_logweights_1st_sentence: {perc(correct_pen_logweights_1st_sentence, examples_count):.1f} %')
+        print(f'acc. correct_logweights_2nd_sentence: {perc(correct_logweights_2nd_sentence, examples_count):.1f} %')
+        print(f'acc. correct_pen_logweights_2nd_sentence: {perc(correct_pen_logweights_2nd_sentence, examples_count):.1f} %')
 
 
 def get_example_scores(device, example_data, model, model_type, sent_ids,
@@ -162,7 +156,7 @@ def get_example_scores(device, example_data, model, model_type, sent_ids,
         sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
         if len(sentence_tokens) == 0:
             print(
-                f'Warning: sentence of lenght 0: {sentence} from example: {example_data}')
+                f'Warning: lenght 0 for {sentence=} from {example_data=}')
         text_len = len(sentence_tokens)
         lp, token_weights = get_sentence_score_JHLau(model_type, model,
                                                      tokenizer,
@@ -233,13 +227,14 @@ def get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens,
     if model_type in [model_types.GPT, model_types.GEPPETTO]:
 
         # not use context variant:
-        # prepend the sentence with <|endoftext|> token, so that the loss is computed correctly
-        tensor_input = torch.tensor([[
-                                         tokenizer.bos_token_id] + tokenizer.convert_tokens_to_ids(
-            sentence_tokens)], device=device)
-        labels = torch.tensor([[
-                                   tokenizer.bos_token_id] + tokenizer.convert_tokens_to_ids(
-            sentence_tokens)], device=device)
+        # prepend the sentence with <|endoftext|> token, so that the loss is
+        # computed correctly
+        sentence_ids = tokenizer.convert_tokens_to_ids(
+            sentence_tokens)
+        tensor_input = torch.tensor([[tokenizer.bos_token_id] + sentence_ids],
+                                    device=device)
+        labels = torch.tensor([[tokenizer.bos_token_id] + sentence_ids],
+                              device=device)
         labels[:, :1] = -1
         loss = model(tensor_input, labels=tensor_input)
         return float(loss[0]) * -1.0 * len(sentence_tokens), None
@@ -254,7 +249,8 @@ def get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens,
         tokenize_combined = ["[CLS]"] + sentence_tokens + ["[SEP]"]
 
         for i in range(len(sentence_tokens)):
-            # Mask a token that we will try to predict back with `BertForMaskedLM`
+            # Mask a token that we will try to predict back with
+            # `BertForMaskedLM`
             masked_index = i + 1 + 0  # not use_context variant
             tokenize_masked = tokenize_combined.copy()
             tokenize_masked[masked_index] = '[MASK]'
@@ -264,7 +260,8 @@ def get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens,
 
             # Convert token to vocabulary indices
             indexed_tokens = tokenizer.convert_tokens_to_ids(tokenize_masked)
-            # Define sentence A and B indices associated to 1st and 2nd sentences (see paper)
+            # Define sentence A and B indices associated to 1st and 2nd
+            # sentences (see paper)
             segment_ids = [0] * len(tokenize_masked)
 
             batched_indexed_tokens.append(indexed_tokens)
@@ -279,17 +276,20 @@ def get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens,
             # print(f'type(model): {type(model)}')
             outputs = model(tokens_tensor, token_type_ids=segment_tensor)
             # when using bert-large-uncased and transformers BertModel:
-            # type(outputs) : <class 'transformers.modeling_outputs.BaseModelOutputWithPoolingAndCrossAttentions'>
-            # fields: attentions, cross attentions, hidden states, last hidden state, past key values, pooler output
-            # nb fun(**arg): take a dictionary of key-value pairs and unpack it into keyword arguments in a function call.
-            # when using bert-large-uncased and transformers BertForMaskedLM:
-            # type(outputs) : MaskedLMOutput
+            # type(outputs) : <class 'transformers.modeling_outputs.
+            # BaseModelOutputWithPoolingAndCrossAttentions'>
+            # fields: attentions, cross attentions, hidden states, last hidden
+            # state, past key values, pooler output nb fun(**arg): take a
+            # dictionary of key-value pairs and unpack it into keyword
+            # arguments in a function call. when using bert-large-uncased and
+            # transformers BertForMaskedLM: type(outputs) : MaskedLMOutput
             predictions = outputs[0]
 
         # go through each word and sum their logprobs
         lp = 0.0
         #     logits_min_abs = torch.abs(torch.min(res.detach()))
-        #     logits_shifted_above_zero = torch.add(res.detach(), logits_min_abs)
+        #     logits_shifted_above_zero = torch.add(res.detach(),
+        #     logits_min_abs)
         #     logits_sum = torch.sum(logits_shifted_above_zero)
         #     res_normalized = torch.div(logits_shifted_above_zero, logits_sum)
         tokens_scores = []
