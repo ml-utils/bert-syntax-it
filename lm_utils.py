@@ -1,5 +1,6 @@
-import os.path
 import json
+import os.path
+
 import cython
 
 
@@ -11,7 +12,7 @@ class sent_idx:
 
 
 class special_tokens:
-    UNK: str = '[UNK]'
+    UNK: str = "[UNK]"
 
 
 @cython.cclass
@@ -29,25 +30,25 @@ class sentence_score_bases:
 
 
 class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    RED = '\033[91m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKCYAN = "\033[96m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    RED = "\033[91m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
 
 
 def get_pen_score(unnormalized_score, text_len):
-    penalty = ((5 + text_len) ** 0.8 / (5 + 1) ** 0.8)
+    penalty = (5 + text_len) ** 0.8 / (5 + 1) ** 0.8
     return unnormalized_score / penalty
 
 
 def red_txt(txt: str):
-    return f'{bcolors.RED}{txt}{bcolors.ENDC}'
+    return f"{bcolors.RED}{txt}{bcolors.ENDC}"
 
 
 def print_red(txt: str):
@@ -58,13 +59,14 @@ def print_orange(txt: str):
     print_in_color(txt, bcolors.WARNING)
 
 
-def print_in_color(txt, color: bcolors):
-    print(f'{color}{txt}{bcolors.ENDC}')
+def print_in_color(txt, color: str):
+    print(f"{color}{txt}{bcolors.ENDC}")
 
 
-def load_model_and_tokenizer(model_type, model_name,
-                             dict_name=None, do_lower_case=False):
-    print(f'loading model_name: {model_name}..')
+def load_model_and_tokenizer(
+    model_type, model_name, dict_name=None, do_lower_case=False
+):
+    print(f"loading model_name: {model_name}..")
 
     from transformers import GPT2Tokenizer, GPT2LMHeadModel
     from transformers import BertTokenizer
@@ -80,11 +82,12 @@ def load_model_and_tokenizer(model_type, model_name,
         if dict_name is None:
             vocab_filepath = model_name
         else:
-            vocab_filepath = os.path.join(model_name, 'dict.txt')
-        tokenizer = BertTokenizer.from_pretrained(vocab_filepath,
-                                                  do_lower_case=do_lower_case)
+            vocab_filepath = os.path.join(model_name, "dict.txt")
+        tokenizer = BertTokenizer.from_pretrained(
+            vocab_filepath, do_lower_case=do_lower_case
+        )
     else:
-        print('Supported models: Bert, Gpt.')
+        print("Supported models: Bert, Gpt.")
         raise SystemExit
 
     print("tokenizer ready.")
@@ -97,7 +100,7 @@ def load_model_and_tokenizer(model_type, model_name,
 
 
 def load_testset_data(file_path):
-    with open(file_path, mode='r', encoding="utf-8") as json_file:
+    with open(file_path, mode="r", encoding="utf-8") as json_file:
         # json_list = list(json_file)
         testset_data = json.load(json_file)
 
@@ -107,8 +110,9 @@ def load_testset_data(file_path):
     return testset_data
 
 
-def get_sentences_from_example(example: dict, sentences_per_example=2,
-                               sprouse_format=False):
+def get_sentences_from_example(
+    example: dict, sentences_per_example=2, sprouse_format=False
+):
     by_sentence_variant_name = False
 
     if by_sentence_variant_name:
@@ -116,10 +120,12 @@ def get_sentences_from_example(example: dict, sentences_per_example=2,
         #                                     'sentence_bad_extraction',
         #                                     'sentence_good_extraction_resumption',
         #                                     'sentence_good_extraction_as_subject']
-        sentence_names_wh_complex_np_islands = ['sentence_good_no_extraction',
-                                                'sentence_bad_extraction',
-                                                'sentence_good_no_island',
-                                                'sentence_good_no_island_as_subject']
+        sentence_names_wh_complex_np_islands = [
+            "sentence_good_no_extraction",
+            "sentence_bad_extraction",
+            "sentence_good_no_island",
+            "sentence_good_no_island_as_subject",
+        ]
         sentence_names = sentence_names_wh_complex_np_islands
         sentences = []
         for sentence_name in sentence_names:
