@@ -1,24 +1,8 @@
-{"sentence_good": "Cosa hai messo in dubbio che io avrei vinto?", "sentence_bad": "Cosa hai messo in dubbio la previsione che io avrei vinto?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi ha messo in dubbio che io avrei vinto il concorso?", "sentence_bad": "Cosa hai messo in dubbio la previsione che io avrei vinto?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi ha messo in dubbio la previsione che io avrei vinto il concorso?", "sentence_bad": "Cosa hai messo in dubbio la previsione che io avrei vinto?", "conditions": "short_island"}
-{"sentence_good": "Cosa hai insinuato che io avrei trafugato?", "sentence_bad": "Cosa hai fatto l\u2019insinuazione che io avrei trafugato?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi ha insinuato che io avrei trafugato dei documenti?", "sentence_bad": "Cosa hai fatto l\u2019insinuazione che io avrei trafugato?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi ha fatto l\u2019insinuazione che io avrei trafugato dei documenti?", "sentence_bad": "Cosa hai fatto l\u2019insinuazione che io avrei trafugato?", "conditions": "short_island"}
-{"sentence_good": "Cosa hai detto che io avrei superato?", "sentence_bad": "Cosa hai sparso la voce che io avrei superato?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi ha detto che io avrei superato la prova?", "sentence_bad": "Cosa hai sparso la voce che io avrei superato?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi ha sparso la voce che io avrei superato la prova?", "sentence_bad": "Cosa hai sparso la voce che io avrei superato?", "conditions": "short_island"}
-{"sentence_good": "Cosa hai negato che io avrei comprato?", "sentence_bad": "Cosa hai negato il fatto che io avrei comprato?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi ha negato che io avrei comprato una casa?", "sentence_bad": "Cosa hai negato il fatto che io avrei comprato?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi ha negato il fatto che io avrei comprato una casa?", "sentence_bad": "Cosa hai negato il fatto che io avrei comprato?", "conditions": "short_island"}
-{"sentence_good": "Cosa hai affermato che io avrei rubato?", "sentence_bad": "Cosa hai fatto l\u2019affermazione che io avrei rubato?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi ha affermato che io avrei rubato una macchina?", "sentence_bad": "Cosa hai fatto l\u2019affermazione che io avrei rubato?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi ha fatto l\u2019affermazione che io avrei rubato una macchina?", "sentence_bad": "Cosa hai fatto l\u2019affermazione che io avrei rubato?", "conditions": "short_island"}
-{"sentence_good": "Cosa hai richiesto che io organizzassi?", "sentence_bad": "Cosa hai fatto la richiesta che io organizzassi?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi ha richiesto che io organizzassi l'incontro?", "sentence_bad": "Cosa hai fatto la richiesta che io organizzassi?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi ha fatto la richiesta che io organizzassi l'incontro?", "sentence_bad": "Cosa hai fatto la richiesta che io organizzassi?", "conditions": "short_island"}
-{"sentence_good": "Cosa hai dubitato che io avrei potuto rompere?", "sentence_bad": "Cosa hai messo in dubbio il fatto che io avrei potuto rompere?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi ha dubitato che io avrei potuto rompere il vaso?", "sentence_bad": "Cosa hai messo in dubbio il fatto che io avrei potuto rompere?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi ha messo in dubbio il fatto che io avrei potuto rompere il vaso?", "sentence_bad": "Cosa hai messo in dubbio il fatto che io avrei potuto rompere?", "conditions": "short_island"}
-{"sentence_good": "Cosa hai sentito che io avrei venduto?", "sentence_bad": "Cosa hai sentito la storia che io avrei venduto?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi ha raccontato che io avrei venduto la barca?", "sentence_bad": "Cosa hai sentito la storia che io avrei venduto?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi ha raccontato la storia che io avrei venduto la barca?", "sentence_bad": "Cosa hai sentito la storia che io avrei venduto?", "conditions": "short_island"}
+{"short_nonisland": "Chi ha messo in dubbio che io avrei vinto il concorso?", "long_nonisland": "Cosa hai messo in dubbio che io avrei vinto?", "short_island": "Chi ha messo in dubbio la previsione che io avrei vinto il concorso?", "sentence_bad": "Cosa hai messo in dubbio la previsione che io avrei vinto?"}
+{"short_nonisland": "Chi ha insinuato che io avrei trafugato dei documenti?", "long_nonisland": "Cosa hai insinuato che io avrei trafugato?", "short_island": "Chi ha fatto l’insinuazione che io avrei trafugato dei documenti?", "sentence_bad": "Cosa hai fatto l’insinuazione che io avrei trafugato?"}
+{"short_nonisland": "Chi ha detto che io avrei superato la prova?", "long_nonisland": "Cosa hai detto che io avrei superato?", "short_island": "Chi ha sparso la voce che io avrei superato la prova?", "sentence_bad": "Cosa hai sparso la voce che io avrei superato?"}
+{"short_nonisland": "Chi ha negato che io avrei comprato una casa?", "long_nonisland": "Cosa hai negato che io avrei comprato?", "short_island": "Chi ha negato il fatto che io avrei comprato una casa?", "sentence_bad": "Cosa hai negato il fatto che io avrei comprato?"}
+{"short_nonisland": "Chi ha affermato che io avrei rubato una macchina?", "long_nonisland": "Cosa hai affermato che io avrei rubato?", "short_island": "Chi ha fatto l’affermazione che io avrei rubato una macchina?", "sentence_bad": "Cosa hai fatto l’affermazione che io avrei rubato?"}
+{"short_nonisland": "Chi ha richiesto che io organizzassi l'incontro?", "long_nonisland": "Cosa hai richiesto che io organizzassi?", "short_island": "Chi ha fatto la richiesta che io organizzassi l'incontro?", "sentence_bad": "Cosa hai fatto la richiesta che io organizzassi?"}
+{"short_nonisland": "Chi ha dubitato che io avrei potuto rompere il vaso?", "long_nonisland": "Cosa hai dubitato che io avrei potuto rompere?", "short_island": "Chi ha messo in dubbio il fatto che io avrei potuto rompere il vaso?", "sentence_bad": "Cosa hai messo in dubbio il fatto che io avrei potuto rompere?"}
+{"short_nonisland": "Chi ha raccontato che io avrei venduto la barca?", "long_nonisland": "Cosa hai sentito che io avrei venduto?", "short_island": "Chi ha raccontato la storia che io avrei venduto la barca?", "sentence_bad": "Cosa hai sentito la storia che io avrei venduto?"}

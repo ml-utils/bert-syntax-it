@@ -1,24 +1,8 @@
-{"sentence_good": "Cosa pensi che io abbia preparato?", "sentence_bad": "Cosa ti chiedi se io abbia preparato?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi pensa che io abbia preparato una torta?", "sentence_bad": "Cosa ti chiedi se io abbia preparato?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi si chiede se io abbia preparato una torta?", "sentence_bad": "Cosa ti chiedi se io abbia preparato?", "conditions": "short_island"}
-{"sentence_good": "Cosa pensi che io abbia scritto?", "sentence_bad": "Cosa ti domandi se io abbia scritto?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi pensa che io abbia scritto una lettera?", "sentence_bad": "Cosa ti domandi se io abbia scritto?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi si domanda se io abbia scritto una lettera?", "sentence_bad": "Cosa ti domandi se io abbia scritto?", "conditions": "short_island"}
-{"sentence_good": "Cosa pensi che io abbia rubato?", "sentence_bad": "Cosa ti domandi se io abbia rubato?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi pensa che io abbia rubato un cellulare?", "sentence_bad": "Cosa ti domandi se io abbia rubato?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi si domanda se io abbia rubato un cellulare?", "sentence_bad": "Cosa ti domandi se io abbia rubato?", "conditions": "short_island"}
-{"sentence_good": "Cosa pensi che io abbia comprato?", "sentence_bad": "Cosa ti domandi se io abbia comprato?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi pensa che io abbia comprato una casa?", "sentence_bad": "Cosa ti domandi se io abbia comprato?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi si domanda se io abbia comprato una casa?", "sentence_bad": "Cosa ti domandi se io abbia comprato?", "conditions": "short_island"}
-{"sentence_good": "Cosa pensi che io abbia mangiato?", "sentence_bad": "Cosa ti domandi se io abbia mangiato?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi pensa che io abbia mangiato l\u2019insalata?", "sentence_bad": "Cosa ti domandi se io abbia mangiato?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi si domanda se io abbia mangiato l\u2019insalata?", "sentence_bad": "Cosa ti domandi se io abbia mangiato?", "conditions": "short_island"}
-{"sentence_good": "Cosa pensi che io abbia letto?", "sentence_bad": "Cosa ti chiedi se io abbia letto?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi pensa che io abbia letto il libro?", "sentence_bad": "Cosa ti chiedi se io abbia letto?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi si chiede se io abbia letto il libro?", "sentence_bad": "Cosa ti chiedi se io abbia letto?", "conditions": "short_island"}
-{"sentence_good": "Cosa pensi che io abbia visto?", "sentence_bad": "Cosa ti chiedi se io abbia visto?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi pensa che io abbia visto il film?", "sentence_bad": "Cosa ti chiedi se io abbia visto?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi si chiede se io abbia visto il film?", "sentence_bad": "Cosa ti chiedi se io abbia visto?", "conditions": "short_island"}
-{"sentence_good": "Cosa pensi che io abbia iniziato?", "sentence_bad": "Cosa ti chiedi se io abbia iniziato?", "conditions": "long_nonisland"}
-{"sentence_good": "Chi pensa che io abbia iniziato la dieta?", "sentence_bad": "Cosa ti chiedi se io abbia iniziato?", "conditions": "short_nonisland"}
-{"sentence_good": "Chi si chiede se io abbia iniziato la dieta?", "sentence_bad": "Cosa ti chiedi se io abbia iniziato?", "conditions": "short_island"}
+{"short_nonisland": "Chi pensa che io abbia preparato una torta?", "long_nonisland": "Cosa pensi che io abbia preparato?", "short_island": "Chi si chiede se io abbia preparato una torta?", "sentence_bad": "Cosa ti chiedi se io abbia preparato?"}
+{"short_nonisland": "Chi pensa che io abbia scritto una lettera?", "long_nonisland": "Cosa pensi che io abbia scritto?", "short_island": "Chi si domanda se io abbia scritto una lettera?", "sentence_bad": "Cosa ti domandi se io abbia scritto?"}
+{"short_nonisland": "Chi pensa che io abbia rubato un cellulare?", "long_nonisland": "Cosa pensi che io abbia rubato?", "short_island": "Chi si domanda se io abbia rubato un cellulare?", "sentence_bad": "Cosa ti domandi se io abbia rubato?"}
+{"short_nonisland": "Chi pensa che io abbia comprato una casa?", "long_nonisland": "Cosa pensi che io abbia comprato?", "short_island": "Chi si domanda se io abbia comprato una casa?", "sentence_bad": "Cosa ti domandi se io abbia comprato?"}
+{"short_nonisland": "Chi pensa che io abbia mangiato l’insalata?", "long_nonisland": "Cosa pensi che io abbia mangiato?", "short_island": "Chi si domanda se io abbia mangiato l’insalata?", "sentence_bad": "Cosa ti domandi se io abbia mangiato?"}
+{"short_nonisland": "Chi pensa che io abbia letto il libro?", "long_nonisland": "Cosa pensi che io abbia letto?", "short_island": "Chi si chiede se io abbia letto il libro?", "sentence_bad": "Cosa ti chiedi se io abbia letto?"}
+{"short_nonisland": "Chi pensa che io abbia visto il film?", "long_nonisland": "Cosa pensi che io abbia visto?", "short_island": "Chi si chiede se io abbia visto il film?", "sentence_bad": "Cosa ti chiedi se io abbia visto?"}
+{"short_nonisland": "Chi pensa che io abbia iniziato la dieta?", "long_nonisland": "Cosa pensi che io abbia iniziato?", "short_island": "Chi si chiede se io abbia iniziato la dieta?", "sentence_bad": "Cosa ti chiedi se io abbia iniziato?"}
