@@ -449,7 +449,8 @@ def run_testset_bert(testsets_dir: str, filename: str, model, tokenizer,
 
     bert_utils.print_orange('examples sorted by sentence_acceptability diff, '
                             'second sentence:')
-    sorted_examples = dict(sorted(examples_by_second_sentence_acceptability_diff.items())).items()
+    sorted_examples = dict(
+        sorted(examples_by_second_sentence_acceptability_diff.items())).items()
     for acceprability_diff, example_analysis in sorted_examples:
         print_example(example_analysis, acceprability_diff, score_based_on,
                       compare_with_base_sentence=False)
@@ -621,7 +622,8 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
 # acc. correct_pen_lps_1st_sentence: 90.2 %
 def run_blimp_en():
     model_type = model_types.ROBERTA  # model_types.GPT  #
-    model_name = "roberta-large" # "roberta-base" #"gpt2-medium"  # "gpt2-large"  # 'gpt2' #  "bert-large-uncased"
+    model_name = "roberta-large"  # "roberta-base" #"gpt2-medium"
+    # "gpt2-large"  # 'gpt2'  #  "bert-large-uncased"
     # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
@@ -674,9 +676,9 @@ def run_tests_it(model_type):
     testsets_dir = './outputs/syntactic_tests_it/'
     testset_files = [  # 'variations_tests.jsonl'
         'wh_adjunct_islands.jsonl'
-        # , 'wh_complex_np_islands.jsonl',
+        # 'wh_complex_np_islands.jsonl',
         # 'wh_subject_islands.jsonl',
-        #'wh_whether_island.jsonl'
+        # 'wh_whether_island.jsonl'
     ]
     sentences_per_example = 3
     for test_file in testset_files:
@@ -730,13 +732,13 @@ def profile_slowdowns():
     import pstats
 
     model_type = model_types.ROBERTA  # model_types.GPT  #
-    model_name = "roberta-large" # "roberta-base" #"gpt2-medium"  # "gpt2-large"  # 'gpt2' #  "bert-large-uncased"
+    model_name = "roberta-large"  # "roberta-base" #"gpt2-medium"
+    # "gpt2-large"  # 'gpt2' #  "bert-large-uncased"
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
     testset_dir_path = './outputs/blimp/from_blim_en/islands/'
     testset_filename = 'mini_wh_island.jsonl'
     testset_filepath = os.path.join(testset_dir_path, testset_filename)
-
 
     print(f'loading testset file {testset_filepath}..')
     with open(testset_filepath, 'r') as json_file:
@@ -746,7 +748,6 @@ def profile_slowdowns():
     examples = []
     for json_str in tqdm(json_list):
         example = json.loads(json_str)
-
 
         sentence_good = example['sentence_good']
         sentence_bad = example['sentence_bad']
@@ -770,9 +771,9 @@ def main():
     else:
         run_blimp_en()
         # raise SystemExit
-        #print('choosing model type ..')
-        #model_type = model_types.BERT
-        #run_tests_for_model_type(model_type)
+        # print('choosing model type ..')
+        # model_type = model_types.BERT
+        # run_tests_for_model_type(model_type)
 
 
 if __name__ == "__main__":
