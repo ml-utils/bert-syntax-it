@@ -1,5 +1,5 @@
 transformers==4.18.0
-pandas
-torch
-scipy
-cython
+pandas==1.4.2
+torch==1.11.0
+scipy==1.8.1
+cython==0.29.30
