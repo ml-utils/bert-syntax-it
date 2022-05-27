@@ -15,6 +15,13 @@ omit = [
     "src/linguistic_tests/utils/*",
 ]
 
+[tool.coverage.report]
+omit = [
+    "src/linguistic_tests/generation_projects/*",
+    "src/linguistic_tests/generation_projects/blimp/*",
+    "src/linguistic_tests/utils/*",
+]
+
 [tool.mypy]
 mypy_path = "src"
 

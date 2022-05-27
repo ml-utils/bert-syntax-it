@@ -2,6 +2,7 @@ import os
 from unittest import TestCase
 
 import pandas as pd
+import pytest
 import torch
 from linguistic_tests.bert_utils import estimate_sentence_probability_from_text
 from linguistic_tests.bert_utils import get_bert_output2
@@ -22,6 +23,9 @@ from transformers import BertTokenizer
 
 
 class TestBertUtils(TestCase):
+    __test__ = False
+
+    @pytest.mark.skip(reason="todo: avoid loading large transformers model")
     def test_get_bert_output(self):
         model_name = "models/bert-base-italian-xxl-cased/"
         # eval_suite = "it"
@@ -59,8 +63,8 @@ class TestBertUtils(TestCase):
         self.assertListEqual(res_topk_ids, res_softmax_topk_ids)
         self.assertListEqual(res_topk_ids, res_normalized_topk_ids)
 
+    @pytest.mark.skip(reason="todo: avoid loading large transformers model")
     def test_get_bert_sentence_score(self):
-
         # sentence1 = "Gianni ha detto che il manuale di linguistia ha duecento pagine."
 
         bert_model_name = "../models/bert-base-italian-xxl-cased/"
@@ -138,6 +142,7 @@ def print_tensor_ids_as_tokens(tens: torch.Tensor, tokenizer: BertTokenizer, msg
     print(f"{msg} ({res_topk_tokens.size()}): {res_topk_tokens}")
 
 
+@pytest.mark.skip(reason="todo: avoid loading large transformers model")
 def test_bert_output(bert, sentence_ids, verbose=False):
     tens = torch.LongTensor(sentence_ids).unsqueeze(0)
 
