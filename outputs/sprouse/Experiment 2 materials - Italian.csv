@@ -43,7 +43,7 @@ Adjunct island;RC;Long;Island;11;Mi sono imbattuto nel ragazzo con il quale racc
 Adjunct island;RC;Long;non-island;11;Mi sono imbattuto nel ragazzo con il quale mi hanno raccontato che tu hai litigato.
 Adjunct island;RC;Short;Island;11;Mi sono imbattuto nel ragazzo al quale racconteremo tutto se litigherai con Massimo.
 Adjunct island;RC;Short;non-island;11;Mi sono imbattuto nel ragazzo al quale ho raccontato che tu hai litigato con Massimo.
-Adjunct island;RC;Long;Island;12;Conosco il poliziotto dal quale sporgerò denuncia ai carabinieri se l’assessore ha ricevuto una tangente. 
+Adjunct island;RC;Long;Island;12;Conosco il poliziotto dal quale sporgerò denuncia ai carabinieri se l’assessore ha ricevuto una tangente.
 Adjunct island;RC;Long;non-island;12;Conosco il poliziotto dal quale ti ho mostrato che l’assessore ha ricevuto una tangente.
 Adjunct island;RC;Short;Island;12;Conosco il poliziotto al quale sporgerò denuncia se l’assessore ha ricevuto una tangente.
 Adjunct island;RC;Short;non-island;12;Conosco il poliziotto al quale ho mostrato che l’assessore ha ricevuto una tangente.
@@ -63,39 +63,39 @@ Adjunct island;RC;Long;Island;16;Ieri ho conosciuto il ragazzo con cui rivolger�
 Adjunct island;RC;Long;non-island;16;Ieri ho conosciuto il ragazzo con il quale si dice che Lia voglia sposarsi.
 Adjunct island;RC;Short;Island;16;Ieri ho conosciuto il ragazzo a cui rivolgerò nuovamente la parola solo se si sposerà con Lia.
 Adjunct island;RC;Short;non-island;16;Ieri ho conosciuto il ragazzo di cui si dice che voglia sposarsi con Lia.
-Complex NP;WH;Long;Island;17;Cosa hai messo in dubbio la previsione che io avrei vinto?
-Complex NP;WH;Long;non-island;17;Cosa hai messo in dubbio che io avrei vinto?
-Complex NP;WH;Short;Island;17;Chi ha messo in dubbio la previsione che io avrei vinto il concorso?
 Complex NP;WH;Short;non-island;17;Chi ha messo in dubbio che io avrei vinto il concorso?
-Complex NP;WH;Long;Island;18;Cosa hai fatto l’insinuazione che io avrei trafugato?
-Complex NP;WH;Long;non-island;18;Cosa hai insinuato che io avrei trafugato?
-Complex NP;WH;Short;Island;18;Chi ha fatto l’insinuazione che io avrei trafugato dei documenti?
+Complex NP;WH;Short;Island;17;Chi ha messo in dubbio la previsione che io avrei vinto il concorso?
+Complex NP;WH;Long;non-island;17;Cosa hai messo in dubbio che io avrei vinto?
+Complex NP;WH;Long;Island;17;Cosa hai messo in dubbio la previsione che io avrei vinto?
 Complex NP;WH;Short;non-island;18;Chi ha insinuato che io avrei trafugato dei documenti?
-Complex NP;WH;Long;Island;19;Cosa hai sparso la voce che io avrei superato?
-Complex NP;WH;Long;non-island;19;Cosa hai detto che io avrei superato?
-Complex NP;WH;Short;Island;19;Chi ha sparso la voce che io avrei superato la prova?
+Complex NP;WH;Short;Island;18;Chi ha fatto l'insinuazione che io avrei trafugato dei documenti?
+Complex NP;WH;Long;non-island;18;Cosa hai insinuato che io avrei trafugato?
+Complex NP;WH;Long;Island;18;Cosa hai fatto l'insinuazione che io avrei trafugato?
 Complex NP;WH;Short;non-island;19;Chi ha detto che io avrei superato la prova?
-Complex NP;WH;Long;Island;20;Cosa hai negato il fatto che io avrei comprato?
-Complex NP;WH;Long;non-island;20;Cosa hai negato che io avrei comprato?
-Complex NP;WH;Short;Island;20;Chi ha negato il fatto che io avrei comprato una casa?
+Complex NP;WH;Short;Island;19;Chi ha sparso la voce che io avrei superato la prova?
+Complex NP;WH;Long;non-island;19;Cosa hai detto che io avrei superato?
+Complex NP;WH;Long;Island;19;Cosa hai sparso la voce che io avrei superato?
 Complex NP;WH;Short;non-island;20;Chi ha negato che io avrei comprato una casa?
-Complex NP;WH;Long;Island;21;Cosa hai fatto l’affermazione che io avrei rubato?
-Complex NP;WH;Long;non-island;21;Cosa hai affermato che io avrei rubato?
-Complex NP;WH;Short;Island;21;Chi ha fatto l’affermazione che io avrei rubato una macchina?
+Complex NP;WH;Short;Island;20;Chi ha negato il fatto che io avrei comprato una casa?
+Complex NP;WH;Long;non-island;20;Cosa hai negato che io avrei comprato?
+Complex NP;WH;Long;Island;20;Cosa hai negato il fatto che io avrei comprato?
 Complex NP;WH;Short;non-island;21;Chi ha affermato che io avrei rubato una macchina?
-Complex NP;WH;Long;Island;22;Cosa hai fatto la richiesta che io organizzassi?
-Complex NP;WH;Long;non-island;22;Cosa hai richiesto che io organizzassi?
-Complex NP;WH;Short;Island;22;Chi ha fatto la richiesta che io organizzassi l'incontro?
+Complex NP;WH;Short;Island;21;Chi ha fatto l'affermazione che io avrei rubato una macchina?
+Complex NP;WH;Long;non-island;21;Cosa hai affermato che io avrei rubato?
+Complex NP;WH;Long;Island;21;Cosa hai fatto l’affermazione che io avrei rubato?
 Complex NP;WH;Short;non-island;22;Chi ha richiesto che io organizzassi l'incontro?
-Complex NP;WH;Long;Island;23;Cosa hai messo in dubbio il fatto che io avrei potuto rompere?
-Complex NP;WH;Long;non-island;23;Cosa hai dubitato che io avrei potuto rompere?
-Complex NP;WH;Short;Island;23;Chi ha messo in dubbio il fatto che io avrei potuto rompere il vaso?
+Complex NP;WH;Short;Island;22;Chi ha fatto la richiesta che io organizzassi l'incontro?
+Complex NP;WH;Long;non-island;22;Cosa hai richiesto che io organizzassi?
+Complex NP;WH;Long;Island;22;Cosa hai fatto la richiesta che io organizzassi?
 Complex NP;WH;Short;non-island;23;Chi ha dubitato che io avrei potuto rompere il vaso?
-Complex NP;WH;Long;Island;24;Cosa hai sentito la storia che io avrei venduto?
-Complex NP;WH;Long;non-island;24;Cosa hai sentito che io avrei venduto?
-Complex NP;WH;Short;Island;24;Chi ha raccontato la storia che io avrei venduto la barca?
+Complex NP;WH;Short;Island;23;Chi ha messo in dubbio il fatto che io avrei potuto rompere il vaso?
+Complex NP;WH;Long;non-island;23;Cosa hai dubitato che io avrei potuto rompere?
+Complex NP;WH;Long;Island;23;Cosa hai messo in dubbio il fatto che io avrei potuto rompere?
 Complex NP;WH;Short;non-island;24;Chi ha raccontato che io avrei venduto la barca?
-Complex NP;RC;Long;Island;25;Ho parlato di nuovo con il professore da cui ho accennato il fatto che sei stato insultato. 
+Complex NP;WH;Short;Island;24;Chi ha raccontato la storia che io avrei venduto la barca?
+Complex NP;WH;Long;non-island;24;Cosa hai sentito che io avrei venduto?
+Complex NP;WH;Long;Island;24;Cosa hai sentito la storia che io avrei venduto?
+Complex NP;RC;Long;Island;25;Ho parlato di nuovo con il professore da cui ho accennato il fatto che sei stato insultato.
 Complex NP;RC;Long;non-island;25;Ho parlato di nuovo con il professore da cui mi avevano detto che eri stato insultato.
 Complex NP;RC;Short;Island;25;Ho parlato di nuovo con il professore a cui ho accennato il fatto che sei stato insultato.
 Complex NP;RC;Short;non-island;25;Ho parlato di nuovo con il professore a cui ho detto che sei stato insultato.
@@ -118,12 +118,12 @@ Complex NP;RC;Short;non-island;29;Ho telefonato alla persona alla quale hai fatt
 Complex NP;RC;Long;Island;30;Il giocatore più forte è il ragazzo sul quale ti ho suggerito l’idea che dovremmo concentrarci di più.
 Complex NP;RC;Long;non-island;30;Il giocatore più promettente è il ragazzo sul quale ti ho suggerito che dovremmo concentrarci di più.
 Complex NP;RC;Short;Island;30;Il giocatore più promettente è il ragazzo al quale ho suggerito l’idea che dovrebbe concentrarsi di più.
-Complex NP;RC;Short;non-island;30;Il giocatore più promettente è il ragazzo al quale ho suggerito che dovrebbe concentrarsi di più. 
+Complex NP;RC;Short;non-island;30;Il giocatore più promettente è il ragazzo al quale ho suggerito che dovrebbe concentrarsi di più.
 Complex NP;RC;Long;Island;31;Maria conosce il musicista al quale mi è stato rivelato il fatto che hanno regalato una chitarra.
 Complex NP;RC;Long;non-island;31;Maria conosce il musicista al quale mi è stato rivelato che hanno regalato una chitarra.
 Complex NP;RC;Short;Island;31;Maria conosce il musicista al quale ho rivelato il fatto che ti hanno regalato una chitarra.
 Complex NP;RC;Short;non-island;31;Maria conosce il musicista al quale ho rivelato che ti hanno regalato una chitarra.
-Complex NP;RC;Long;Island;32;Ieri ho conosciuto il giovane del quale ho preso in considerazione l’ipotesi che Lia sia innamorata. 
+Complex NP;RC;Long;Island;32;Ieri ho conosciuto il giovane del quale ho preso in considerazione l’ipotesi che Lia sia innamorata.
 Complex NP;RC;Long;non-island;32;Ieri ho conosciuto il giovane del quale si dice che Lia sia innamorata.
 Complex NP;RC;Short;Island;32;Ieri ho conosciuto il giovane grazie al quale ho preso in considerazione l’ipotesi che tu sia innamorato di Lia.
 Complex NP;RC;Short;non-island;32;Ieri ho conosciuto il giovane del quale si dice che sia innamorato di Lia.
@@ -199,7 +199,7 @@ wh island;RC;Long;Island;50;Ho riconosciuto l’individuo da cui ho mostrato dov
 wh island;RC;Long;non-island;50;Ho riconosciuto l’individuo da cui ho mostrato che l’assessore ha ricevuto una tangente.
 wh island;RC;Short;Island;50;Ho riconosciuto l’individuo a cui ho mostrato dove l’assessore ha ricevuto una tangente.
 wh island;RC;Short;non-island;50;Ho riconosciuto l’individuo a cui ho mostrato che l’assessore ha ricevuto una tangente.
-wh island;RC;Long;Island;51;Ho conosciuto il ragazzo con il quale hanno chiesto come mai Giulia sia fidanzata. 
+wh island;RC;Long;Island;51;Ho conosciuto il ragazzo con il quale hanno chiesto come mai Giulia sia fidanzata.
 wh island;RC;Long;non-island;51;Ho conosciuto il ragazzo con il quale si dice che Giulia sia fidanzata.
 wh island;RC;Short;Island;51;Ho conosciuto il ragazzo al quale hanno chiesto come mai si sia fidanzato con Giulia.
 wh island;RC;Short;non-island;51;Ho conosciuto il ragazzo del quale si dice che sia fidanzato con Giulia.
@@ -207,7 +207,7 @@ wh island;RC;Long;Island;52;Maria conosce il musicista a cui ti chiedi quando ab
 wh island;RC;Long;non-island;52;Maria conosce il musicista a cui mi è stato rivelato che hanno regalato una chitarra.
 wh island;RC;Short;Island;52;Maria conosce il musicista a cui ho chiesto quando ti hanno regalato una chitarra.
 wh island;RC;Short;non-island;52;Maria conosce il musicista a cui ho rivelato che ti hanno regalato una chitarra.
-wh island;RC;Long;Island;53;Ieri ho visto il poliziotto del quale ti ho domandato perché Lara sia innamorata. 
+wh island;RC;Long;Island;53;Ieri ho visto il poliziotto del quale ti ho domandato perché Lara sia innamorata.
 wh island;RC;Long;non-island;53;Ieri ho visto il poliziotto del quale si dice che Lara sia innamorata.
 wh island;RC;Short;Island;53;Ieri ho visto il poliziotto al quale ho domandato perché sia innamorato di Lara.
 wh island;RC;Short;non-island;53;Ieri ho visto il poliziotto del quale si dice che sia innamorato di Lara.
@@ -222,7 +222,7 @@ wh island;RC;Short;non-island;55;Ho telefonato all’uomo a cui hai fatto notare
 wh island;RC;Long;Island;56;Il giocatore più promettente è il ragazzo su cui ho suggerito in che modo dovremmo concentrarci.
 wh island;RC;Long;non-island;56;Il giocatore più promettente è il ragazzo sul quale ho suggerito che dovremmo concentrarci di più.
 wh island;RC;Short;Island;56;Il giocatore più promettente è il ragazzo a cui ho suggerito in che modo dovrebbe concentrarsi.
-wh island;RC;Short;non-island;56;Il giocatore più promettente è il ragazzo a cui ho suggerito che dovrebbe concentrarsi di più. 
+wh island;RC;Short;non-island;56;Il giocatore più promettente è il ragazzo a cui ho suggerito che dovrebbe concentrarsi di più.
 Whether Island;WH;Long;Island;57;Cosa ti domandi se io abbia scritto?
 Whether Island;WH;Long;non-island;57;Cosa pensi che io abbia scritto?
 Whether Island;WH;Short;Island;57;Chi si domanda se io abbia scritto una lettera?
