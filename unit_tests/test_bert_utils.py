@@ -1,6 +1,8 @@
 import os
+import random
 from unittest import TestCase
 from unittest.mock import Mock
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
@@ -17,12 +19,12 @@ from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
 from scipy.special import softmax
 from tqdm import tqdm
-from transformers import BatchEncoding
 from transformers import BertForMaskedLM
 from transformers import BertTokenizer
 from transformers import BertTokenizerFast
 from transformers.modeling_outputs import MaskedLMOutput
 
+import src
 from src.linguistic_tests.bert_utils import get_topk
 
 # from pytorch_transformers import GPT2Tokenizer, GPT2LMHeadModel
@@ -31,54 +33,6 @@ from src.linguistic_tests.bert_utils import get_topk
 CLS_ID = 101
 SEP_ID = 102
 MASK_ID = 103
-
-
-@pytest.mark.skip(reason="WIP")
-@pytest.mark.parametrize("k", [5])
-def test_get_top_k(k):
-    # sequence = "Hello [MASK]"
-    vocab_size = 1000
-
-    data = {"input_ids": torch.tensor([[CLS_ID, 555, MASK_ID, SEP_ID]])}
-    be = BatchEncoding(data=data)
-
-    logits = torch.rand(1, 4, vocab_size)
-
-    tokenizer_m = Mock(spec=BertTokenizer, return_value=be, mask_token_id=MASK_ID)
-    model_m = Mock(spec=BertForMaskedLM)
-    model_m.return_value.logits = logits
-    # batch_enc = tokenizer_m(sequence, return_tensors="pt")
-    tokens = [
-        "[CLS]",
-        "He",
-        "said",
-        "the",
-        "[MASK]",
-        "book",
-        "has",
-        "300",
-        "pages",
-        "[SEP]",
-    ]
-    # sentence_ids = batch_enc["input_ids"]
-    tokenizer_m.convert_tokens_to_ids.return_value = [
-        CLS_ID,
-        555,
-        556,
-        557,
-        MASK_ID,
-        558,
-        559,
-        560,
-        561,
-        SEP_ID,
-    ]
-    mask_ix = 4
-    sentence_ids = tokenizer_m.convert_tokens_to_ids(tokens)
-    res = get_topk(model_m, tokenizer_m, sentence_ids, mask_ix, k=k)
-
-    assert isinstance(res, torch.Tensor)
-    assert res.shape == (k,)
 
 
 def test_get_bert_output():
@@ -179,6 +133,89 @@ def mock_tokenize(str):
 
 
 class TestBertUtils(TestCase):
+
+    # @pytest.mark.parametrize("k", [5])
+    def test_get_top_k(self):  # k
+        k = 5
+        vocab_size = 1000
+        tokens = [
+            "[CLS]",
+            "He",
+            "said",
+            "the",
+            "[MASK]",
+            "book",
+            "has",
+            "300",
+            "pages",
+            "[SEP]",
+        ]
+
+        mask_ix = 4
+
+        tokenizer_m = Mock(spec=BertTokenizerFast)
+        tokenizer_m.convert_tokens_to_ids.return_value = [
+            CLS_ID,
+            555,
+            556,
+            557,
+            MASK_ID,
+            558,
+            559,
+            560,
+            561,
+            SEP_ID,
+        ]
+        output_m = Mock(spec=MaskedLMOutput)
+        output_m.logits = torch.rand(1, len(tokens), vocab_size)
+        model_m = Mock(spec=BertForMaskedLM, return_value=output_m)
+        # model_m.return_value.logits = logits
+
+        sentence_ids = tokenizer_m.convert_tokens_to_ids(tokens)
+
+        res_m, res_softmax_m, res_normalized_m = (
+            torch.rand(vocab_size),
+            torch.rand(vocab_size),
+            torch.rand(vocab_size),
+        )
+        mock_get_bert_output = self.create_patch(
+            "src.linguistic_tests.bert_utils.get_bert_output"
+        )
+        mock_get_bert_output.return_value = (
+            res_m,
+            res_softmax_m,
+            res_normalized_m,
+            None,
+        )
+        assert src.linguistic_tests.bert_utils.get_bert_output is mock_get_bert_output
+
+        topk_tokens_m = random.sample(range(0, vocab_size - 1), k)
+        topk_probs_m = torch.rand(k)
+        mock_get_topk_tokens_from_bert_output = self.create_patch(
+            "src.linguistic_tests.bert_utils.get_topk_tokens_from_bert_output"
+        )
+        mock_get_topk_tokens_from_bert_output.return_value = (
+            topk_tokens_m,
+            topk_probs_m,
+        )
+
+        topk_tokens, topk_probs, topk_probs_nonsoftmax = get_topk(
+            model_m, tokenizer_m, sentence_ids, mask_ix, k=k
+        )
+
+        assert isinstance(topk_tokens, list)
+        assert len(topk_tokens) == k
+        assert isinstance(topk_probs, torch.Tensor)
+        assert topk_probs.shape == (k,)
+        assert isinstance(topk_probs_nonsoftmax, torch.return_types.topk)
+        assert topk_probs_nonsoftmax.values.shape == (k,)
+
+    def create_patch(self, name):
+        patcher = patch(name)
+        thing = patcher.start()
+        self.addCleanup(patcher.stop)
+        return thing
+
     @pytest.mark.skip(reason="TODO, not implemented")
     def test_load_model_and_tokenizer(self):
         return 0
