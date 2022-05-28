@@ -275,6 +275,7 @@ class TestBertUtils(TestCase):
                 #                                                    gpt_tokenized_sentence, device=None)
 
 
+@pytest.mark.skip(reason="todo")
 def test_get_acceptability_diffs():
     # TODO: test method before change with option to score method (softmax or logits)
     return 0

@@ -2,6 +2,10 @@ import json
 import os.path
 
 import cython
+from transformers import BertForMaskedLM
+from transformers import BertTokenizer
+from transformers import GPT2LMHeadModel
+from transformers import GPT2Tokenizer
 
 
 class sent_idx:
@@ -68,10 +72,6 @@ def load_model_and_tokenizer(
     model_type, model_name, dict_name=None, do_lower_case=False
 ):
     print(f"loading model_name: {model_name}..")
-
-    from transformers import GPT2Tokenizer, GPT2LMHeadModel
-    from transformers import BertTokenizer
-    from transformers import BertForMaskedLM
 
     if model_type == model_types.GPT:
         model = GPT2LMHeadModel.from_pretrained(model_name)
