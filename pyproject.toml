@@ -7,6 +7,11 @@ addopts = "--cov=linguistic_tests"
 testpaths = [
     "unit_tests",
 ]
+norecursedirs = [
+    "src/linguistic_tests/generation_projects/*",
+    "src/linguistic_tests/generation_projects/blimp/*",
+    "src/linguistic_tests/utils/*",
+]
 
 [tool.coverage.run]
 omit = [
