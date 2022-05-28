@@ -3,7 +3,11 @@ requires = ["setuptools>=42.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
-addopts = "--cov=linguistic_tests"
+addopts = [
+    "--cov=linguistic_tests",
+    "--cov-report=term",
+    "--cov-report=html",
+]
 testpaths = [
     "unit_tests",
 ]
@@ -26,6 +30,9 @@ omit = [
     "src/linguistic_tests/generation_projects/blimp/*",
     "src/linguistic_tests/utils/*",
 ]
+
+[tool.coverage.html]
+directory = 'unit_tests/coverage_html_report'
 
 [tool.mypy]
 mypy_path = "src"

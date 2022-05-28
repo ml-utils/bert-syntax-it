@@ -216,10 +216,6 @@ class TestBertUtils(TestCase):
         self.addCleanup(patcher.stop)
         return thing
 
-    @pytest.mark.skip(reason="TODO, not implemented")
-    def test_load_model_and_tokenizer(self):
-        return 0
-
     @pytest.mark.skip(reason="todo: avoid loading large transformers model")
     def test_get_bert_sentence_score(self):
         # sentence1 = "Gianni ha detto che il manuale di linguistia ha duecento pagine."
