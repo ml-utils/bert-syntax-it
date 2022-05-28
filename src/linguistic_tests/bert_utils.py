@@ -9,13 +9,13 @@ from transformers import BertTokenizer
 from transformers import GPT2LMHeadModel
 from transformers.modeling_outputs import MaskedLMOutput
 
-from .lm_utils import get_pen_score
-from .lm_utils import get_sentences_from_example
-from .lm_utils import print_orange
-from .lm_utils import print_red
-from .lm_utils import sent_idx
-from .lm_utils import sentence_score_bases
-from .lm_utils import special_tokens
+from src.linguistic_tests.lm_utils import get_pen_score
+from src.linguistic_tests.lm_utils import get_sentences_from_example
+from src.linguistic_tests.lm_utils import print_orange
+from src.linguistic_tests.lm_utils import print_red
+from src.linguistic_tests.lm_utils import sent_idx
+from src.linguistic_tests.lm_utils import sentence_score_bases
+from src.linguistic_tests.lm_utils import special_tokens
 
 
 def analize_sentence(
@@ -445,6 +445,7 @@ def get_bert_output(
     tens = torch.LongTensor(sentence_ids).unsqueeze(0)
 
     res_unsliced = bert(tens)
+
     if isinstance(res_unsliced, MaskedLMOutput):
         res_unsliced = res_unsliced.logits
     # print(f'masked_word_idx: {masked_word_idx}, {type(res_unsliced)=}')
@@ -680,9 +681,12 @@ def tokenize_sentence(tokenizer: BertTokenizer, sent: str):
     print(f"sent: {sent}")
     pre, target, post = sent.split("***")
     print(f"pre: {pre}, target: {target}, post: {post}")
-    if "mask" in target.lower():
+
+    if "mask" in [target.lower()]:  # todo:check, it was if "mask" in target.lower():
         tokenized_target = ["[MASK]"]
+
     else:
+
         tokenized_target = tokenizer.tokenize(target)
 
     # todo, fixme: the vocabulary of the pretrained model from Bostrom &
@@ -695,3 +699,17 @@ def tokenize_sentence(tokenizer: BertTokenizer, sent: str):
     tokens += tokenized_target + tokenizer.tokenize(post) + ["[SEP]"]
     print(f"tokens {tokens}")
     return tokens, target_idx
+
+
+if __name__ == "__main__":
+    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+    model = BertForMaskedLM.from_pretrained("bert-base-uncased")
+
+    sequence = "He said the ***mask*** book has 300 pages."
+
+    tokens, target_idx = tokenize_sentence(tokenizer, sequence)
+    tokens_ids = tokenizer.convert_tokens_to_ids(tokens)
+    top_indices = get_topk(model, tokenizer, tokens_ids, target_idx)
+    top_tokens = [tokenizer.decode(torch.tensor([ix])) for ix in top_indices]
+
+    winner = top_tokens[0]
