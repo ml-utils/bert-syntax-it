@@ -295,31 +295,60 @@ def print_tensor_ids_as_tokens(tens: torch.Tensor, tokenizer: BertTokenizer, msg
     print(f"{msg} ({res_topk_tokens.size()}): {res_topk_tokens}")
 
 
-@pytest.mark.skip(reason="todo: avoid loading large transformers model")
-def test_bert_output(bert, sentence_ids, verbose=False):
+def test_bert_output():
+    vocab_size = 1000
+    tokens = [
+        "[CLS]",
+        "He",
+        "said",
+        "the",
+        "[MASK]",
+        "book",
+        "has",
+        "300",
+        "pages",
+        "[SEP]",
+    ]
+    tokens_count = len(tokens)
+    # mask_ix = 4
+    sentence_ids = [
+        CLS_ID,
+        555,
+        556,
+        557,
+        MASK_ID,
+        558,
+        559,
+        560,
+        561,
+        SEP_ID,
+    ]
+    # tokenizer_m = Mock(spec=BertTokenizerFast)
+    # tokenizer_m.convert_tokens_to_ids.return_value = sentence_ids
+
     tens = torch.LongTensor(sentence_ids).unsqueeze(0)
 
-    res_unsliced = bert(tens)
+    output_m = Mock(spec=MaskedLMOutput)
+    output_m.logits = torch.rand(1, len(tokens), vocab_size)
+    model_m = Mock(spec=BertForMaskedLM, return_value=output_m)
+
+    res_unsliced = model_m(tens).logits
+
     res_sequeezed = torch.squeeze(res_unsliced)
     res = res_sequeezed
 
     res_softmax = softmax(res.detach(), -1)
     res_normalized = torch.div(res.detach(), torch.sum(res.detach()))
-    if verbose:
-        print(f"tens size {tens.size()}")
-        print(f"res_unsliced size {res_unsliced.size()}")
-        print(f"res size {res.size()}")
-        print(f"res_softmax size {res_softmax.size()}")
-        print(f"res_normalized size {res_normalized.size()}")
 
-        print(f"res_unsliced {res_unsliced}")
-        print(f"res_unsliced[0] {res_unsliced[0]}")
-        print(f"res_unsliced[0][0] {res_unsliced[0][0]}")
-        print(f"res_unsliced[0][12] {res_unsliced[0][12]}")
-        print(f"res_unsliced[0][12][0] {res_unsliced[0][12][0]}")
-        print(f"res_unsliced[0][12][32101] {res_unsliced[0][12][32101]}")
-        print(f"res {res}")
-        print(f"res[0] {res[0]}")
-        print(f"res[12] {res[12]}")
-        print(f"res[12][0] {res[12][0]}")
-        print(f"res[12][32101] {res[12][32101]}")
+    assert isinstance(tens, torch.Tensor)
+    assert isinstance(res, torch.Tensor)
+    assert isinstance(res_unsliced, torch.Tensor)
+    assert isinstance(res_softmax, torch.Tensor)
+    assert isinstance(res_normalized, torch.Tensor)
+
+    assert tens.shape == (1, tokens_count)
+    assert res_unsliced.shape == (1, tokens_count, vocab_size)
+
+    assert res.shape == (tokens_count, vocab_size)
+    assert res_softmax.shape == (tokens_count, vocab_size)
+    assert res_normalized.shape == (tokens_count, vocab_size)
