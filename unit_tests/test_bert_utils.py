@@ -9,7 +9,6 @@ import pytest
 import torch
 from linguistic_tests.bert_utils import estimate_sentence_probability_from_text
 from linguistic_tests.bert_utils import get_bert_output
-from linguistic_tests.bert_utils import get_bert_output2
 from linguistic_tests.bert_utils import print_orange
 from linguistic_tests.bert_utils import tokenize_sentence
 from linguistic_tests.compute_model_score import get_sentence_score_JHLau
@@ -59,55 +58,6 @@ def test_get_bert_output():
     assert res.shape == (vocab_size,)
     assert res_softmax.shape == (vocab_size,)
     assert res_normalized.shape == (vocab_size,)
-
-
-def test_get_bert_output_legacy():
-    from pytorch_pretrained_bert.modeling import BertForMaskedLM as BM_legacy
-    import pytorch_pretrained_bert
-
-    vocab_size = 1000
-    sentence_ids = [CLS_ID, 555, 556, 557, MASK_ID, 558, 559, 560, 561, SEP_ID]
-    output_m = torch.rand(1, len(sentence_ids), vocab_size)
-    model_m = Mock(spec=BM_legacy, return_value=output_m)
-
-    assert isinstance(model_m, pytorch_pretrained_bert.modeling.BertForMaskedLM)
-
-    tokenizer_m = Mock(spec=BRT_T, mask_token_id=MASK_ID)
-
-    masked_word_idx = 4
-
-    res, res_softmax, res_normalized = get_bert_output2(
-        model_m, tokenizer_m, sentence_ids, masked_word_idx, verbose=True
-    )
-
-    assert res.shape == (vocab_size,)
-    assert res_softmax.shape == (vocab_size,)
-    assert res_normalized.shape == (vocab_size,)
-
-    # k = 5
-    # _, res_topk_ids = torch.topk(res, k)
-    # _, res_softmax_topk_ids = torch.topk(res_softmax, k)
-    # _, res_normalized_topk_ids = torch.topk(res_normalized, k)
-
-    # print(f"res_topk_ids ({res_topk_ids.size()}): {res_topk_ids}")
-    # print(
-    #     f"res_softmax_topk_ids ({res_softmax_topk_ids.size()}): {res_softmax_topk_ids}"
-    # )
-    # print(
-    #     f"res_normalized_topk_ids ({res_normalized_topk_ids.size()}): {res_normalized_topk_ids}"
-    # )
-
-    # fixme: patch tokenizer.ids_to_tokens()
-    # print_tensor_ids_as_tokens(res_topk_ids, tokenizer_m, "res_topk_tokens")
-    # print_tensor_ids_as_tokens(
-    #     res_softmax_topk_ids, tokenizer_m, "res_softmax_topk_tokens"
-    # )
-    # print_tensor_ids_as_tokens(
-    #     res_normalized_topk_ids, tokenizer_m, "res_normalized_topk_tokens"
-    # )
-
-    # self.assertListEqual(res_topk_ids, res_softmax_topk_ids)
-    # self.assertListEqual(res_topk_ids, res_normalized_topk_ids)
 
 
 def test_tokenize_sentence():
@@ -307,6 +257,7 @@ def test_get_acceptability_diffs():
 
 
 def print_tensor_ids_as_tokens(tens: torch.Tensor, tokenizer: BRT_T, msg):
+    # fixme: in calling tests, patch tokenizer.ids_to_tokens()
     print_orange("print_tensor_ids_as_tokens")
     tens = torch.squeeze(tens)
     nparr = tens.numpy()
