@@ -397,9 +397,9 @@ def get_bert_output2(
     res_normalized = torch.div(logits_shifted_to_zero, logits_sum)
     res_normalized_sum = torch.sum(res_normalized)
     if verbose:
-        print(f"res size {res.size()} {res}")
-        print(f"res_softmax size {res_softmax.size()} {res_softmax}")
-        print(f"res_normalized size {res_normalized.size()} {res_normalized}")
+        # print(f"res size {res.size()} {res}")
+        # print(f"res_softmax size {res_softmax.size()} {res_softmax}")
+        # print(f"res_normalized size {res_normalized.size()} {res_normalized}")
         print(f"logits_max {torch.max(res)}, logits_min {logits_min}")
 
         k = 5
@@ -411,10 +411,10 @@ def get_bert_output2(
 
         print(f"res_topk_ids {res_topk_ids}")
         print(f"res_softmax_topk_ids {res_softmax_topk_ids}")
-        print(f"res_normalized_topk_ids {res_normalized_topk_ids}")
+        # print(f"res_normalized_topk_ids {res_normalized_topk_ids}")
         print(f"{logits_sum=}, {res_normalized_sum=}")
 
-        print(f"res_normalized_topk_probs {res_normalized_topk_probs}")
+        # print(f"res_normalized_topk_probs {res_normalized_topk_probs}")
         print(
             "normalized probs from topids by softmax: ",
             [
@@ -701,15 +701,27 @@ def tokenize_sentence(tokenizer: BertTokenizer, sent: str):
     return tokens, target_idx
 
 
-if __name__ == "__main__":
-    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+def main():
+    from pytorch_pretrained_bert.modeling import BertForMaskedLM
+    from pytorch_pretrained_bert import BertTokenizer as BertTok
+
+    tokenizer = BertTok.from_pretrained("bert-base-uncased")
     model = BertForMaskedLM.from_pretrained("bert-base-uncased")
 
     sequence = "He said the ***mask*** book has 300 pages."
 
     tokens, target_idx = tokenize_sentence(tokenizer, sequence)
     tokens_ids = tokenizer.convert_tokens_to_ids(tokens)
-    top_indices = get_topk(model, tokenizer, tokens_ids, target_idx)
-    top_tokens = [tokenizer.decode(torch.tensor([ix])) for ix in top_indices]
+    # top_indices = get_topk(model, tokenizer, tokens_ids, target_idx)
+    # top_tokens = [tokenizer.decode(torch.tensor([ix])) for ix in top_indices]
+    #
+    # winner = top_tokens[0]
 
-    winner = top_tokens[0]
+    res, res_softmax, res_normalized = get_bert_output2(
+        model, tokenizer, tokens_ids, target_idx, verbose=True
+    )
+    print(f"{type(res)=}")
+
+
+if __name__ == "__main__":
+    main()

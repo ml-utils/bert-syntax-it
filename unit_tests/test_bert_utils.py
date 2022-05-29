@@ -42,11 +42,12 @@ def test_get_bert_output():
     # sentence = "Ha detto che il libro di ***mask*** ha 300 pagine."
     # tokens_list = ["He", "said", "the", "[MASK]", "book", "has", "300", "pages"]
     sentence_ids = [CLS_ID, 555, 556, 557, MASK_ID, 558, 559, 560, 561, SEP_ID]
+    tokens_count = len(sentence_ids)
     masked_word_idx = 4
 
     # bert output is a MaskedLMOutput
     vocab_size = 1000
-    logits = torch.rand(1, len(sentence_ids), vocab_size)
+    logits = torch.rand(1, tokens_count, vocab_size)
     output_m.logits = logits
 
     (res, res_softmax, res_normalized, logits_shifted_above_zero) = get_bert_output(
@@ -55,38 +56,55 @@ def test_get_bert_output():
 
     assert isinstance(res, torch.Tensor)
     # assert res.shape == (k,)
+    assert res.shape == (vocab_size,)
+    assert res_softmax.shape == (vocab_size,)
+    assert res_normalized.shape == (vocab_size,)
 
 
-@pytest.mark.skip(reason="todo: avoid loading large transformers model")
-def test_get_bert_output2():
-    model_m = Mock(spec=BRT_M)
-    tokenizer_m = Mock(spec=BertTokenizerFast, mask_token_id=MASK_ID)
+def test_get_bert_output_legacy():
+    from pytorch_pretrained_bert.modeling import BertForMaskedLM as BM_legacy
+    import pytorch_pretrained_bert
+
+    vocab_size = 1000
     sentence_ids = [CLS_ID, 555, 556, 557, MASK_ID, 558, 559, 560, 561, SEP_ID]
+    output_m = torch.rand(1, len(sentence_ids), vocab_size)
+    model_m = Mock(spec=BM_legacy, return_value=output_m)
+
+    assert isinstance(model_m, pytorch_pretrained_bert.modeling.BertForMaskedLM)
+
+    tokenizer_m = Mock(spec=BRT_T, mask_token_id=MASK_ID)
+
     masked_word_idx = 4
 
     res, res_softmax, res_normalized = get_bert_output2(
         model_m, tokenizer_m, sentence_ids, masked_word_idx, verbose=True
     )
-    k = 5
-    _, res_topk_ids = torch.topk(res, k)
-    _, res_softmax_topk_ids = torch.topk(res_softmax, k)
-    _, res_normalized_topk_ids = torch.topk(res_normalized, k)
 
-    print(f"res_topk_ids ({res_topk_ids.size()}): {res_topk_ids}")
-    print(
-        f"res_softmax_topk_ids ({res_softmax_topk_ids.size()}): {res_softmax_topk_ids}"
-    )
-    print(
-        f"res_normalized_topk_ids ({res_normalized_topk_ids.size()}): {res_normalized_topk_ids}"
-    )
+    assert res.shape == (vocab_size,)
+    assert res_softmax.shape == (vocab_size,)
+    assert res_normalized.shape == (vocab_size,)
 
-    print_tensor_ids_as_tokens(res_topk_ids, tokenizer_m, "res_topk_tokens")
-    print_tensor_ids_as_tokens(
-        res_softmax_topk_ids, tokenizer_m, "res_softmax_topk_tokens"
-    )
-    print_tensor_ids_as_tokens(
-        res_normalized_topk_ids, tokenizer_m, "res_normalized_topk_tokens"
-    )
+    # k = 5
+    # _, res_topk_ids = torch.topk(res, k)
+    # _, res_softmax_topk_ids = torch.topk(res_softmax, k)
+    # _, res_normalized_topk_ids = torch.topk(res_normalized, k)
+
+    # print(f"res_topk_ids ({res_topk_ids.size()}): {res_topk_ids}")
+    # print(
+    #     f"res_softmax_topk_ids ({res_softmax_topk_ids.size()}): {res_softmax_topk_ids}"
+    # )
+    # print(
+    #     f"res_normalized_topk_ids ({res_normalized_topk_ids.size()}): {res_normalized_topk_ids}"
+    # )
+
+    # fixme: patch tokenizer.ids_to_tokens()
+    # print_tensor_ids_as_tokens(res_topk_ids, tokenizer_m, "res_topk_tokens")
+    # print_tensor_ids_as_tokens(
+    #     res_softmax_topk_ids, tokenizer_m, "res_softmax_topk_tokens"
+    # )
+    # print_tensor_ids_as_tokens(
+    #     res_normalized_topk_ids, tokenizer_m, "res_normalized_topk_tokens"
+    # )
 
     # self.assertListEqual(res_topk_ids, res_softmax_topk_ids)
     # self.assertListEqual(res_topk_ids, res_normalized_topk_ids)
