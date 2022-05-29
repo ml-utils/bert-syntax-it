@@ -19,16 +19,15 @@ from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
 from scipy.special import softmax
 from tqdm import tqdm
-from transformers import BertForMaskedLM
-from transformers import BertTokenizer
+from transformers import BertForMaskedLM as BRT_M
+from transformers import BertTokenizer as BRT_T
 from transformers import BertTokenizerFast
+from transformers import GPT2LMHeadModel as GPT_M
+from transformers import GPT2Tokenizer as GPT_T
 from transformers.modeling_outputs import MaskedLMOutput
 
 import src
 from src.linguistic_tests.bert_utils import get_topk
-
-# from pytorch_transformers import GPT2Tokenizer, GPT2LMHeadModel
-# from torch import softmax
 
 CLS_ID = 101
 SEP_ID = 102
@@ -39,7 +38,7 @@ def test_get_bert_output():
 
     tokenizer_m = Mock(spec=BertTokenizerFast)
     output_m = Mock(spec=MaskedLMOutput)
-    model_m = Mock(spec=BertForMaskedLM, return_value=output_m)
+    model_m = Mock(spec=BRT_M, return_value=output_m)
     # sentence = "Ha detto che il libro di ***mask*** ha 300 pagine."
     # tokens_list = ["He", "said", "the", "[MASK]", "book", "has", "300", "pages"]
     sentence_ids = [CLS_ID, 555, 556, 557, MASK_ID, 558, 559, 560, 561, SEP_ID]
@@ -60,7 +59,7 @@ def test_get_bert_output():
 
 @pytest.mark.skip(reason="todo: avoid loading large transformers model")
 def test_get_bert_output2():
-    model_m = Mock(spec=BertForMaskedLM)
+    model_m = Mock(spec=BRT_M)
     tokenizer_m = Mock(spec=BertTokenizerFast, mask_token_id=MASK_ID)
     sentence_ids = [CLS_ID, 555, 556, 557, MASK_ID, 558, 559, 560, 561, SEP_ID]
     masked_word_idx = 4
@@ -93,17 +92,6 @@ def test_get_bert_output2():
     # self.assertListEqual(res_topk_ids, res_normalized_topk_ids)
 
 
-@pytest.mark.skip(reason="todo: avoid loading large transformers model")
-def test_load_model_and_tokenizer():
-    # todo
-    model_name = "bert-base-uncased"
-    # eval_suite = "it"
-    bert, tokenizer = load_model_and_tokenizer(
-        model_types.BERT, model_name, do_lower_case=False
-    )
-    print(f"{type(bert)=}, {type(tokenizer)=}")  # BertForMaskedLM, PreTrainedTokenizer
-
-
 def test_tokenize_sentence():
     sequence = "He said the ***mask*** book has 300 pages."
     # vocab_size = 1000
@@ -112,12 +100,7 @@ def test_tokenize_sentence():
     # be = BatchEncoding(data=data)  # it's like a python dictionary
     tokens_list = ["He", "said", "the", "[MASK]", "book", "has", "300", "pages"]
     tokenizer_return_values = [["He", "said", "the"], ["book", "has", "300", "pages"]]
-    tokenizer_m = Mock(
-        spec=BertTokenizer,  # BertTokenizerFast
-        # return_value=tokens_list,
-        # mask_token_id=MASK_ID
-        side_effect=mock_tokenize,
-    )
+    tokenizer_m = Mock(spec=BRT_T)
     tokenizer_m.tokenize.side_effect = tokenizer_return_values
     tokens, target_idx = tokenize_sentence(tokenizer_m, sequence)  # masked_word_idx
     # tokenizer.tokenize(pre) returns a list of strings
@@ -128,11 +111,35 @@ def test_tokenize_sentence():
     assert len(tokens) == len(tokens_list) + 2
 
 
-def mock_tokenize(str):
-    return ["book", "has", "300", "pages"]
-
-
 class TestBertUtils(TestCase):
+    @patch.object(GPT_M, "from_pretrained", return_value=Mock(spec=GPT_M))
+    @patch.object(GPT_T, "from_pretrained", return_value=Mock(spec=GPT_T))
+    @patch.object(BRT_M, "from_pretrained", return_value=Mock(spec=BRT_M))
+    @patch.object(BRT_T, "from_pretrained", return_value=Mock(spec=BRT_T))
+    def test_load_model_and_tokenizer(self, mock1, mock2, mock3, mock4):
+
+        assert GPT_M.from_pretrained is mock4
+        assert GPT_T.from_pretrained is mock3
+        assert BRT_M.from_pretrained is mock2
+        assert BRT_T.from_pretrained is mock1
+
+        bert_name = "bert-base-uncased"
+        bert, b_tokenizer = load_model_and_tokenizer(model_types.BERT, bert_name)
+        assert isinstance(bert, BRT_M)
+        assert isinstance(b_tokenizer, BRT_T)
+
+        gpt2_name = "gpt2"
+        gpt2, g_tokenizer = load_model_and_tokenizer(model_types.GPT, gpt2_name)
+        assert isinstance(gpt2, GPT_M)
+        assert isinstance(g_tokenizer, GPT_T)
+
+        for model_type in [
+            model_types.ROBERTA,
+            model_types.GILBERTO,
+            model_types.GEPPETTO,
+        ]:
+            with self.assertRaises(SystemExit):
+                load_model_and_tokenizer(model_type, "")
 
     # @pytest.mark.parametrize("k", [5])
     def test_get_top_k(self):  # k
@@ -168,7 +175,7 @@ class TestBertUtils(TestCase):
         ]
         output_m = Mock(spec=MaskedLMOutput)
         output_m.logits = torch.rand(1, len(tokens), vocab_size)
-        model_m = Mock(spec=BertForMaskedLM, return_value=output_m)
+        model_m = Mock(spec=BRT_M, return_value=output_m)
         # model_m.return_value.logits = logits
 
         sentence_ids = tokenizer_m.convert_tokens_to_ids(tokens)
@@ -221,9 +228,9 @@ class TestBertUtils(TestCase):
         # sentence1 = "Gianni ha detto che il manuale di linguistia ha duecento pagine."
 
         bert_model_name = "../models/bert-base-italian-xxl-cased/"
-        bert_model = BertForMaskedLM.from_pretrained(bert_model_name)  #
+        bert_model = BRT_M.from_pretrained(bert_model_name)  #
         # bert_model_compare = BertForMaskedLM_Compare.from_pretrained(bert_model_name)
-        bert_tokenizer = BertTokenizer.from_pretrained(
+        bert_tokenizer = BRT_T.from_pretrained(
             bert_model_name,
             do_lower_case=(True if "uncased" in bert_model_name else False),
         )
@@ -281,7 +288,7 @@ def test_get_acceptability_diffs():
     return 0
 
 
-def print_tensor_ids_as_tokens(tens: torch.Tensor, tokenizer: BertTokenizer, msg):
+def print_tensor_ids_as_tokens(tens: torch.Tensor, tokenizer: BRT_T, msg):
     print_orange("print_tensor_ids_as_tokens")
     tens = torch.squeeze(tens)
     nparr = tens.numpy()
@@ -331,7 +338,7 @@ def test_bert_output():
 
     output_m = Mock(spec=MaskedLMOutput)
     output_m.logits = torch.rand(1, len(tokens), vocab_size)
-    model_m = Mock(spec=BertForMaskedLM, return_value=output_m)
+    model_m = Mock(spec=BRT_M, return_value=output_m)
 
     res_unsliced = model_m(tens).logits
 

@@ -88,7 +88,10 @@ def load_model_and_tokenizer(
             vocab_filepath, do_lower_case=do_lower_case
         )
     else:
-        print("Supported models: Bert, Gpt.")
+        print(
+            f"Error, unsupported model_name: {model_name}. "
+            f"Supported models: Bert, Gpt."
+        )
         raise SystemExit
 
     print("tokenizer ready.")
