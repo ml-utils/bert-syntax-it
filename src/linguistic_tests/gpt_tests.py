@@ -1,8 +1,9 @@
 import torch
-from lm_utils import get_pen_score
 from transformers import AutoConfig
 from transformers import GPT2LMHeadModel
 from transformers import GPT2Tokenizer
+
+from src.linguistic_tests.lm_utils import get_pen_score
 
 
 class ml_libraries:
