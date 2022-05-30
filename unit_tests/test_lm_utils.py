@@ -9,6 +9,8 @@ from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import print_in_color
+from linguistic_tests.lm_utils import red_txt
 from transformers import BertForMaskedLM as BRT_M
 from transformers import BertTokenizer as BRT_T
 from transformers import GPT2LMHeadModel as GPT_M
@@ -74,3 +76,13 @@ class TestLMUtils(TestCase):
     def test_load_testset_data(self):
         load_testset_data()
         raise NotImplementedError
+
+    def test_red_txt(self):
+        txt = "Lorem"
+        result = red_txt(txt)
+        assert isinstance(result, str)
+        assert len(result) > len(txt)
+
+    @pytest.mark.skip("todo: patch/redirect stout")
+    def test_print_in_color(self):
+        print_in_color()

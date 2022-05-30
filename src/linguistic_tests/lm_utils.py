@@ -55,8 +55,16 @@ def get_penalty_term(text_lenght, alpha=0.8):
     return (5 + text_lenght) ** alpha / (5 + 1) ** alpha
 
 
+def color_txt(txt: str, color: str):
+    return f"{color}{txt}{bcolors.ENDC}"
+
+
+def print_in_color(txt, color: str):
+    print(color_txt(txt, color))
+
+
 def red_txt(txt: str):
-    return f"{bcolors.RED}{txt}{bcolors.ENDC}"
+    return color_txt(txt, bcolors.RED)
 
 
 def print_red(txt: str):
@@ -65,10 +73,6 @@ def print_red(txt: str):
 
 def print_orange(txt: str):
     print_in_color(txt, bcolors.WARNING)
-
-
-def print_in_color(txt, color: str):
-    print(f"{color}{txt}{bcolors.ENDC}")
 
 
 def load_model_and_tokenizer(
