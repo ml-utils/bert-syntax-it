@@ -104,10 +104,22 @@ class TestBertUtils(TestCase):
         convert_ids_to_tokens()
         raise NotImplementedError
 
-    @pytest.mark.skip("todo")
     def test_count_split_words_in_sentence(self):
-        count_split_words_in_sentence()
-        raise NotImplementedError
+        sentence_tokens = ["hair", "##dress", "##er", "##s"]
+        assert count_split_words_in_sentence(sentence_tokens) == 1
+        sentence_tokens = ["these", "are", "hair", "##dress", "##er", "##s"]
+        assert count_split_words_in_sentence(sentence_tokens) == 1
+        sentence_tokens = [
+            "there",
+            "are",
+            "##n't",
+            "any",
+            "hair",
+            "##dress",
+            "##er",
+            "##s",
+        ]
+        assert count_split_words_in_sentence(sentence_tokens) == 2
 
     @pytest.mark.skip("todo")
     def test_estimate_sentence_probability(self):
