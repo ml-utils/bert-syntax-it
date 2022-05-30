@@ -5,33 +5,29 @@ import os.path
 import sys
 from collections import Counter
 
+from torch.utils.hipify.hipify_python import bcolors
 from tqdm import tqdm
 
-from .bert_utils import analize_example
-from .bert_utils import analize_sentence
-from .bert_utils import check_unknown_words
-from .bert_utils import estimate_sentence_probability
-from .bert_utils import estimate_sentence_probability_from_text
-from .bert_utils import get_probs_for_words
-from .bert_utils import get_score_descr
-from .bert_utils import tokenize_sentence
-from .compute_model_score import DEVICES
-from .compute_model_score import load_model
-from .compute_model_score import perc
-from .compute_model_score import run_testset
-from .lm_utils import bcolors
-from .lm_utils import get_sentences_from_example
-from .lm_utils import load_model_and_tokenizer
-from .lm_utils import load_testset_data
-from .lm_utils import model_types
-from .lm_utils import print_orange
-from .lm_utils import print_red
-from .lm_utils import red_txt
-from .lm_utils import sentence_score_bases
-
-
-# from collections import defaultdict
-# import torch
+from src.linguistic_tests.bert_utils import analize_example
+from src.linguistic_tests.bert_utils import analize_sentence
+from src.linguistic_tests.bert_utils import check_unknown_words
+from src.linguistic_tests.bert_utils import estimate_sentence_probability
+from src.linguistic_tests.bert_utils import estimate_sentence_probability_from_text
+from src.linguistic_tests.bert_utils import get_probs_for_words
+from src.linguistic_tests.bert_utils import get_score_descr
+from src.linguistic_tests.bert_utils import tokenize_sentence
+from src.linguistic_tests.compute_model_score import DEVICES
+from src.linguistic_tests.compute_model_score import load_model
+from src.linguistic_tests.compute_model_score import perc
+from src.linguistic_tests.compute_model_score import run_testset
+from src.linguistic_tests.lm_utils import get_sentences_from_example
+from src.linguistic_tests.lm_utils import load_model_and_tokenizer
+from src.linguistic_tests.lm_utils import load_testset_data
+from src.linguistic_tests.lm_utils import model_types
+from src.linguistic_tests.lm_utils import print_orange
+from src.linguistic_tests.lm_utils import print_red
+from src.linguistic_tests.lm_utils import red_txt
+from src.linguistic_tests.lm_utils import sentence_score_bases
 
 
 def run_agreement_tests():

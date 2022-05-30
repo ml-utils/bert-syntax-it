@@ -2,6 +2,7 @@ import json
 import os.path
 
 import cython
+from torch.utils.hipify.hipify_python import bcolors
 from transformers import BertForMaskedLM
 from transformers import BertTokenizer
 from transformers import GPT2LMHeadModel
@@ -34,19 +35,6 @@ class sentence_score_bases:
     NORMALIZED_LOGITS = 1
 
 
-class bcolors:
-    HEADER = "\033[95m"
-    OKBLUE = "\033[94m"
-    OKCYAN = "\033[96m"
-    OKGREEN = "\033[92m"
-    WARNING = "\033[93m"
-    RED = "\033[91m"
-    FAIL = "\033[91m"
-    ENDC = "\033[0m"
-    BOLD = "\033[1m"
-    UNDERLINE = "\033[4m"
-
-
 def get_pen_score(unnormalized_score, text_lenght):
     return unnormalized_score / get_penalty_term(text_lenght)
 
@@ -64,11 +52,11 @@ def print_in_color(txt, color: str):
 
 
 def red_txt(txt: str):
-    return color_txt(txt, bcolors.RED)
+    return color_txt(txt, bcolors.FAIL)
 
 
 def print_red(txt: str):
-    print_in_color(txt, bcolors.RED)
+    print(red_txt(txt))
 
 
 def print_orange(txt: str):
