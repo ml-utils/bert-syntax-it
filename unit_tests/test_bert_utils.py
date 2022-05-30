@@ -38,6 +38,9 @@ from transformers.modeling_outputs import MaskedLMOutput
 import src
 from src.linguistic_tests.bert_utils import get_topk
 
+# from linguistic_tests.bert_utils import get_topk
+
+
 CLS_ID = 101
 SEP_ID = 102
 MASK_ID = 103
