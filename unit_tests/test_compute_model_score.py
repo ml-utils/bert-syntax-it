@@ -7,7 +7,6 @@ import pytest
 from linguistic_tests.compute_model_score import count_accurate_in_example
 from linguistic_tests.compute_model_score import DEVICES
 from linguistic_tests.compute_model_score import get_example_scores
-from linguistic_tests.compute_model_score import get_penalty_term
 from linguistic_tests.compute_model_score import get_sentence_score_JHLau
 from linguistic_tests.compute_model_score import load_model
 from linguistic_tests.compute_model_score import perc
@@ -34,11 +33,6 @@ class TestComputeModelScore(TestCase):
     @pytest.mark.skip("todo")
     def test_get_example_scores(self):
         get_example_scores()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_get_penalty_term(self):
-        get_penalty_term()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")

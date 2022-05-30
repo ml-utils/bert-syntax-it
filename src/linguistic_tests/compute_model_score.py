@@ -13,9 +13,10 @@ from transformers import GPT2Tokenizer
 from transformers import RobertaForMaskedLM
 from transformers import RobertaTokenizer
 
-from .lm_utils import get_sentences_from_example
-from .lm_utils import model_types
-from .lm_utils import sent_idx
+from src.linguistic_tests.lm_utils import get_penalty_term
+from src.linguistic_tests.lm_utils import get_sentences_from_example
+from src.linguistic_tests.lm_utils import model_types
+from src.linguistic_tests.lm_utils import sent_idx
 
 
 class DEVICES:
@@ -251,10 +252,6 @@ def count_accurate_in_example(scores_by_sentence):
             correct_2nd_sentence_comparison = 1
 
     return correct_1st_sentence_comparison, correct_2nd_sentence_comparison
-
-
-def get_penalty_term(text_lenght):
-    return (5 + text_lenght) ** 0.8 / (5 + 1) ** 0.8
 
 
 def perc(value, total):

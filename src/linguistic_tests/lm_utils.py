@@ -47,9 +47,12 @@ class bcolors:
     UNDERLINE = "\033[4m"
 
 
-def get_pen_score(unnormalized_score, text_len):
-    penalty = (5 + text_len) ** 0.8 / (5 + 1) ** 0.8
-    return unnormalized_score / penalty
+def get_pen_score(unnormalized_score, text_lenght):
+    return unnormalized_score / get_penalty_term(text_lenght)
+
+
+def get_penalty_term(text_lenght, alpha=0.8):
+    return (5 + text_lenght) ** alpha / (5 + 1) ** alpha
 
 
 def red_txt(txt: str):

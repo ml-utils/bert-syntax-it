@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import pytest
 from linguistic_tests.lm_utils import get_pen_score
+from linguistic_tests.lm_utils import get_penalty_term
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import load_testset_data
@@ -15,10 +16,25 @@ from transformers import GPT2Tokenizer as GPT_T
 
 
 class TestLMUtils(TestCase):
-    @pytest.mark.skip("todo")
     def test_get_pen_score(self):
-        get_pen_score()
-        raise NotImplementedError
+        unnormalized_score = 0.5
+        text_len = 1
+        assert get_pen_score(unnormalized_score, text_len) > get_pen_score(
+            unnormalized_score, text_len + 1
+        )
+
+    def test_get_penalty_term(self):
+
+        assert get_penalty_term(text_lenght=1, alpha=1) == 1
+        assert get_penalty_term(text_lenght=1, alpha=2) == 1
+
+        assert get_penalty_term(text_lenght=0, alpha=1) == 5 / 6
+        assert get_penalty_term(text_lenght=2, alpha=1) == 7 / 6
+
+        assert get_penalty_term(text_lenght=0) < 1
+        assert get_penalty_term(text_lenght=1) == 1
+        assert get_penalty_term(text_lenght=2) > 1
+        assert get_penalty_term(text_lenght=3) < get_penalty_term(text_lenght=4)
 
     @pytest.mark.skip("todo")
     def test_get_sentences_from_example(self):
