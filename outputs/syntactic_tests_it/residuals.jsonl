@@ -1,0 +1,264 @@
+{"sentences": [
+
+  // negative sentence
+
+
+
+
+  // idiomatic expressions or light nouns or light verbs
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha preso la parola?",
+  "sentence_bad_extraction": "Che cosa Gianni ha fatto l’affermazione che Luisa ha preso?",
+  "sentence_good_no_island": "Che cosa Gianni ha affermato l’altro giorno che Luisa ha preso?",
+  "sentence_good_no_island_as_subject": "Che cosa Gianni ha affermato l’altro giorno è stata presa da Luisa?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "21"},
+
+
+  // direct object is less of a patient/undergoer (theme or other)
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha visto la camera di Carla?",
+  "sentence_bad_extraction": "Che cosa Gianni ha fatto l’affermazione che Luisa ha visto?",
+  "sentence_good_no_island": "Che cosa Gianni ha affermato che Luisa ha visto?",
+  "sentence_good_no_island_as_subject": "Che cosa Gianni ha affermato che è stata vista da Luisa?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "9"},
+
+  {"sentence_good_no_extraction": "Chi ha fatto l’insinuazione che io non avrei scritto il libro?",
+  "sentence_bad_extraction": "Cosa hai fatto l’insinuazione che io non avrei scritto?",
+  "sentence_good_no_island": "Cosa hai insinuato che io non avrei scritto?",
+  "sentence_good_no_island_as_subject": "Cosa hai insinuato che non sarebbe stato da me scritto?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "12"},
+
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha trovato il libro molto interessante?",
+  "sentence_bad_extraction": "Che cosa Gianni ha fatto l’affermazione che Luisa ha trovato molto interessante?",
+  "sentence_good_no_island": "Che cosa Gianni ha affermato che Luisa ha trovato molto interessante?",
+  "sentence_good_no_island_as_subject": "Che cosa Gianni ha affermato che è stato trovato molto interessante da Luisa?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "16"},
+
+
+  // direct oject is human, not a thing or animal
+
+    {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che la commissione ha escluso quei candidati?",
+  "sentence_bad_extraction": "Chi hai fatto l’affermazione che la commissione ha escluso?",
+  "sentence_good_no_island": "Chi hai affermato che la commissione ha escluso?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "13"},
+
+
+  {"sentence_good_no_extraction": "Chi ha riferito la notizia che l’assessore ha interpellato il sindaco?",
+  "sentence_bad_extraction": "Chi hai riferito la notizia che l’assessore ha interpellato?",
+    "sentence_good_no_island": "Chi hai riferito che l’assessore ha interpellato?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "43"},
+
+
+  // extracted entity is not a direct object
+
+  {"sentence_good_no_extraction": "Gianni ha fatto la richiesta che la relazione venga fatta su questo argomento?",
+  "sentence_bad_extraction": "Su cosa Gianni ha fatto la richiesta che la relazione venga fatta?",
+  "sentence_good_no_island": "Su cosa Gianni ha richiesto che la relazione venga fatta?",
+  "sentence_good_no_island_as_subject": "Su cosa Gianni ha richiesto che la relazione venga fatta?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "13"},
+
+   {"sentence_good_no_extraction": "Gianni ha avanzato la proposta che la relazione fosse fatta su tale argomento?",
+  "sentence_bad_extraction": "Su cosa Gianni ha avanzato la proposta che la relazione fosse fatta?",
+  "sentence_good_no_island": "Su cosa Gianni ha proposto che la relazione fosse fatta?",
+  "sentence_good_no_island_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "60"},
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che non ci possiamo fidare dei sondaggi?",
+  "sentence_bad_extraction": "Di che cosa Gianni ha fatto l’affermazione che non ci possiamo fidare?",
+  "sentence_good_no_island": "Di che cosa Gianni ha affermato che non ci possiamo fidare?",
+  "sentence_good_no_island_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "18"},
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa non era al corrente della situazione?",
+  "sentence_bad_extraction": "Di che cosa Gianni ha fatto l’affermazione che Luisa non era al corrente?",
+  "sentence_good_no_island": "Di che cosa l’altro giorno Gianni ha affermato che Luisa non era al corrente? ",
+  "sentence_good_no_island_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "19"},
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha parlato di questo argomento?",
+  "sentence_bad_extraction": "Di che cosa Gianni ha fatto l’affermazione che Luisa ha parlato?",
+  "sentence_good_no_island": "Di che cosa l’altro ieri Gianni ha affermato che Luisa ha parlato?",
+  "sentence_good_no_island_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "24"},
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Carlo si è messo a giocare a carte?",
+  "sentence_bad_extraction": "A che cosa Gianni ha fatto l’affermazione che Carlo si è messo a giocare?",
+  "sentence_good_no_island": "A che cosa Gianni ha affermato che Carlo si è messo a giocare?",
+  "sentence_good_no_island_as_subject": "Che cosa Gianni ha affermato che è stato giocato da Carlo?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "27"},
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Mario ha litigato con il Preside?",
+  "sentence_bad_extraction": "Con chi Gianni ha fatto l’affermazione che Mario ha litigato?",
+  "sentence_good_no_island": "Con chi Gianni ha affermato che Mario ha litigato?",
+  "sentence_good_no_island_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "54"},
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha fatto riferimento a quell’articolo di legge?",
+  "sentence_bad_extraction": "A che cosa Gianni ha fatto l’affermazione che Luisa ha fatto riferimento?",
+  "sentence_good_no_island": "A che cosa Gianni ha affermato che Luisa ha fatto riferimento?",
+  "sentence_good_no_island_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "32"},
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che l’autogrill dista solo pochi chilometri dall’inizio dell’autostrada?",
+  "sentence_bad_extraction": "Da che cosa Gianni ha fatto l’affermazione che l’autogrill dista solo pochi chilometri?",
+  "sentence_good_no_island": "Da che cosa Gianni ha affermato che l’autogrill dista solo pochi chilometri?",
+  "sentence_good_no_island_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "34"},
+
+  {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che Luisa si è sbarazzata del problema?",
+  "sentence_bad_extraction": "Di che cosa Gianni ha fatto l’affermazione che Luisa si è sbarazzata?",
+  "sentence_good_no_island": "Di che cosa Gianni ha affermato che Luisa si è sbarazzata?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "40"},
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa è riuscita a ricavare molti soldi da quel lavoro?",
+  "sentence_bad_extraction": "Da che cosa Gianni ha fatto l’affermazione che Luisa è riuscita a ricavare molti soldi?",
+  "sentence_good_no_island": "Da che cosa Gianni ha affermato che Luisa è riuscita a ricavare molti soldi?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "43"},
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che l’avvocato abita al piano di sopra?",
+  "sentence_bad_extraction": "Dove Gianni ha fatto l’affermazione che l’avvocato abita?",
+  "sentence_good_no_island": "Gianni dove ha detto che abita da tre mesi l'avvocato?",
+  "sentence_good_no_island_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "55"},
+
+  {"sentence_good_no_extraction": "Gianni ha fatto l’affermazione che Luisa ha aspettato Carla davanti alla stazione?",
+  "sentence_bad_extraction": "Dove Gianni ha fatto l’affermazione che Luisa ha aspettato Carla?",
+  "sentence_good_no_island": "Gianni dove ha detto che Luisa ha aspettato Carla per un'ora?",
+  "sentence_good_no_island_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "56"}
+
+
+  // different verb form
+    {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che Luisa avrebbe tenuto la macchina al mare?",
+  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che Luisa avrebbe tenuto al mare?",
+  "sentence_good_no_island": "Cosa hai affermato che Luisa avrebbe tenuto al mare?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "23"},
+
+    // be-auxiliary
+
+
+  {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che gli emendamenti sono confluiti nella proposta del gruppo?",
+  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che sono confluiti nella proposta del gruppo?",
+  "sentence_good_no_island": "Cosa hai affermato che sono confluiti nella proposta del gruppo?",
+  "sentence_good_no_island_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "31"},
+
+
+
+    {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che da settembre in Italia è dimiuita la disoccupazione?",
+  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che da settembre in Italia è dimiuita?",
+  "sentence_good_no_island": "Cosa hai affermato che da settembre in Italia è dimiuita?",
+  "sentence_good_no_island_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "32"},
+
+    // Sprouse et al examples
+
+    {"sentence_good_no_extraction": "Chi ha messo in dubbio la previsione che io avrei vinto il concorso?",
+  "sentence_bad_extraction": "Cosa hai messo in dubbio la previsione che io avrei vinto?",
+  "sentence_good_no_island": "Cosa hai messo in dubbio che io avrei vinto?",
+  "sentence_good_no_island_as_subject": "",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "1"},
+
+  {"sentence_good_no_extraction": "Chi ha fatto l’affermazione che io avrei rubato una macchina?",
+  "sentence_bad_extraction": "Cosa hai fatto l’affermazione che io avrei rubato?",
+  "sentence_good_no_island": "Cosa hai affermato che io avrei rubato?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "3"}
+]
+}
