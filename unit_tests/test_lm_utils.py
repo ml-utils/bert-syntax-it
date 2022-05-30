@@ -1,3 +1,4 @@
+import json
 from unittest import TestCase
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -10,6 +11,7 @@ from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
 from linguistic_tests.lm_utils import print_orange
+from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import red_txt
 from torch.utils.hipify.hipify_python import bcolors
 from transformers import BertForMaskedLM as BRT_M
@@ -39,10 +41,32 @@ class TestLMUtils(TestCase):
         assert get_penalty_term(text_lenght=2) > 1
         assert get_penalty_term(text_lenght=3) < get_penalty_term(text_lenght=4)
 
-    @pytest.mark.skip("todo")
     def test_get_sentences_from_example(self):
-        get_sentences_from_example()
-        raise NotImplementedError
+        example_blimp_it_str = """  {"sentence_good_no_extraction": "Chi conosceva la novità che ti avrebbero affidato l’incarico?",
+  "sentence_bad_extraction": "Cosa conoscevi la novità che ti avrebbero affidato?",
+  "sentence_good_no_island": "Cosa sapevi che ti avrebbero affidato?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "complex_np_island",
+  "pairID": "11"}"""
+        example_blimp_it_dict = json.loads(example_blimp_it_str)
+        sentences = get_sentences_from_example(
+            example_blimp_it_dict, sentences_per_example=3
+        )
+        assert isinstance(sentences, list)
+        assert len(sentences) == 3
+
+        example_blimp_en_str = """{"sentence_good": "What had Rebecca forgotten she tours?",
+        "sentence_bad": "What had Rebecca forgotten who tours?", "one_prefix_prefix":
+        "What had Rebecca forgotten", "one_prefix_word_good": "she", "one_prefix_word_bad":
+        "who", "field": "syntax", "linguistics_term": "island_effects", "UID": "wh_island",
+        "simple_LM_method": true, "one_prefix_method": true, "two_prefix_method": false,
+        "lexically_identical": false, "pairID": "67"}"""
+        example_blimp_en_dict = json.loads(example_blimp_en_str)
+        sentences = get_sentences_from_example(example_blimp_en_dict)
+        assert isinstance(sentences, list)
+        assert len(sentences) == 2
 
     @patch.object(GPT_M, "from_pretrained", return_value=Mock(spec=GPT_M))
     @patch.object(GPT_T, "from_pretrained", return_value=Mock(spec=GPT_T))
@@ -89,3 +113,5 @@ class TestLMUtils(TestCase):
         txt = "Lorem"
         print_orange(txt)
         mock_print.assert_called_with(bcolors.WARNING + txt + bcolors.ENDC)
+        print_red(txt)
+        mock_print.assert_called_with(bcolors.FAIL + txt + bcolors.ENDC)
