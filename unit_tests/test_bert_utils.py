@@ -7,13 +7,25 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 import torch
+from linguistic_tests import bert_utils
+from linguistic_tests.bert_utils import analize_example
+from linguistic_tests.bert_utils import analize_sentence
+from linguistic_tests.bert_utils import bert_get_logprobs
+from linguistic_tests.bert_utils import check_unknown_words
+from linguistic_tests.bert_utils import convert_ids_to_tokens
+from linguistic_tests.bert_utils import count_split_words_in_sentence
+from linguistic_tests.bert_utils import estimate_sentence_probability
 from linguistic_tests.bert_utils import estimate_sentence_probability_from_text
 from linguistic_tests.bert_utils import get_bert_output
+from linguistic_tests.bert_utils import get_probs_for_words
+from linguistic_tests.bert_utils import get_score_descr
+from linguistic_tests.bert_utils import get_sentence_probs_from_word_ids
+from linguistic_tests.bert_utils import get_sentence_scores
+from linguistic_tests.bert_utils import get_topk_tokens_from_bert_output
 from linguistic_tests.bert_utils import print_orange
 from linguistic_tests.bert_utils import tokenize_sentence
 from linguistic_tests.compute_model_score import get_sentence_score_JHLau
 from linguistic_tests.lm_utils import get_sentences_from_example
-from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
 from scipy.special import softmax
@@ -21,8 +33,6 @@ from tqdm import tqdm
 from transformers import BertForMaskedLM as BRT_M
 from transformers import BertTokenizer as BRT_T
 from transformers import BertTokenizerFast
-from transformers import GPT2LMHeadModel as GPT_M
-from transformers import GPT2Tokenizer as GPT_T
 from transformers.modeling_outputs import MaskedLMOutput
 
 import src
@@ -33,81 +43,124 @@ SEP_ID = 102
 MASK_ID = 103
 
 
-def test_get_bert_output():
-
-    tokenizer_m = Mock(spec=BertTokenizerFast)
-    output_m = Mock(spec=MaskedLMOutput)
-    model_m = Mock(spec=BRT_M, return_value=output_m)
-    # sentence = "Ha detto che il libro di ***mask*** ha 300 pagine."
-    # tokens_list = ["He", "said", "the", "[MASK]", "book", "has", "300", "pages"]
-    sentence_ids = [CLS_ID, 555, 556, 557, MASK_ID, 558, 559, 560, 561, SEP_ID]
-    tokens_count = len(sentence_ids)
-    masked_word_idx = 4
-
-    # bert output is a MaskedLMOutput
-    vocab_size = 1000
-    logits = torch.rand(1, tokens_count, vocab_size)
-    output_m.logits = logits
-
-    (res, res_softmax, res_normalized, logits_shifted_above_zero) = get_bert_output(
-        model_m, tokenizer_m, sentence_ids, masked_word_idx
-    )
-
-    assert isinstance(res, torch.Tensor)
-    # assert res.shape == (k,)
-    assert res.shape == (vocab_size,)
-    assert res_softmax.shape == (vocab_size,)
-    assert res_normalized.shape == (vocab_size,)
-
-
-def test_tokenize_sentence():
-    sequence = "He said the ***mask*** book has 300 pages."
-    # vocab_size = 1000
-
-    # data = {"input_ids": torch.tensor([[CLS_ID, 555, MASK_ID, SEP_ID]])}
-    # be = BatchEncoding(data=data)  # it's like a python dictionary
-    tokens_list = ["He", "said", "the", "[MASK]", "book", "has", "300", "pages"]
-    tokenizer_return_values = [["He", "said", "the"], ["book", "has", "300", "pages"]]
-    tokenizer_m = Mock(spec=BRT_T)
-    tokenizer_m.tokenize.side_effect = tokenizer_return_values
-    tokens, target_idx = tokenize_sentence(tokenizer_m, sequence)  # masked_word_idx
-    # tokenizer.tokenize(pre) returns a list of strings
-    # tokenized_target = tokenizer.tokenize(target)
-    # tokens_ids = tokenizer.convert_tokens_to_ids(tokens)
-    assert isinstance(tokens, list)
-    all(isinstance(x, str) for x in tokens)
-    assert len(tokens) == len(tokens_list) + 2
-
-
 class TestBertUtils(TestCase):
-    @patch.object(GPT_M, "from_pretrained", return_value=Mock(spec=GPT_M))
-    @patch.object(GPT_T, "from_pretrained", return_value=Mock(spec=GPT_T))
-    @patch.object(BRT_M, "from_pretrained", return_value=Mock(spec=BRT_M))
-    @patch.object(BRT_T, "from_pretrained", return_value=Mock(spec=BRT_T))
-    def test_load_model_and_tokenizer(self, mock1, mock2, mock3, mock4):
+    def create_patch(self, name):
+        patcher = patch(name)
+        thing = patcher.start()
+        self.addCleanup(patcher.stop)
+        return thing
 
-        assert GPT_M.from_pretrained is mock4
-        assert GPT_T.from_pretrained is mock3
-        assert BRT_M.from_pretrained is mock2
-        assert BRT_T.from_pretrained is mock1
+    @pytest.mark.skip("todo")
+    def test__check_unk_and_num_tokens(self):
+        bert_utils.__check_unk_and_num_tokens()
+        raise NotImplementedError
 
-        bert_name = "bert-base-uncased"
-        bert, b_tokenizer = load_model_and_tokenizer(model_types.BERT, bert_name)
-        assert isinstance(bert, BRT_M)
-        assert isinstance(b_tokenizer, BRT_T)
+    @pytest.mark.skip(reason="todo")
+    def test_get_acceptability_diffs(self):
+        # TODO: test method before change with option to score method (softmax or logits)
+        bert_utils.__get_acceptability_diffs()
+        raise NotImplementedError
 
-        gpt2_name = "gpt2"
-        gpt2, g_tokenizer = load_model_and_tokenizer(model_types.GPT, gpt2_name)
-        assert isinstance(gpt2, GPT_M)
-        assert isinstance(g_tokenizer, GPT_T)
+    @pytest.mark.skip("todo")
+    def test__get_example_estimates(self):
+        bert_utils.__get_example_estimates()
+        raise NotImplementedError
 
-        for model_type in [
-            model_types.ROBERTA,
-            model_types.GILBERTO,
-            model_types.GEPPETTO,
-        ]:
-            with self.assertRaises(SystemExit):
-                load_model_and_tokenizer(model_type, "")
+    @pytest.mark.skip("todo")
+    def test__get_example_tokens_and_oov_counts(self):
+        bert_utils.__get_example_tokens_and_oov_counts()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test__get_scores_from_word_ids(self):
+        bert_utils.__get_scores_from_word_ids()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_aanalize_example(self):
+        analize_example()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_analize_sentence(self):
+        analize_sentence()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_bert_get_logprobs(self):
+        bert_get_logprobs()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_check_unknown_words(self):
+        check_unknown_words()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_convert_ids_to_tokens(self):
+        convert_ids_to_tokens()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_count_split_words_in_sentence(self):
+        count_split_words_in_sentence()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_estimate_sentence_probability(self):
+        estimate_sentence_probability()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_estimate_sentence_probability_from_text(self):
+        estimate_sentence_probability_from_text()
+        raise NotImplementedError
+
+    def test_get_bert_output(self):
+
+        tokenizer_m = Mock(spec=BertTokenizerFast)
+        output_m = Mock(spec=MaskedLMOutput)
+        model_m = Mock(spec=BRT_M, return_value=output_m)
+        # sentence = "Ha detto che il libro di ***mask*** ha 300 pagine."
+        # tokens_list = ["He", "said", "the", "[MASK]", "book", "has", "300", "pages"]
+        sentence_ids = [CLS_ID, 555, 556, 557, MASK_ID, 558, 559, 560, 561, SEP_ID]
+        tokens_count = len(sentence_ids)
+        masked_word_idx = 4
+
+        # bert output is a MaskedLMOutput
+        vocab_size = 1000
+        logits = torch.rand(1, tokens_count, vocab_size)
+        output_m.logits = logits
+
+        (res, res_softmax, res_normalized, logits_shifted_above_zero) = get_bert_output(
+            model_m, tokenizer_m, sentence_ids, masked_word_idx
+        )
+
+        assert isinstance(res, torch.Tensor)
+        # assert res.shape == (k,)
+        assert res.shape == (vocab_size,)
+        assert res_softmax.shape == (vocab_size,)
+        assert res_normalized.shape == (vocab_size,)
+
+    @pytest.mark.skip("todo")
+    def test_get_probs_for_words(self):
+        get_probs_for_words()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_get_score_descr(self):
+        get_score_descr()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_get_sentence_probs_from_word_ids(self):
+        get_sentence_probs_from_word_ids()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_get_sentence_scores(self):
+        get_sentence_scores()
+        raise NotImplementedError
 
     # @pytest.mark.parametrize("k", [5])
     def test_get_top_k(self):  # k
@@ -185,11 +238,31 @@ class TestBertUtils(TestCase):
         assert isinstance(topk_probs_nonsoftmax, torch.return_types.topk)
         assert topk_probs_nonsoftmax.values.shape == (k,)
 
-    def create_patch(self, name):
-        patcher = patch(name)
-        thing = patcher.start()
-        self.addCleanup(patcher.stop)
-        return thing
+    @pytest.mark.skip("todo")
+    def test_get_topk_tokens_from_bert_output(self):
+        get_topk_tokens_from_bert_output()
+        raise NotImplementedError
+
+    def test_tokenize_sentence(self):
+        sequence = "He said the ***mask*** book has 300 pages."
+        # vocab_size = 1000
+
+        # data = {"input_ids": torch.tensor([[CLS_ID, 555, MASK_ID, SEP_ID]])}
+        # be = BatchEncoding(data=data)  # it's like a python dictionary
+        tokens_list = ["He", "said", "the", "[MASK]", "book", "has", "300", "pages"]
+        tokenizer_return_values = [
+            ["He", "said", "the"],
+            ["book", "has", "300", "pages"],
+        ]
+        tokenizer_m = Mock(spec=BRT_T)
+        tokenizer_m.tokenize.side_effect = tokenizer_return_values
+        tokens, target_idx = tokenize_sentence(tokenizer_m, sequence)  # masked_word_idx
+        # tokenizer.tokenize(pre) returns a list of strings
+        # tokenized_target = tokenizer.tokenize(target)
+        # tokens_ids = tokenizer.convert_tokens_to_ids(tokens)
+        assert isinstance(tokens, list)
+        all(isinstance(x, str) for x in tokens)
+        assert len(tokens) == len(tokens_list) + 2
 
     @pytest.mark.skip(reason="todo: avoid loading large transformers model")
     def test_get_bert_sentence_score(self):
@@ -248,12 +321,6 @@ class TestBertUtils(TestCase):
 
                 # gpt_sentence_lp_expected, _ = get_sentence_score_JHLau(model_types.GPT, gpt_model, gpt_tokenizer,
                 #                                                    gpt_tokenized_sentence, device=None)
-
-
-@pytest.mark.skip(reason="todo")
-def test_get_acceptability_diffs():
-    # TODO: test method before change with option to score method (softmax or logits)
-    return 0
 
 
 def print_tensor_ids_as_tokens(tens: torch.Tensor, tokenizer: BRT_T, msg):
