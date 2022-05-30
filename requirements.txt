@@ -4,3 +4,4 @@ scipy==1.8.1
 pandas==1.4.2
 cython==0.29.30
 sentencepiece==0.1.96
+matplotlib==3.5.1
