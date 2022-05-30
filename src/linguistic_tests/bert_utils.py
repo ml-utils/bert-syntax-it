@@ -314,10 +314,6 @@ def get_sentence_scores(
     return pen_lp, logits_nonnegative
 
 
-def check_if_word_in_vocabulary():
-    return 0
-
-
 def check_unknown_words(tokenizer: BertTokenizer):
     # NB: the uncased model also strips any accent markers from words.
     # Use bert cased.

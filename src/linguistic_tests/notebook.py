@@ -17,6 +17,7 @@ from .bert_utils import get_score_descr
 from .bert_utils import tokenize_sentence
 from .compute_model_score import DEVICES
 from .compute_model_score import load_model
+from .compute_model_score import perc
 from .compute_model_score import run_testset
 from .lm_utils import bcolors
 from .lm_utils import get_sentences_from_example
@@ -570,8 +571,7 @@ def rnd(num, decimal_places):
 
 
 def get_perc(value, total):
-    perc = (value / total) * 100
-    return f"{perc:.1f} %"
+    return f"{perc(value, total):.1f} %"
 
 
 def interactive_mode():

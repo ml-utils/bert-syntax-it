@@ -88,10 +88,9 @@ class TestComputeModelScore(TestCase):
         assert isinstance(model, expected_model_class)
         assert isinstance(tokenizer, expected_tokenizer_class)
 
-    @pytest.mark.skip("todo")
     def test_perc(self):
-        perc()
-        raise NotImplementedError
+        self.assertEqual(perc(10, 20), 50)
+        self.assertEqual(perc(1, 100), 1)
 
     def test_reduce_to_log_product(self):
 
