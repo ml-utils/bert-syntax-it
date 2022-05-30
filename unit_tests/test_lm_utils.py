@@ -9,8 +9,9 @@ from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
-from linguistic_tests.lm_utils import print_in_color
+from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import red_txt
+from torch.utils.hipify.hipify_python import bcolors
 from transformers import BertForMaskedLM as BRT_M
 from transformers import BertTokenizer as BRT_T
 from transformers import GPT2LMHeadModel as GPT_M
@@ -83,6 +84,8 @@ class TestLMUtils(TestCase):
         assert isinstance(result, str)
         assert len(result) > len(txt)
 
-    @pytest.mark.skip("todo: patch/redirect stout")
-    def test_print_in_color(self):
-        print_in_color()
+    @patch("builtins.print")
+    def test_print_in_color(self, mock_print: Mock):
+        txt = "Lorem"
+        print_orange(txt)
+        mock_print.assert_called_with(bcolors.WARNING + txt + bcolors.ENDC)
