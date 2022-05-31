@@ -19,6 +19,7 @@ from src.linguistic_tests.bert_utils import tokenize_sentence
 from src.linguistic_tests.compute_model_score import perc
 from src.linguistic_tests.compute_model_score import run_testset
 from src.linguistic_tests.lm_utils import DEVICES
+from src.linguistic_tests.lm_utils import get_models_dir
 from src.linguistic_tests.lm_utils import get_sentences_from_example
 from src.linguistic_tests.lm_utils import get_syntactic_tests_dir
 from src.linguistic_tests.lm_utils import load_model
@@ -575,7 +576,7 @@ def interactive_mode():
     print("interactive mode")
 
     # load model than wait for input sentences
-    model_name = "models/bert-base-italian-xxl-cased/"
+    model_name = str(get_models_dir() / "bert-base-italian-xxl-cased")
     # eval_suite = 'it'
     bert, tokenizer = load_model_and_tokenizer(
         model_types.BERT, model_name, do_lower_case=False
@@ -736,12 +737,12 @@ def run_tests_it(model_type):
         model_name = "LorenzoDeMattei/GePpeTto"
     elif model_type == model_types.BERT:
         model_name = "bert-base-uncased"  # NB bert large uncased is about 1GB
-        model_name = """models/bert-base-italian-uncased/"""
-        model_name = """models/bert-base-italian-cased/"""
-        model_name = "./models/bert-base-italian-xxl-cased/"
+        model_name = str(get_models_dir() / "bert-base-italian-uncased")
+        model_name = str(get_models_dir() / "bert-base-italian-cased/")
+        model_name = str(get_models_dir() / "bert-base-italian-xxl-cased")
         model_name = "dbmdz/bert-base-italian-cased"
         model_name = "dbmdz/bert-base-italian-xxl-cased"
-        # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
+        # model_name = # str(get_models_dir() / "gilberto-uncased-from-camembert.tar.gz")
         # eval_suite = 'it'
     elif model_type == model_types.GILBERTO:
         model_name = "idb-ita/gilberto-uncased-from-camembert"
