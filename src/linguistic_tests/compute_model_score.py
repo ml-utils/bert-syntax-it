@@ -4,73 +4,11 @@ import numpy as np
 import torch
 from scipy.special import softmax
 from tqdm import tqdm
-from transformers import BertForMaskedLM  # BertModel as BertForMaskedLM  #
-from transformers import BertTokenizer
-from transformers import CamembertForMaskedLM
-from transformers import CamembertTokenizer
-from transformers import GPT2LMHeadModel
-from transformers import GPT2Tokenizer
-from transformers import RobertaForMaskedLM
-from transformers import RobertaTokenizer
 
 from src.linguistic_tests.lm_utils import get_penalty_term
 from src.linguistic_tests.lm_utils import get_sentences_from_example
 from src.linguistic_tests.lm_utils import model_types
 from src.linguistic_tests.lm_utils import sent_idx
-
-
-class DEVICES:
-    CPU = "cpu"
-    CUDA = "cuda:X"
-
-
-def load_model(model_type, model_name, device):
-    # Load pre-trained model and tokenizer
-    if model_type == model_types.GPT:
-        print(f"loading model {model_name}..")
-        model = GPT2LMHeadModel.from_pretrained(model_name)
-        print(f"model loaded. Loading tokenizer {model_name}..")
-        tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-        print("tokenizer loaded.")
-    elif model_type == model_types.GEPPETTO:
-        print(f"loading model {model_name}..")
-        model = GPT2LMHeadModel.from_pretrained(model_name)  # GPT2Model
-        print(f"model loaded. Loading tokenizer {model_name}..")
-        tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-        print("tokenizer loaded.")
-    elif model_type == model_types.BERT:
-        print(f"loading model {model_name}..")
-        model = BertForMaskedLM.from_pretrained(
-            model_name
-        )  # BertForMaskedLM.from_pretrained(model_name)
-        print(f"model loaded. Loading tokenizer {model_name}..")
-        do_lower_case = True if "uncased" in model_name else False
-        tokenizer = BertTokenizer.from_pretrained(
-            model_name, do_lower_case=do_lower_case
-        )
-        print("tokenizer loaded.")
-    elif model_type in [model_types.ROBERTA]:
-        print(f"loading model {model_name}..")
-        model = RobertaForMaskedLM.from_pretrained(model_name)
-        print(f"model loaded. Loading tokenizer {model_name}..")
-        tokenizer = RobertaTokenizer.from_pretrained(model_name, do_lower_case=True)
-        print("tokenizer loaded.")
-    elif model_type == model_types.GILBERTO:
-        print(f"loading model {model_name}..")
-        model = CamembertForMaskedLM.from_pretrained(model_name)
-        print(f"model loaded. Loading tokenizer {model_name}..")
-        tokenizer = CamembertTokenizer.from_pretrained(model_name, do_lower_case=True)
-        print("tokenizer loaded.")
-    else:
-        return
-
-    # put model to device (GPU/CPU)
-    device = torch.device(device)
-    model.to(device)
-
-    # eval mode; no dropout
-    model.eval()
-    return model, tokenizer
 
 
 def run_testset(model_type, model, tokenizer, device, testset, sentences_per_example):

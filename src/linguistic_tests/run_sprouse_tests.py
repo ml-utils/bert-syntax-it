@@ -5,9 +5,9 @@ import pandas
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
-from src.linguistic_tests.compute_model_score import DEVICES
 from src.linguistic_tests.compute_model_score import get_example_scores
-from src.linguistic_tests.compute_model_score import load_model
+from src.linguistic_tests.lm_utils import DEVICES
+from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import model_types
 
 

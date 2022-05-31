@@ -16,11 +16,11 @@ from src.linguistic_tests.bert_utils import estimate_sentence_probability_from_t
 from src.linguistic_tests.bert_utils import get_probs_for_words
 from src.linguistic_tests.bert_utils import get_score_descr
 from src.linguistic_tests.bert_utils import tokenize_sentence
-from src.linguistic_tests.compute_model_score import DEVICES
-from src.linguistic_tests.compute_model_score import load_model
 from src.linguistic_tests.compute_model_score import perc
 from src.linguistic_tests.compute_model_score import run_testset
+from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import get_sentences_from_example
+from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import load_model_and_tokenizer
 from src.linguistic_tests.lm_utils import load_testset_data
 from src.linguistic_tests.lm_utils import model_types
