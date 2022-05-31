@@ -22,6 +22,7 @@ from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import get_sentences_from_example
 from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import load_model_and_tokenizer
+from src.linguistic_tests.lm_utils import load_pretrained
 from src.linguistic_tests.lm_utils import load_testset_data
 from src.linguistic_tests.lm_utils import model_types
 from src.linguistic_tests.lm_utils import print_orange
@@ -862,6 +863,15 @@ def main():
         # print('choosing model type ..')
         # model_type = model_types.BERT
         # run_tests_for_model_type(model_type)
+
+
+def load_bostrom_models():
+    # fixme: loading tokenizer fails
+    bert_bpe_path = os.path.abspath("../../models/bostromkaj/bpe_20k_ep20_pytorch/")
+    model, tokenizer = load_pretrained(
+        model_types.BERT, bert_bpe_path, force_automodel=True
+    )
+    print(f"model type: {type(model)}, {type(tokenizer)}")
 
 
 if __name__ == "__main__":

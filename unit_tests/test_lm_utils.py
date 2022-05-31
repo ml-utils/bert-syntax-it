@@ -137,13 +137,28 @@ class TestLMUtils(TestCase):
         assert isinstance(gpt2, GPT_M)
         assert isinstance(g_tokenizer, GPT_T)
 
-        for model_type in [
-            model_types.ROBERTA,
-            model_types.GILBERTO,
-            model_types.GEPPETTO,
-        ]:
-            with self.assertRaises(ValueError):
-                load_model_and_tokenizer(model_type, "")
+        gpt2_it_name = "LorenzoDeMattei/GePpeTto"
+        gpt2_it, g_it_tokenizer = load_model_and_tokenizer(
+            model_types.GPT, gpt2_it_name
+        )
+        assert isinstance(gpt2_it, GPT_M)
+        assert isinstance(g_it_tokenizer, GPT_T)
+
+        rob_name = "roberta-base"
+        roberta, rob_tokenizer = load_model_and_tokenizer(model_types.ROBERTA, rob_name)
+        assert isinstance(roberta, RB_M)
+        assert isinstance(rob_tokenizer, RB_T)
+
+        gil_name = "idb-ita/gilberto-uncased-from-camembert"
+        roberta, rob_tokenizer = load_model_and_tokenizer(
+            model_types.GILBERTO, gil_name
+        )
+        assert isinstance(roberta, CM_M)
+        assert isinstance(rob_tokenizer, CM_T)
+
+        unknown_model_type = 10
+        with self.assertRaises(ValueError):
+            load_model_and_tokenizer(unknown_model_type, "")
 
     @pytest.mark.skip("todo")
     def test_load_testset_data(self):

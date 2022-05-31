@@ -4,6 +4,8 @@ import os.path
 import cython
 import torch
 from torch.utils.hipify.hipify_python import bcolors
+from transformers import AutoModel
+from transformers import AutoTokenizer
 from transformers import BertForMaskedLM  # BertModel as BertForMaskedLM  #
 from transformers import BertTokenizer
 from transformers import CamembertForMaskedLM
@@ -73,51 +75,26 @@ def print_orange(txt: str):
     print_in_color(txt, bcolors.WARNING)
 
 
-def load_model_and_tokenizer(
-    model_type, model_name, dict_name=None, do_lower_case=False
+def load_pretrained(
+    model_type,
+    model_name,
+    device=DEVICES.CPU,
+    dict_name=None,
+    do_lower_case=False,
+    force_automodel=False,
 ):
     print(f"loading model_name: {model_name}..")
 
-    if model_type == model_types.GPT:
-        model = GPT2LMHeadModel.from_pretrained(model_name)
-        tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-    elif model_type == model_types.BERT:
-        model = BertForMaskedLM.from_pretrained(model_name)
-        print("Pretrained model loaded, getting the tokenizer..")
-
-        if dict_name is None:
-            vocab_filepath = model_name
-        else:
-            vocab_filepath = os.path.join(model_name, "dict.txt")
-        tokenizer = BertTokenizer.from_pretrained(
-            vocab_filepath, do_lower_case=do_lower_case
-        )
-    else:
-        raise ValueError(
-            f"ValueError, unsupported model_name: {model_name}. "
-            f"Supported models: Bert, Gpt."
-        )
-
-    print("tokenizer ready.")
-    # put model to device (GPU/CPU)
-    # device = torch.device(device)
-    # model.to(device)
-
-    model.eval()
-    return model, tokenizer
-
-
-def load_model(model_type, model_name, device):
     # Load pre-trained model and tokenizer
-    if model_type == model_types.GPT:
+    if force_automodel:
+        print(f"loading model {model_name}..")
+        model = AutoModel.from_pretrained(model_name)
+        print(f"model loaded of type {type(model)}. Loading tokenizer {model_name}..")
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        print(f"tokenizer loaded of type {type(tokenizer)}.")
+    elif model_type == model_types.GPT:
         print(f"loading model {model_name}..")
         model = GPT2LMHeadModel.from_pretrained(model_name)
-        print(f"model loaded. Loading tokenizer {model_name}..")
-        tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-        print("tokenizer loaded.")
-    elif model_type == model_types.GEPPETTO:
-        print(f"loading model {model_name}..")
-        model = GPT2LMHeadModel.from_pretrained(model_name)  # GPT2Model
         print(f"model loaded. Loading tokenizer {model_name}..")
         tokenizer = GPT2Tokenizer.from_pretrained(model_name)
         print("tokenizer loaded.")
@@ -126,12 +103,27 @@ def load_model(model_type, model_name, device):
         model = BertForMaskedLM.from_pretrained(
             model_name
         )  # BertForMaskedLM.from_pretrained(model_name)
+
+        if dict_name is None:
+            vocab_path = model_name
+        else:
+            vocab_path = os.path.join(model_name, "dict.txt")
+
         print(f"model loaded. Loading tokenizer {model_name}..")
+
         do_lower_case = True if "uncased" in model_name else False
         tokenizer = BertTokenizer.from_pretrained(
-            model_name, do_lower_case=do_lower_case
+            vocab_path, do_lower_case=do_lower_case
         )
         print("tokenizer loaded.")
+
+    elif model_type == model_types.GEPPETTO:
+        print(f"loading model {model_name}..")
+        model = GPT2LMHeadModel.from_pretrained(model_name)  # GPT2Model
+        print(f"model loaded. Loading tokenizer {model_name}..")
+        tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+        print("tokenizer loaded.")
+
     elif model_type in [model_types.ROBERTA]:
         print(f"loading model {model_name}..")
         model = RobertaForMaskedLM.from_pretrained(model_name)
@@ -145,7 +137,10 @@ def load_model(model_type, model_name, device):
         tokenizer = CamembertTokenizer.from_pretrained(model_name, do_lower_case=True)
         print("tokenizer loaded.")
     else:
-        return
+        raise ValueError(
+            f"ValueError, unsupported model_name: {model_name}. "
+            f"Supported models: Bert, Gpt."
+        )
 
     # put model to device (GPU/CPU)
     device = torch.device(device)
@@ -153,7 +148,21 @@ def load_model(model_type, model_name, device):
 
     # eval mode; no dropout
     model.eval()
+
     return model, tokenizer
+
+
+def load_model_and_tokenizer(
+    model_type, model_name, dict_name=None, do_lower_case=False
+):
+    return load_pretrained(
+        model_type, model_name, dict_name=dict_name, do_lower_case=do_lower_case
+    )
+
+
+def load_model(model_type, model_name, device):
+
+    return load_pretrained(model_type, model_name, device=device)
 
 
 def load_testset_data(file_path):
