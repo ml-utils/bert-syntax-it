@@ -82,6 +82,7 @@ def load_pretrained(
     dict_name=None,
     do_lower_case=False,
     force_automodel=False,
+    local_files_only=False,
 ):
     print(f"loading model_name: {model_name}..")
 
@@ -105,15 +106,15 @@ def load_pretrained(
         )  # BertForMaskedLM.from_pretrained(model_name)
 
         if dict_name is None:
-            vocab_path = model_name
+            tokenizer_path = model_name
         else:
-            vocab_path = os.path.join(model_name, "dict.txt")
+            tokenizer_path = os.path.join(model_name, dict_name)
 
-        print(f"model loaded. Loading tokenizer {model_name}..")
+        print(f"model loaded. Loading tokenizer {tokenizer_path}..")
 
         do_lower_case = True if "uncased" in model_name else False
         tokenizer = BertTokenizer.from_pretrained(
-            vocab_path, do_lower_case=do_lower_case
+            tokenizer_path, do_lower_case=do_lower_case
         )
         print("tokenizer loaded.")
 
