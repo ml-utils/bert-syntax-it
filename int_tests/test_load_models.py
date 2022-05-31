@@ -2,9 +2,12 @@ import os.path
 from itertools import islice
 from unittest import TestCase
 
+import pytest
 import torch
 from transformers import AlbertTokenizer
+from transformers import AutoTokenizer
 from transformers import BertTokenizer
+from transformers import CamembertTokenizer
 
 # import pytest
 
@@ -14,7 +17,27 @@ class TestLoadModels(TestCase):
     dict_name = "dict.txt"
     dict_path = os.path.join(model_dir, dict_name)
 
-    def load_with_BertTokenizer(self):
+    def test_load_with_AutoTokenizer(self):
+        with pytest.raises(ValueError) as val_err:
+            tokenizer = AutoTokenizer.from_pretrained(TestLoadModels.model_dir)
+            self.__test_tokenizer_helper(tokenizer)
+        print(f"{val_err}=")
+        self.assertInErrorMsg("Unrecognized model", val_err)
+        self.assertInErrorMsg(
+            "Should have a `model_type` key in its config.json, or contain one of the following strings in its name",
+            val_err,
+        )
+        self.assertInErrorMsg("bert, openai-gpt, gpt2, transfo-xl, xlnet", val_err)
+
+    def test_load_with_CamembertTokenizer(self):
+        with pytest.raises(RuntimeError) as run_err:
+            tokenizer = CamembertTokenizer.from_pretrained(TestLoadModels.dict_path)
+            self.__test_tokenizer_helper(tokenizer)
+        print(f"{run_err}=")
+        self.assertInErrorMsg("Internal", run_err)
+        self.assertInErrorMsg("sentencepiece_processor.cc", run_err)
+
+    def test_load_with_BertTokenizer(self):
         # fixme: loaded tokenizer doen not work properly (all tokens are UNK)
         #  it's using sentencepiece module, with split tokens like:
         #  'This is a test' = ['▁This', '▁is', '▁a', '▁', 't', 'est']
@@ -32,6 +55,47 @@ class TestLoadModels(TestCase):
 
         print("loading with BertTokenizer..")
         tokenizer = BertTokenizer.from_pretrained(TestLoadModels.dict_path)
+        self.__test_tokenizer_helper(tokenizer)
+
+    def test_load_with_AlbertTokenizer(self):
+        print("loading with AlbertTokenizer..")
+
+        with pytest.raises(RuntimeError) as run_err:
+            tokenizer = AlbertTokenizer.from_pretrained(TestLoadModels.dict_path)
+            self.__test_tokenizer_helper(tokenizer)
+        print(f"{run_err=}")
+        self.assertInErrorMsg("Internal", run_err)
+        self.assertInErrorMsg("sentencepiece_processor.cc", run_err)
+
+    def assertInErrorMsg(self, expected_str, error):
+        if error.type in [FileNotFoundError]:
+            msg = error.value.filename
+        elif error.type in [RuntimeError, ValueError]:
+            msg = error.value.args[0]
+        else:
+            msg = str(error)
+        self.assertIn(expected_str, msg)
+
+    def test_load_with_Torch(self):
+        print("loading with Torch..")
+
+        # see https://pytorch.org/hub/huggingface_pytorch-transformers/
+        # config = torch.hub.load("local", 'config', TestLoadModels.model_dir)
+
+        with pytest.raises(FileNotFoundError) as f_err:
+            tokenizer = torch.hub.load(
+                TestLoadModels.model_dir,
+                "tokenizer",
+                source="local",
+                pretrained=True
+                # "local", "tokenizer", TestLoadModels.model_dir,  # config=config
+            )
+            self.__test_tokenizer_helper(tokenizer)
+        print(f"{f_err=}")
+        self.assertInErrorMsg("hubconf.py", f_err)
+
+    @staticmethod
+    def __test_tokenizer_helper(tokenizer):
         print(f"Tokenizer loaded: {type(tokenizer)}.")
 
         txt = "The pen is on the table"
@@ -47,25 +111,10 @@ class TestLoadModels(TestCase):
             f"\nvocab size: {tokenizer.vocab_size}"
         )
         vocab = tokenizer.get_vocab()
-        for vocab_item in vocab.items():
-            print(
-                f"{vocab_item=}, {type(vocab_item)=}, {type(vocab_item[0])=}, {type(vocab_item[1])=}"
-            )
+        max_prints = 20
+        for token, idx in vocab.items():
+            if idx > max_prints:
+                break
+            print(f"{token=}, {idx=}")
 
         print(f"vocab: {dict(islice(vocab.items(), 0, 20))}")
-
-    def test_load_with_AlbertTokenizer(self):
-        print("loading with AlbertTokenizer..")
-        tokenizer = AlbertTokenizer.from_pretrained(TestLoadModels.dict_path)
-        print(f"Tokenizer loaded: {type(tokenizer)}.")
-
-        txt = "The pen is on the table"
-        tokens = tokenizer.tokenize(txt)
-        print(f"Sentence tokens: {tokens}")
-
-    def test_load_with_Torch(self):
-        print("loading with Torch..")
-        tokenizer = torch.hub.load(
-            TestLoadModels.model_dir, "tokenizer", source="local", pretrained=True
-        )
-        print(f"Tokenizer loaded: {type(tokenizer)}.")
