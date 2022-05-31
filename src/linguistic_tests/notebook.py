@@ -20,6 +20,7 @@ from src.linguistic_tests.compute_model_score import perc
 from src.linguistic_tests.compute_model_score import run_testset
 from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import get_sentences_from_example
+from src.linguistic_tests.lm_utils import get_syntactic_tests_dir
 from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import load_model_and_tokenizer
 from src.linguistic_tests.lm_utils import load_testset_data
@@ -694,7 +695,10 @@ def run_blimp_en():
         "adjunct_island.jsonl",
         "complex_NP_island.jsonl",
     ]
-    testset_dir_path = "./outputs/blimp/from_blim_en/islands/"
+
+    p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
+    testset_dir_path = str(p)
+
     for testset_filename in testset_filenames:
         testset_filepath = os.path.join(testset_dir_path, testset_filename)
         # './outputs/blimp/from_blim_en/islands/adjunct_island.jsonl'
@@ -734,20 +738,22 @@ def run_tests_it(model_type):
         model_name = "bert-base-uncased"  # NB bert large uncased is about 1GB
         model_name = """models/bert-base-italian-uncased/"""
         model_name = """models/bert-base-italian-cased/"""
-        model_name = "dbmdz/bert-base-italian-xxl-cased"
         model_name = "./models/bert-base-italian-xxl-cased/"
         model_name = "dbmdz/bert-base-italian-cased"
+        model_name = "dbmdz/bert-base-italian-xxl-cased"
         # model_name = f'./models/gilberto-uncased-from-camembert.tar.gz'
         # eval_suite = 'it'
     elif model_type == model_types.GILBERTO:
         model_name = "idb-ita/gilberto-uncased-from-camembert"
 
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
-
-    testsets_dir = "./outputs/syntactic_tests_it/"
+    p = (
+        get_syntactic_tests_dir() / "syntactic_tests_it"
+    )  # "./outputs/syntactic_tests_it/"
+    testsets_dir = str(p)
     testset_files = [  # 'variations_tests.jsonl'
-        "wh_adjunct_islands.jsonl"
-        # 'wh_complex_np_islands.jsonl',
+        "wh_adjunct_islands.jsonl",
+        "wh_complex_np_islands.jsonl",
         # 'wh_subject_islands.jsonl',
         # 'wh_whether_island.jsonl'
     ]
@@ -818,7 +824,9 @@ def profile_slowdowns():
     # "gpt2-large"  # 'gpt2' #  "bert-large-uncased"
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
-    testset_dir_path = "./outputs/blimp/from_blim_en/islands/"
+    p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
+    testset_dir_path = str(p)
+
     testset_filename = "mini_wh_island.jsonl"
     testset_filepath = os.path.join(testset_dir_path, testset_filename)
 
@@ -857,11 +865,11 @@ def main():
     if len(sys.argv) > 1:
         interactive_mode()
     else:
-        run_blimp_en()
+        # run_blimp_en()
         # raise SystemExit
         # print('choosing model type ..')
-        # model_type = model_types.BERT
-        # run_tests_for_model_type(model_type)
+        model_type = model_types.BERT
+        run_tests_for_model_type(model_type)
 
 
 if __name__ == "__main__":

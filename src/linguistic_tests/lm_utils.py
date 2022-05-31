@@ -1,5 +1,6 @@
 import json
 import os.path
+from pathlib import Path
 
 import cython
 import torch
@@ -45,6 +46,18 @@ class sentence_score_bases:
 class DEVICES:
     CPU = "cpu"
     CUDA = "cuda:X"
+
+
+def get_project_root() -> Path:
+    return Path(__file__).parent.parent.parent
+
+
+def get_models_dir() -> Path:
+    return get_project_root() / "models"
+
+
+def get_syntactic_tests_dir() -> Path:
+    return get_project_root() / "outputs"
 
 
 def get_pen_score(unnormalized_score, text_lenght):

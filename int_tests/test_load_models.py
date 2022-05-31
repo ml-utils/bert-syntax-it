@@ -53,6 +53,9 @@ class TestLoadModels(TestCase):
         # those of the transformers toolkit (Wolf et al.,
         # 2019)."
 
+        # see also:
+        # https://github.com/huggingface/transformers/blob/main/src/transformers/models/bert/convert_bert_pytorch_checkpoint_to_original_tf.py
+
         print("loading with BertTokenizer..")
         tokenizer = BertTokenizer.from_pretrained(TestLoadModels.dict_path)
         self.__test_tokenizer_helper(tokenizer)

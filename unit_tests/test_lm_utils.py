@@ -5,9 +5,12 @@ from unittest.mock import patch
 
 import pytest
 from linguistic_tests.lm_utils import DEVICES
+from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import get_pen_score
 from linguistic_tests.lm_utils import get_penalty_term
+from linguistic_tests.lm_utils import get_project_root
 from linguistic_tests.lm_utils import get_sentences_from_example
+from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import load_testset_data
@@ -46,6 +49,24 @@ class TestLMUtils(TestCase):
         assert get_penalty_term(text_lenght=1) == 1
         assert get_penalty_term(text_lenght=2) > 1
         assert get_penalty_term(text_lenght=3) < get_penalty_term(text_lenght=4)
+
+    def test_get_project_root(self):
+        p = get_project_root()
+        assert p.exists()
+        assert p.is_dir()
+        # todo, fixme: these dir tests should be moved to integration tests
+        # for subdir_name in ['src', 'unit_tests', 'models', 'outputs', 'int_tests']:
+        #    assert len(list(p.glob(subdir_name))) == 1, f'from {p.name} no {subdir_name}, subdirs: {str(list(p.glob("""*""")))}'
+
+    def test_get_models_dir(self):
+        p = get_models_dir()
+        assert p.name == "models"
+        # assert p.exists()
+        # assert p.is_dir()
+
+    def test_get_syntactic_tests_dir(self):
+        p = get_syntactic_tests_dir()
+        assert p.name == "outputs"
 
     def test_get_sentences_from_example(self):
         example_blimp_it_str = """  {"sentence_good_no_extraction": "Chi conosceva la novità che ti avrebbero affidato l’incarico?",
@@ -116,16 +137,29 @@ class TestLMUtils(TestCase):
         assert isinstance(model, expected_model_class)
         assert isinstance(tokenizer, expected_tokenizer_class)
 
+    @patch.object(CM_T, "from_pretrained", return_value=Mock(spec=CM_T))
+    @patch.object(CM_M, "from_pretrained", return_value=Mock(spec=CM_M))
+    @patch.object(RB_T, "from_pretrained", return_value=Mock(spec=RB_T))
+    @patch.object(RB_M, "from_pretrained", return_value=Mock(spec=RB_M))
     @patch.object(GPT_M, "from_pretrained", return_value=Mock(spec=GPT_M))
     @patch.object(GPT_T, "from_pretrained", return_value=Mock(spec=GPT_T))
     @patch.object(BRT_M, "from_pretrained", return_value=Mock(spec=BRT_M))
     @patch.object(BRT_T, "from_pretrained", return_value=Mock(spec=BRT_T))
-    def test_load_model_and_tokenizer(self, mock1, mock2, mock3, mock4):
+    def test_load_model_and_tokenizer(
+        self, mock1, mock2, mock3, mock4, mock5, mock6, mock7, mock8
+    ):
 
-        assert GPT_M.from_pretrained is mock4
-        assert GPT_T.from_pretrained is mock3
-        assert BRT_M.from_pretrained is mock2
-        assert BRT_T.from_pretrained is mock1
+        for mock in [mock1, mock2, mock3, mock4, mock5, mock6, mock7, mock8]:
+            assert mock in [
+                CM_T.from_pretrained,
+                CM_M.from_pretrained,
+                RB_T.from_pretrained,
+                RB_M.from_pretrained,
+                GPT_M.from_pretrained,
+                GPT_T.from_pretrained,
+                BRT_M.from_pretrained,
+                BRT_T.from_pretrained,
+            ]
 
         bert_name = "bert-base-uncased"
         bert, b_tokenizer = load_model_and_tokenizer(model_types.BERT, bert_name)
