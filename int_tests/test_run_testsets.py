@@ -28,7 +28,7 @@ class TestRunTestSets(TestCase):
         model_name = "dbmdz/bert-base-italian-xxl-cased"
         model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
         phenomena = [
-            "wh_adjunct_island",
+            "mini_wh_adjunct_island",
         ]
         run_sprouse_tests(
             model_type, model, tokenizer, DEVICES.CPU, phenomena=phenomena
