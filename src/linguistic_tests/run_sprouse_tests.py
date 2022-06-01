@@ -4,6 +4,7 @@ import os.path
 import pandas
 from linguistic_tests.compute_model_score import get_example_scores
 from linguistic_tests.lm_utils import DEVICES
+from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import model_types
 from matplotlib import pyplot as plt
@@ -73,7 +74,9 @@ def write_sentence_item(
 def create_test_jsonl_files_tests():
     # open csv file
     # parse ..
-    testset_filepath = get_out_dir() + "sprouse/Experiment 2 materials - Italian.csv"
+    testset_filepath = str(
+        get_syntactic_tests_dir() / "sprouse/Experiment 2 materials - Italian.csv"
+    )
     # examples = []  # sentence pairs
 
     df = pandas.read_csv(testset_filepath, sep=";", header=0, encoding="utf-8")
@@ -105,7 +108,7 @@ def create_test_jsonl_files_tests():
 
             filename = phenomenon_name + ".jsonl"
             filepath = os.path.abspath(
-                os.path.join(get_out_dir() + "sprouse/", filename)
+                os.path.join(str(get_syntactic_tests_dir() / "sprouse/"), filename)
             )
             if os.path.exists(filepath):
                 print(f"file already exists, skipping: {filepath}")
@@ -145,18 +148,21 @@ def create_test_jsonl_files_tests():
                     )
 
 
-def run_sprouse_tests(model_type, model, tokenizer, device):
+def run_sprouse_tests(model_type, model, tokenizer, device, phenomena=None):
     # testset_filepath = get_out_dir() + "blimp/from_blim_en/islands/complex_NP_island.jsonl"  # wh_island.jsonl' # adjunct_island.jsonl'
-    phenomena = [  # 'rc_adjunct_island',
-        # 'rc_complex_np', 'rc_subject_island', 'rc_wh_island', # fixme: rc_wh_island empty file
-        "wh_adjunct_island",
-        "wh_complex_np",
-        "wh_subject_island",
-        "wh_whether_island",
-    ]
+    if phenomena is None:
+        phenomena = [  # 'rc_adjunct_island',
+            # 'rc_complex_np', 'rc_subject_island', 'rc_wh_island', # fixme: rc_wh_island empty file
+            "wh_adjunct_island",
+            "wh_complex_np",
+            "wh_subject_island",
+            "wh_whether_island",
+        ]
     for phenomenon_name in phenomena:
         filename = phenomenon_name + ".jsonl"
-        filepath = os.path.abspath(os.path.join(get_out_dir() + "sprouse/", filename))
+        filepath = os.path.abspath(
+            os.path.join(str(get_syntactic_tests_dir() / "sprouse/"), filename)
+        )
         score_averages = run_sprouse_test(
             filepath, model_type, model, tokenizer, device
         )
@@ -272,10 +278,6 @@ def main():
     device = DEVICES.CPU
     model, tokenizer = load_model(model_type, model_name, device)
     run_sprouse_tests(model_type, model, tokenizer, device)
-
-
-def get_out_dir():
-    return "../../outputs/"
 
 
 if __name__ == "__main__":

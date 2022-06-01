@@ -2,7 +2,6 @@ from unittest import TestCase
 
 import pytest
 from linguistic_tests.run_sprouse_tests import create_test_jsonl_files_tests
-from linguistic_tests.run_sprouse_tests import get_out_dir
 from linguistic_tests.run_sprouse_tests import get_sentence_from_row
 from linguistic_tests.run_sprouse_tests import main
 from linguistic_tests.run_sprouse_tests import plot_all_phenomena
@@ -19,11 +18,6 @@ class TestRunSprouseTests(TestCase):
     @pytest.mark.skip("todo")
     def test_create_test_jsonl_files_tests(self):
         create_test_jsonl_files_tests()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_get_out_dir(self):
-        get_out_dir()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
