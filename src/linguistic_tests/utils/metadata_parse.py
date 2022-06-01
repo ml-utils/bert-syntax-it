@@ -6,8 +6,7 @@ import random
 import re
 
 import numpy as np
-
-from src.linguistic_tests.utils.vocab_table import *
+from linguistic_tests.utils.vocab_table import *
 
 random.seed(1)
 

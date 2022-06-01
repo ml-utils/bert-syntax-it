@@ -2,17 +2,16 @@ import pathlib
 from os.path import exists
 
 import numpy as np
-
-from src.linguistic_tests.utils import data_generator
-from src.linguistic_tests.utils.conjugate import *
-from src.linguistic_tests.utils.constituent_building import *
-from src.linguistic_tests.utils.randomize import choice
-from src.linguistic_tests.utils.vocab_sets import *
-from src.linguistic_tests.utils.vocab_sets import all_common_nouns
-from src.linguistic_tests.utils.vocab_sets import get_all
-from src.linguistic_tests.utils.vocab_sets import get_all_conjunctive
-from src.linguistic_tests.utils.vocab_table import get_matched_by
-from src.linguistic_tests.utils.vocab_table import get_matches_of
+from linguistic_tests.utils import data_generator
+from linguistic_tests.utils.conjugate import *
+from linguistic_tests.utils.constituent_building import *
+from linguistic_tests.utils.randomize import choice
+from linguistic_tests.utils.vocab_sets import *
+from linguistic_tests.utils.vocab_sets import all_common_nouns
+from linguistic_tests.utils.vocab_sets import get_all
+from linguistic_tests.utils.vocab_sets import get_all_conjunctive
+from linguistic_tests.utils.vocab_table import get_matched_by
+from linguistic_tests.utils.vocab_table import get_matches_of
 
 
 class DetNGenerator(data_generator.BenchmarkGenerator):

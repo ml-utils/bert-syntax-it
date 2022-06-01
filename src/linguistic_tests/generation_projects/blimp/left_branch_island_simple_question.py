@@ -1,9 +1,9 @@
-from src.linguistic_tests.utils import data_generator
-from src.linguistic_tests.utils.conjugate import *
-from src.linguistic_tests.utils.constituent_building import *
-from src.linguistic_tests.utils.randomize import choice
-from src.linguistic_tests.utils.vocab_sets import *
-from src.linguistic_tests.utils.vocab_table import get_matches_of
+from linguistic_tests.utils import data_generator
+from linguistic_tests.utils.conjugate import *
+from linguistic_tests.utils.constituent_building import *
+from linguistic_tests.utils.randomize import choice
+from linguistic_tests.utils.vocab_sets import *
+from linguistic_tests.utils.vocab_table import get_matches_of
 
 
 class LeftBranchGenerator(data_generator.BenchmarkGenerator):

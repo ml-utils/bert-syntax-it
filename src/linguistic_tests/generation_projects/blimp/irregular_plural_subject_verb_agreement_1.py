@@ -1,12 +1,12 @@
 from functools import reduce
 
-from src.linguistic_tests.utils import data_generator
-from src.linguistic_tests.utils.conjugate import *
-from src.linguistic_tests.utils.constituent_building import *
-from src.linguistic_tests.utils.vocab_sets import all_verbs
-from src.linguistic_tests.utils.vocab_table import get_all
-from src.linguistic_tests.utils.vocab_table import get_all_conjunctive
-from src.linguistic_tests.utils.vocab_table import get_matched_by
+from linguistic_tests.utils import data_generator
+from linguistic_tests.utils.conjugate import *
+from linguistic_tests.utils.constituent_building import *
+from linguistic_tests.utils.vocab_sets import all_verbs
+from linguistic_tests.utils.vocab_table import get_all
+from linguistic_tests.utils.vocab_table import get_all_conjunctive
+from linguistic_tests.utils.vocab_table import get_matched_by
 
 
 class AgreementGenerator(data_generator.BenchmarkGenerator):
