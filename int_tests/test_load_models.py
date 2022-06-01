@@ -5,8 +5,10 @@ from unittest import TestCase
 import pytest
 import torch
 from linguistic_tests.lm_utils import get_models_dir
+from pytest_socket import SocketBlockedError
 from transformers import AlbertTokenizer
 from transformers import AutoTokenizer
+from transformers import BertForMaskedLM
 from transformers import BertTokenizer
 from transformers import CamembertTokenizer
 
@@ -19,6 +21,11 @@ class TestLoadModels(TestCase):
     )  # "../models/bostromkaj/bpe_20k_ep20_pytorch/"
     dict_name = "dict.txt"
     dict_path = os.path.join(model_dir, dict_name)
+
+    def test_load_remotely(self):
+        # todo: re enable remote calls for integration tests
+        with pytest.raises(SocketBlockedError):
+            _ = BertForMaskedLM.from_pretrained("bert-base")
 
     @pytest.mark.skip(
         "fails if run from pytest, passes from jb (pycharm) pytest runner"
