@@ -2,20 +2,19 @@ import math
 
 import numpy as np
 import torch
+from linguistic_tests.lm_utils import get_pen_score
+from linguistic_tests.lm_utils import get_sentences_from_example
+from linguistic_tests.lm_utils import print_orange
+from linguistic_tests.lm_utils import print_red
+from linguistic_tests.lm_utils import sent_idx
+from linguistic_tests.lm_utils import sentence_score_bases
+from linguistic_tests.lm_utils import special_tokens
 from scipy.special import softmax
 from transformers import BertForMaskedLM as BertForMaskedLM
 from transformers import BertForMaskedLM as BertPreTrainedModel
 from transformers import BertTokenizer
 from transformers import GPT2LMHeadModel
 from transformers.modeling_outputs import MaskedLMOutput
-
-from src.linguistic_tests.lm_utils import get_pen_score
-from src.linguistic_tests.lm_utils import get_sentences_from_example
-from src.linguistic_tests.lm_utils import print_orange
-from src.linguistic_tests.lm_utils import print_red
-from src.linguistic_tests.lm_utils import sent_idx
-from src.linguistic_tests.lm_utils import sentence_score_bases
-from src.linguistic_tests.lm_utils import special_tokens
 
 
 def analize_sentence(

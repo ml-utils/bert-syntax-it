@@ -2,13 +2,12 @@ from functools import reduce
 
 import numpy as np
 import torch
+from linguistic_tests.lm_utils import get_penalty_term
+from linguistic_tests.lm_utils import get_sentences_from_example
+from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import sent_idx
 from scipy.special import softmax
 from tqdm import tqdm
-
-from src.linguistic_tests.lm_utils import get_penalty_term
-from src.linguistic_tests.lm_utils import get_sentences_from_example
-from src.linguistic_tests.lm_utils import model_types
-from src.linguistic_tests.lm_utils import sent_idx
 
 
 def run_testset(model_type, model, tokenizer, device, testset, sentences_per_example):

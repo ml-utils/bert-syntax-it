@@ -2,13 +2,12 @@ import json
 import os.path
 
 import pandas
+from linguistic_tests.compute_model_score import get_example_scores
+from linguistic_tests.lm_utils import DEVICES
+from linguistic_tests.lm_utils import load_model
+from linguistic_tests.lm_utils import model_types
 from matplotlib import pyplot as plt
 from tqdm import tqdm
-
-from src.linguistic_tests.compute_model_score import get_example_scores
-from src.linguistic_tests.lm_utils import DEVICES
-from src.linguistic_tests.lm_utils import load_model
-from src.linguistic_tests.lm_utils import model_types
 
 
 # todo: parse the csv file

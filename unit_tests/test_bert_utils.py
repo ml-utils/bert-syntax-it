@@ -4,6 +4,7 @@ from unittest import TestCase
 from unittest.mock import Mock
 from unittest.mock import patch
 
+import linguistic_tests
 import pandas as pd
 import pytest
 import torch
@@ -21,6 +22,7 @@ from linguistic_tests.bert_utils import get_probs_for_words
 from linguistic_tests.bert_utils import get_score_descr
 from linguistic_tests.bert_utils import get_sentence_probs_from_word_ids
 from linguistic_tests.bert_utils import get_sentence_scores
+from linguistic_tests.bert_utils import get_topk
 from linguistic_tests.bert_utils import get_topk_tokens_from_bert_output
 from linguistic_tests.bert_utils import print_orange
 from linguistic_tests.bert_utils import tokenize_sentence
@@ -34,9 +36,6 @@ from transformers import BertForMaskedLM as BRT_M
 from transformers import BertTokenizer as BRT_T
 from transformers import BertTokenizerFast
 from transformers.modeling_outputs import MaskedLMOutput
-
-import src
-from src.linguistic_tests.bert_utils import get_topk
 
 # from linguistic_tests.bert_utils import get_topk
 
@@ -222,7 +221,7 @@ class TestBertUtils(TestCase):
             torch.rand(vocab_size),
         )
         mock_get_bert_output = self.create_patch(
-            "src.linguistic_tests.bert_utils.get_bert_output"
+            "linguistic_tests.bert_utils.get_bert_output"
         )
         mock_get_bert_output.return_value = (
             res_m,
@@ -230,12 +229,12 @@ class TestBertUtils(TestCase):
             res_normalized_m,
             None,
         )
-        assert src.linguistic_tests.bert_utils.get_bert_output is mock_get_bert_output
+        assert linguistic_tests.bert_utils.get_bert_output is mock_get_bert_output
 
         topk_tokens_m = random.sample(range(0, vocab_size - 1), k)
         topk_probs_m = torch.rand(k)
         mock_get_topk_tokens_from_bert_output = self.create_patch(
-            "src.linguistic_tests.bert_utils.get_topk_tokens_from_bert_output"
+            "linguistic_tests.bert_utils.get_topk_tokens_from_bert_output"
         )
         mock_get_topk_tokens_from_bert_output.return_value = (
             topk_tokens_m,
