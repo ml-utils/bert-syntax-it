@@ -7,10 +7,12 @@ addopts = [
     "--cov=linguistic_tests",
     "--cov-report=term",
     "--cov-report=html",
+    "--disable-socket",
 ]
 testpaths = [
     "unit_tests",
 ]
+python_files = ["test_*.py",]
 norecursedirs = [
     "src/linguistic_tests/generation_projects/*",
     "src/linguistic_tests/generation_projects/blimp/*",
@@ -33,6 +35,7 @@ norecursedirs = [
     "unit_tests/.benchmarks",
     "unit_tests/coverage_html_report",
     "unit_tests/htmlcov",
+    "*py_cache*",
 ]
 
 [tool.coverage.run]
