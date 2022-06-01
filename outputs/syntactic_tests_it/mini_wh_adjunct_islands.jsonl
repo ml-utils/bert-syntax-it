@@ -1,0 +1,22 @@
+{"sentences": [
+
+  {"sentence_good_no_extraction": "Chi è partito per Parigi dopo aver fatto le valigie?",
+  "sentence_bad_extraction": "Che cosa Gianni è partito per Parigi dopo aver fatto?",
+  "sentence_good_no_island": "Dopo aver fatto cosa, Gianni è partito per Parigi?",
+  "field": "syntax",
+  "linguistics_term": "island_effects",
+  "UID": "wh_island",
+  "island_subcategory": "adjunct_island",
+    "pairID": "0"},
+
+  {"sentence_good_no_extraction": "Chi ha organizzato una festa dopo aver superato l’esame?",
+    "sentence_bad_extraction": "Che cosa Luisa ha organizzato una festa dopo aver superato?",
+    "sentence_good_no_island": "Dopo aver superato cosa, Luisa ha organizzato una festa?",
+    "field": "syntax",
+    "linguistics_term": "island_effects",
+    "UID": "wh_island",
+    "island_subcategory": "adjunct_island",
+    "pairID": "1"}
+
+]
+}

@@ -40,6 +40,6 @@ class TestRunTestSets(TestCase):
         # todo: slow test, use smaller testset file
         model_type = model_types.BERT
         testset_files = [
-            "wh_adjunct_islands.jsonl",
+            "mini_wh_adjunct_islands.jsonl",
         ]
         run_tests_it(model_type, testset_files=testset_files)
