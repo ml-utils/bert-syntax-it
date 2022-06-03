@@ -11,6 +11,7 @@ from transformers import AutoTokenizer
 from transformers import BertForMaskedLM
 from transformers import BertTokenizer
 from transformers import CamembertTokenizer
+from transformers import RobertaTokenizer
 
 # import pytest
 
@@ -21,6 +22,8 @@ class TestLoadModels(TestCase):
     )  # "../models/bostromkaj/bpe_20k_ep20_pytorch/"
     dict_name = "dict.txt"
     dict_path = os.path.join(model_dir, dict_name)
+    torch_model_filename = "pytorch_model.bin"
+    torch_model_path = model_dir + "/" + torch_model_filename
 
     def test_load_remotely(self):
         # todo: re enable remote calls for integration tests
@@ -49,6 +52,45 @@ class TestLoadModels(TestCase):
         print(f"{run_err}=")
         self.assertInErrorMsg("Internal", run_err)
         self.assertInErrorMsg("sentencepiece_processor.cc", run_err)
+
+    def test_load_with_RobertaTokenizer(self):
+
+        # Load the model in fairseq
+        from fairseq.models.roberta import RobertaModel
+
+        roberta = RobertaModel.from_pretrained(
+            TestLoadModels.model_dir
+        )  # , checkpoint_file='pytorch_model.bin'
+        roberta.eval()  # disable dropout (or leave in train mode to finetune)
+        tokens = roberta.encode("Hello world!")
+        print(f"tokens: {tokens}")
+        assert tokens.tolist() == [0, 31414, 232, 328, 2]
+        print(roberta.decode(tokens))  # 'Hello world!'
+
+        tokenizer = RobertaTokenizer.from_pretrained(
+            r"E:/dev/code/bert-syntax-it/models/bostromkaj/bpe_20k_ep20_pytorch/"
+        )
+        # TestLoadModels.model_dir + "/", do_lower_case=True)
+        # tokenizer = RobertaTokenizer.from_pretrained(
+        self.__test_tokenizer_helper(tokenizer)
+
+    def test_load_with_Torch(self):
+        import torch
+
+        # model = Net()
+        # optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+
+        checkpoint = torch.load(TestLoadModels.torch_model_path)
+        print(f"{type(checkpoint)}, len: {len(checkpoint)}")
+
+        # gives "roberta.embeddings"
+
+        # model.load_state_dict(checkpoint['model_state_dict'])
+        # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        # epoch = checkpoint['epoch']
+        # loss = checkpoint['loss']
+        #
+        # model.eval()
 
     def test_load_with_BertTokenizer(self):
         # fixme: loaded tokenizer doen not work properly (all tokens are UNK)
@@ -92,7 +134,7 @@ class TestLoadModels(TestCase):
             msg = str(error)
         self.assertIn(expected_str, msg)
 
-    def test_load_with_Torch(self):
+    def test_load_with_TorchHub(self):
         print("loading with Torch..")
 
         # see https://pytorch.org/hub/huggingface_pytorch-transformers/
