@@ -149,6 +149,9 @@ def create_test_jsonl_files_tests():
 
 
 def run_sprouse_tests(model_type, model, tokenizer, device, phenomena=None):
+
+    # todo: compare results (for each phenomena) on the 8 original Sprouse sentences, and the new 50 italian ones
+
     # testset_filepath = get_out_dir() + "blimp/from_blim_en/islands/complex_NP_island.jsonl"  # wh_island.jsonl' # adjunct_island.jsonl'
     if phenomena is None:
         phenomena = [  # 'rc_adjunct_island',

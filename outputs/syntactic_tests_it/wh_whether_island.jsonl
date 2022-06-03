@@ -1,9 +1,9 @@
 {"sentences": [
 
-  {"sentence_good_no_extraction": "Ti chiedi se non apprezzerà il regalo?",
-  "sentence_bad_extraction": "Che cosa ti chiedi se non apprezzerà?",
-  "sentence_good_extraction_resumption": "Di che cosa ti chiedi se non la apprezzerà?",
-  "sentence_good_extraction_as_subject": "Di che cosa ti chiedi se non verrà apprezzata da lei?",
+  {"sentence_good_no_extraction": "Chi si domanda se io abbia apprezzato il regalo?",
+  "sentence_bad_extraction": "Cosa ti domandi se io abbia apprezzato?",
+  "sentence_good_extraction_resumption": "Cosa pensi che io abbia apprezzato?",
+  "sentence_good_extraction_as_subject": "Chi pensa che io abbia apprezzato il regalo?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
