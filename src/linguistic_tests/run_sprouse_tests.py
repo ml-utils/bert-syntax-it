@@ -152,6 +152,14 @@ def run_sprouse_tests(model_type, model, tokenizer, device, phenomena=None):
 
     # todo: compare results (for each phenomena) on the 8 original Sprouse sentences, and the new 50 italian ones
 
+    # todo: see activation levels in the model layers, try to identify several phenomena: clause segmentation,
+    #  different constructs, long vs short dependencies, wh vs rc dependencies, islands vs non islands
+
+    # todo: see if the pretrained models by Bostrom et al. 2020 perform better (on Sprouse and Blimp english test data )
+    #  when they use more linguistically plausible subwords units for tokenization.
+
+    # todo: add a max_examples variable to limit the tested examples to a fixed number, while still having more for some phenomena
+
     # testset_filepath = get_out_dir() + "blimp/from_blim_en/islands/complex_NP_island.jsonl"  # wh_island.jsonl' # adjunct_island.jsonl'
     if phenomena is None:
         phenomena = [  # 'rc_adjunct_island',
