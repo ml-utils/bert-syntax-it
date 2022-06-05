@@ -24,6 +24,7 @@ from linguistic_tests.lm_utils import model_types
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import sentence_score_bases
+from linguistic_tests.utils import vocab_it
 from torch.utils.hipify.hipify_python import bcolors
 from tqdm import tqdm
 
@@ -598,3 +599,17 @@ def profile_slowdowns():
     stats = pstats.Stats(pr)
     stats.sort_stats(pstats.SortKey.TIME)
     stats.print_stats()
+
+
+def t_determiner_noun_agreement_1():
+    from generation_projects.blimp import determiner_noun_agreement_1
+
+    generator = determiner_noun_agreement_1.DetNGenerator()
+    generator.generate_paradigm(
+        rel_output_path="outputs/blimp/%s.jsonl" % generator.uid
+    )
+
+
+def print_profession_nouns():
+    for noun in vocab_it.nouns_professions:
+        print(noun + " ")
