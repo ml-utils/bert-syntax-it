@@ -18,6 +18,9 @@ norecursedirs = [
     "src/linguistic_tests/generation_projects/*",
     "src/linguistic_tests/generation_projects/blimp/*",
     "src/linguistic_tests/utils/*",
+    "*/linguistic_tests/generation_projects/*",
+    "*/linguistic_tests/generation_projects/blimp/*",
+    "*/linguistic_tests/utils/*",
     ".benchmarks",
     ".git",
     ".github",
@@ -54,6 +57,7 @@ omit = [
     "utils/*",
     "utils",
     "*/linguistic_tests/utils/*",
+    "*/site-packages/linguistic_tests/*",
 ]
 
 [tool.coverage.report]
@@ -67,6 +71,7 @@ omit = [
     "utils/*",
     "utils",
     "*/linguistic_tests/utils/*",
+    "*/site-packages/linguistic_tests/*",
 ]
 
 [tool.coverage.html]
