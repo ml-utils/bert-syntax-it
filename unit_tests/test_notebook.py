@@ -1,36 +1,36 @@
 from unittest import TestCase
 
 import pytest
-from linguistic_tests.notebook import arg_parse
-from linguistic_tests.notebook import basic_sentence_test
-from linguistic_tests.notebook import custom_eval
-from linguistic_tests.notebook import eval_gulordava
-from linguistic_tests.notebook import eval_it
-from linguistic_tests.notebook import eval_lgd
-from linguistic_tests.notebook import eval_marvin
-from linguistic_tests.notebook import get_example_analysis_as_tuple
 from linguistic_tests.notebook import get_masked_word_probability
-from linguistic_tests.notebook import get_perc
 from linguistic_tests.notebook import interactive_mode
-from linguistic_tests.notebook import load_it
-from linguistic_tests.notebook import load_marvin
 from linguistic_tests.notebook import main
 from linguistic_tests.notebook import print_detailed_sentence_info
-from linguistic_tests.notebook import print_example
-from linguistic_tests.notebook import print_sentence_pairs_probabilities
-from linguistic_tests.notebook import print_sentences_sorted_by_score
-from linguistic_tests.notebook import profile_slowdowns
-from linguistic_tests.notebook import read_gulordava
-from linguistic_tests.notebook import rnd
 from linguistic_tests.notebook import run_agreement_tests
 from linguistic_tests.notebook import run_blimp_en
-from linguistic_tests.notebook import run_eval
 from linguistic_tests.notebook import run_tests_blimp
 from linguistic_tests.notebook import run_tests_for_model_type
 from linguistic_tests.notebook import run_tests_goldberg
 from linguistic_tests.notebook import run_tests_it
 from linguistic_tests.notebook import run_tests_lau_et_al
-from linguistic_tests.notebook import run_testset_bert
+from linguistic_tests.run_legacy_tests import arg_parse
+from linguistic_tests.run_legacy_tests import basic_sentence_test
+from linguistic_tests.run_legacy_tests import custom_eval
+from linguistic_tests.run_legacy_tests import eval_gulordava
+from linguistic_tests.run_legacy_tests import eval_it
+from linguistic_tests.run_legacy_tests import eval_lgd
+from linguistic_tests.run_legacy_tests import eval_marvin
+from linguistic_tests.run_legacy_tests import get_example_analysis_as_tuple
+from linguistic_tests.run_legacy_tests import get_perc
+from linguistic_tests.run_legacy_tests import load_it
+from linguistic_tests.run_legacy_tests import load_marvin
+from linguistic_tests.run_legacy_tests import print_example
+from linguistic_tests.run_legacy_tests import print_sentence_pairs_probabilities
+from linguistic_tests.run_legacy_tests import print_sentences_sorted_by_score
+from linguistic_tests.run_legacy_tests import profile_slowdowns
+from linguistic_tests.run_legacy_tests import read_gulordava
+from linguistic_tests.run_legacy_tests import rnd
+from linguistic_tests.run_legacy_tests import run_eval
+from linguistic_tests.run_legacy_tests import run_testset_bert
 
 
 class TestNotebook(TestCase):
