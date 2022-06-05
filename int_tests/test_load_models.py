@@ -53,6 +53,7 @@ class TestLoadModels(TestCase):
         self.assertInErrorMsg("Internal", run_err)
         self.assertInErrorMsg("sentencepiece_processor.cc", run_err)
 
+    @pytest.mark.skip("todo")
     def test_load_with_RobertaTokenizer(self):
 
         # Load the model in fairseq

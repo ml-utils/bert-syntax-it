@@ -5,9 +5,9 @@ import pytest
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import model_types
-from linguistic_tests.notebook import run_blimp_en
-from linguistic_tests.notebook import run_tests_it
 from linguistic_tests.run_sprouse_tests import run_sprouse_tests
+from linguistic_tests.run_syntactic_tests import run_blimp_en
+from linguistic_tests.run_syntactic_tests import run_tests_it
 from matplotlib import pyplot as plt
 
 

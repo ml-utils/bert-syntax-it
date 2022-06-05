@@ -1,17 +1,8 @@
 from unittest import TestCase
 
 import pytest
-from linguistic_tests.notebook import get_masked_word_probability
 from linguistic_tests.notebook import interactive_mode
 from linguistic_tests.notebook import main
-from linguistic_tests.notebook import print_detailed_sentence_info
-from linguistic_tests.notebook import run_agreement_tests
-from linguistic_tests.notebook import run_blimp_en
-from linguistic_tests.notebook import run_tests_blimp
-from linguistic_tests.notebook import run_tests_for_model_type
-from linguistic_tests.notebook import run_tests_goldberg
-from linguistic_tests.notebook import run_tests_it
-from linguistic_tests.notebook import run_tests_lau_et_al
 from linguistic_tests.run_legacy_tests import arg_parse
 from linguistic_tests.run_legacy_tests import basic_sentence_test
 from linguistic_tests.run_legacy_tests import custom_eval
@@ -31,6 +22,15 @@ from linguistic_tests.run_legacy_tests import read_gulordava
 from linguistic_tests.run_legacy_tests import rnd
 from linguistic_tests.run_legacy_tests import run_eval
 from linguistic_tests.run_legacy_tests import run_testset_bert
+from linguistic_tests.run_syntactic_tests import get_masked_word_probability
+from linguistic_tests.run_syntactic_tests import print_detailed_sentence_info
+from linguistic_tests.run_syntactic_tests import run_agreement_tests
+from linguistic_tests.run_syntactic_tests import run_blimp_en
+from linguistic_tests.run_syntactic_tests import run_tests_blimp
+from linguistic_tests.run_syntactic_tests import run_tests_for_model_type
+from linguistic_tests.run_syntactic_tests import run_tests_goldberg
+from linguistic_tests.run_syntactic_tests import run_tests_it
+from linguistic_tests.run_syntactic_tests import run_tests_lau_et_al
 
 
 class TestNotebook(TestCase):
