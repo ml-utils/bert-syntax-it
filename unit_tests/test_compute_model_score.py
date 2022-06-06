@@ -293,7 +293,38 @@ class TestComputeModelScore(TestCase):
 
         self.assertEqual(actual, expected)
 
-    @pytest.mark.skip("todo")
     def test_run_testset(self):
-        run_testset()
-        raise NotImplementedError
+
+        example_sentences = [
+            "Chi è partito per Parigi dopo aver fatto le valigie?",
+            "Che cosa Gianni è partito per Parigi dopo aver fatto?",
+            "Dopo aver fatto cosa, Gianni è partito per Parigi?",
+        ]
+        testset = {
+            "sentences": {
+                0: example_sentences[0],
+                1: example_sentences[1],
+                2: example_sentences[2],
+            }
+        }
+        mocked_model_score = (
+            [0.1, 0.2, 0.3],
+            [0.1, 0.2, 0.3],
+            [0.1, 0.2, 0.3],
+            [0.1, 0.2, 0.3],
+            example_sentences,
+        )
+        model = None
+        tokenizer = None
+        sentences_per_example = len(testset["sentences"])
+        with patch.object(
+            compute_model_score, "get_example_scores", return_value=mocked_model_score
+        ) as _:
+            run_testset(
+                model_types.BERT,
+                model,
+                tokenizer,
+                DEVICES.CPU,
+                testset,
+                sentences_per_example,
+            )
