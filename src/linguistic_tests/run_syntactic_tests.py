@@ -119,8 +119,8 @@ def run_tests_it(model_type, testset_files=None):
     testsets_dir = str(p)
     if testset_files is None:
         testset_files = [  # 'variations_tests.jsonl'
-            # "wh_adjunct_islands.jsonl",
-            # "wh_complex_np_islands.jsonl",
+            "wh_adjunct_islands.jsonl",
+            "wh_complex_np_islands.jsonl",
             "wh_subject_islands.jsonl",
             "wh_whether_island.jsonl",
         ]

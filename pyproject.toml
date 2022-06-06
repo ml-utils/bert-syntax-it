@@ -43,10 +43,9 @@ norecursedirs = [
 ]
 
 [tool.coverage.run]
--source = [
+source = [
     "linguistic_tests",
 ]
-
 omit = [
     "src/linguistic_tests/generation_projects/*",
     "src/linguistic_tests/generation_projects/blimp/*",
@@ -57,21 +56,6 @@ omit = [
     "utils/*",
     "utils",
     "*/linguistic_tests/utils/*",
-    "*/site-packages/linguistic_tests/*",
-]
-
-[tool.coverage.report]
-omit = [
-    "src/linguistic_tests/generation_projects/*",
-    "src/linguistic_tests/generation_projects/blimp/*",
-    "src/linguistic_tests/utils/*",
-    "src/linguistic_tests/utils",
-    "linguistic_tests/utils/*",
-    "linguistic_tests/utils",
-    "utils/*",
-    "utils",
-    "*/linguistic_tests/utils/*",
-    "*/site-packages/linguistic_tests/*",
 ]
 
 [tool.coverage.html]

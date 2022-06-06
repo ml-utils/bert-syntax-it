@@ -284,4 +284,4 @@ def get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, devi
             )
         return lp, tokens_scores
     else:
-        print(f"Error: unrecognized model type {model_type}")
+        raise ValueError(f"Error: unrecognized model type {model_type}")

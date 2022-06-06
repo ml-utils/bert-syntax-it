@@ -112,8 +112,14 @@ def main():
         # run_blimp_en()
         # raise SystemExit
         # print('choosing model type ..')
-        model_type = model_types.BERT
-        run_tests_for_model_type(model_type)
+        models_to_run = [
+            model_types.BERT,
+            model_types.GEPPETTO,
+            model_types.GPT,
+            model_types.GILBERTO,
+        ]
+        for model_type in models_to_run:
+            run_tests_for_model_type(model_type)
 
 
 if __name__ == "__main__":
