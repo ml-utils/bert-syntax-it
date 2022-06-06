@@ -197,6 +197,24 @@ def perc(value, total):
 
 # nb, for bert it uses softmax
 def get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, device):
+    """
+
+    :param model_type:
+    :param model:
+    :param tokenizer:
+    :param sentence_tokens:
+    :param device:
+    :return:
+    A tuple (lp, tokens_scores), where lp is an acceptability estimate of the
+    given sentence, while tokens_scores are the pre-softmax output of the model
+    for each sentence obtained by masking one of its tokens. Tokens_scores is
+    none for Gpt models, it is given only for Bert like mdels to allow for
+    alternative estimates of the sentence acceptability.
+    For Gpt models, lp is the output loss of the model for the given sentence,
+    while for Bert models is an estimate obtained by summing the logs of the
+    scores given by the model as a prediction for each of the tokens in the
+    sentence when it is masked.
+    """
     if len(sentence_tokens) == 0:
         return -200, None
 
