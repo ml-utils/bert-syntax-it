@@ -1,5 +1,6 @@
 import json
 import os.path
+from enum import IntEnum
 
 import pandas
 from linguistic_tests.compute_model_score import get_example_scores
@@ -9,6 +10,20 @@ from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import model_types
 from matplotlib import pyplot as plt
 from tqdm import tqdm
+
+
+class SprouseSentencesOrder(IntEnum):
+    SHORT_NONISLAND = 0
+    LONG_NONISLAND = 1
+    SHORT_ISLAND = 2
+    LONG_ISLAND = 3
+
+
+class BlimpSentencesOrder(IntEnum):
+    SHORT_ISLAND = 0
+    LONG_ISLAND = 1
+    LONG_NONISLAND = 2
+    SHORT_NONISLAND = 3
 
 
 # todo: parse the csv file
@@ -149,7 +164,13 @@ def create_test_jsonl_files_tests():
 
 
 def run_sprouse_tests(
-    model_type, model, tokenizer, device, phenomena=None, tests_dir=None
+    model_type,
+    model,
+    tokenizer,
+    device,
+    phenomena=None,
+    tests_dir=None,
+    sentence_ordering=SprouseSentencesOrder,
 ):
 
     # todo: compare results (for each phenomena) on the 8 original Sprouse sentences, and the new 50 italian ones
@@ -177,7 +198,12 @@ def run_sprouse_tests(
         filename = phenomenon_name + ".jsonl"
         filepath = os.path.abspath(os.path.join(tests_dir, filename))
         score_averages = run_sprouse_test(
-            filepath, model_type, model, tokenizer, device
+            filepath,
+            model_type,
+            model,
+            tokenizer,
+            device,
+            sentence_ordering=sentence_ordering,
         )
         plot_results(phenomenon_name, score_averages, "lp")
 
@@ -206,7 +232,14 @@ def plot_results(phenomenon_name, score_averages, score_descr):
     plt.show()
 
 
-def run_sprouse_test(filepath, model_type, model, tokenizer, device):
+def run_sprouse_test(
+    filepath,
+    model_type,
+    model,
+    tokenizer,
+    device,
+    sentence_ordering=SprouseSentencesOrder,
+):
     print(f"loading testset file {filepath}..")
     with open(filepath, mode="r", encoding="utf-8") as json_file:
         json_list = list(json_file)
@@ -226,12 +259,27 @@ def run_sprouse_test(filepath, model_type, model, tokenizer, device):
     testset = {"sentences": examples}
 
     # run_testset(model_type, model, tokenizer, device, testset)
-    lp_averages = run_sprouse_test_helper(model_type, model, tokenizer, device, testset)
+    lp_averages = run_sprouse_test_helper(
+        model_type,
+        model,
+        tokenizer,
+        device,
+        testset,
+        sentence_ordering=sentence_ordering,
+    )
     print(f"{lp_averages=}")
     return lp_averages
 
 
-def run_sprouse_test_helper(model_type, model, tokenizer, device, testset):
+def run_sprouse_test_helper(
+    model_type,
+    model,
+    tokenizer,
+    device,
+    testset,
+    examples_in_sprouse_format=True,
+    sentence_ordering=SprouseSentencesOrder,
+):
     sent_ids = []
     sentences_per_example = 4
     examples_count = len(testset["sentences"])
@@ -257,7 +305,7 @@ def run_sprouse_test_helper(model_type, model, tokenizer, device, testset):
             sent_ids,
             tokenizer,
             sentences_per_example,
-            sprouse_format=True,
+            sprouse_format=examples_in_sprouse_format,
         )
 
         #     sentence_item = {'short_nonisland': good_sentence_short_nonisland,
@@ -265,12 +313,12 @@ def run_sprouse_test_helper(model_type, model, tokenizer, device, testset):
         #                      'long_nonisland': good_sentence_long_nonisland,
         #                      'sentence_bad': sentence_bad}
 
-        DDs_with_lp.append(get_dd_score(lps))
-        DDs_with_pen_lp.append(get_dd_score(pen_lps))
-        lp_short_nonisland_average += lps[0]
-        lp_long_nonisland_avg += lps[1]
-        lp_short_island_avg += lps[2]
-        lp_long_island_avg += lps[3]
+        DDs_with_lp.append(get_dd_score(lps, sentence_ordering))
+        DDs_with_pen_lp.append(get_dd_score(pen_lps, sentence_ordering))
+        lp_short_nonisland_average += lps[sentence_ordering.SHORT_NONISLAND]
+        lp_long_nonisland_avg += lps[sentence_ordering.LONG_NONISLAND]
+        lp_short_island_avg += lps[sentence_ordering.SHORT_ISLAND]
+        lp_long_island_avg += lps[sentence_ordering.LONG_ISLAND]
         penlp_short_nonisland_average += pen_lps[0]
     lp_short_nonisland_average /= examples_count
     lp_long_nonisland_avg /= examples_count
@@ -283,14 +331,23 @@ def run_sprouse_test_helper(model_type, model, tokenizer, device, testset):
         lp_short_island_avg,
         lp_long_island_avg,
     ]
+
+    correc_count_DD_lp = len([x for x in DDs_with_lp if x > 0])
+    accuracy_DD_lp = correc_count_DD_lp / len(DDs_with_lp)
+    print(f"accuracy with DDs_with_lp: {accuracy_DD_lp}")
+    correc_count_DD_penlp = len([x for x in DDs_with_pen_lp if x > 0])
+    accuracy_DD_penlp = correc_count_DD_penlp / len(DDs_with_lp)
+    print(f"accuracy with DDs_with_penlp: {accuracy_DD_penlp}")
+
     return lp_averages
 
 
-def get_dd_score(sentences_scores):
-    a_short_nonisland_idx = 0
-    b_long_nonisland = 1
-    c_short_island = 2
-    d_long_island = 3
+def get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
+
+    a_short_nonisland_idx = sentences_ordering.SHORT_NONISLAND
+    b_long_nonisland = sentences_ordering.LONG_NONISLAND
+    c_short_island = sentences_ordering.SHORT_ISLAND
+    d_long_island = sentences_ordering.LONG_ISLAND
     example_lenght_effect_with_lp = (
         sentences_scores[a_short_nonisland_idx] - sentences_scores[b_long_nonisland]
     )
@@ -324,8 +381,19 @@ def main():
     model_name = "dbmdz/bert-base-italian-xxl-cased"  # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
     device = DEVICES.CPU
     model, tokenizer = load_model(model_type, model_name, device)
+    tests_dir = str(get_syntactic_tests_dir() / "syntactic_tests_it/")
+    phenomena = [
+        "wh_whether_island.jsonl",
+        "wh_subject_island.jsonl",
+    ]
     run_sprouse_tests(
-        model_type, model, tokenizer, device, phenomena=[], tests_dir=None
+        model_type,
+        model,
+        tokenizer,
+        device,
+        phenomena=phenomena,
+        tests_dir=tests_dir,
+        sentence_ordering=BlimpSentencesOrder,
     )
 
 
