@@ -5,6 +5,7 @@ from pathlib import Path
 import cython
 import torch
 from torch.utils.hipify.hipify_python import bcolors
+from tqdm import tqdm
 from transformers import AutoModel
 from transformers import AutoTokenizer
 from transformers import BertForMaskedLM  # BertModel as BertForMaskedLM  #
@@ -179,15 +180,36 @@ def load_model(model_type, model_name, device):
     return load_pretrained(model_type, model_name, device=device)
 
 
-def load_testset_data(file_path):
-    with open(file_path, mode="r", encoding="utf-8") as json_file:
-        # json_list = list(json_file)
-        testset_data = json.load(json_file)
+def load_testset_data(file_path, examples_format="blimp"):
+    if examples_format == "blimp":
+        with open(file_path, mode="r", encoding="utf-8") as json_file:
+            # json_list = list(json_file)
+            testset_data = json.load(json_file)
 
-        # for i in data:
-        #    print(i)
+            # for i in data:
+            #    print(i)
+        return testset_data
+    elif examples_format == "sprouse":
+        print(f"loading testset file {file_path}..")
+        with open(file_path, mode="r", encoding="utf-8") as json_file:
+            json_list = list(json_file)
+        print("testset loaded.")
 
-    return testset_data
+        examples = []
+        for json_str in tqdm(json_list):
+            example = json.loads(json_str)
+            # print(f"result: {example}")
+            # print(isinstance(example, dict))
+            # parsed_example = read_sentences_item(example)
+            # sentence_good = example['sentence_good']
+            # sentence_bad = example['sentence_bad']
+            examples.append(
+                example
+            )  # {'sentence_good': sentence_good, 'sentence_bad': sentence_bad, 'sentence_good_2nd': ""})
+        testset = {"sentences": examples}
+        return testset
+    else:
+        raise ValueError(f"unrecognized testset file format arg: {examples_format}")
 
 
 def get_sentences_from_example(

@@ -7,6 +7,7 @@ from linguistic_tests.compute_model_score import get_example_scores
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
+from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
 from matplotlib import pyplot as plt
 from tqdm import tqdm
@@ -170,6 +171,7 @@ def run_sprouse_tests(
     device,
     phenomena=None,
     tests_dir=None,
+    examples_format="sprouse",
     sentence_ordering=SprouseSentencesOrder,
 ):
 
@@ -203,6 +205,7 @@ def run_sprouse_tests(
             model,
             tokenizer,
             device,
+            examples_format=examples_format,
             sentence_ordering=sentence_ordering,
         )
         plot_results(phenomenon_name, score_averages, "lp")
@@ -238,25 +241,10 @@ def run_sprouse_test(
     model,
     tokenizer,
     device,
+    examples_format="sprouse",
     sentence_ordering=SprouseSentencesOrder,
 ):
-    print(f"loading testset file {filepath}..")
-    with open(filepath, mode="r", encoding="utf-8") as json_file:
-        json_list = list(json_file)
-    print("testset loaded.")
-
-    examples = []
-    for json_str in tqdm(json_list):
-        example = json.loads(json_str)
-        # print(f"result: {example}")
-        # print(isinstance(example, dict))
-        # parsed_example = read_sentences_item(example)
-        # sentence_good = example['sentence_good']
-        # sentence_bad = example['sentence_bad']
-        examples.append(
-            example
-        )  # {'sentence_good': sentence_good, 'sentence_bad': sentence_bad, 'sentence_good_2nd': ""})
-    testset = {"sentences": examples}
+    testset = load_testset_data(filepath, examples_format=examples_format)
 
     # run_testset(model_type, model, tokenizer, device, testset)
     lp_averages = run_sprouse_test_helper(
@@ -368,7 +356,7 @@ def get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
     return example_dd_with_lp
 
 
-def assert_almost_equale(val1, val2, precision=15):
+def assert_almost_equale(val1, val2, precision=14):
     assert abs(val1 - val2) < 10 ** (-1 * precision), (
         f"val1:{val1}, val2: {val2}, " f"diff: {val1-val2}"
     )
@@ -383,8 +371,8 @@ def main():
     model, tokenizer = load_model(model_type, model_name, device)
     tests_dir = str(get_syntactic_tests_dir() / "syntactic_tests_it/")
     phenomena = [
-        "wh_whether_island",
-        "wh_subject_island",
+        # "wh_whether_island",
+        "wh_subject_islands",
     ]
     run_sprouse_tests(
         model_type,
@@ -393,6 +381,7 @@ def main():
         device,
         phenomena=phenomena,
         tests_dir=tests_dir,
+        examples_format="blimp",
         sentence_ordering=BlimpSentencesOrder,
     )
 
