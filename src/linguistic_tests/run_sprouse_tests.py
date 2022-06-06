@@ -148,7 +148,9 @@ def create_test_jsonl_files_tests():
                     )
 
 
-def run_sprouse_tests(model_type, model, tokenizer, device, phenomena=None):
+def run_sprouse_tests(
+    model_type, model, tokenizer, device, phenomena=None, tests_dir=None
+):
 
     # todo: compare results (for each phenomena) on the 8 original Sprouse sentences, and the new 50 italian ones
 
@@ -169,11 +171,11 @@ def run_sprouse_tests(model_type, model, tokenizer, device, phenomena=None):
             "wh_subject_island",
             "wh_whether_island",
         ]
+    if tests_dir is None:
+        tests_dir = str(get_syntactic_tests_dir() / "sprouse/")
     for phenomenon_name in phenomena:
         filename = phenomenon_name + ".jsonl"
-        filepath = os.path.abspath(
-            os.path.join(str(get_syntactic_tests_dir() / "sprouse/"), filename)
-        )
+        filepath = os.path.abspath(os.path.join(tests_dir, filename))
         score_averages = run_sprouse_test(
             filepath, model_type, model, tokenizer, device
         )
@@ -238,7 +240,7 @@ def run_sprouse_test_helper(model_type, model, tokenizer, device, testset):
     lp_short_island_avg = 0
     lp_long_island_avg = 0
     penlp_short_nonisland_average = 0
-
+    DDs_with_lp = []
     for example_idx, example_data in enumerate(tqdm(testset["sentences"])):
         (
             lps,
@@ -262,6 +264,8 @@ def run_sprouse_test_helper(model_type, model, tokenizer, device, testset):
         #                      'long_nonisland': good_sentence_long_nonisland,
         #                      'sentence_bad': sentence_bad}
 
+        DDs_with_lp.append(get_dd_score(lps))
+
         lp_short_nonisland_average += lps[0]
         lp_long_nonisland_avg += lps[1]
         lp_short_island_avg += lps[2]
@@ -281,6 +285,34 @@ def run_sprouse_test_helper(model_type, model, tokenizer, device, testset):
     return lp_averages
 
 
+def get_dd_score(sentences_scores):
+    a_short_nonisland_idx = 0
+    b_long_nonisland = 1
+    c_short_island = 2
+    d_long_island = 3
+    example_lenght_effect_with_lp = (
+        sentences_scores[a_short_nonisland_idx] - sentences_scores[b_long_nonisland]
+    )
+    example_structure_effect_with_lp = (
+        sentences_scores[a_short_nonisland_idx] - sentences_scores[c_short_island]
+    )
+    example_total_effect_with_lp = (
+        sentences_scores[a_short_nonisland_idx] - sentences_scores[d_long_island]
+    )
+    example_island_effect_with_lp = example_total_effect_with_lp - (
+        example_lenght_effect_with_lp + example_structure_effect_with_lp
+    )
+    example_island_effect_with_lp *= -1
+    example_dd_with_lp = example_structure_effect_with_lp - (
+        sentences_scores[b_long_nonisland] - sentences_scores[d_long_island]
+    )
+    assert example_island_effect_with_lp == example_dd_with_lp, (
+        f"example_island_effect_with_lp:{example_island_effect_with_lp}, example_dd_with_lp: {example_dd_with_lp}, "
+        f"diff: {example_island_effect_with_lp-example_dd_with_lp}"
+    )
+    return example_dd_with_lp
+
+
 def main():
     # create_test_jsonl_files_tests()
 
@@ -288,7 +320,9 @@ def main():
     model_name = "dbmdz/bert-base-italian-xxl-cased"  # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
     device = DEVICES.CPU
     model, tokenizer = load_model(model_type, model_name, device)
-    run_sprouse_tests(model_type, model, tokenizer, device)
+    run_sprouse_tests(
+        model_type, model, tokenizer, device, phenomena=[], tests_dir=None
+    )
 
 
 if __name__ == "__main__":
