@@ -15,8 +15,12 @@ from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import model_types
 from numpy import log
 from transformers import BertTokenizer
+from transformers import CamembertForMaskedLM
+from transformers import CamembertTokenizer
 from transformers import GPT2LMHeadModel
 from transformers import GPT2Tokenizer
+from transformers import RobertaForMaskedLM
+from transformers import RobertaTokenizer
 from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
 
 
@@ -29,21 +33,6 @@ class TestComputeModelScore(TestCase):
     @pytest.mark.skip("todo")
     def test_get_example_scores(self):
         get_example_scores()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_get_sentence_score_JHLau(self):
-        # todo, mock:
-        #
-        # model_types.ROBERTA
-        # RobertaTokenizer convert_tokens_to_ids
-        # RobertaForMaskedLM model(tokens_tensor, token_type_ids=segment_tensor)
-        #
-        # model_types.GILBERTO
-        # CamembertTokenizer convert_tokens_to_ids
-        # CamembertForMaskedLM model(tokens_tensor, token_type_ids=segment_tensor)
-
-        get_sentence_score_JHLau()
         raise NotImplementedError
 
     def test_get_sentence_score_JHLau_empty(self):
@@ -103,6 +92,25 @@ class TestComputeModelScore(TestCase):
         mock_gpt2_m.assert_called_once()
 
     def test_get_sentence_score_JHLau_bert(self):
+        from transformers.models.bert.modeling_bert import MaskedLMOutput
+        from transformers import BertForMaskedLM
+
+        self.get_sentence_score_JHLau_bert_helper(
+            model_types.BERT, BertForMaskedLM, MaskedLMOutput, BertTokenizer
+        )
+        self.get_sentence_score_JHLau_bert_helper(
+            model_types.ROBERTA, RobertaForMaskedLM, MaskedLMOutput, RobertaTokenizer
+        )
+        self.get_sentence_score_JHLau_bert_helper(
+            model_types.GILBERTO,
+            CamembertForMaskedLM,
+            MaskedLMOutput,
+            CamembertTokenizer,
+        )
+
+    def get_sentence_score_JHLau_bert_helper(
+        self, model_type, model_class, model_output_class, tok_class
+    ):
         vocab_size = 1000
         sentence_tokens = [
             "Chi",
@@ -159,19 +167,15 @@ class TestComputeModelScore(TestCase):
             size=(len(indexed_tokens) - 1, len(indexed_tokens) + 1, vocab_size)
         )
         loss = None
-        from transformers.models.bert.modeling_bert import MaskedLMOutput
-        from transformers import BertForMaskedLM
 
-        mock_bert_t = Mock(spec=BertTokenizer)
+        mock_bert_t = Mock(spec=tok_class)
         mock_bert_t.convert_tokens_to_ids.return_value = indexed_tokens
         mock_bert_t.bos_token_id = 0
-        mock_bert_m_return_value = MaskedLMOutput(loss=loss, logits=lm_logits)
-        mock_bert_m = MagicMock(
-            spec=BertForMaskedLM, return_value=mock_bert_m_return_value
-        )
+        mock_bert_m_return_value = model_output_class(loss=loss, logits=lm_logits)
+        mock_bert_m = MagicMock(spec=model_class, return_value=mock_bert_m_return_value)
 
         actual_score = get_sentence_score_JHLau(
-            model_types.BERT, mock_bert_m, mock_bert_t, sentence_tokens, DEVICES.CPU
+            model_type, mock_bert_m, mock_bert_t, sentence_tokens, DEVICES.CPU
         )
 
         # todo: more checks on the returned values
