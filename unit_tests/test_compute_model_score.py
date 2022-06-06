@@ -79,10 +79,8 @@ class TestComputeModelScore(TestCase):
             3097,
             3298,
             31,
-        ]  # len = sentence_tokens
-        lm_logits = torch.rand(
-            1, len(sentence_ids), vocab_size
-        )  # torch.tensor()  # size (1, len sent tokens + 1, vocab size)
+        ]
+        lm_logits = torch.rand(1, len(sentence_ids), vocab_size)
         loss = torch.tensor(4.3)
 
         mock_gpt2_t = Mock(spec=GPT2Tokenizer)
@@ -100,18 +98,11 @@ class TestComputeModelScore(TestCase):
         )
         assert actual_score != 0
         assert actual_score != -200
-        # print(actual_score)
-        # print(f"mock_gpt2_m calls: {mock_gpt2_m.mock_calls}")
-        # print(f"mock_gpt2_t calls: {mock_gpt2_t.mock_calls}")
+
         mock_gpt2_t.convert_tokens_to_ids.assert_called_once()
         mock_gpt2_m.assert_called_once()
 
     def test_get_sentence_score_JHLau_bert(self):
-        #
-        # model_types.BERT
-        # ? torch.no_grad():
-        #  convert_tokens_to_ids
-        #  model(tokens_tensor, token_type_ids=segment_tensor)
         vocab_size = 1000
         sentence_tokens = [
             "Chi",
@@ -166,17 +157,15 @@ class TestComputeModelScore(TestCase):
         )  # 11x13 all zeroes"""
         lm_logits = torch.rand(
             size=(len(indexed_tokens) - 1, len(indexed_tokens) + 1, vocab_size)
-        )  # torch.tensor()  # size (1, len sent tokens + 1, vocab size)
-        loss = None  # torch.tensor(4.3)
+        )
+        loss = None
         from transformers.models.bert.modeling_bert import MaskedLMOutput
         from transformers import BertForMaskedLM
 
         mock_bert_t = Mock(spec=BertTokenizer)
-        mock_bert_t.convert_tokens_to_ids.return_value = indexed_tokens  # sentence_ids
+        mock_bert_t.convert_tokens_to_ids.return_value = indexed_tokens
         mock_bert_t.bos_token_id = 0
-        mock_bert_m_return_value = MaskedLMOutput(
-            loss=loss, logits=lm_logits
-        )  # todo, check: is model output mocked?
+        mock_bert_m_return_value = MaskedLMOutput(loss=loss, logits=lm_logits)
         mock_bert_m = MagicMock(
             spec=BertForMaskedLM, return_value=mock_bert_m_return_value
         )
@@ -184,13 +173,13 @@ class TestComputeModelScore(TestCase):
         actual_score = get_sentence_score_JHLau(
             model_types.BERT, mock_bert_m, mock_bert_t, sentence_tokens, DEVICES.CPU
         )
+
         # todo: more checks on the returned values
         assert actual_score != 0
         assert actual_score != -200
-        # print(actual_score)
-        # print(f"mock_gpt2_m calls: {mock_gpt2_m.mock_calls}")
-        # print(f"mock_gpt2_t calls: {mock_gpt2_t.mock_calls}")
-        mock_bert_t.convert_tokens_to_ids.assert_called()  # todo: specify how many times
+
+        # todo: specify how many times called
+        mock_bert_t.convert_tokens_to_ids.assert_called()
         mock_bert_m.assert_called_once()
 
     def test_get_sentence_score_JHLau_unrecognized(self):
