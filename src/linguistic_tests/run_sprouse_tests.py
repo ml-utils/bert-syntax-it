@@ -241,6 +241,7 @@ def run_sprouse_test_helper(model_type, model, tokenizer, device, testset):
     lp_long_island_avg = 0
     penlp_short_nonisland_average = 0
     DDs_with_lp = []
+    DDs_with_pen_lp = []
     for example_idx, example_data in enumerate(tqdm(testset["sentences"])):
         (
             lps,
@@ -265,7 +266,7 @@ def run_sprouse_test_helper(model_type, model, tokenizer, device, testset):
         #                      'sentence_bad': sentence_bad}
 
         DDs_with_lp.append(get_dd_score(lps))
-
+        DDs_with_pen_lp.append(get_dd_score(pen_lps))
         lp_short_nonisland_average += lps[0]
         lp_long_nonisland_avg += lps[1]
         lp_short_island_avg += lps[2]
@@ -302,15 +303,18 @@ def get_dd_score(sentences_scores):
     example_island_effect_with_lp = example_total_effect_with_lp - (
         example_lenght_effect_with_lp + example_structure_effect_with_lp
     )
-    example_island_effect_with_lp *= -1
     example_dd_with_lp = example_structure_effect_with_lp - (
         sentences_scores[b_long_nonisland] - sentences_scores[d_long_island]
     )
-    assert example_island_effect_with_lp == example_dd_with_lp, (
-        f"example_island_effect_with_lp:{example_island_effect_with_lp}, example_dd_with_lp: {example_dd_with_lp}, "
-        f"diff: {example_island_effect_with_lp-example_dd_with_lp}"
-    )
+    example_dd_with_lp *= -1
+    assert_almost_equale(example_island_effect_with_lp, example_dd_with_lp)
     return example_dd_with_lp
+
+
+def assert_almost_equale(val1, val2, precision=15):
+    assert abs(val1 - val2) < 10 ** (-1 * precision), (
+        f"val1:{val1}, val2: {val2}, " f"diff: {val1-val2}"
+    )
 
 
 def main():

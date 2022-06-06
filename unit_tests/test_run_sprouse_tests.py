@@ -2,6 +2,7 @@ from unittest import TestCase
 
 import pytest
 from linguistic_tests.run_sprouse_tests import create_test_jsonl_files_tests
+from linguistic_tests.run_sprouse_tests import get_dd_score
 from linguistic_tests.run_sprouse_tests import get_sentence_from_row
 from linguistic_tests.run_sprouse_tests import main
 from linguistic_tests.run_sprouse_tests import plot_all_phenomena
@@ -69,3 +70,20 @@ class TestRunSprouseTests(TestCase):
     def test_write_sentence_pair(self):
         write_sentence_pair()
         raise NotImplementedError
+
+    def test_get_dd_score(self):
+        sentences_scores = [1.1, 0.9, 0.8, -0.5]
+        dd_score = get_dd_score(sentences_scores)
+        assert dd_score > 1
+
+        sentences_scores = [1, 0.3, 1, -0.7]
+        dd_score = get_dd_score(sentences_scores)
+        assert dd_score >= 1
+
+        sentences_scores = [0.6, 1, -0.6, -0.8]
+        dd_score = get_dd_score(sentences_scores)
+        assert dd_score > 0.5
+
+        sentences_scores = [0.6, 0.3, 0.1, -1.1]
+        dd_score = get_dd_score(sentences_scores)
+        assert dd_score > 0.7
