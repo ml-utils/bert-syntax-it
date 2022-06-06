@@ -383,8 +383,8 @@ def main():
     model, tokenizer = load_model(model_type, model_name, device)
     tests_dir = str(get_syntactic_tests_dir() / "syntactic_tests_it/")
     phenomena = [
-        "wh_whether_island.jsonl",
-        "wh_subject_island.jsonl",
+        "wh_whether_island",
+        "wh_subject_island",
     ]
     run_sprouse_tests(
         model_type,
