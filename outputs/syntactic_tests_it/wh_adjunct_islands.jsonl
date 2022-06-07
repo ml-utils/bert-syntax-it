@@ -152,7 +152,8 @@
 
     {"short_island": "Chi ha riparato il frigorifero dopo che Luca ha rotto il termostato?",
     "long_island": "Che cosa il tecnico ha riparato il frigorifero dopo che Luca ha rotto?",
-    "long_nonisland": "Dopo che Luca ha rotto cosa, il tecnico ha riparato il frigorifero?",
+    "long_nonisland": "Che cosa dici che Luca avrebbe rotto?",
+    "short_nonisland": "Chi dice che Luca avrebbe rotto il termostato?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
@@ -161,12 +162,13 @@
 
   {"short_island": "Chi ha interpellato il ministro dopo che la multinazionale ha trasferito la produzione in Romania?",
     "long_island": "Che cosa il parlamentare ha interpellato il ministro dopo che la multinazionale ha trasferito in Romania?",
-    "long_nonisland": "Dopo che la multinazionale ha trasferito in Romania cosa, il parlamentare ha interpellato il ministro?",
+    "long_nonisland": "Che cosa dici che la multinazionale avrebbe trasferito in Romania?",
+    "short_nonisland": "Chi dice che che la multinazionale avrebbe trasferito la produzione in Romania?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "10"},
+    "pairID": "16"},
 
     {"short_island": "Chi ha acquisito la documentazione dopo che l’assessore ha formulato la richiesta?",
     "long_island": "Che cosa la commissione ha acquisito la documentazione dopo che l’assessore ha formulato?",
@@ -175,7 +177,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "6"},
+    "pairID": "17"},
 
   {"short_island": "Chi ha preparato l’illustrazione dopo che l'autore ha inviato il libro all’editore?",
     "long_island": "Che cosa il disegnatore ha preparato l’illustrazione dopo che l'autore ha inviato all’editore?",
@@ -184,7 +186,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "11"},
+    "pairID": "18"},
 
   {"short_island": "Chi ha riscritto il capitolo dopo che l’editore le ha mandato delle note?",
     "long_island": "Che cosa l'autrice ha riscritto il capitolo dopo che l’editore le ha mandato?",
@@ -193,7 +195,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "17"},
+    "pairID": "19"},
 
   {"short_island": "Chi ha aggiornato l’articolo dopo che l’azienda ha fatto trapelare la notizia?",
     "long_island": "Che cosa il giornalista ha aggiornato l’articolo dopo che l’azienda ha fatto trapelare?",
@@ -202,7 +204,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "18"},
+    "pairID": "20"},
 
   {"short_island": "Chi ha fatto l’investimento dopo che è stata creata l’azienda?",
     "long_island": "Che cosa Marco ha fatto l’investimento dopo che è stata creata?",
@@ -211,7 +213,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "3"},
+    "pairID": "21"},
 
   {"short_island": "Chi ha rivisto la propria decisione dopo che l'ente pubblico ha completato la costruzione dell'autostrada?",
     "long_island": "Che cosa la commissione ha rivisto la propria decisione dopo che l'ente pubblico ha completato?",
@@ -229,7 +231,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "38"},
+    "pairID": "23"},
 
   {"short_island": "Cosa infrangerà il muro del suono se aumenta ancora la propria velocità?",
     "long_island": "Che cosa l'aereo infrangerà il muro del suono se aumenta ancora?",
@@ -238,7 +240,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "46"},
+    "pairID": "24"},
 
   {"short_island": "Cosa aumenterà se lo studio rilascerà la nuova versione?",
     "long_island": "Che cosa le vendite aumenteranno se lo studio rilascerà?",
@@ -247,7 +249,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "47"},
+    "pairID": "25"},
 
       {"short_island": "Cosa si terrà tra pochi giorni se il governo non ritira il decreto?",
     "long_island": "Che cosa la manifestazione si terrà tra pochi giorni se il governo non ritira?",
@@ -256,7 +258,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "42"},
+    "pairID": "26"},
 
   {"short_island": "Chi organizzerà una festa se supera l’esame?",
     "long_island": "Cosa Gianni organizzerà una festa se supera?",
@@ -265,7 +267,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "43"},
+    "pairID": "27"},
 
     {"short_island": "Chi scriverà una recensione se l'editore pubblicherà il libro?",
     "long_island": "Che cosa Lucia scriverà una recensione se l'editore pubblicherà?",
@@ -274,7 +276,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "36"},
+    "pairID": "28"},
 
   {"short_island": "Chi si dispiacerà se Luisa cambia idea?",
     "long_island": "Che cosa Gianni si dispiacerà se Luisa cambia?",
@@ -283,7 +285,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "30"},
+    "pairID": "29"},
 
   {"short_island": "Chi prenderà l’autobus se verranno confermate le previsioni del tempo?",
     "long_island": "Che cosa Luisa prenderà l’autobus se verranno confermate?",
@@ -292,7 +294,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "31"},
+    "pairID": "30"},
 
   {"short_island": "Cosa non uscirà in edicola se verrà indetto lo sciopero?",
     "long_island": "Che cosa i giornali non usciranno in edicola se verrà indetto?",
@@ -301,7 +303,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "32"},
+    "pairID": "31"},
 
   {"short_island": "Cosa non verrà approvata se verrà bocciato l'emendamento?",
     "long_island": "Che cosa la legge non verrà approvata se verrà bocciato?",
@@ -310,7 +312,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "33"},
+    "pairID": "32"},
 
   {"short_island": "Chi inviterà Chiara se organizzerà una festa?",
     "long_island": "Che cosa Luisa inviterà Chiara se organizzerà?",
@@ -319,7 +321,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "34"},
+    "pairID": "33"},
 
   {"short_island": "Chi preparerà un piatto tipico se troverà la ricetta?",
     "long_island": "Che cosa Luisa preparerà un piatto tipico se troverà?",
@@ -328,7 +330,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "35"},
+    "pairID": "34"},
 
   {"short_island": "Cosa verrà riformulata se contiene un errore?",
     "long_island": "Che cosa la ricetta verrà riformulata se contiene?",
@@ -337,7 +339,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "37"},
+    "pairID": "35"},
 
   {"short_island": "Cosa aumenterà di valore se l'azienda metterà in commercio il prodotto?",
     "long_island": "Che cosa le azioni aumenteranno di valore se l'azienda metterà in commercio?",
@@ -346,7 +348,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "39"},
+    "pairID": "36"},
 
   {"short_island": "Chi telefonerà a Gianni se non ricorda l'indirizzo di Chiara?",
     "long_island": "Che cosa Luisa telefonerà a Gianni se non ricorda?",
@@ -355,7 +357,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "40"},
+    "pairID": "37"},
 
   {"short_island": "Chi comprerà le azioni se verrà confermata la notizia?",
     "long_island": "Che cosa Gianni comprerà le azioni se verrà confermata?",
@@ -364,7 +366,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "41"},
+    "pairID": "38"},
 
   {"short_island": "Chi si preoccupa se l’avvocato dimentica la borsa in ufficio?",
     "long_island": "Cosa ti preoccupi se l’avvocato dimentica in ufficio?",
@@ -373,7 +375,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "44"},
+    "pairID": "39"},
 
   {"short_island": "Chi si infuria se uso il cellulare in classe?",
     "long_island": "Cosa ti infuri se uso in classe?",
@@ -382,7 +384,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "45"},
+    "pairID": "40"},
 
   {"short_island": "Chi verrà licenziato se ha violato il primo articolo della legge?",
     "long_island": "Cosa il manager verrà licenziato se ha violato?",
@@ -391,7 +393,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "48"},
+    "pairID": "41"},
 
   {"short_island": "Chi perderà i soldi se non ritrova il suo portafogli?",
     "long_island": "Che cosa Marco perderà i soldi se non ritrova?",
@@ -400,7 +402,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "49"},
+    "pairID": "42"},
 
   {"short_island": "Chi ha scattato delle foto prima che il sindaco inaugurasse il museo?",
     "long_island": "Che cosa la tua amica ha scattato delle foto prima che il sindaco inaugurasse?",
@@ -409,7 +411,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "8"},
+    "pairID": "43"},
 
   {"short_island": "Chi ha avanzato la proposta prima che il consiglio di amministrazione elaborasse il programma?",
     "long_island": "Che cosa il dirigente ha avanzato la proposta prima che il consiglio di amministrazione elaborasse?",
@@ -418,7 +420,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "2"},
+    "pairID": "44"},
 
   {"short_island": "Chi raccoglieva le idee prima di cominciare il colloquio?",
     "long_island": "Che cosa Luisa raccoglieva le idee prima di cominciare?",
@@ -427,7 +429,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "28"},
+    "pairID": "45"},
 
   {"short_island": "Chi ha abitato a Milano mentre ultimava il lavoro?",
     "long_island": "Che cosa Paolo ha abitato a Milano mentre ultimava?",
@@ -436,7 +438,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "9"},
+    "pairID": "46"},
 
   {"short_island": "Chi ha scritto delle note mentre leggeva il libro?",
     "long_island": "Che cosa l'intellettuale ha scritto delle note mentre leggeva?",
@@ -445,7 +447,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "29"},
+    "pairID": "47"},
 
   {"short_island": "Chi ha avviato l’attività quando ha raccolto i fondi sufficienti?",
     "long_island": "Che cosa l'imprenditore ha avviato l’attività quando ha raccolto?",
@@ -454,7 +456,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "21"},
+    "pairID": "48"},
 
   {"short_island": "Chi ha conosciuto Chiara quando Mario ha organizzato la sua festa di laurea?",
     "long_island": "Che cosa Marta ha conosciuto Chiara quando Mario ha organizzato?",
@@ -463,7 +465,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "23"},
+    "pairID": "49"},
 
     {"short_island": "Chi farà una passeggiata per schiarirsi le idee?",
     "long_island": "Che cosa Luisa farà una passeggiata per schiarirsi?",
@@ -472,6 +474,6 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "42"}
+    "pairID": "40"}
 ]
 }
