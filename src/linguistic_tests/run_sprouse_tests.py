@@ -197,6 +197,7 @@ def run_sprouse_tests(
     if tests_dir is None:
         tests_dir = str(get_syntactic_tests_dir() / "sprouse/")
     for phenomenon_name in phenomena:
+        print(f"Running testset for {phenomenon_name}..")
         filename = phenomenon_name + ".jsonl"
         filepath = os.path.abspath(os.path.join(tests_dir, filename))
         score_averages = run_sprouse_test(
@@ -267,9 +268,14 @@ def run_sprouse_test_helper(
     testset,
     examples_in_sprouse_format=True,
     sentence_ordering=SprouseSentencesOrder,
+    max_examples=50,
 ):
     sent_ids = []
     sentences_per_example = 4
+
+    if len(testset["sentences"]) > 50:
+        testset["sentences"] = testset["sentences"][:max_examples]
+
     examples_count = len(testset["sentences"])
     lp_short_nonisland_average = 0
     lp_long_nonisland_avg = 0
@@ -278,6 +284,7 @@ def run_sprouse_test_helper(
     penlp_short_nonisland_average = 0
     DDs_with_lp = []
     DDs_with_pen_lp = []
+
     for example_idx, example_data in enumerate(tqdm(testset["sentences"])):
         (
             lps,
@@ -308,6 +315,7 @@ def run_sprouse_test_helper(
         lp_short_island_avg += lps[sentence_ordering.SHORT_ISLAND]
         lp_long_island_avg += lps[sentence_ordering.LONG_ISLAND]
         penlp_short_nonisland_average += pen_lps[0]
+
     lp_short_nonisland_average /= examples_count
     lp_long_nonisland_avg /= examples_count
     lp_short_island_avg /= examples_count
@@ -371,8 +379,10 @@ def main():
     model, tokenizer = load_model(model_type, model_name, device)
     tests_dir = str(get_syntactic_tests_dir() / "syntactic_tests_it/")
     phenomena = [
-        # "wh_whether_island",
-        "wh_subject_islands",
+        # "wh_adjunct_islands",
+        # "wh_complex_np_islands",
+        "wh_whether_island",
+        # "wh_subject_islands",
     ]
     run_sprouse_tests(
         model_type,
