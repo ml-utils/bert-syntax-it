@@ -12,7 +12,7 @@
 
   {"short_island": "Chi ha organizzato una festa dopo aver superato l’esame?",
     "long_island": "Che cosa Luisa ha organizzato una festa dopo aver superato?",
-    "long_nonisland": "Che cosa pensi che abbia superato?",
+    "long_nonisland": "Che cosa pensi che Luisa abbia superato?",
     "short_nonisland": "Chi pensa di aver superato l’esame?",
     "field": "syntax",
     "linguistics_term": "island_effects",
@@ -22,7 +22,8 @@
 
   {"short_island": "Chi ha rifiutato l’offerta dopo aver ottenuto un aumento di stipendio?",
     "long_island": "Che cosa Maria ha rifiutato l’offerta dopo aver ottenuto?",
-    "long_nonisland": "Dopo aver ottenuto cosa, Maria ha rifiutato l’offerta?",
+    "long_nonisland": "Che cosa pensi che Maria abbia ottenuto?",
+    "short_nonisland": "Chi pensa di aver ottenuto un aumento di stipendio?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
@@ -31,7 +32,8 @@
 
   {"short_island": "Chi ha lavato i pavimenti dopo aver spolverato i mobili?",
     "long_island": "Che cosa Paola ha lavato i pavimenti dopo aver spolverato?",
-    "long_nonisland": "Dopo aver spolverato cosa, Paola ha lavato i pavimenti?",
+    "long_nonisland": "Che cosa pensi che Paola abbia spolverato?",
+    "short_nonisland": "Chi pensa di aver spolverato i mobili?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
@@ -40,7 +42,8 @@
 
   {"short_island": "Chi cerca un libro sull'argomento dopo aver guardato un programma televisivo?",
     "long_island": "Che cosa il tuo amico cerca un libro sull'argomento dopo aver guardato?",
-    "long_nonisland": "Dopo aver guardato cosa, il tuo amico cerca un libro sull'argomento?",
+    "long_nonisland": "Che cosa dici che il tuo amico abbia guardato?",
+    "short_nonisland": "Chi dice di aver guardato un programma televisivo?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
