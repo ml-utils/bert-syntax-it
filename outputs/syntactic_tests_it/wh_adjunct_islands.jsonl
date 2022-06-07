@@ -2,8 +2,8 @@
 
   {"short_island": "Chi è partito per Parigi dopo aver fatto le valigie?",
   "long_island": "Che cosa Gianni è partito per Parigi dopo aver fatto?",
-  "long_nonisland": "Dopo aver fatto cosa, Gianni è partito per Parigi?",
-  "short_nonisland": "Chi pensa di aver fatto le valigie",
+  "long_nonisland": "Che cosa pensi che Gianni abbia fatto?",
+  "short_nonisland": "Chi pensa di aver fatto le valigie?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
