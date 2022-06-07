@@ -27,7 +27,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "4"},
+    "pairID": "2"},
 
   {"short_island": "Chi ha lavato i pavimenti dopo aver spolverato i mobili?",
     "long_island": "Che cosa Paola ha lavato i pavimenti dopo aver spolverato?",
@@ -36,7 +36,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "7"},
+    "pairID": "3"},
 
   {"short_island": "Chi cerca un libro sull'argomento dopo aver guardato un programma televisivo?",
     "long_island": "Che cosa il tuo amico cerca un libro sull'argomento dopo aver guardato?",
@@ -45,7 +45,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "12"},
+    "pairID": "4"},
 
   {"short_island": "Chi ha rinviato le vacanze dopo aver visto le previsioni del tempo?",
     "long_island": "Che cosa gli studenti hanno rinviato le vacanze dopo aver visto?",
@@ -54,7 +54,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "13"},
+    "pairID": "5"},
 
   {"short_island": "Chi ha telefonato a Tiziano dopo aver organizzato una festa?",
     "long_island": "Che cosa Francesco ha telefonato a Tiziano dopo aver organizzato?",
@@ -63,7 +63,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "15"},
+    "pairID": "6"},
 
   {"short_island": "Chi ha lasciato la penna sul tavolo dopo aver concluso la riunione?",
     "long_island": "Che cosa il relatore ha lasciato la penna sul tavolo dopo aver concluso?",
@@ -72,7 +72,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "16"},
+    "pairID": "7"},
 
   {"short_island": "Chi ha risolto il problema di matematica dopo aver studiato la teoria?",
     "long_island": "Che cosa lo studente ha risolto il problema di matematica dopo aver studiato?",
@@ -81,7 +81,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "20"},
+    "pairID": "8"},
 
   {"short_island": "Chi ha versato la quota annuale dopo aver rinnovato l’iscrizione?",
     "long_island": "Che cosa Luisa ha versato la quota annuale dopo aver rinnovato?",
@@ -90,7 +90,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "24"},
+    "pairID": "9"},
 
   {"short_island": "Chi ha approvato la legge dopo aver valutato gli emendamenti?",
     "long_island": "Che cosa il Parlamento ha approvato la legge dopo aver valutato?",
@@ -99,7 +99,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "26"},
+    "pairID": "10"},
 
     {"short_island": "Chi ha licenziato Francesca dopo aver preso la decisione?",
     "long_island": "Che cosa Teresa ha licenziato Francesca dopo aver preso?",
@@ -108,7 +108,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "14"},
+    "pairID": "11"},
 
   {"short_island": "Chi è tornato al cinema dopo aver visto il film?",
     "long_island": "Che cosa il compositore è tornato al cinema dopo aver visto?",
@@ -117,7 +117,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "19"},
+    "pairID": "12"},
 
   {"short_island": "Chi ha escluso quei candidati dopo averne accertato le scorrettezze?",
     "long_island": "Che cosa la commissione ha escluso quei candidati dopo averne accertato?",
@@ -126,7 +126,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "25"},
+    "pairID": "13"},
 
   {"short_island": "Chi ha bocciato l'emendamento dopo che la maggioranza ha raggiunto un accordo?",
     "long_island": "Che cosa il Senato ha bocciato l'emendamento dopo che la maggioranza ha raggiunto?",
@@ -135,7 +135,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "27"},
+    "pairID": "14"},
 
     {"short_island": "Chi ha riparato il frigorifero dopo che Luca ha rotto il termostato?",
     "long_island": "Che cosa il tecnico ha riparato il frigorifero dopo che Luca ha rotto?",
@@ -144,8 +144,7 @@
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
-    "pairID": "5"},
-
+    "pairID": "15"},
 
   {"short_island": "Chi ha interpellato il ministro dopo che la multinazionale ha trasferito la produzione in Romania?",
     "long_island": "Che cosa il parlamentare ha interpellato il ministro dopo che la multinazionale ha trasferito in Romania?",
@@ -219,7 +218,6 @@
     "island_subcategory": "adjunct_island",
     "pairID": "38"},
 
-
   {"short_island": "Cosa infrangerà il muro del suono se aumenta ancora la propria velocità?",
     "long_island": "Che cosa l'aereo infrangerà il muro del suono se aumenta ancora?",
     "long_nonisland": "Se aumenta ancora cosa, l'aereo infrangerà il muro del suono?",
@@ -246,7 +244,6 @@
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
     "pairID": "42"},
-
 
   {"short_island": "Chi organizzerà una festa se supera l’esame?",
     "long_island": "Cosa Gianni organizzerà una festa se supera?",
