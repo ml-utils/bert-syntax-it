@@ -32,7 +32,7 @@
 
   {"short_island": "Chi ha lavato i pavimenti dopo aver spolverato i mobili?",
     "long_island": "Che cosa Paola ha lavato i pavimenti dopo aver spolverato?",
-    "long_nonisland": "Che cosa pensi che Paola abbia spolverato?",
+    "long_nonisland": "Che cosa pensi che Paola avrebbe spolverato?",
     "short_nonisland": "Chi pensa di aver spolverato i mobili?",
     "field": "syntax",
     "linguistics_term": "island_effects",
@@ -42,7 +42,7 @@
 
   {"short_island": "Chi cerca un libro sull'argomento dopo aver guardato un programma televisivo?",
     "long_island": "Che cosa il tuo amico cerca un libro sull'argomento dopo aver guardato?",
-    "long_nonisland": "Che cosa dici che il tuo amico abbia guardato?",
+    "long_nonisland": "Che cosa dici che il tuo amico avrebbe guardato?",
     "short_nonisland": "Chi dice di aver guardato un programma televisivo?",
     "field": "syntax",
     "linguistics_term": "island_effects",
@@ -52,7 +52,8 @@
 
   {"short_island": "Chi ha rinviato le vacanze dopo aver visto le previsioni del tempo?",
     "long_island": "Che cosa gli studenti hanno rinviato le vacanze dopo aver visto?",
-    "long_nonisland": "Dopo aver visto cosa, gli studenti hanno rinviato le vacanze?",
+    "long_nonisland": "Che cosa dici che gli studenti avrebbero visto?",
+    "short_nonisland": "Chi dice di aver visto le previsioni del tempo?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
@@ -61,7 +62,8 @@
 
   {"short_island": "Chi ha telefonato a Tiziano dopo aver organizzato una festa?",
     "long_island": "Che cosa Francesco ha telefonato a Tiziano dopo aver organizzato?",
-    "long_nonisland": "Dopo aver organizzato cosa, Francesco ha telefonato a Tiziano?",
+    "long_nonisland": "Che cosa dici che Francesco avrebbe organizzato?",
+    "short_nonisland": "Chi dice di aver organizzato una festa?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
@@ -70,7 +72,8 @@
 
   {"short_island": "Chi ha lasciato la penna sul tavolo dopo aver concluso la riunione?",
     "long_island": "Che cosa il relatore ha lasciato la penna sul tavolo dopo aver concluso?",
-    "long_nonisland": "Dopo aver concluso cosa, il relatore ha lasciato la penna sul tavolo?",
+    "long_nonisland": "Che cosa dici che il relatore avrebbe concluso?",
+    "short_nonisland": "Chi dice di aver concluso la riunione?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
@@ -79,7 +82,8 @@
 
   {"short_island": "Chi ha risolto il problema di matematica dopo aver studiato la teoria?",
     "long_island": "Che cosa lo studente ha risolto il problema di matematica dopo aver studiato?",
-    "long_nonisland": "Dopo aver studiato cosa, lo studente ha risolto il problema di matematica?",
+    "long_nonisland": "Che cosa dici che lo studente avrebbe studiato?",
+    "short_nonisland": "Chi dice di aver studiato la teoria?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
@@ -88,7 +92,8 @@
 
   {"short_island": "Chi ha versato la quota annuale dopo aver rinnovato l’iscrizione?",
     "long_island": "Che cosa Luisa ha versato la quota annuale dopo aver rinnovato?",
-    "long_nonisland": "Dopo aver rinnovato cosa, Luisa ha versato la quota annuale?",
+    "long_nonisland": "Che cosa dici che Luisa avrebbe rinnovato?",
+    "short_nonisland": "Chi dice di aver rinnovato l’iscrizione?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
@@ -96,8 +101,9 @@
     "pairID": "9"},
 
   {"short_island": "Chi ha approvato la legge dopo aver valutato gli emendamenti?",
-    "long_island": "Che cosa il Parlamento ha approvato la legge dopo aver valutato?",
-    "long_nonisland": "Dopo aver valutato cosa, il Parlamento ha approvato la legge?",
+    "long_island": "Che cosa i deputati hanno approvato la legge dopo aver valutato?",
+    "long_nonisland": "Che cosa dici che i deputati avrebbero valutato?",
+    "short_nonisland": "Chi dice di aver valutato gli emendamenti?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
