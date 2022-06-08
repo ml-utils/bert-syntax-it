@@ -91,9 +91,9 @@
     "pairID": "8"},
 
   {"short_island": "Chi ha versato la quota annuale dopo aver rinnovato l’iscrizione?",
-    "long_island": "Che cosa Luisa ha versato la quota annuale dopo aver rinnovato?",
-    "long_nonisland": "Che cosa dici che Luisa avrebbe rinnovato?",
-    "short_nonisland": "Chi dice che Luisa avrebbe rinnovato l’iscrizione?",
+    "long_island": "Che cosa il socio ha versato la quota annuale dopo aver rinnovato?",
+    "long_nonisland": "Che cosa dici che il socio avrebbe rinnovato?",
+    "short_nonisland": "Chi dice che il socio avrebbe rinnovato l’iscrizione?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
