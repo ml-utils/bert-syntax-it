@@ -3,7 +3,6 @@ from unittest import TestCase
 import pytest
 from linguistic_tests.file_utils import __get_sentence_from_row
 from linguistic_tests.file_utils import __write_sentence_item
-from linguistic_tests.file_utils import __write_sentence_pair
 from linguistic_tests.file_utils import convert_sprouse_csv_to_jsonl
 
 
@@ -21,9 +20,4 @@ class TestFileUtils(TestCase):
     @pytest.mark.skip("todo")
     def test_write_sentence_item(self):
         __write_sentence_item()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_write_sentence_pair(self):
-        __write_sentence_pair()
         raise NotImplementedError

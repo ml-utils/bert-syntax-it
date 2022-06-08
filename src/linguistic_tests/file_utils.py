@@ -126,8 +126,15 @@ def change_file_sentence_order(
     if in_sentence_ordering == BlimpSentencesOrder:
         testset_data = examples["sentences"]
 
+    import json
+
     # todo: save to new json file
-    print(len(testset_data))
+    for example_data in testset_data:
+        with open("data.json", "w", encoding="utf-8") as f:
+            json_string = (
+                json.dumps(example_data, f, ensure_ascii=False, indent=4) + "\n"
+            )  # .encode('utf8')
+            f.write(json_string)
 
 
 def convert_sprouse_csv_to_jsonl():
@@ -224,15 +231,6 @@ def __get_sentence_from_row(C1, C2, current_item_sentences):
     # print(single_row_df.info())
     sentence = single_row_df.iloc[0][SENTENCE]
     return sentence
-
-
-def __write_sentence_pair(f, sentence_bad, good_sentence, conditions):
-    sentence_pair = {
-        "sentence_good": good_sentence,
-        "sentence_bad": sentence_bad,
-        "conditions": conditions,
-    }
-    f.write(json.dumps(sentence_pair) + "\n")
 
 
 def __write_sentence_item(
