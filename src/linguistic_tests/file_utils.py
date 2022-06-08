@@ -256,7 +256,8 @@ def __write_sentence_item(
 
 def main():
     print("converting files..")
-    change_files_sentence_order()
+    # change_files_sentence_order()
+    create_test_jsonl_files_tests()
 
 
 if __name__ == "__main__":
