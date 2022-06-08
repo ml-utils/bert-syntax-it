@@ -26,7 +26,8 @@ def convert_testset_to_csv(
     out_filename = input_filename + ".csv"
     out_filepath = os.path.join(dir_path, out_filename)
     if os.path.exists(out_filepath):
-        raise ValueError(f"output file already exists: {out_filepath}")
+        print(f"output file already exists: {out_filepath}, skipping")
+        return
     input_filepath = os.path.join(dir_path, input_filename)
 
     header_v1_horizontal = [
@@ -96,9 +97,9 @@ def change_files_sentence_order():
     dir_path = str(get_syntactic_tests_dir() / "syntactic_tests_it/")
     input_filenames = [
         "wh_adjunct_islands.jsonl",
-        # "wh_complex_np_islands.jsonl",
-        # "wh_whether_island.jsonl",
-        # "wh_subject_islands.jsonl",
+        "wh_complex_np_islands.jsonl",
+        "wh_whether_island.jsonl",
+        "wh_subject_islands.jsonl",
     ]
 
     for input_filename in input_filenames:
@@ -114,8 +115,9 @@ def change_file_sentence_order(
     input_filename,
     input_sentence_ordering=BlimpSentencesOrder,
 ):
-    out_filename = input_filename + "-ref.jsonl"
-    out_filepath = os.path.join(dir_path, out_filename)
+    out_filename = "custom-" + input_filename  # + "-ref.jsonl"
+    outdir = str(get_syntactic_tests_dir() / "sprouse/")
+    out_filepath = os.path.join(outdir, out_filename)
     if os.path.exists(out_filepath):
         raise ValueError(f"output file already exists: {out_filepath}")
     print(f"preparing file {out_filepath}..")
