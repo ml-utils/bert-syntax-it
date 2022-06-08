@@ -183,22 +183,22 @@ def create_test_jsonl_files_tests():
                     (current_phenomenon_sentences[ITEM_NUMBER] == item_number)
                 ]
                 # 4 sentences for 3 pairs
-                sentence_bad = get_sentence_from_row(
+                sentence_bad = __get_sentence_from_row(
                     "Long", "Island", current_item_sentences
                 )
                 # print(f'bad_sentence: {sentence_bad}, type(bad_sentence): {type(sentence_bad)}')
-                good_sentence_long_nonisland = get_sentence_from_row(
+                good_sentence_long_nonisland = __get_sentence_from_row(
                     "Long", "non-island", current_item_sentences
                 )
-                good_sentence_short_nonisland = get_sentence_from_row(
+                good_sentence_short_nonisland = __get_sentence_from_row(
                     "Short", "non-island", current_item_sentences
                 )
-                good_sentence_short_island = get_sentence_from_row(
+                good_sentence_short_island = __get_sentence_from_row(
                     "Short", "Island", current_item_sentences
                 )
 
                 with open(filepath, mode="a", encoding="utf-8") as f:
-                    write_sentence_item(
+                    __write_sentence_item(
                         f,
                         sentence_bad,
                         good_sentence_long_nonisland,
@@ -207,7 +207,7 @@ def create_test_jsonl_files_tests():
                     )
 
 
-def get_sentence_from_row(C1, C2, current_item_sentences):
+def __get_sentence_from_row(C1, C2, current_item_sentences):
     C1_col = "Condition 1"
     C2_col = "Condition 2"
     SENTENCE = "sentence"
@@ -226,7 +226,7 @@ def get_sentence_from_row(C1, C2, current_item_sentences):
     return sentence
 
 
-def write_sentence_pair(f, sentence_bad, good_sentence, conditions):
+def __write_sentence_pair(f, sentence_bad, good_sentence, conditions):
     sentence_pair = {
         "sentence_good": good_sentence,
         "sentence_bad": sentence_bad,
@@ -235,13 +235,7 @@ def write_sentence_pair(f, sentence_bad, good_sentence, conditions):
     f.write(json.dumps(sentence_pair) + "\n")
 
 
-def read_sentences_item(example):
-    parsed = dict()
-
-    return parsed
-
-
-def write_sentence_item(
+def __write_sentence_item(
     f,
     sentence_bad,
     good_sentence_long_nonisland,
