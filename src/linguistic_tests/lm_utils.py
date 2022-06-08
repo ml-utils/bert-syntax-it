@@ -1,5 +1,6 @@
 import json
 import os.path
+from enum import Enum
 from pathlib import Path
 
 import cython
@@ -28,6 +29,20 @@ class sent_idx:
 
 class special_tokens:
     UNK: str = "[UNK]"
+
+
+class StrEnum(str, Enum):
+    pass
+
+
+class SentenceNames(StrEnum):
+    SHORT_NONISLAND = "short_nonisland"
+    LONG_NONISLAND = "long_nonisland"
+    SHORT_ISLAND = "short_island"
+    LONG_ISLAND = "long_island"
+    SENTENCE_BAD = "sentence_bad"
+    SENTENCE_GOOD = "sentence_good"
+    SENTENCE_GOOD_2ND = "sentence_good_2nd"
 
 
 @cython.cclass

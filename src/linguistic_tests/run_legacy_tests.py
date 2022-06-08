@@ -24,6 +24,7 @@ from linguistic_tests.lm_utils import model_types
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import sentence_score_bases
+from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.utils import vocab_it
 from torch.utils.hipify.hipify_python import bcolors
 from tqdm import tqdm
@@ -579,13 +580,13 @@ def profile_slowdowns():
     for json_str in tqdm(json_list):
         example = json.loads(json_str)
 
-        sentence_good = example["sentence_good"]
-        sentence_bad = example["sentence_bad"]
+        sentence_good = example[SentenceNames.SENTENCE_GOOD]
+        sentence_bad = example[SentenceNames.SENTENCE_BAD]
         examples.append(
             {
-                "sentence_good": sentence_good,
-                "sentence_bad": sentence_bad,
-                "sentence_good_2nd": "",
+                SentenceNames.SENTENCE_GOOD: sentence_good,
+                SentenceNames.SENTENCE_BAD: sentence_bad,
+                SentenceNames.SENTENCE_GOOD_2ND: "",
             }
         )
     testset = {"sentences": examples}

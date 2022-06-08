@@ -11,6 +11,7 @@ from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
+from linguistic_tests.lm_utils import SentenceNames
 from tqdm import tqdm
 
 
@@ -79,13 +80,13 @@ def run_blimp_en(model_type=None, model_name=None, testset_filenames=None):
             example = json.loads(json_str)
             # print(f"result: {example}")
             # print(isinstance(example, dict))
-            sentence_good = example["sentence_good"]
-            sentence_bad = example["sentence_bad"]
+            sentence_good = example[SentenceNames.SENTENCE_GOOD]
+            sentence_bad = example[SentenceNames.SENTENCE_BAD]
             examples.append(
                 {
-                    "sentence_good": sentence_good,
-                    "sentence_bad": sentence_bad,
-                    "sentence_good_2nd": "",
+                    SentenceNames.SENTENCE_GOOD: sentence_good,
+                    SentenceNames.SENTENCE_BAD: sentence_bad,
+                    SentenceNames.SENTENCE_GOOD_2ND: "",
                 }
             )
         testset = {"sentences": examples}

@@ -6,6 +6,7 @@ import pandas
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_testset_data
+from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_sprouse_tests import BlimpSentencesOrder
 from tqdm import tqdm
 
@@ -130,9 +131,11 @@ def change_file_sentence_order(
 
     # todo: save to new json file
     for example_data in testset_data:
+
+        reformatted_dict = {}
         with open("data.json", "w", encoding="utf-8") as f:
             json_string = (
-                json.dumps(example_data, f, ensure_ascii=False, indent=4) + "\n"
+                json.dumps(reformatted_dict, f, ensure_ascii=False, indent=4) + "\n"
             )  # .encode('utf8')
             f.write(json_string)
 
@@ -241,10 +244,10 @@ def __write_sentence_item(
     good_sentence_short_island,
 ):
     sentence_item = {
-        "short_nonisland": good_sentence_short_nonisland,
-        "long_nonisland": good_sentence_long_nonisland,
-        "short_island": good_sentence_short_island,
-        "long_island": sentence_bad,
+        SentenceNames.SHORT_NONISLAND: good_sentence_short_nonisland,
+        SentenceNames.LONG_NONISLAND: good_sentence_long_nonisland,
+        SentenceNames.SHORT_ISLAND: good_sentence_short_island,
+        SentenceNames.LONG_ISLAND: sentence_bad,
     }
     json_string = (
         json.dumps(sentence_item, ensure_ascii=False) + "\n"
