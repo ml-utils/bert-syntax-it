@@ -17,7 +17,6 @@ from linguistic_tests.run_legacy_tests import load_marvin
 from linguistic_tests.run_legacy_tests import print_example
 from linguistic_tests.run_legacy_tests import print_sentence_pairs_probabilities
 from linguistic_tests.run_legacy_tests import print_sentences_sorted_by_score
-from linguistic_tests.run_legacy_tests import profile_slowdowns
 from linguistic_tests.run_legacy_tests import read_gulordava
 from linguistic_tests.run_legacy_tests import rnd
 from linguistic_tests.run_legacy_tests import run_eval
@@ -121,11 +120,6 @@ class TestNotebook(TestCase):
     @pytest.mark.skip("todo")
     def test_print_sentences_sorted_by_score(self):
         print_sentences_sorted_by_score()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_profile_slowdowns(self):
-        profile_slowdowns()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
