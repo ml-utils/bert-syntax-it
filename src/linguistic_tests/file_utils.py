@@ -105,39 +105,47 @@ def change_files_sentence_order():
         change_file_sentence_order(
             dir_path,
             input_filename,
-            sentence_ordering=BlimpSentencesOrder,
+            input_sentence_ordering=BlimpSentencesOrder,
         )
 
 
 def change_file_sentence_order(
     dir_path,
     input_filename,
-    in_sentence_ordering=BlimpSentencesOrder,
+    input_sentence_ordering=BlimpSentencesOrder,
 ):
-
     out_filename = input_filename + "-ref.jsonl"
     out_filepath = os.path.join(dir_path, out_filename)
     if os.path.exists(out_filepath):
         raise ValueError(f"output file already exists: {out_filepath}")
-
+    print(f"preparing file {out_filepath}..")
     input_filepath = os.path.join(dir_path, input_filename)
+    print(f"reading from file {input_filepath}..")
     examples = load_testset_data(
-        input_filepath, in_sentence_ordering=BlimpSentencesOrder
+        input_filepath,
+        examples_format="blimp",  # , input_sentence_ordering=BlimpSentencesOrder
     )
-    if in_sentence_ordering == BlimpSentencesOrder:
+    if input_sentence_ordering == BlimpSentencesOrder:
         testset_data = examples["sentences"]
 
-    import json
-
-    # todo: save to new json file
-    for example_data in testset_data:
-
-        reformatted_dict = {}
-        with open("data.json", "w", encoding="utf-8") as f:
+    with open(out_filepath, mode="a", encoding="utf-8") as f:
+        for example_data in testset_data:
+            reformatted_dict = __get_reformatted_example(
+                example_data
+            )  # , input_sentence_ordering
             json_string = (
-                json.dumps(reformatted_dict, f, ensure_ascii=False, indent=4) + "\n"
+                json.dumps(reformatted_dict, ensure_ascii=False) + "\n"  # , indent=4
             )  # .encode('utf8')
             f.write(json_string)
+
+
+def __get_reformatted_example(example_data):  # , input_sentence_ordering
+    return {
+        SentenceNames.SHORT_NONISLAND: example_data[SentenceNames.SHORT_NONISLAND],
+        SentenceNames.LONG_NONISLAND: example_data[SentenceNames.LONG_NONISLAND],
+        SentenceNames.SHORT_ISLAND: example_data[SentenceNames.SHORT_ISLAND],
+        SentenceNames.LONG_ISLAND: example_data[SentenceNames.LONG_ISLAND],
+    }
 
 
 def convert_sprouse_csv_to_jsonl():
@@ -257,8 +265,8 @@ def __write_sentence_item(
 
 def main():
     print("converting files..")
-    # change_files_sentence_order()
-    convert_sprouse_csv_to_jsonl()
+    change_files_sentence_order()
+    # convert_sprouse_csv_to_jsonl()
 
 
 if __name__ == "__main__":
