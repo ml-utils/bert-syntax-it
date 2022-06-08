@@ -37,7 +37,7 @@ def run_sprouse_tests(
     tokenizer,
     device,
     phenomena=None,
-    tests_dir=None,
+    testset_dir_path=None,
     examples_format="sprouse",
     sentence_ordering=SprouseSentencesOrder,
 ):
@@ -60,13 +60,13 @@ def run_sprouse_tests(
             "wh_subject_island",
             "wh_whether_island",
         ]
-    if tests_dir is None:
-        tests_dir = str(get_syntactic_tests_dir() / "sprouse/")
-    print(f"Running testsets from dir {tests_dir}")
+    if testset_dir_path is None:
+        testset_dir_path = str(get_syntactic_tests_dir() / "sprouse/")
+    print(f"Running testsets from dir {testset_dir_path}")
     for phenomenon_name in phenomena:
         print(f"Running testset for {phenomenon_name}..")
         filename = phenomenon_name + ".jsonl"
-        filepath = os.path.abspath(os.path.join(tests_dir, filename))
+        filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
         score_averages = run_sprouse_test(
             filepath,
             model_type,
@@ -281,7 +281,7 @@ def main():
             tokenizer,
             device,
             phenomena=phenomena,
-            tests_dir=tests_dir,
+            testset_dir_path=tests_dir,
             examples_format=examples_format,
             sentence_ordering=sentence_ordering,
         )

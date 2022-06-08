@@ -565,6 +565,9 @@ def profile_slowdowns():
     # "gpt2-large"  # 'gpt2' #  "bert-large-uncased"
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
+    # todo: move this profiling test to the integration tests section
+    # todo/fixme: update testset_files directory path
+    # p = (get_test_data_dir() / "blimp")
     p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
     testset_dir_path = str(p)
 

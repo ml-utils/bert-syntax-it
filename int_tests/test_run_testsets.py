@@ -10,6 +10,8 @@ from linguistic_tests.run_syntactic_tests import run_blimp_en
 from linguistic_tests.run_syntactic_tests import run_tests_it
 from matplotlib import pyplot as plt
 
+from int_tests.int_tests_utils import get_test_data_dir
+
 
 class TestRunTestSets(TestCase):
     # todo: also run these tests mocking the models (no remote calls) and with
@@ -23,10 +25,13 @@ class TestRunTestSets(TestCase):
     @pytest.mark.enable_socket
     def test_run_blimp_en_tessts(self):
         testset_filenames = ["mini_wh_island.jsonl"]
+        p = get_test_data_dir() / "blimp"
+        testset_dir_path = str(p)
         run_blimp_en(
             model_type=model_types.BERT,
             model_name="bert-base-uncased",
             testset_filenames=testset_filenames,
+            testset_dir_path=testset_dir_path,
         )
 
     @pytest.mark.enable_socket
@@ -40,8 +45,15 @@ class TestRunTestSets(TestCase):
         phenomena = [
             "mini_wh_adjunct_island",
         ]
+        p = get_test_data_dir() / "sprouse"
+        testset_dir_path = str(p)
         run_sprouse_tests(
-            model_type, model, tokenizer, DEVICES.CPU, phenomena=phenomena
+            model_type,
+            model,
+            tokenizer,
+            DEVICES.CPU,
+            phenomena=phenomena,
+            testset_dir_path=testset_dir_path,
         )
 
     @pytest.mark.slow
@@ -51,4 +63,11 @@ class TestRunTestSets(TestCase):
         testset_files = [
             "mini_wh_adjunct_islands.jsonl",
         ]
-        run_tests_it(model_type, testset_files=testset_files)
+        p = get_test_data_dir() / "custom_it"
+        testset_dir_path = str(p)
+
+        run_tests_it(
+            model_type,
+            testset_filenames=testset_files,
+            testset_dir_path=testset_dir_path,
+        )

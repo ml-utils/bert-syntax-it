@@ -48,7 +48,9 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
     estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose=True)
 
 
-def run_blimp_en(model_type=None, model_name=None, testset_filenames=None):
+def run_blimp_en(
+    model_type=None, model_name=None, testset_filenames=None, testset_dir_path=None
+):
     if model_type is None:
         model_type = model_types.ROBERTA  # model_types.GPT  #
         model_name = "roberta-large"  # "roberta-base" #"gpt2-medium"
@@ -62,9 +64,9 @@ def run_blimp_en(model_type=None, model_name=None, testset_filenames=None):
             "adjunct_island.jsonl",
             "complex_NP_island.jsonl",
         ]
-
-    p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
-    testset_dir_path = str(p)
+    if testset_dir_path is None:
+        p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
+        testset_dir_path = str(p)
 
     for testset_filename in testset_filenames:
         testset_filepath = os.path.join(testset_dir_path, testset_filename)
@@ -96,7 +98,7 @@ def run_blimp_en(model_type=None, model_name=None, testset_filenames=None):
         )
 
 
-def run_tests_it(model_type, testset_files=None):
+def run_tests_it(model_type, testset_filenames=None, testset_dir_path=None):
     if model_type == model_types.GPT:
         model_name = "GroNLP/gpt2-small-italian"
     if model_type == model_types.GEPPETTO:
@@ -114,20 +116,21 @@ def run_tests_it(model_type, testset_files=None):
         model_name = "idb-ita/gilberto-uncased-from-camembert"
 
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
-    p = (
-        get_syntactic_tests_dir() / "syntactic_tests_it"
-    )  # "./outputs/syntactic_tests_it/"
-    testsets_dir = str(p)
-    if testset_files is None:
-        testset_files = [  # 'variations_tests.jsonl'
+    if testset_dir_path is None:
+        p = (
+            get_syntactic_tests_dir() / "syntactic_tests_it"
+        )  # "./outputs/syntactic_tests_it/"
+        testset_dir_path = str(p)
+    if testset_filenames is None:
+        testset_filenames = [  # 'variations_tests.jsonl'
             "wh_adjunct_islands.jsonl",
             "wh_complex_np_islands.jsonl",
             "wh_subject_islands.jsonl",
             "wh_whether_island.jsonl",
         ]
     sentences_per_example = 3
-    for test_file in testset_files:
-        filepath = os.path.join(testsets_dir, test_file)
+    for test_file in testset_filenames:
+        filepath = os.path.join(testset_dir_path, test_file)
         print_orange(f"running test {filepath}")
         testset_data = load_testset_data(filepath)
 
