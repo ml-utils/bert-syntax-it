@@ -130,7 +130,7 @@ def change_file_sentence_order(
     print(len(testset_data))
 
 
-def create_test_jsonl_files_tests():
+def convert_sprouse_csv_to_jsonl():
     # open csv file
     # parse ..
     testset_filepath = str(
@@ -257,7 +257,7 @@ def __write_sentence_item(
 def main():
     print("converting files..")
     # change_files_sentence_order()
-    create_test_jsonl_files_tests()
+    convert_sprouse_csv_to_jsonl()
 
 
 if __name__ == "__main__":
