@@ -119,7 +119,8 @@ def change_file_sentence_order(
     outdir = str(get_syntactic_tests_dir() / "sprouse/")
     out_filepath = os.path.join(outdir, out_filename)
     if os.path.exists(out_filepath):
-        raise ValueError(f"output file already exists: {out_filepath}")
+        print(f"output file already exists: {out_filepath}, skipping..")
+        return
     print(f"preparing file {out_filepath}..")
     input_filepath = os.path.join(dir_path, input_filename)
     print(f"reading from file {input_filepath}..")

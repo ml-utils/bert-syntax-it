@@ -244,30 +244,37 @@ def assert_almost_equale(val1, val2, precision=14):
     )
 
 
+def plot_all_phenomena(phenomena_names, lp_avg_scores):
+    for idx, phenomenon in enumerate(phenomena_names):
+        plot_results(phenomenon, lp_avg_scores[idx], "lp")
+
+
 def main():
     # create_test_jsonl_files_tests()
 
     model_type = (
-        model_types.GEPPETTO
-    )  # model_types.BERT  #  model_types.GPT # model_types.ROBERTA  #
-    model_name = "LorenzoDeMattei/GePpeTto"
-    # "LorenzoDeMattei/GePpeTto"
-    # "dbmdz/bert-base-italian-xxl-cased"
+        model_types.BERT  # model_types.GEPPETTO
+    )  # model_types.GPT # model_types.ROBERTA  #
+    model_name = "dbmdz/bert-base-italian-xxl-cased"  # "LorenzoDeMattei/GePpeTto"
     # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
     device = DEVICES.CPU
     model, tokenizer = load_model(model_type, model_name, device)
 
     run_custom_testsets = True
     if run_custom_testsets:
-        tests_dir = str(get_syntactic_tests_dir() / "syntactic_tests_it/")
+        tests_dir = str(get_syntactic_tests_dir() / "sprouse/")  # "syntactic_tests_it/"
         phenomena = [
-            "wh_adjunct_islands",
+            # "wh_adjunct_islands",
             # "wh_complex_np_islands",
             # "wh_whether_island",
             # "wh_subject_islands",
+            "custom-wh_adjunct_islands",
+            "custom-wh_complex_np_islands",
+            "custom-wh_whether_island",
+            "custom-wh_subject_islands",
         ]
-        examples_format = "blimp"
-        sentence_ordering = BlimpSentencesOrder
+        examples_format = "sprouse"  # "blimp"
+        sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
         run_sprouse_tests(
             model_type,
             model,
@@ -284,8 +291,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-def plot_all_phenomena(phenomena_names, lp_avg_scores):
-    for idx, phenomenon in enumerate(phenomena_names):
-        plot_results(phenomenon, lp_avg_scores[idx], "lp")
