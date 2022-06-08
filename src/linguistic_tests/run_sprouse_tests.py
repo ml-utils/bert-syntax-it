@@ -62,7 +62,6 @@ def write_sentence_pair(f, sentence_bad, good_sentence, conditions):
 
 
 def read_sentences_item(example):
-
     parsed = dict()
 
     return parsed
@@ -79,7 +78,7 @@ def write_sentence_item(
         "short_nonisland": good_sentence_short_nonisland,
         "long_nonisland": good_sentence_long_nonisland,
         "short_island": good_sentence_short_island,
-        "sentence_bad": sentence_bad,
+        "long_island": sentence_bad,
     }
     json_string = (
         json.dumps(sentence_item, ensure_ascii=False) + "\n"
@@ -174,7 +173,6 @@ def run_sprouse_tests(
     examples_format="sprouse",
     sentence_ordering=SprouseSentencesOrder,
 ):
-
     # todo: compare results (for each phenomena) on the 8 original Sprouse sentences, and the new 50 italian ones
 
     # todo: see activation levels in the model layers, try to identify several phenomena: clause segmentation,
@@ -196,6 +194,7 @@ def run_sprouse_tests(
         ]
     if tests_dir is None:
         tests_dir = str(get_syntactic_tests_dir() / "sprouse/")
+    print(f"Running testsets from dir {tests_dir}")
     for phenomenon_name in phenomena:
         print(f"Running testset for {phenomenon_name}..")
         filename = phenomenon_name + ".jsonl"
@@ -213,7 +212,6 @@ def run_sprouse_tests(
 
 
 def plot_results(phenomenon_name, score_averages, score_descr):
-
     # todo: plot values
     #     lp_averages = [lp_short_nonisland_average, lp_long_nonisland_avg,
     #                    lp_short_island_avg, lp_long_island_avg]
@@ -269,6 +267,7 @@ def run_sprouse_test_helper(
     examples_in_sprouse_format=True,
     sentence_ordering=SprouseSentencesOrder,
     max_examples=50,
+    verbose=False,
 ):
     sent_ids = []
     sentences_per_example = 4
@@ -286,6 +285,7 @@ def run_sprouse_test_helper(
     DDs_with_pen_lp = []
 
     for example_idx, example_data in enumerate(tqdm(testset["sentences"])):
+
         (
             lps,
             pen_lps,
@@ -302,11 +302,8 @@ def run_sprouse_test_helper(
             sentences_per_example,
             sprouse_format=examples_in_sprouse_format,
         )
-
-        #     sentence_item = {'short_nonisland': good_sentence_short_nonisland,
-        #                      'short_island': good_sentence_short_island,
-        #                      'long_nonisland': good_sentence_long_nonisland,
-        #                      'sentence_bad': sentence_bad}
+        if verbose:
+            print_example(sentences, sentence_ordering)
 
         DDs_with_lp.append(get_dd_score(lps, sentence_ordering))
         DDs_with_pen_lp.append(get_dd_score(pen_lps, sentence_ordering))
@@ -338,8 +335,17 @@ def run_sprouse_test_helper(
     return lp_averages
 
 
-def get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
+def print_example(example_data, sentence_ordering):
+    print(
+        f"sentence ordering is {type(sentence_ordering)}"
+        f"\nSHORT_NONISLAND: {example_data[sentence_ordering.SHORT_NONISLAND]}"
+        f"\nLONG_NONISLAND : {example_data[sentence_ordering.LONG_NONISLAND]}"
+        f"\nSHORT_ISLAND : {example_data[sentence_ordering.SHORT_ISLAND]}"
+        f"\nLONG_ISLAND : {example_data[sentence_ordering.LONG_ISLAND]}"
+    )
 
+
+def get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
     a_short_nonisland_idx = sentences_ordering.SHORT_NONISLAND
     b_long_nonisland = sentences_ordering.LONG_NONISLAND
     c_short_island = sentences_ordering.SHORT_ISLAND
@@ -366,34 +372,46 @@ def get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
 
 def assert_almost_equale(val1, val2, precision=14):
     assert abs(val1 - val2) < 10 ** (-1 * precision), (
-        f"val1:{val1}, val2: {val2}, " f"diff: {val1-val2}"
+        f"val1:{val1}, val2: {val2}, " f"diff: {val1 - val2}"
     )
 
 
 def main():
     # create_test_jsonl_files_tests()
 
-    model_type = model_types.BERT  # model_types.GPT # model_types.ROBERTA  #
-    model_name = "dbmdz/bert-base-italian-xxl-cased"  # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
+    model_type = (
+        model_types.GEPPETTO
+    )  # model_types.BERT  #  model_types.GPT # model_types.ROBERTA  #
+    model_name = "LorenzoDeMattei/GePpeTto"
+    # "LorenzoDeMattei/GePpeTto"
+    # "dbmdz/bert-base-italian-xxl-cased"
+    # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
     device = DEVICES.CPU
     model, tokenizer = load_model(model_type, model_name, device)
-    tests_dir = str(get_syntactic_tests_dir() / "syntactic_tests_it/")
-    phenomena = [
-        "wh_adjunct_islands",
-        # "wh_complex_np_islands",
-        # "wh_whether_island",
-        # "wh_subject_islands",
-    ]
-    run_sprouse_tests(
-        model_type,
-        model,
-        tokenizer,
-        device,
-        phenomena=phenomena,
-        tests_dir=tests_dir,
-        examples_format="blimp",
-        sentence_ordering=BlimpSentencesOrder,
-    )
+
+    run_custom_testsets = True
+    if run_custom_testsets:
+        tests_dir = str(get_syntactic_tests_dir() / "syntactic_tests_it/")
+        phenomena = [
+            "wh_adjunct_islands",
+            # "wh_complex_np_islands",
+            # "wh_whether_island",
+            # "wh_subject_islands",
+        ]
+        examples_format = "blimp"
+        sentence_ordering = BlimpSentencesOrder
+        run_sprouse_tests(
+            model_type,
+            model,
+            tokenizer,
+            device,
+            phenomena=phenomena,
+            tests_dir=tests_dir,
+            examples_format=examples_format,
+            sentence_ordering=sentence_ordering,
+        )
+    else:
+        run_sprouse_tests(model_type, model, tokenizer, device)
 
 
 if __name__ == "__main__":
