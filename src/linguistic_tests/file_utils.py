@@ -71,7 +71,7 @@ def convert_testset_to_csv(
             # writer.writerows(rows)
 
 
-def convert_files():
+def convert_files_to_csv():
     dir_path = str(get_syntactic_tests_dir() / "syntactic_tests_it/")
     input_filenames = [
         # "wh_adjunct_islands.jsonl",
@@ -89,9 +89,48 @@ def convert_files():
         )
 
 
+def change_files_sentence_order():
+    dir_path = str(get_syntactic_tests_dir() / "syntactic_tests_it/")
+    input_filenames = [
+        "wh_adjunct_islands.jsonl",
+        # "wh_complex_np_islands.jsonl",
+        # "wh_whether_island.jsonl",
+        # "wh_subject_islands.jsonl",
+    ]
+
+    for input_filename in input_filenames:
+        change_file_sentence_order(
+            dir_path,
+            input_filename,
+            sentence_ordering=BlimpSentencesOrder,
+        )
+
+
+def change_file_sentence_order(
+    dir_path,
+    input_filename,
+    in_sentence_ordering=BlimpSentencesOrder,
+):
+
+    out_filename = input_filename + "-ref.jsonl"
+    out_filepath = os.path.join(dir_path, out_filename)
+    if os.path.exists(out_filepath):
+        raise ValueError(f"output file already exists: {out_filepath}")
+
+    input_filepath = os.path.join(dir_path, input_filename)
+    examples = load_testset_data(
+        input_filepath, in_sentence_ordering=BlimpSentencesOrder
+    )
+    if in_sentence_ordering == BlimpSentencesOrder:
+        testset_data = examples["sentences"]
+
+    # todo: save to new json file
+    print(len(testset_data))
+
+
 def main():
     print("converting files..")
-    convert_files()
+    change_files_sentence_order()
 
 
 if __name__ == "__main__":
