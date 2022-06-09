@@ -1,22 +1,23 @@
 {"sentences": [
 
-  {"sentence_good_no_extraction": "Chi è partito per Parigi dopo aver fatto le valigie?",
-  "sentence_bad_extraction": "Che cosa Gianni è partito per Parigi dopo aver fatto?",
-  "sentence_good_no_island": "Dopo aver fatto cosa, Gianni è partito per Parigi?",
+  {"short_island": "Chi è partito per Parigi dopo aver fatto le valigie?",
+  "long_island": "Che cosa Gianni è partito per Parigi dopo aver fatto?",
+  "long_nonisland": "Che cosa pensi che Gianni avrebbe fatto?",
+  "short_nonisland": "Chi pensa che Gianni avrebbe fatto le valigie?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
   "island_subcategory": "adjunct_island",
     "pairID": "0"},
 
-  {"sentence_good_no_extraction": "Chi ha organizzato una festa dopo aver superato l’esame?",
-    "sentence_bad_extraction": "Che cosa Luisa ha organizzato una festa dopo aver superato?",
-    "sentence_good_no_island": "Dopo aver superato cosa, Luisa ha organizzato una festa?",
+    {"short_island": "Chi diffonderà la notizia dopo che Gianni avrà comprato le azioni?",
+    "long_island": "Che cosa il direttore diffonderà la notizia dopo che Gianni avrà comprato?",
+    "long_nonisland": "Che cosa dici che Gianni avrebbe comprato?",
+    "short_nonisland": "Chi dice che Gianni avrebbe comprato le azioni?",
     "field": "syntax",
     "linguistics_term": "island_effects",
     "UID": "wh_island",
     "island_subcategory": "adjunct_island",
     "pairID": "1"}
-
 ]
 }

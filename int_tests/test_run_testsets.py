@@ -6,10 +6,10 @@ from linguistic_tests.compute_model_score import run_testset
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import model_types
-from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_sprouse_tests import run_sprouse_tests
 from linguistic_tests.run_syntactic_tests import run_blimp_en
 from linguistic_tests.run_syntactic_tests import run_tests_it
+from linguistic_tests.testset import SentenceNames
 from matplotlib import pyplot as plt
 
 from int_tests.int_tests_utils import get_test_data_dir

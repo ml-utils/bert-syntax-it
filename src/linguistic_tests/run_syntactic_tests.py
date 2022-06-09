@@ -11,7 +11,7 @@ from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
-from linguistic_tests.lm_utils import SentenceNames
+from linguistic_tests.testset import SentenceNames
 from tqdm import tqdm
 
 
@@ -70,7 +70,6 @@ def run_blimp_en(
 
     for testset_filename in testset_filenames:
         testset_filepath = os.path.join(testset_dir_path, testset_filename)
-        # './outputs/blimp/from_blim_en/islands/adjunct_island.jsonl'
 
         print(f"loading testset file {testset_filepath}..")
         with open(testset_filepath, "r") as json_file:

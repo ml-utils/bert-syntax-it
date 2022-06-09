@@ -6,8 +6,8 @@ import pandas
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_sprouse_tests import BlimpSentencesOrder
+from linguistic_tests.testset import SentenceNames
 from tqdm import tqdm
 
 
