@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from dataclasses import field
+from dataclasses import InitVar
 from enum import Enum
 
 
@@ -20,18 +21,30 @@ class SentenceNames(StrEnum):
 @dataclass
 class Sentence:
     txt: str
+
     lp: float = -200
     pen_lp: float = -200
-    sentence_log_weights: list[float] = field(default_factory=list)
-    pen_sentence_log_weights: list[float] = field(default_factory=list)
+    sentence_log_weight: float = -200
+    pen_sentence_log_weight: float = -200
     # lps: list[float] = field(default_factory=list)
     # pen_lps: list[float] = field(default_factory=list)
     token_weights: list[float] = field(default_factory=list)
 
+    # todo? add sentence ids
+    tokens: list[str] = field(default_factory=list)
+
+    def get_score(self, score_name):
+        if score_name == "lp":
+            return self.lp
+        elif score_name == "pen_lp":
+            return self.pen_lp
+        else:
+            raise ValueError(f"Unexcpected score name: {score_name}")
+
 
 @dataclass
 class TypedSentence:
-    type: SentenceNames
+    stype: SentenceNames
     sent: Sentence
 
 
@@ -43,15 +56,39 @@ class Example:
     max_token_weight: float = -200
     # token_weights_by_sentence = [] # ..todo
 
+    DD_with_lp: float = -200
+    DD_with_penlp: float = -200
+
 
 @dataclass
 class TestSet:
     examples: list[Example]
+
+    sent_types: InitVar[list[SentenceNames]]
+    lp_average_by_sentence_type: dict[SentenceNames, float] = field(
+        default_factory=dict
+    )
+    penlp_average_by_sentence_type: dict[SentenceNames, float] = field(
+        default_factory=dict
+    )
+    accuracy_by_DD_lp: float = 0
+    accuracy_by_DD_penlp: float = 0
+
     min_token_weight: float = 200
     max_token_weight: float = -200
 
+    # todo: add model descriptor, indicating from what the scrores where derived
+    # todo: add score_averages, for the plots
+    # todo add field for excluded examples because above the max number (50)
+    # add field max examples?
 
-def parse_testset(examples_list: list, sent_types_descr: str):
+    def __post_init__(self, sent_types):
+        for stype in sent_types:
+            self.lp_average_by_sentence_type[stype] = 0
+            self.penlp_average_by_sentence_type[stype] = 0
+
+
+def parse_testset(examples_list: list, sent_types_descr: str, max_examples=50):
     print(f"len examples: {len(examples_list)}")
 
     if sent_types_descr == "sprouse":
@@ -69,17 +106,20 @@ def parse_testset(examples_list: list, sent_types_descr: str):
     else:
         raise ValueError(f"unrecognized sentence types format: {sent_types_descr}")
 
+    if len(examples_list) > 50:
+        examples_list = examples_list[:max_examples]
+
     parsed_examples = []
     for example in examples_list:
         parsed_example = parse_example(example, sent_types)
         parsed_examples.append(parsed_example)
 
-    return TestSet(parsed_examples)
+    return TestSet(parsed_examples, sent_types)
 
 
 def parse_example(example: dict, sent_types: list):
     typed_senteces = []
-    print(f"example: {example}")
+    # print(f"example: {example}")
 
     for sent_type in sent_types:
         typed_sentece = parse_typed_sentence(sent_type, example[sent_type])

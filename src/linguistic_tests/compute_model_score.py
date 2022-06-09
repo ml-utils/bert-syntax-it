@@ -113,6 +113,49 @@ def run_testset(model_type, model, tokenizer, device, testset, sentences_per_exa
         )
 
 
+def compute_example_scores_wdataclasses(
+    device,
+    example,
+    model,
+    model_type,
+    tokenizer,
+):
+    for _idx, typed_sentence in enumerate(example.sentences):
+        sentence = typed_sentence.sent
+        sentence.tokens = tokenizer.tokenize(sentence.txt)  # , return_tensors='pt'
+        if len(sentence.tokens) == 0:
+            print(f"Warning: lenght 0 for {sentence=} from {example=}")
+        text_len = len(sentence.tokens)
+        lp, token_weights = get_sentence_score_JHLau(
+            model_type, model, tokenizer, sentence.tokens, device
+        )
+        if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
+            example.min_token_weight = min(min(token_weights), example.min_token_weight)
+            example.max_token_weight = max(max(token_weights), example.max_token_weight)
+            sentence.token_weights = token_weights
+            sentence.lp = lp
+        penalty = get_penalty_term(text_len)
+        sentence.pen_lp = lp / penalty
+    if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
+        # normalize token weights
+        example.max_token_weight -= example.min_token_weight  # normalize the max value
+        for _idx, typed_sentence in enumerate(example.sentences):
+            sentence = typed_sentence.sent
+            # normalized the token weights
+            sentence.token_weights = [
+                (x - example.min_token_weight) / example.max_token_weight
+                for x in sentence.token_weights
+            ]
+        for _idx, typed_sentence in enumerate(example.sentences):
+            sentence = typed_sentence.sent
+            sentence.sentence_log_weight = reduce_to_log_product(sentence.token_weights)
+            text_lenght = len(sentence.tokens)
+            penalty = get_penalty_term(text_lenght)
+            sentence.pen_sentence_log_weight = sentence.sentence_log_weight / penalty
+
+    return example
+
+
 def get_example_scores(
     device,
     example_data,

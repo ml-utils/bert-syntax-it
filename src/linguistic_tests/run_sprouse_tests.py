@@ -1,12 +1,17 @@
 import os.path
 from enum import IntEnum
 
+from linguistic_tests.compute_model_score import compute_example_scores_wdataclasses
 from linguistic_tests.compute_model_score import get_example_scores
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
+from linguistic_tests.testset import Example
+from linguistic_tests.testset import parse_testset
+from linguistic_tests.testset import SentenceNames
+from linguistic_tests.testset import TestSet
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
@@ -76,6 +81,9 @@ def run_sprouse_tests(
             examples_format=examples_format,
             sentence_ordering=sentence_ordering,
         )
+        # todo: also plot for penlp
+        # todo: draw a plot with 4 subplot, one for each wh-island phenomena
+        # todo: do the calculation at once for the 4 testsets, then draw the plots
         plot_results(phenomenon_name, score_averages, "lp")
 
 
@@ -85,15 +93,16 @@ def plot_results(phenomenon_name, score_averages, score_descr):
     #                    lp_short_island_avg, lp_long_island_avg]
 
     # nonisland line
-    short_nonisland_average = [0, score_averages[0]]
-    long_nonisland_avg = [1, score_averages[1]]
+    short_nonisland_average = [0, score_averages[SentenceNames.SHORT_NONISLAND]]
+    long_nonisland_avg = [1, score_averages[SentenceNames.LONG_NONISLAND]]
     x_values = [short_nonisland_average[0], long_nonisland_avg[0]]
     y_values = [short_nonisland_average[1], long_nonisland_avg[1]]
     plt.plot(x_values, y_values)
 
     # island line
-    short_island_avg = [0, score_averages[2]]
-    long_island_avg = [1, score_averages[3]]
+
+    short_island_avg = [0, score_averages[SentenceNames.SHORT_ISLAND]]
+    long_island_avg = [1, score_averages[SentenceNames.LONG_ISLAND]]
     x_values = [short_island_avg[0], long_island_avg[0]]
     y_values = [short_island_avg[1], long_island_avg[1]]
     plt.plot(x_values, y_values, linestyle="--")
@@ -111,19 +120,64 @@ def run_sprouse_test(
     examples_format="sprouse",
     sentence_ordering=SprouseSentencesOrder,
 ):
-    testset = load_testset_data(filepath, examples_format=examples_format)
+    testset_dict = load_testset_data(filepath, examples_format=examples_format)
+    examples_list = testset_dict["sentences"]
+    parsed_testset = parse_testset(examples_list, "sprouse")
 
     # run_testset(model_type, model, tokenizer, device, testset)
-    lp_averages = run_sprouse_test_helper(
+    # lp_averages = run_sprouse_test_helper(
+    #     model_type,
+    #     model,
+    #     tokenizer,
+    #     device,
+    #     testset,
+    #     sentence_ordering=sentence_ordering,
+    # )
+    parsed_testset = run_sprouse_test_helper_wdataclasses(
         model_type,
         model,
         tokenizer,
         device,
-        testset,
-        sentence_ordering=sentence_ordering,
+        parsed_testset,
     )
+    lp_averages = parsed_testset.lp_average_by_sentence_type
     print(f"{lp_averages=}")
     return lp_averages
+
+
+def run_sprouse_test_helper_wdataclasses(
+    model_type, model, tokenizer, device, testset: TestSet
+):
+    for example_idx, example in enumerate(tqdm(testset.examples)):
+        compute_example_scores_wdataclasses(
+            device,
+            example,
+            model,
+            model_type,
+            tokenizer,
+        )
+
+        example.DD_with_lp, example.DD_with_penlp = get_dd_scores_wdataclasses(example)
+        if example.DD_with_lp > 0:
+            testset.accuracy_by_DD_lp += 1 / len(testset.examples)
+        if example.DD_with_penlp > 0:
+            testset.accuracy_by_DD_penlp += 1 / len(testset.examples)
+
+        for _idx, typed_sentence in enumerate(example.sentences):
+            stype = typed_sentence.stype
+            sentence = typed_sentence.sent
+
+            testset.lp_average_by_sentence_type[stype] += sentence.lp
+            testset.penlp_average_by_sentence_type[stype] += sentence.pen_lp
+
+    for stype in testset.lp_average_by_sentence_type.keys():
+        testset.lp_average_by_sentence_type[stype] /= len(testset.examples)
+        testset.penlp_average_by_sentence_type[stype] /= len(testset.examples)
+
+    print(f"Testset accuracy with DDs_with_lp: {testset.accuracy_by_DD_lp}")
+    print(f"Testset accuracy with DDs_with_penlp: {testset.accuracy_by_DD_penlp}")
+
+    return testset
 
 
 def run_sprouse_test_helper(
@@ -211,6 +265,55 @@ def print_example(example_data, sentence_ordering):
         f"\nSHORT_ISLAND : {example_data[sentence_ordering.SHORT_ISLAND]}"
         f"\nLONG_ISLAND : {example_data[sentence_ordering.LONG_ISLAND]}"
     )
+
+
+def get_dd_scores_wdataclasses(example):
+
+    # todo, fixme: ddscore should be normalized across the example and across the testset
+    #  (according to min and max token weights)
+    #  store absolute values and normalized values
+
+    example_dd_with_lp = get_example_dd_score(example, "lp")
+    example_dd_with_penlp = get_example_dd_score(example, "pen_lp")
+
+    return example_dd_with_lp, example_dd_with_penlp
+
+
+def get_example_dd_score(example: Example, score_name):
+    for typed_sentence in example.sentences:
+        stype = typed_sentence.stype
+        sent = typed_sentence.sent
+        if stype == SentenceNames.SHORT_NONISLAND:
+            a_short_nonisland = sent
+        elif stype == SentenceNames.LONG_NONISLAND:
+            b_long_nonisland = sent
+        elif stype == SentenceNames.SHORT_ISLAND:
+            c_short_island = sent
+        elif stype == SentenceNames.LONG_ISLAND:
+            d_long_island = sent
+        else:
+            raise ValueError(f"Unexpected sentence type: {stype}")
+
+    # todo, fixme: use normalized scores (normalized according to min max token weight across testset)
+    example_lenght_effect = a_short_nonisland.get_score(
+        score_name
+    ) - b_long_nonisland.get_score(score_name)
+    example_structure_effect = a_short_nonisland.get_score(
+        score_name
+    ) - c_short_island.get_score(score_name)
+    example_total_effect = a_short_nonisland.get_score(
+        score_name
+    ) - d_long_island.get_score(score_name)
+    example_island_effect = example_total_effect - (
+        example_lenght_effect + example_structure_effect
+    )
+    example_dd = example_structure_effect - (
+        b_long_nonisland.get_score(score_name) - d_long_island.get_score(score_name)
+    )
+
+    example_dd *= -1
+    assert_almost_equale(example_island_effect, example_dd)
+    return example_dd
 
 
 def get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
