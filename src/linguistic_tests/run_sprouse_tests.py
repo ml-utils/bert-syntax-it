@@ -68,11 +68,12 @@ def run_sprouse_tests(
     if testset_dir_path is None:
         testset_dir_path = str(get_syntactic_tests_dir() / "sprouse/")
     print(f"Running testsets from dir {testset_dir_path}")
+    scored_testsets = []
     for phenomenon_name in phenomena:
         print(f"Running testset for {phenomenon_name}..")
         filename = phenomenon_name + ".jsonl"
         filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
-        score_averages = run_sprouse_test(
+        scored_testset = run_sprouse_test(
             filepath,
             model_type,
             model,
@@ -81,34 +82,49 @@ def run_sprouse_tests(
             examples_format=examples_format,
             sentence_ordering=sentence_ordering,
         )
-        # todo: also plot for penlp
-        # todo: draw a plot with 4 subplot, one for each wh-island phenomena
-        # todo: do the calculation at once for the 4 testsets, then draw the plots
-        plot_results(phenomenon_name, score_averages, "lp")
+        scored_testsets.append(scored_testset)
+    plot_results(scored_testsets, "lp")
+    plot_results(scored_testsets, "pen_lp")
 
 
-def plot_results(phenomenon_name, score_averages, score_descr):
-    # todo: plot values
-    #     lp_averages = [lp_short_nonisland_average, lp_long_nonisland_avg,
-    #                    lp_short_island_avg, lp_long_island_avg]
+def plot_results(scored_testsets, score_name):
+    fig, axs = plt.subplots(2, 2)
+    axs_list = axs.reshape(-1)
+    print(f"type axs_list: {type(axs_list)}, {len(axs_list)=}, {axs_list=}")
+    for scored_testset, ax in zip(scored_testsets, axs_list):
+        _plot_results_subplot(scored_testset, score_name, ax)
+
+    plt.suptitle(scored_testsets[0].model_descr)
+    plt.show()
+
+
+def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
+    # plt.subplot(2, 2, testset_idx)
+    # plt.plot(x, y)
+
+    # todo: normalize the scores centering them to 0 like the z scores in the paper
+    DD_value = scored_testset.get_avg_DD(score_name)
+    ax.legend(title=f"DD = {DD_value:.2f}")
+
+    # todo? in the legend also plot p value across all the testset examples
+    # in the legend also plot accuracy %
+    score_averages = scored_testset.get_avg_scores(score_name)
 
     # nonisland line
     short_nonisland_average = [0, score_averages[SentenceNames.SHORT_NONISLAND]]
     long_nonisland_avg = [1, score_averages[SentenceNames.LONG_NONISLAND]]
     x_values = [short_nonisland_average[0], long_nonisland_avg[0]]
     y_values = [short_nonisland_average[1], long_nonisland_avg[1]]
-    plt.plot(x_values, y_values)
+    ax.plot(x_values, y_values, label="non-island structure")
 
     # island line
-
     short_island_avg = [0, score_averages[SentenceNames.SHORT_ISLAND]]
     long_island_avg = [1, score_averages[SentenceNames.LONG_ISLAND]]
     x_values = [short_island_avg[0], long_island_avg[0]]
     y_values = [short_island_avg[1], long_island_avg[1]]
-    plt.plot(x_values, y_values, linestyle="--")
-    plt.title(phenomenon_name)
-    plt.ylabel(f"{score_descr} values")
-    plt.show()
+    ax.plot(x_values, y_values, linestyle="--", label="island structure")
+    # ax.set_title(scored_testset.linguistic_phenomenon)
+    ax.set_ylabel(f"{score_name} values")
 
 
 def run_sprouse_test(
@@ -122,7 +138,10 @@ def run_sprouse_test(
 ):
     testset_dict = load_testset_data(filepath, examples_format=examples_format)
     examples_list = testset_dict["sentences"]
-    parsed_testset = parse_testset(examples_list, "sprouse")
+
+    parsed_testset = parse_testset(
+        os.path.basename(filepath), str(type(model)), examples_list, "sprouse"
+    )
 
     # run_testset(model_type, model, tokenizer, device, testset)
     # lp_averages = run_sprouse_test_helper(
@@ -133,16 +152,16 @@ def run_sprouse_test(
     #     testset,
     #     sentence_ordering=sentence_ordering,
     # )
-    parsed_testset = run_sprouse_test_helper_wdataclasses(
+    scored_testset = run_sprouse_test_helper_wdataclasses(
         model_type,
         model,
         tokenizer,
         device,
         parsed_testset,
     )
-    lp_averages = parsed_testset.lp_average_by_sentence_type
+    lp_averages = scored_testset.lp_average_by_sentence_type
     print(f"{lp_averages=}")
-    return lp_averages
+    return scored_testset
 
 
 def run_sprouse_test_helper_wdataclasses(
@@ -173,6 +192,36 @@ def run_sprouse_test_helper_wdataclasses(
     for stype in testset.lp_average_by_sentence_type.keys():
         testset.lp_average_by_sentence_type[stype] /= len(testset.examples)
         testset.penlp_average_by_sentence_type[stype] /= len(testset.examples)
+
+    # todo: lp scores should be normalized across the whole testset
+    testset.avg_DD_lp = get_dd_score_parametric(
+        a_short_nonisland_score=testset.lp_average_by_sentence_type[
+            SentenceNames.SHORT_NONISLAND
+        ],
+        b_long_nonisland_score=testset.lp_average_by_sentence_type[
+            SentenceNames.LONG_NONISLAND
+        ],
+        c_short_island_score=testset.lp_average_by_sentence_type[
+            SentenceNames.SHORT_ISLAND
+        ],
+        d_long_island_score=testset.lp_average_by_sentence_type[
+            SentenceNames.LONG_ISLAND
+        ],
+    )
+    testset.avg_DD_penlp = get_dd_score_parametric(
+        a_short_nonisland_score=testset.penlp_average_by_sentence_type[
+            SentenceNames.SHORT_NONISLAND
+        ],
+        b_long_nonisland_score=testset.penlp_average_by_sentence_type[
+            SentenceNames.LONG_NONISLAND
+        ],
+        c_short_island_score=testset.penlp_average_by_sentence_type[
+            SentenceNames.SHORT_ISLAND
+        ],
+        d_long_island_score=testset.penlp_average_by_sentence_type[
+            SentenceNames.LONG_ISLAND
+        ],
+    )
 
     print(f"Testset accuracy with DDs_with_lp: {testset.accuracy_by_DD_lp}")
     print(f"Testset accuracy with DDs_with_penlp: {testset.accuracy_by_DD_penlp}")
@@ -295,20 +344,28 @@ def get_example_dd_score(example: Example, score_name):
             raise ValueError(f"Unexpected sentence type: {stype}")
 
     # todo, fixme: use normalized scores (normalized according to min max token weight across testset)
-    example_lenght_effect = a_short_nonisland.get_score(
-        score_name
-    ) - b_long_nonisland.get_score(score_name)
-    example_structure_effect = a_short_nonisland.get_score(
-        score_name
-    ) - c_short_island.get_score(score_name)
-    example_total_effect = a_short_nonisland.get_score(
-        score_name
-    ) - d_long_island.get_score(score_name)
+    return get_dd_score_parametric(
+        a_short_nonisland.get_score(score_name),
+        b_long_nonisland.get_score(score_name),
+        c_short_island.get_score(score_name),
+        d_long_island.get_score(score_name),
+    )
+
+
+def get_dd_score_parametric(
+    a_short_nonisland_score,
+    b_long_nonisland_score,
+    c_short_island_score,
+    d_long_island_score,
+):
+    example_lenght_effect = a_short_nonisland_score - b_long_nonisland_score
+    example_structure_effect = a_short_nonisland_score - c_short_island_score
+    example_total_effect = a_short_nonisland_score - d_long_island_score
     example_island_effect = example_total_effect - (
         example_lenght_effect + example_structure_effect
     )
     example_dd = example_structure_effect - (
-        b_long_nonisland.get_score(score_name) - d_long_island.get_score(score_name)
+        b_long_nonisland_score - d_long_island_score
     )
 
     example_dd *= -1
@@ -364,6 +421,7 @@ def main():
     model, tokenizer = load_model(model_type, model_name, device)
 
     run_custom_testsets = True
+    # scored_testsets = []
     if run_custom_testsets:
         tests_dir = str(get_syntactic_tests_dir() / "sprouse/")  # "syntactic_tests_it/"
         phenomena = [

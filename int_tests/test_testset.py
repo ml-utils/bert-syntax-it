@@ -16,7 +16,7 @@ class TestTestset(TestCase):
         filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
         testset = load_testset_data(filepath, examples_format="sprouse")
         examples_list = testset["sentences"]
-        parsed_testset = parse_testset(examples_list, "sprouse")
+        parsed_testset = parse_testset(filename, "some_model", examples_list, "sprouse")
 
         assert len(parsed_testset.examples) == 2
         for example in parsed_testset.examples:
@@ -31,7 +31,7 @@ class TestTestset(TestCase):
         filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
         testset = load_testset_data(filepath, examples_format="json_lines")
         examples_list = testset["sentences"]
-        parsed_testset = parse_testset(examples_list, "blimp")
+        parsed_testset = parse_testset(filename, "some_model", examples_list, "blimp")
 
         assert len(parsed_testset.examples) == 2
         for example in parsed_testset.examples:
@@ -46,12 +46,10 @@ class TestTestset(TestCase):
         filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
         testset = load_testset_data(filepath, examples_format="blimp")
         examples_list = testset["sentences"]
-        parsed_testset = parse_testset(examples_list, "sprouse")
+        parsed_testset = parse_testset(filename, "some_model", examples_list, "sprouse")
 
         assert len(parsed_testset.examples) == 2
         for example in parsed_testset.examples:
             assert len(example.sentences) == 4
             for typed_sentence in example.sentences:
                 assert len(typed_sentence.sent.txt) > 0
-
-        # todo: also test for the custom it file

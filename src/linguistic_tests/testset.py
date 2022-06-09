@@ -62,6 +62,8 @@ class Example:
 
 @dataclass
 class TestSet:
+    linguistic_phenomenon: str
+    model_descr: str
     examples: list[Example]
 
     sent_types: InitVar[list[SentenceNames]]
@@ -71,25 +73,47 @@ class TestSet:
     penlp_average_by_sentence_type: dict[SentenceNames, float] = field(
         default_factory=dict
     )
+    avg_DD_lp: float = -200
+    avg_DD_penlp: float = -200
     accuracy_by_DD_lp: float = 0
     accuracy_by_DD_penlp: float = 0
 
     min_token_weight: float = 200
     max_token_weight: float = -200
 
-    # todo: add model descriptor, indicating from what the scrores where derived
-    # todo: add score_averages, for the plots
-    # todo add field for excluded examples because above the max number (50)
-    # add field max examples?
+    # todo: add model descriptor, indicating from which model the scrores where calculated
+    # todo: normalize score_averages ..
 
     def __post_init__(self, sent_types):
         for stype in sent_types:
             self.lp_average_by_sentence_type[stype] = 0
             self.penlp_average_by_sentence_type[stype] = 0
 
+    def get_avg_scores(self, score_name):
+        if score_name == "lp":
+            return self.lp_average_by_sentence_type
+        elif score_name == "pen_lp":
+            return self.penlp_average_by_sentence_type
+        else:
+            raise ValueError(f"Unexcpected score name: {score_name}")
 
-def parse_testset(examples_list: list, sent_types_descr: str, max_examples=50):
-    print(f"len examples: {len(examples_list)}")
+    def get_avg_DD(self, score_name):
+        if score_name == "lp":
+            return self.avg_DD_lp
+        elif score_name == "pen_lp":
+            return self.avg_DD_penlp
+        else:
+            raise ValueError(f"Unexcpected score name: {score_name}")
+
+
+def parse_testset(
+    linguistic_phenomenon,
+    model_descr,
+    examples_list: list,
+    sent_types_descr: str,
+    max_examples=50,
+):
+    print(f"len examples: {len(examples_list)}, max: {max_examples}")
 
     if sent_types_descr == "sprouse":
         sent_types = [
@@ -106,7 +130,8 @@ def parse_testset(examples_list: list, sent_types_descr: str, max_examples=50):
     else:
         raise ValueError(f"unrecognized sentence types format: {sent_types_descr}")
 
-    if len(examples_list) > 50:
+    if len(examples_list) > max_examples:
+        # print(f"slicing the number of examples to {max_examples}")
         examples_list = examples_list[:max_examples]
 
     parsed_examples = []
@@ -114,7 +139,7 @@ def parse_testset(examples_list: list, sent_types_descr: str, max_examples=50):
         parsed_example = parse_example(example, sent_types)
         parsed_examples.append(parsed_example)
 
-    return TestSet(parsed_examples, sent_types)
+    return TestSet(linguistic_phenomenon, model_descr, parsed_examples, sent_types)
 
 
 def parse_example(example: dict, sent_types: list):
