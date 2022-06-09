@@ -133,7 +133,7 @@ def compute_example_scores_wdataclasses(
             example.min_token_weight = min(min(token_weights), example.min_token_weight)
             example.max_token_weight = max(max(token_weights), example.max_token_weight)
             sentence.token_weights = token_weights
-            sentence.lp = lp
+        sentence.lp = lp
         penalty = get_penalty_term(text_len)
         sentence.pen_lp = lp / penalty
     if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:

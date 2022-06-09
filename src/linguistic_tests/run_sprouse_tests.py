@@ -123,7 +123,7 @@ def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
     x_values = [short_island_avg[0], long_island_avg[0]]
     y_values = [short_island_avg[1], long_island_avg[1]]
     ax.plot(x_values, y_values, linestyle="--", label="island structure")
-    # ax.set_title(scored_testset.linguistic_phenomenon)
+    ax.set_title(scored_testset.linguistic_phenomenon)
     ax.set_ylabel(f"{score_name} values")
 
 
@@ -413,9 +413,9 @@ def main():
     # create_test_jsonl_files_tests()
 
     model_type = (
-        model_types.BERT  # model_types.GEPPETTO
+        model_types.GEPPETTO  # model_types.BERT  #
     )  # model_types.GPT # model_types.ROBERTA  #
-    model_name = "dbmdz/bert-base-italian-xxl-cased"  # "LorenzoDeMattei/GePpeTto"
+    model_name = "LorenzoDeMattei/GePpeTto"  # "dbmdz/bert-base-italian-xxl-cased"  #
     # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
     device = DEVICES.CPU
     model, tokenizer = load_model(model_type, model_name, device)
