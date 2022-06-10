@@ -1,13 +1,14 @@
 import csv
+import dataclasses
 import json
 import os.path
 
 import pandas
+from linguistic_tests.lm_utils import BlimpSentencesOrder
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.run_sprouse_tests import BlimpSentencesOrder
-from linguistic_tests.testset import SentenceNames
+from linguistic_tests.lm_utils import SentenceNames
 from tqdm import tqdm
 
 
@@ -264,6 +265,23 @@ def __write_sentence_item(
         json.dumps(sentence_item, ensure_ascii=False) + "\n"
     )  # .encode('utf8')
     f.write(json_string)
+
+
+class EnhancedJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if dataclasses.is_dataclass(o):
+            return dataclasses.asdict(o)
+        return super().default(o)
+
+
+def save_dataclass_to_json(self):
+    json.dumps(self, cls=EnhancedJSONEncoder)
+
+
+def get_file_root(path_str):
+    filename = os.path.basename(path_str)
+    filenameroot_no_extension = os.path.splitext(filename)[0]
+    return filenameroot_no_extension
 
 
 def main():

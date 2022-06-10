@@ -59,7 +59,7 @@ class TestRunSprouseTests(TestCase):
         assert dd_score > 0.7
 
     def test_sentences_ordering(self):
-        from linguistic_tests.run_sprouse_tests import SprouseSentencesOrder
+        from linguistic_tests.lm_utils import SprouseSentencesOrder
 
         assert SprouseSentencesOrder.SHORT_NONISLAND == 0
         assert SprouseSentencesOrder.LONG_NONISLAND == 1

@@ -1,33 +1,21 @@
 import os.path
-from enum import IntEnum
 
 from linguistic_tests.compute_model_score import compute_example_scores_wdataclasses
 from linguistic_tests.compute_model_score import get_example_scores
+from linguistic_tests.file_utils import get_file_root
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import SentenceNames
+from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.testset import Example
+from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
-from linguistic_tests.testset import SentenceNames
 from linguistic_tests.testset import TestSet
 from matplotlib import pyplot as plt
 from tqdm import tqdm
-
-
-class SprouseSentencesOrder(IntEnum):
-    SHORT_NONISLAND = 0
-    LONG_NONISLAND = 1
-    SHORT_ISLAND = 2
-    LONG_ISLAND = 3
-
-
-class BlimpSentencesOrder(IntEnum):
-    SHORT_ISLAND = 0
-    LONG_ISLAND = 1
-    LONG_NONISLAND = 2
-    SHORT_NONISLAND = 3
 
 
 # todo: parse the csv file
@@ -45,7 +33,7 @@ def run_sprouse_tests(
     testset_dir_path=None,
     examples_format="sprouse",
     sentence_ordering=SprouseSentencesOrder,
-):
+) -> list[TestSet]:
     # todo: compare results (for each phenomena) on the 8 original Sprouse sentences, and the new 50 italian ones
 
     # todo: see activation levels in the model layers, try to identify several phenomena: clause segmentation,
@@ -83,8 +71,8 @@ def run_sprouse_tests(
             sentence_ordering=sentence_ordering,
         )
         scored_testsets.append(scored_testset)
-    plot_results(scored_testsets, "lp")
-    plot_results(scored_testsets, "pen_lp")
+
+    return scored_testsets
 
 
 def plot_results(scored_testsets, score_name):
@@ -94,7 +82,7 @@ def plot_results(scored_testsets, score_name):
     for scored_testset, ax in zip(scored_testsets, axs_list):
         _plot_results_subplot(scored_testset, score_name, ax)
 
-    plt.suptitle(scored_testsets[0].model_descr)
+    plt.suptitle(f"Model: {scored_testsets[0].model_descr}")
     plt.show()
 
 
@@ -138,9 +126,9 @@ def run_sprouse_test(
 ):
     testset_dict = load_testset_data(filepath, examples_format=examples_format)
     examples_list = testset_dict["sentences"]
-
+    phenomenon_name = get_file_root(filepath)
     parsed_testset = parse_testset(
-        os.path.basename(filepath), str(type(model)), examples_list, "sprouse"
+        phenomenon_name, str(type(model)), examples_list, "sprouse"
     )
 
     # run_testset(model_type, model, tokenizer, device, testset)
@@ -413,9 +401,9 @@ def main():
     # create_test_jsonl_files_tests()
 
     model_type = (
-        model_types.GEPPETTO  # model_types.BERT  #
+        model_types.BERT  # model_types.GEPPETTO  #
     )  # model_types.GPT # model_types.ROBERTA  #
-    model_name = "LorenzoDeMattei/GePpeTto"  # "dbmdz/bert-base-italian-xxl-cased"  #
+    model_name = "dbmdz/bert-base-italian-xxl-cased"  # "LorenzoDeMattei/GePpeTto"  #
     # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
     device = DEVICES.CPU
     model, tokenizer = load_model(model_type, model_name, device)
@@ -429,14 +417,14 @@ def main():
             # "wh_complex_np_islands",
             # "wh_whether_island",
             # "wh_subject_islands",
-            "custom-wh_adjunct_islands",
+            # "custom-wh_adjunct_islands",
             "custom-wh_complex_np_islands",
             "custom-wh_whether_island",
             "custom-wh_subject_islands",
         ]
         examples_format = "sprouse"  # "blimp"
         sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
-        run_sprouse_tests(
+        scored_testsets = run_sprouse_tests(
             model_type,
             model,
             tokenizer,
@@ -447,8 +435,47 @@ def main():
             sentence_ordering=sentence_ordering,
         )
     else:
-        run_sprouse_tests(model_type, model, tokenizer, device)
+        scored_testsets = run_sprouse_tests(model_type, model, tokenizer, device)
+
+    for scored_testset in scored_testsets:
+        scored_testset.model_descr = model_name
+        scored_testset.save_to_picle(
+            scored_testset.linguistic_phenomenon + ".testset.pickle"
+        )
+
+
+def load_and_plot_pickle():
+    phenomena = [
+        "custom-wh_adjunct_islands",
+        "custom-wh_complex_np_islands",
+        "custom-wh_whether_island",
+        "custom-wh_subject_islands",
+    ]
+    loaded_testsets = []
+    for phenomenon in phenomena:
+        loaded_testset = load_testset_from_pickle(phenomenon + ".testset.pickle")
+        loaded_testsets.append(loaded_testset)
+    plot_testsets(loaded_testsets)
+
+
+def plot_testsets(scored_testsets):
+    plot_results(scored_testsets, "lp")
+    plot_results(scored_testsets, "pen_lp")
+
+
+def print_testset_detailed_analysis():
+
+    # todo:
+    #  sort and print examples by diff in acceptability btw short island and long island sentences
+    #  sort and print examples by DD value
+    # ..
+    # show the examples with ..
+    # plot with 7+1x7 subplots of a testset (one subplot for each example)
+    # ..
+    # normalize sentence/tokens scrores
+    pass
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    load_and_plot_pickle()

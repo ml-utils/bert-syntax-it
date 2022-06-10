@@ -11,7 +11,7 @@ from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
-from linguistic_tests.testset import SentenceNames
+from linguistic_tests.lm_utils import SentenceNames
 from tqdm import tqdm
 
 

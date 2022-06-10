@@ -1,21 +1,9 @@
+import pickle
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
-from enum import Enum
 
-
-class StrEnum(str, Enum):
-    pass
-
-
-class SentenceNames(StrEnum):
-    SHORT_NONISLAND = "short_nonisland"
-    LONG_NONISLAND = "long_nonisland"
-    SHORT_ISLAND = "short_island"
-    LONG_ISLAND = "long_island"
-    SENTENCE_BAD = "sentence_bad"
-    SENTENCE_GOOD = "sentence_good"
-    SENTENCE_GOOD_2ND = "sentence_good_2nd"
+from linguistic_tests.lm_utils import SentenceNames
 
 
 @dataclass
@@ -39,7 +27,7 @@ class Sentence:
         elif score_name == "pen_lp":
             return self.pen_lp
         else:
-            raise ValueError(f"Unexcpected score name: {score_name}")
+            raise ValueError(f"Unexpected score name: {score_name}")
 
 
 @dataclass
@@ -58,6 +46,19 @@ class Example:
 
     DD_with_lp: float = -200
     DD_with_penlp: float = -200
+
+    def get_structure_effect(self, score_descr):
+        raise NotImplementedError
+
+    def get_score_diff_1vs2(self, score_descr):
+        return self.sentences[SentenceNames.SHORT_ISLAND].get_score(
+            score_descr
+        ) - self.sentences[SentenceNames.LONG_ISLAND].get_score(score_descr)
+
+    def get_score_diff_3vs2(self, score_descr):
+        return self.sentences[SentenceNames.LONG_NONISLAND].get_score(
+            score_descr
+        ) - self.sentences[SentenceNames.LONG_ISLAND].get_score(score_descr)
 
 
 @dataclass
@@ -95,7 +96,7 @@ class TestSet:
         elif score_name == "pen_lp":
             return self.penlp_average_by_sentence_type
         else:
-            raise ValueError(f"Unexcpected score name: {score_name}")
+            raise ValueError(f"Unexpected score name: {score_name}")
 
     def get_avg_DD(self, score_name):
         if score_name == "lp":
@@ -103,7 +104,32 @@ class TestSet:
         elif score_name == "pen_lp":
             return self.avg_DD_penlp
         else:
-            raise ValueError(f"Unexcpected score name: {score_name}")
+            raise ValueError(f"Unexpected score name: {score_name}")
+
+    def get_examples_sorted_by_structure_effect(self, score_descr):
+        return sorted(
+            self.examples,
+            key=lambda x: x.get_structure_effect(score_descr),
+            reverse=True,
+        )
+
+    def get_examples_sorted_by_score_diff_1vs2(self, score_descr):
+        return sorted(
+            self.examples,
+            key=lambda x: x.get_score_diff_1vs2(score_descr),
+            reverse=True,
+        )
+
+    def save_to_picle(self, filename):
+        print(f"saving testset to {filename}")
+        with open(filename, "wb") as file:
+            pickle.dump(self, file)
+
+
+def load_testset_from_pickle(filename) -> TestSet:
+    with open(filename, "rb") as file:
+        data = pickle.load(file)
+    return data
 
 
 def parse_testset(
@@ -112,7 +138,7 @@ def parse_testset(
     examples_list: list,
     sent_types_descr: str,
     max_examples=50,
-):
+) -> TestSet:
     print(f"len examples: {len(examples_list)}, max: {max_examples}")
 
     if sent_types_descr == "sprouse":

@@ -1,5 +1,7 @@
 import json
 import os.path
+from enum import Enum
+from enum import IntEnum
 from pathlib import Path
 
 import cython
@@ -16,6 +18,34 @@ from transformers import GPT2LMHeadModel
 from transformers import GPT2Tokenizer
 from transformers import RobertaForMaskedLM
 from transformers import RobertaTokenizer
+
+
+class StrEnum(str, Enum):
+    pass
+
+
+class SentenceNames(StrEnum):
+    SHORT_NONISLAND = "short_nonisland"
+    LONG_NONISLAND = "long_nonisland"
+    SHORT_ISLAND = "short_island"
+    LONG_ISLAND = "long_island"
+    SENTENCE_BAD = "sentence_bad"
+    SENTENCE_GOOD = "sentence_good"
+    SENTENCE_GOOD_2ND = "sentence_good_2nd"
+
+
+class SprouseSentencesOrder(IntEnum):
+    SHORT_NONISLAND = 0
+    LONG_NONISLAND = 1
+    SHORT_ISLAND = 2
+    LONG_ISLAND = 3
+
+
+class BlimpSentencesOrder(IntEnum):
+    SHORT_ISLAND = 0
+    LONG_ISLAND = 1
+    LONG_NONISLAND = 2
+    SHORT_NONISLAND = 3
 
 
 class sent_idx:
