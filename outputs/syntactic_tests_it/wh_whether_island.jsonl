@@ -381,9 +381,9 @@
   "pairID": "37"},
 
   {"short_island": "Chi si domanda se io abbia abbattuto il muro?",
-  "long_island": "Cosa ti domandi se io abbia abbia?",
-  "long_nonisland": "Cosa pensi che io abbia abbia?",
-  "short_nonisland": "Chi pensa che io abbia abbia il muro?",
+  "long_island": "Cosa ti domandi se io abbia abbattuto?",
+  "long_nonisland": "Cosa pensi che io abbia abbattuto?",
+  "short_nonisland": "Chi pensa che io abbia abbattuto il muro?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",

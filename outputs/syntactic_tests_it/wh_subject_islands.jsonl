@@ -231,7 +231,7 @@
   "pairID": "22"},
 
   {"short_island": "Di chi pensi che la manicure dell'estetista abbia smaltato le unghie?",
-  "long_island": "Di chi pensi che la manicure abbia abbia smaltato le unghie della ragazza?",
+  "long_island": "Di chi pensi che la manicure abbia smaltato le unghie della ragazza?",
   "long_nonisland": "Chi credi che abbia eseguito la manicure?",
   "short_nonisland": "Chi credi che la manicure abbia abbellito?",
   "field": "syntax",
@@ -241,7 +241,7 @@
   "pairID": "23"},
 
   {"short_island": "Di chi pensi che l'intervento del dentista abbia estratto il dente?",
-  "long_island": "Di chi pensi che l'intervento abbia abbia estratto il dente di Luisa?",
+  "long_island": "Di chi pensi che l'intervento abbia estratto il dente di Luisa?",
   "long_nonisland": "Chi credi che abbia eseguito l'intervento?",
   "short_nonisland": "Chi credi che l'intervento abbia riguardato?",
   "field": "syntax",
