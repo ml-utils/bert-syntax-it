@@ -360,10 +360,10 @@
   "island_subcategory": "whether_island",
   "pairID": "35"},
 
-{"short_island": "Chi si domanda se io abbia rivisto la decisione?",
+{"short_island": "Chi si domanda se io abbia rivisto la mia decisione?",
   "long_island": "Cosa ti domandi se io abbia rivisto?",
   "long_nonisland": "Cosa pensi che io abbia rivisto?",
-  "short_nonisland": "Chi pensa che io abbia rivisto la decisione?",
+  "short_nonisland": "Chi pensa che io abbia rivisto la mia decisione?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
