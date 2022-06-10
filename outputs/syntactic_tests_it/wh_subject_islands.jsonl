@@ -361,7 +361,7 @@
   "pairID": "35"},
 
   {"short_island": "Di chi pensi che il finanziamento dell'industriale abbia condizionato la ricerca?",
-  "long_island": "Di chi pensi che il finanziamento condizionato la ricerca dello scienziato?",
+  "long_island": "Di chi pensi che il finanziamento abbia condizionato la ricerca dello scienziato?",
   "long_nonisland": "Chi credi che abbia elargito il finanziamento?",
   "short_nonisland": "Chi credi che il finanziamento abbia sovvenzionato?",
   "field": "syntax",
