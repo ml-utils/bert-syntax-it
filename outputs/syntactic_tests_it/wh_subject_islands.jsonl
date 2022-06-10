@@ -91,7 +91,7 @@
   "pairID": "8"},
 
   {"short_island": "Di chi pensi che gli esercizi di Gianni abbiano tonificato i muscoli?",
-  "long_island": "Di chi pensi che gli esercizia abbiano tonificato i muscoli di Luisa?",
+  "long_island": "Di chi pensi che gli esercizi abbiano tonificato i muscoli di Luisa?",
   "long_nonisland": "Chi credi che abbia programmato gli esercizi?",
   "short_nonisland": "Chi credi che gli esercizi abbiano tonificato?",
   "field": "syntax",
@@ -222,7 +222,7 @@
 
     {"short_island": "Di chi pensi che il trattamento dell'ortopedico abbia curato la contrattura?",
   "long_island": "Di chi pensi che il trattamento abbia curato la contrattura del paziente?",
-  "long_nonisland": "Chi credi che abbia prescitto il trattamento?",
+  "long_nonisland": "Chi credi che abbia prescritto il trattamento?",
   "short_nonisland": "Chi credi che il trattamento abbia curato?",
   "field": "syntax",
   "linguistics_term": "island_effects",
@@ -291,7 +291,7 @@
   "pairID": "28"},
 
   {"short_island": "Di chi pensi che il film del regista abbia catturato l'attenzione?",
-  "long_island": "Di chi pensi che il film abbia catturato l'attenzione degli spettatri?",
+  "long_island": "Di chi pensi che il film abbia catturato l'attenzione degli spettatori?",
   "long_nonisland": "Chi credi che abbia girato il film?",
   "short_nonisland": "Chi credi che il film abbia coinvolto?",
   "field": "syntax",
