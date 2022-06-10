@@ -40,8 +40,8 @@
   "island_subcategory": "subject_island",
   "pairID": "3"},
 
-  {"short_island": "..Di chi pensi che il l’indirizzo di Chiara sia difficile da ricordare?",
-  "long_island": "Di chi pensi che l’indirizzo abbia sia difficile da ricordare?",
+  {"short_island": "Di chi pensi che il l’indirizzo di Chiara abbia causato la confusione?",
+  "long_island": "Di chi pensi che l’indirizzo abbia causato la confusione di Marta?",
   "long_nonisland": "Chi pensi che abbia dimenticato l'indirizzo? ",
   "short_nonisland": "Chi pensi che l'indirizzo abbia confuso?",
   "field": "syntax",
@@ -102,7 +102,7 @@
 
   {"short_island": "Di chi pensi che le promesse di Luisa abbiano alimentato le aspettative?",
   "long_island": "Di chi pensi che le promesse abbiano alimentato le aspettative di Gianni?",
-  "long_nonisland": "Chi credi che abbia elargito promesse?",
+  "long_nonisland": "Chi credi che abbia elargito le promesse?",
   "short_nonisland": "Chi credi che le promesse abbiano illuso?",
   "field": "syntax",
   "linguistics_term": "island_effects",
