@@ -41,7 +41,7 @@
   "pairID": "3"},
 
    {"short_island": "Chi ha fatto la richiesta che Mario esponesse l'argomento?",
-  "long_island": "Cosa hai fatto la richiesta Mario esponesse?",
+  "long_island": "Cosa hai fatto la richiesta che Mario esponesse?",
   "long_nonisland": "Cosa hai richiesto che Mario esponesse?",
   "short_nonisland": "Chi ha richiesto che Mario esponesse l'argomento?",
   "field": "syntax",
