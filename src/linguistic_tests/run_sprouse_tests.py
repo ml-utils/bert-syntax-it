@@ -444,7 +444,7 @@ def main():
         )
 
 
-def load_and_plot_pickle():
+def load_pickles() -> list[TestSet]:
     phenomena = [
         "custom-wh_adjunct_islands",
         "custom-wh_complex_np_islands",
@@ -455,6 +455,12 @@ def load_and_plot_pickle():
     for phenomenon in phenomena:
         loaded_testset = load_testset_from_pickle(phenomenon + ".testset.pickle")
         loaded_testsets.append(loaded_testset)
+
+    return loaded_testsets
+
+
+def load_and_plot_pickle():
+    loaded_testsets = load_pickles()
     plot_testsets(loaded_testsets)
 
 
@@ -465,6 +471,25 @@ def plot_testsets(scored_testsets):
 
 def print_testset_detailed_analysis():
 
+    loaded_testsets = load_pickles()
+
+    max_testsets = 1
+    for testset in loaded_testsets[:max_testsets]:
+        print(
+            f"printing testset for {testset.linguistic_phenomenon} from {testset.model_descr}"
+        )
+        examples = testset.get_examples_sorted_by_score_diff_1vs2("lp", reverse=False)
+        max_prints = 10
+
+        for example in examples[0:max_prints]:
+            print(
+                f"lp_diff: {example.get_score_diff_1vs2('lp'):.2f}, "
+                f"s1 (SHORT_ISLAND, {example[SentenceNames.SHORT_ISLAND].get_score('lp'):.2f}): "
+                f"{example[SentenceNames.SHORT_ISLAND].txt}, "
+                f"s2 (LONG_ISLAND, {example[SentenceNames.LONG_ISLAND].get_score('lp'):.2f}): "
+                f"{example[SentenceNames.LONG_ISLAND].txt}"
+            )
+
     # todo:
     #  sort and print examples by diff in acceptability btw short island and long island sentences
     #  sort and print examples by DD value
@@ -473,9 +498,9 @@ def print_testset_detailed_analysis():
     # plot with 7+1x7 subplots of a testset (one subplot for each example)
     # ..
     # normalize sentence/tokens scrores
-    pass
 
 
 if __name__ == "__main__":
     # main()
-    load_and_plot_pickle()
+    # load_and_plot_pickle()
+    print_testset_detailed_analysis()

@@ -38,6 +38,7 @@ class TypedSentence:
 
 @dataclass
 class Example:
+    # todo: convert in dict[]
     sentences: list[TypedSentence]
 
     min_token_weight: float = 200
@@ -47,18 +48,24 @@ class Example:
     DD_with_lp: float = -200
     DD_with_penlp: float = -200
 
+    def __getitem__(self, key: SentenceNames) -> Sentence:
+        for typed_sentence in self.sentences:
+            if typed_sentence.stype == key:
+                return typed_sentence.sent
+        raise ValueError(f"Invalid key, it's not a SentenceName: {key}")
+
     def get_structure_effect(self, score_descr):
         raise NotImplementedError
 
     def get_score_diff_1vs2(self, score_descr):
-        return self.sentences[SentenceNames.SHORT_ISLAND].get_score(
-            score_descr
-        ) - self.sentences[SentenceNames.LONG_ISLAND].get_score(score_descr)
+        return self[SentenceNames.SHORT_ISLAND].get_score(score_descr) - self[
+            SentenceNames.LONG_ISLAND
+        ].get_score(score_descr)
 
     def get_score_diff_3vs2(self, score_descr):
-        return self.sentences[SentenceNames.LONG_NONISLAND].get_score(
-            score_descr
-        ) - self.sentences[SentenceNames.LONG_ISLAND].get_score(score_descr)
+        return self[SentenceNames.LONG_NONISLAND].get_score(score_descr) - self[
+            SentenceNames.LONG_ISLAND
+        ].get_score(score_descr)
 
 
 @dataclass
@@ -106,18 +113,20 @@ class TestSet:
         else:
             raise ValueError(f"Unexpected score name: {score_name}")
 
-    def get_examples_sorted_by_structure_effect(self, score_descr):
+    def get_examples_sorted_by_structure_effect(self, score_descr) -> list[Example]:
         return sorted(
             self.examples,
             key=lambda x: x.get_structure_effect(score_descr),
             reverse=True,
         )
 
-    def get_examples_sorted_by_score_diff_1vs2(self, score_descr):
+    def get_examples_sorted_by_score_diff_1vs2(
+        self, score_descr, reverse=True
+    ) -> list[Example]:
         return sorted(
             self.examples,
             key=lambda x: x.get_score_diff_1vs2(score_descr),
-            reverse=True,
+            reverse=reverse,
         )
 
     def save_to_picle(self, filename):
