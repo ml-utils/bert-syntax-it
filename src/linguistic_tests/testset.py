@@ -6,6 +6,19 @@ from dataclasses import InitVar
 from linguistic_tests.lm_utils import SentenceNames
 
 
+SPROUSE_SENTENCE_TYPES = [
+    SentenceNames.SHORT_NONISLAND,
+    SentenceNames.LONG_NONISLAND,
+    SentenceNames.SHORT_ISLAND,
+    SentenceNames.LONG_ISLAND,
+]
+
+BLIMP_SENTENCE_TYPES = [
+    SentenceNames.SENTENCE_GOOD,
+    SentenceNames.SENTENCE_BAD,
+]
+
+
 @dataclass
 class Sentence:
     txt: str
@@ -129,6 +142,15 @@ class TestSet:
             reverse=reverse,
         )
 
+    def get_examples_sorted_by_sentence_type_and_score(
+        self, stype: SentenceNames, score_descr: str, reverse=True
+    ) -> list[Example]:
+        return sorted(
+            self.examples,
+            key=lambda x: x[stype].get_score(score_descr),
+            reverse=reverse,
+        )
+
     def save_to_picle(self, filename):
         print(f"saving testset to {filename}")
         with open(filename, "wb") as file:
@@ -151,17 +173,9 @@ def parse_testset(
     print(f"len examples: {len(examples_list)}, max: {max_examples}")
 
     if sent_types_descr == "sprouse":
-        sent_types = [
-            SentenceNames.SHORT_NONISLAND,
-            SentenceNames.LONG_NONISLAND,
-            SentenceNames.SHORT_ISLAND,
-            SentenceNames.LONG_ISLAND,
-        ]
+        sent_types = SPROUSE_SENTENCE_TYPES
     elif sent_types_descr == "blimp":
-        sent_types = [
-            SentenceNames.SENTENCE_GOOD,
-            SentenceNames.SENTENCE_BAD,
-        ]
+        sent_types = BLIMP_SENTENCE_TYPES
     else:
         raise ValueError(f"unrecognized sentence types format: {sent_types_descr}")
 

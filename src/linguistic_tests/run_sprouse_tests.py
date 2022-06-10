@@ -13,6 +13,7 @@ from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
+from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from linguistic_tests.testset import TestSet
 from matplotlib import pyplot as plt
 from tqdm import tqdm
@@ -401,9 +402,9 @@ def main():
     # create_test_jsonl_files_tests()
 
     model_type = (
-        model_types.BERT  # model_types.GEPPETTO  #
+        model_types.GEPPETTO  # model_types.BERT  #
     )  # model_types.GPT # model_types.ROBERTA  #
-    model_name = "dbmdz/bert-base-italian-xxl-cased"  # "LorenzoDeMattei/GePpeTto"  #
+    model_name = "LorenzoDeMattei/GePpeTto"  # "dbmdz/bert-base-italian-xxl-cased"  #
     # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
     device = DEVICES.CPU
     model, tokenizer = load_model(model_type, model_name, device)
@@ -417,7 +418,7 @@ def main():
             # "wh_complex_np_islands",
             # "wh_whether_island",
             # "wh_subject_islands",
-            # "custom-wh_adjunct_islands",
+            "custom-wh_adjunct_islands",
             "custom-wh_complex_np_islands",
             "custom-wh_whether_island",
             "custom-wh_subject_islands",
@@ -446,10 +447,10 @@ def main():
 
 def load_pickles() -> list[TestSet]:
     phenomena = [
-        "custom-wh_adjunct_islands",
-        "custom-wh_complex_np_islands",
         "custom-wh_whether_island",
+        "custom-wh_complex_np_islands",
         "custom-wh_subject_islands",
+        "custom-wh_adjunct_islands",
     ]
     loaded_testsets = []
     for phenomenon in phenomena:
@@ -469,25 +470,53 @@ def plot_testsets(scored_testsets):
     plot_results(scored_testsets, "pen_lp")
 
 
-def print_testset_detailed_analysis():
+def print_sorted_sentences_to_check_spelling_errors():
+    print("printing sorted_sentences_to_check_spelling_errors")
 
+    score_descr = "pen_lp"
+    loaded_testsets = load_pickles()
+    for testset in loaded_testsets:
+        print(f"printing for testset {testset.linguistic_phenomenon}..")
+        for stype in SPROUSE_SENTENCE_TYPES:
+            print(f"printing for sentence type {stype}..")
+            examples = testset.get_examples_sorted_by_sentence_type_and_score(
+                stype, score_descr, reverse=False
+            )
+            print(f"{score_descr:^10}" f"{'txt':<85}")
+            for example in examples:
+                print(
+                    f"{example[stype].get_score(score_descr) : ^10.2f}"
+                    f"{example[stype].txt : <85}"
+                )
+
+
+def print_testset_detailed_analysis():
+    score_descr = "pen_lp"
     loaded_testsets = load_pickles()
 
-    max_testsets = 1
+    max_testsets = 4
     for testset in loaded_testsets[:max_testsets]:
         print(
-            f"printing testset for {testset.linguistic_phenomenon} from {testset.model_descr}"
+            f"\nprinting testset for {testset.linguistic_phenomenon} from {testset.model_descr}"
         )
-        examples = testset.get_examples_sorted_by_score_diff_1vs2("lp", reverse=False)
-        max_prints = 10
-
+        examples = testset.get_examples_sorted_by_score_diff_1vs2(
+            score_descr, reverse=False
+        )
+        max_prints = 50
+        print(
+            f"{'diff':<8}"
+            f"{'s1 '+score_descr:^10}"
+            f"{'s1 txt (SHORT_ISLAND)':<85}"
+            f"{'s2 '+score_descr:^10}"
+            f"{'s2 txt (LONG_ISLAND)':<5}"
+        )
         for example in examples[0:max_prints]:
             print(
-                f"lp_diff: {example.get_score_diff_1vs2('lp'):.2f}, "
-                f"s1 (SHORT_ISLAND, {example[SentenceNames.SHORT_ISLAND].get_score('lp'):.2f}): "
-                f"{example[SentenceNames.SHORT_ISLAND].txt}, "
-                f"s2 (LONG_ISLAND, {example[SentenceNames.LONG_ISLAND].get_score('lp'):.2f}): "
-                f"{example[SentenceNames.LONG_ISLAND].txt}"
+                f"{example.get_score_diff_1vs2(score_descr) : <8.2f}"
+                f"{example[SentenceNames.SHORT_ISLAND].get_score(score_descr) : ^10.2f}"
+                f"{example[SentenceNames.SHORT_ISLAND].txt : <85}"
+                f"{example[SentenceNames.LONG_ISLAND].get_score(score_descr) :^10.2f}"
+                f"{example[SentenceNames.LONG_ISLAND].txt : <5}"
             )
 
     # todo:
@@ -502,5 +531,6 @@ def print_testset_detailed_analysis():
 
 if __name__ == "__main__":
     # main()
-    # load_and_plot_pickle()
+    print_sorted_sentences_to_check_spelling_errors()
     print_testset_detailed_analysis()
+    load_and_plot_pickle()
