@@ -253,7 +253,7 @@
 {"short_island": "Chi si domanda se io abbia guadagnato denaro?",
   "long_island": "Cosa ti domandi se io abbia guadagnato?",
   "long_nonisland": "Cosa pensi che io abbia guadagnato?",
-  "short_nonisland": "Chi pensa che io abbia sguadagnato denaro?",
+  "short_nonisland": "Chi pensa che io abbia guadagnato denaro?",
   "field": "syntax",
   "linguistics_term": "island_effects",
   "UID": "wh_island",
