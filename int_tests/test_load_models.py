@@ -4,6 +4,7 @@ from unittest import TestCase
 
 import pytest
 import torch
+from _pytest._code.code import ExceptionInfo
 from linguistic_tests.lm_utils import get_models_dir
 from pytest_socket import SocketBlockedError
 from transformers import AlbertTokenizer
@@ -11,7 +12,6 @@ from transformers import AutoTokenizer
 from transformers import BertForMaskedLM
 from transformers import BertTokenizer
 from transformers import CamembertTokenizer
-from transformers import RobertaTokenizer
 
 # import pytest
 
@@ -26,14 +26,12 @@ class TestLoadModels(TestCase):
     torch_model_path = model_dir + "/" + torch_model_filename
 
     def test_load_remotely(self):
-        # todo: re enable remote calls for integration tests
+        # remote calls are blocked, enabled with annotations  only for specific tests
         with pytest.raises(SocketBlockedError):
             _ = BertForMaskedLM.from_pretrained("bert-base")
 
-    @pytest.mark.skip(
-        "fails if run from pytest, passes from jb (pycharm) pytest runner"
-    )
-    def test_load_with_AutoTokenizer(self):
+    @pytest.mark.skip("using an edited config.json (not the default)")
+    def test_load_with_AutoTokenizer_with_default_config_json(self):
         with pytest.raises(ValueError) as val_err:
             tokenizer = AutoTokenizer.from_pretrained(TestLoadModels.model_dir)
             self.__test_tokenizer_helper(tokenizer)
@@ -45,6 +43,16 @@ class TestLoadModels(TestCase):
         )
         self.assertInErrorMsg("bert, openai-gpt, gpt2, transfo-xl, xlnet", val_err)
 
+    def test_load_with_AutoTokenizer_with_edited_config_json(self):
+        with pytest.raises(OSError) as os_err:
+            tokenizer = AutoTokenizer.from_pretrained(TestLoadModels.model_dir)
+            self.__test_tokenizer_helper(tokenizer)
+        self.assertInErrorMsg("Can't load tokenizer for ", os_err)
+        self.assertInErrorMsg(
+            " is the correct path to a directory containing all relevant files for a RobertaTokenizerFast tokenizer.",
+            os_err,
+        )
+
     def test_load_with_CamembertTokenizer(self):
         with pytest.raises(RuntimeError) as run_err:
             tokenizer = CamembertTokenizer.from_pretrained(TestLoadModels.dict_path)
@@ -53,29 +61,52 @@ class TestLoadModels(TestCase):
         self.assertInErrorMsg("Internal", run_err)
         self.assertInErrorMsg("sentencepiece_processor.cc", run_err)
 
-    @pytest.mark.skip("todo")
-    def test_load_with_RobertaTokenizer(self):
+    def test_load_as_RobertaModel(self):
+        from transformers import RobertaTokenizer, RobertaModel
 
-        # Load the model in fairseq
-        from fairseq.models.roberta import RobertaModel
+        roberta = RobertaModel.from_pretrained(TestLoadModels.model_dir)
+        print(type(roberta))
 
-        roberta = RobertaModel.from_pretrained(
-            TestLoadModels.model_dir
-        )  # , checkpoint_file='pytorch_model.bin'
-        roberta.eval()  # disable dropout (or leave in train mode to finetune)
-        tokens = roberta.encode("Hello world!")
-        print(f"tokens: {tokens}")
-        assert tokens.tolist() == [0, 31414, 232, 328, 2]
-        print(roberta.decode(tokens))  # 'Hello world!'
-
-        tokenizer = RobertaTokenizer.from_pretrained(
-            r"E:/dev/code/bert-syntax-it/models/bostromkaj/bpe_20k_ep20_pytorch/"
+        model_dir2 = str(
+            get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch"  # + "/"
+        )  # + "\\"
+        with pytest.raises(OSError) as os_err:
+            tokenizer = RobertaTokenizer.from_pretrained(model_dir2)
+            self.__test_tokenizer_helper(tokenizer)
+        self.assertInErrorMsg("Can't load tokenizer for ", os_err)
+        self.assertInErrorMsg("make sure ", os_err)
+        self.assertInErrorMsg(
+            "is the correct path to a directory containing all relevant files for a RobertaTokenizer tokenizer.",
+            os_err,
         )
-        # TestLoadModels.model_dir + "/", do_lower_case=True)
-        # tokenizer = RobertaTokenizer.from_pretrained(
-        self.__test_tokenizer_helper(tokenizer)
 
-    def test_load_with_Torch(self):
+    def test_load_with_fairseq_RobertaModel(self):
+
+        from fairseq.models.roberta import RobertaModel as RobertaModel_FS
+
+        with pytest.raises(OSError) as os_err:
+            roberta = RobertaModel_FS.from_pretrained(
+                TestLoadModels.model_dir,
+            )
+            # skipped because of raised error above:
+            roberta.eval()  # disable dropout (or leave in train mode to finetune)
+            tokens = roberta.encode("Hello world!")
+            print(f"tokens: {tokens}")
+            assert tokens.tolist() == [0, 31414, 232, 328, 2]
+            print(roberta.decode(tokens))  # 'Hello world!'
+        print(f"{os_err=}")
+        self.assertInErrorMsg("Model file not found", os_err)
+        self.assertInErrorMsg("model.pt", os_err)
+
+        with pytest.raises(KeyError) as key_err:
+            roberta = RobertaModel_FS.from_pretrained(
+                TestLoadModels.model_dir,
+                checkpoint_file="pytorch_model.bin",  # by default looks for a "model.pt", so a pythorch model file, note a .bin file (like roberta base from huggingfaces)
+            )
+            print(type(roberta))
+        self.assertInErrorMsg("best_loss", key_err)
+
+    def test_load_checkpoint_with_Torch(self):
         import torch
 
         # model = Net()
@@ -88,46 +119,62 @@ class TestLoadModels(TestCase):
         assert len(checkpoint) == 201
 
         vocab_size = 20005
-        layer_size = 768
+        hidden_size = 768
+        intermediate_size = 3072
+        max_position_embeddings = 514
+        # num_attention_heads = 12
+        # num_hidden_layers = 12
+        num_labels = 2
 
         expected_keys_and_tensor_shapes = {
-            "roberta.embeddings.word_embeddings.weight": (vocab_size, layer_size),
-            "roberta.embeddings.position_embeddings.weight": (514, layer_size),
-            "roberta.embeddings.token_type_embeddings.weight": (1, layer_size),
-            "roberta.embeddings.LayerNorm.weight": (layer_size,),
-            "roberta.embeddings.LayerNorm.bias": (layer_size,),
+            "roberta.embeddings.word_embeddings.weight": (vocab_size, hidden_size),
+            "roberta.embeddings.position_embeddings.weight": (
+                max_position_embeddings,
+                hidden_size,
+            ),
+            "roberta.embeddings.token_type_embeddings.weight": (1, hidden_size),
+            "roberta.embeddings.LayerNorm.weight": (hidden_size,),
+            "roberta.embeddings.LayerNorm.bias": (hidden_size,),
             "roberta.encoder.layer.11.attention.self.query.weight": (
-                layer_size,
-                layer_size,
+                hidden_size,
+                hidden_size,
             ),
-            "roberta.encoder.layer.11.attention.self.query.bias": (layer_size,),
+            "roberta.encoder.layer.11.attention.self.query.bias": (hidden_size,),
             "roberta.encoder.layer.11.attention.self.key.weight": (
-                layer_size,
-                layer_size,
+                hidden_size,
+                hidden_size,
             ),
-            "roberta.encoder.layer.11.attention.self.key.bias": (layer_size,),
+            "roberta.encoder.layer.11.attention.self.key.bias": (hidden_size,),
             "roberta.encoder.layer.11.attention.self.value.weight": (
-                layer_size,
-                layer_size,
+                hidden_size,
+                hidden_size,
             ),
-            "roberta.encoder.layer.11.attention.self.value.bias": (layer_size,),
+            "roberta.encoder.layer.11.attention.self.value.bias": (hidden_size,),
             "roberta.encoder.layer.11.attention.output.dense.weight": (
-                layer_size,
-                layer_size,
+                hidden_size,
+                hidden_size,
             ),
-            "roberta.encoder.layer.11.attention.output.dense.bias": (layer_size,),
-            "roberta.encoder.layer.11.attention.output.LayerNorm.weight": (layer_size,),
-            "roberta.encoder.layer.11.attention.output.LayerNorm.bias": (layer_size,),
-            "roberta.encoder.layer.11.intermediate.dense.weight": (3072, layer_size),
-            "roberta.encoder.layer.11.intermediate.dense.bias": (3072,),
-            "roberta.encoder.layer.11.output.dense.weight": (layer_size, 3072),
-            "roberta.encoder.layer.11.output.dense.bias": (layer_size,),
-            "roberta.encoder.layer.11.output.LayerNorm.weight": (layer_size,),
-            "roberta.encoder.layer.11.output.LayerNorm.bias": (layer_size,),
-            "roberta.pooler.dense.weight": (layer_size, layer_size),
-            "roberta.pooler.dense.bias": (layer_size,),
-            "qa_outputs.weight": (2, layer_size),
-            "qa_outputs.bias": (2,),
+            "roberta.encoder.layer.11.attention.output.dense.bias": (hidden_size,),
+            "roberta.encoder.layer.11.attention.output.LayerNorm.weight": (
+                hidden_size,
+            ),
+            "roberta.encoder.layer.11.attention.output.LayerNorm.bias": (hidden_size,),
+            "roberta.encoder.layer.11.intermediate.dense.weight": (
+                intermediate_size,
+                hidden_size,
+            ),
+            "roberta.encoder.layer.11.intermediate.dense.bias": (intermediate_size,),
+            "roberta.encoder.layer.11.output.dense.weight": (
+                hidden_size,
+                intermediate_size,
+            ),
+            "roberta.encoder.layer.11.output.dense.bias": (hidden_size,),
+            "roberta.encoder.layer.11.output.LayerNorm.weight": (hidden_size,),
+            "roberta.encoder.layer.11.output.LayerNorm.bias": (hidden_size,),
+            "roberta.pooler.dense.weight": (hidden_size, hidden_size),
+            "roberta.pooler.dense.bias": (hidden_size,),
+            "qa_outputs.weight": (num_labels, hidden_size),
+            "qa_outputs.bias": (num_labels,),
         }
         checkpoint_actual_keys = list(checkpoint.keys())
         for expected_key, expected_shape in expected_keys_and_tensor_shapes.items():
@@ -150,7 +197,6 @@ class TestLoadModels(TestCase):
             assert len(checkpoint._metadata[key]) == 1
             assert checkpoint._metadata[key]["version"] == 1
 
-        # breakpoint()
         # print(f"{type(checkpoint)}, len: {len(checkpoint)}")
 
         # model.load_state_dict(checkpoint['model_state_dict'])
@@ -193,12 +239,12 @@ class TestLoadModels(TestCase):
         self.assertInErrorMsg("Internal", run_err)
         self.assertInErrorMsg("sentencepiece_processor.cc", run_err)
 
-    def assertInErrorMsg(self, expected_str, error):
+    def assertInErrorMsg(self, expected_str, error: ExceptionInfo):
         if error.type in [FileNotFoundError]:
-            msg = error.value.filename
-        elif error.type in [RuntimeError, ValueError]:
+            msg = f"{str(error.value)} {error.value.args[1]}  {error.value.strerror}  {error.value.filename}"
+        elif error.type in [RuntimeError, ValueError, OSError]:
             msg = error.value.args[0]
-        else:
+        else:  # KeyError?
             msg = str(error)
         self.assertIn(expected_str, msg)
 
@@ -206,19 +252,50 @@ class TestLoadModels(TestCase):
         print("loading with Torch..")
 
         # see https://pytorch.org/hub/huggingface_pytorch-transformers/
-        # config = torch.hub.load("local", 'config', TestLoadModels.model_dir)
+        # config = torch.hub.load("local", 'config', TestLoadModels.model_dir)  # repo_owner, repo_name = repo_info.split('/') ValueError: not enough values to unpack (expected 2, got 1)
 
         with pytest.raises(FileNotFoundError) as f_err:
             tokenizer = torch.hub.load(
                 TestLoadModels.model_dir,
                 "tokenizer",
                 source="local",
-                pretrained=True
+                pretrained=True,
+                # config=config
                 # "local", "tokenizer", TestLoadModels.model_dir,  # config=config
             )
             self.__test_tokenizer_helper(tokenizer)
         print(f"{f_err=}")
         self.assertInErrorMsg("hubconf.py", f_err)
+
+        with pytest.raises(FileNotFoundError) as f_err2:
+            roberta = torch.hub.load(
+                TestLoadModels.model_dir,  # repo_or_dir # 'pytorch/fairseq',
+                "roberta",  # model arg: "..", # 'roberta.large' # model (string):
+                # the name of a callable (entrypoint) defined in the
+                # repo/dir's ``hubconf.py``.
+                source="local",
+                pretrained=True,
+            )
+            roberta.eval()
+        self.assertInErrorMsg("No such file or directory", f_err2)
+        self.assertInErrorMsg("hubconf.py", f_err2)
+        return
+
+        # https://github.com/facebookresearch/fairseq/tree/main/examples/roberta
+        # Apply Byte-Pair Encoding (BPE) to input text:
+        tokens = roberta.encode("Hello world!")
+        print(f"tokens: {tokens}")
+        assert tokens.tolist() == [0, 31414, 232, 328, 2]
+        print(roberta.decode(tokens))  # 'Hello world!'
+
+        # Extract features from RoBERTa:
+        # Extract the last layer's features
+        last_layer_features = roberta.extract_features(tokens)
+        assert last_layer_features.size() == torch.Size([1, 5, 1024])
+        # Extract all layer's features (layer 0 is the embedding layer)
+        all_layers = roberta.extract_features(tokens, return_all_hiddens=True)
+        assert len(all_layers) == 25
+        assert torch.all(all_layers[-1] == last_layer_features)
 
     @staticmethod
     def __test_tokenizer_helper(tokenizer):
