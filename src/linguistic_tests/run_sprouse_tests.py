@@ -583,7 +583,7 @@ def main():
     # show the examples with ..
     # plot with 7+1x7 subplots of a testset (one subplot for each example)
     # ..
-    # normalize sentence/tokens scrores for Bert models, to have scores comparables across a whole testset
+    # normalize sentence/tokens scores for Bert models, to have scores comparables across a whole testset
     #
     # normalize results to a likert scale, for comparison with Sprouse et al 2016
     #

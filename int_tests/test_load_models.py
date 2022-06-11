@@ -80,11 +80,78 @@ class TestLoadModels(TestCase):
 
         # model = Net()
         # optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+        from collections import OrderedDict
 
         checkpoint = torch.load(TestLoadModels.torch_model_path)
-        print(f"{type(checkpoint)}, len: {len(checkpoint)}")
 
-        # gives "roberta.embeddings"
+        assert isinstance(checkpoint, OrderedDict)
+        assert len(checkpoint) == 201
+
+        vocab_size = 20005
+        layer_size = 768
+
+        expected_keys_and_tensor_shapes = {
+            "roberta.embeddings.word_embeddings.weight": (vocab_size, layer_size),
+            "roberta.embeddings.position_embeddings.weight": (514, layer_size),
+            "roberta.embeddings.token_type_embeddings.weight": (1, layer_size),
+            "roberta.embeddings.LayerNorm.weight": (layer_size,),
+            "roberta.embeddings.LayerNorm.bias": (layer_size,),
+            "roberta.encoder.layer.11.attention.self.query.weight": (
+                layer_size,
+                layer_size,
+            ),
+            "roberta.encoder.layer.11.attention.self.query.bias": (layer_size,),
+            "roberta.encoder.layer.11.attention.self.key.weight": (
+                layer_size,
+                layer_size,
+            ),
+            "roberta.encoder.layer.11.attention.self.key.bias": (layer_size,),
+            "roberta.encoder.layer.11.attention.self.value.weight": (
+                layer_size,
+                layer_size,
+            ),
+            "roberta.encoder.layer.11.attention.self.value.bias": (layer_size,),
+            "roberta.encoder.layer.11.attention.output.dense.weight": (
+                layer_size,
+                layer_size,
+            ),
+            "roberta.encoder.layer.11.attention.output.dense.bias": (layer_size,),
+            "roberta.encoder.layer.11.attention.output.LayerNorm.weight": (layer_size,),
+            "roberta.encoder.layer.11.attention.output.LayerNorm.bias": (layer_size,),
+            "roberta.encoder.layer.11.intermediate.dense.weight": (3072, layer_size),
+            "roberta.encoder.layer.11.intermediate.dense.bias": (3072,),
+            "roberta.encoder.layer.11.output.dense.weight": (layer_size, 3072),
+            "roberta.encoder.layer.11.output.dense.bias": (layer_size,),
+            "roberta.encoder.layer.11.output.LayerNorm.weight": (layer_size,),
+            "roberta.encoder.layer.11.output.LayerNorm.bias": (layer_size,),
+            "roberta.pooler.dense.weight": (layer_size, layer_size),
+            "roberta.pooler.dense.bias": (layer_size,),
+            "qa_outputs.weight": (2, layer_size),
+            "qa_outputs.bias": (2,),
+        }
+        checkpoint_actual_keys = list(checkpoint.keys())
+        for expected_key, expected_shape in expected_keys_and_tensor_shapes.items():
+            assert expected_key in checkpoint_actual_keys
+            assert isinstance(checkpoint[expected_key], torch.Tensor)
+            assert checkpoint[expected_key].shape == expected_shape
+
+        assert isinstance(checkpoint._metadata, OrderedDict)
+        assert len(checkpoint._metadata) == 218
+        expected_metadata_keys = [
+            "",
+            "roberta",
+            "roberta.embeddings",
+        ]
+        metadata_actual_keys = list(checkpoint._metadata.keys())
+        for key in expected_metadata_keys:
+            assert key in metadata_actual_keys
+            assert isinstance(checkpoint._metadata[key], dict)
+            assert checkpoint._metadata[key] == {"version": 1}
+            assert len(checkpoint._metadata[key]) == 1
+            assert checkpoint._metadata[key]["version"] == 1
+
+        # breakpoint()
+        # print(f"{type(checkpoint)}, len: {len(checkpoint)}")
 
         # model.load_state_dict(checkpoint['model_state_dict'])
         # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
