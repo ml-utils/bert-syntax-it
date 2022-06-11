@@ -398,7 +398,7 @@ def plot_all_phenomena(phenomena_names, lp_avg_scores):
         plot_results(phenomenon, lp_avg_scores[idx], "lp")
 
 
-def main():
+def score_testsets():
     # create_test_jsonl_files_tests()
 
     model_type = (
@@ -460,8 +460,11 @@ def load_pickles() -> list[TestSet]:
     return loaded_testsets
 
 
-def load_and_plot_pickle():
-    loaded_testsets = load_pickles()
+def load_and_plot_pickle(loaded_testsets=None):
+
+    if loaded_testsets is None:
+        loaded_testsets = load_pickles()
+
     plot_testsets(loaded_testsets)
 
 
@@ -470,67 +473,121 @@ def plot_testsets(scored_testsets):
     plot_results(scored_testsets, "pen_lp")
 
 
-def print_sorted_sentences_to_check_spelling_errors():
+def print_sorted_sentences_to_check_spelling_errors2(score_descr, loaded_testsets=None):
+
+    if loaded_testsets is None:
+        loaded_testsets = load_pickles()
+
+    for testset in loaded_testsets:
+        print(
+            f"\nprinting for testset {testset.linguistic_phenomenon} calculated from {testset.model_descr}"
+        )
+        typed_sentences = testset.get_all_sentences_sorted_by_score(
+            score_descr, reverse=False
+        )
+        print(f"{'idx':<5}" f"{score_descr:<10}" f"{'stype':<20}" f"{'txt':<85}")
+        for idx, tsent in enumerate(typed_sentences):
+            print(
+                f"{idx : <5}"
+                f"{tsent.sent.get_score(score_descr) : <10.2f}"
+                f"{tsent.stype : <20}"
+                f"{tsent.sent.txt : <85}"
+            )
+
+
+def print_sorted_sentences_to_check_spelling_errors(score_descr, loaded_testsets=None):
     print("printing sorted_sentences_to_check_spelling_errors")
 
-    score_descr = "pen_lp"
-    loaded_testsets = load_pickles()
+    if loaded_testsets is None:
+        loaded_testsets = load_pickles()
+
     for testset in loaded_testsets:
-        print(f"printing for testset {testset.linguistic_phenomenon}..")
+        print(
+            f"\nprinting for testset {testset.linguistic_phenomenon} calculated from {testset.model_descr}"
+        )
         for stype in SPROUSE_SENTENCE_TYPES:
             print(f"printing for sentence type {stype}..")
             examples = testset.get_examples_sorted_by_sentence_type_and_score(
                 stype, score_descr, reverse=False
             )
-            print(f"{score_descr:^10}" f"{'txt':<85}")
-            for example in examples:
+            print(f"{'idx':<5}" f"{score_descr:^10}" f"{'txt':<85}")
+            for idx, example in enumerate(examples):
                 print(
-                    f"{example[stype].get_score(score_descr) : ^10.2f}"
+                    f"{idx : <5}"
+                    f"{example[stype].get_score(score_descr) : <10.2f}"
                     f"{example[stype].txt : <85}"
                 )
 
 
-def print_testset_detailed_analysis():
-    score_descr = "pen_lp"
-    loaded_testsets = load_pickles()
+def print_examples_compare_diff(score_descr, sent_type1, sent_type2, testsets=None):
+    if testsets is None:
+        testsets = load_pickles()
 
     max_testsets = 4
-    for testset in loaded_testsets[:max_testsets]:
+    for testset in testsets[:max_testsets]:
         print(
             f"\nprinting testset for {testset.linguistic_phenomenon} from {testset.model_descr}"
         )
-        examples = testset.get_examples_sorted_by_score_diff_1vs2(
-            score_descr, reverse=False
+        print(f"comparing {sent_type1} and {sent_type2}")
+        examples = testset.get_examples_sorted_by_score_diff(
+            score_descr, sent_type1, sent_type2, reverse=False
         )
         max_prints = 50
         print(
             f"{'diff':<8}"
             f"{'s1 '+score_descr:^10}"
-            f"{'s1 txt (SHORT_ISLAND)':<85}"
+            f"{'s1 txt (' + sent_type1 + ')':<95}"
             f"{'s2 '+score_descr:^10}"
-            f"{'s2 txt (LONG_ISLAND)':<5}"
+            f"{'s2 txt (' + sent_type2 + ')':<5}"
         )
         for example in examples[0:max_prints]:
             print(
-                f"{example.get_score_diff_1vs2(score_descr) : <8.2f}"
-                f"{example[SentenceNames.SHORT_ISLAND].get_score(score_descr) : ^10.2f}"
-                f"{example[SentenceNames.SHORT_ISLAND].txt : <85}"
-                f"{example[SentenceNames.LONG_ISLAND].get_score(score_descr) :^10.2f}"
-                f"{example[SentenceNames.LONG_ISLAND].txt : <5}"
+                f"{example.get_score_diff(score_descr, sent_type1, sent_type2) : <8.2f}"
+                f"{example[sent_type1].get_score(score_descr) : ^10.2f}"
+                f"{example[sent_type1].txt : <95}"
+                f"{example[sent_type2].get_score(score_descr) :^10.2f}"
+                f"{example[sent_type2].txt : <5}"
             )
 
+
+def main():
+    # score_testsets()
+    loaded_testsets = load_pickles()
+    score_descr = "pen_lp"
+    print_sorted_sentences_to_check_spelling_errors2(score_descr, loaded_testsets)
+    print_sorted_sentences_to_check_spelling_errors(score_descr, loaded_testsets)
+
+    print_examples_compare_diff(
+        score_descr,
+        SentenceNames.SHORT_ISLAND,
+        SentenceNames.LONG_ISLAND,
+        testsets=loaded_testsets,
+    )
+    print_examples_compare_diff(
+        score_descr,
+        SentenceNames.LONG_NONISLAND,
+        SentenceNames.LONG_ISLAND,
+        testsets=loaded_testsets,
+    )
+    print_examples_compare_diff(
+        score_descr,
+        SentenceNames.SHORT_NONISLAND,
+        SentenceNames.SHORT_ISLAND,
+        testsets=loaded_testsets,
+    )
+    load_and_plot_pickle(testsets=loaded_testsets)
+
     # todo:
-    #  sort and print examples by diff in acceptability btw short island and long island sentences
     #  sort and print examples by DD value
     # ..
     # show the examples with ..
     # plot with 7+1x7 subplots of a testset (one subplot for each example)
     # ..
-    # normalize sentence/tokens scrores
+    # normalize sentence/tokens scrores for Bert models, to have scores comparables across a whole testset
+    #
+    # normalize results to a likert scale, for comparison with Sprouse et al 2016
+    #
 
 
 if __name__ == "__main__":
-    # main()
-    print_sorted_sentences_to_check_spelling_errors()
-    print_testset_detailed_analysis()
-    load_and_plot_pickle()
+    main()

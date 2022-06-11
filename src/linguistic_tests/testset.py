@@ -70,15 +70,10 @@ class Example:
     def get_structure_effect(self, score_descr):
         raise NotImplementedError
 
-    def get_score_diff_1vs2(self, score_descr):
-        return self[SentenceNames.SHORT_ISLAND].get_score(score_descr) - self[
-            SentenceNames.LONG_ISLAND
-        ].get_score(score_descr)
-
-    def get_score_diff_3vs2(self, score_descr):
-        return self[SentenceNames.LONG_NONISLAND].get_score(score_descr) - self[
-            SentenceNames.LONG_ISLAND
-        ].get_score(score_descr)
+    def get_score_diff(
+        self, score_descr: str, stype1: SentenceNames, stype2: SentenceNames
+    ):
+        return self[stype1].get_score(score_descr) - self[stype2].get_score(score_descr)
 
 
 @dataclass
@@ -126,19 +121,29 @@ class TestSet:
         else:
             raise ValueError(f"Unexpected score name: {score_name}")
 
-    def get_examples_sorted_by_structure_effect(self, score_descr) -> list[Example]:
-        return sorted(
-            self.examples,
-            key=lambda x: x.get_structure_effect(score_descr),
-            reverse=True,
-        )
-
-    def get_examples_sorted_by_score_diff_1vs2(
-        self, score_descr, reverse=True
+    def get_examples_sorted_by_score_diff(
+        self,
+        score_descr,
+        sent_type1: SentenceNames,
+        sent_type2: SentenceNames,
+        reverse=True,
     ) -> list[Example]:
         return sorted(
             self.examples,
-            key=lambda x: x.get_score_diff_1vs2(score_descr),
+            key=lambda x: x.get_score_diff(score_descr, sent_type1, sent_type2),
+            reverse=reverse,
+        )
+
+    def get_all_sentences_sorted_by_score(
+        self, score_descr: str, reverse=True
+    ) -> list[TypedSentence]:
+        all_sentences = []
+        for example in self.examples:
+            for typed_sent in example.sentences:
+                all_sentences.append(typed_sent)
+        return sorted(
+            all_sentences,
+            key=lambda x: x.sent.get_score(score_descr),
             reverse=reverse,
         )
 

@@ -33,6 +33,9 @@ class SentenceNames(StrEnum):
     SENTENCE_GOOD = "sentence_good"
     SENTENCE_GOOD_2ND = "sentence_good_2nd"
 
+    def __repr__(self):
+        return self.name
+
 
 class SprouseSentencesOrder(IntEnum):
     SHORT_NONISLAND = 0
