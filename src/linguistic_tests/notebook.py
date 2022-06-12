@@ -7,17 +7,25 @@ from linguistic_tests.lm_utils import model_types
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import red_txt
 from linguistic_tests.run_syntactic_tests import print_detailed_sentence_info
-from linguistic_tests.run_syntactic_tests import run_tests_for_model_type
+from linguistic_tests.run_syntactic_tests import run_blimp_en
 
 
 def interactive_mode():
     print("interactive mode")
 
+    # todo: test tokenization with sentencepiece, check no unknown
+    # todo: check topk
+    # todo: list special tokens
+
     # load model than wait for input sentences
-    model_name = str(get_models_dir() / "bert-base-italian-xxl-cased")
+    model_dir = str(
+        get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch"
+    )  # str(get_models_dir() / "bert-base-italian-xxl-cased")
+    model_name = model_dir
+    model_type = model_types.ROBERTA  # model_types.BERT
     # eval_suite = 'it'
-    bert, tokenizer = load_model_and_tokenizer(
-        model_types.BERT, model_name, do_lower_case=False
+    model, tokenizer = load_model_and_tokenizer(
+        model_type, model_name, do_lower_case=False
     )
 
     print("model loaded, waiting for sentences..")
@@ -29,6 +37,16 @@ def interactive_mode():
         if good_sentence == "exit":
             return
         bad_sentence = input("Enter 2nd sentence (bad): ")
+
+        for sentence in [good_sentence, bad_sentence]:
+            tokens = tokenizer.tokenize(sentence)
+            print(
+                f"{sentence} \n "
+                f"tokenized as: {tokens} \n "
+                f"with ids: {tokenizer.convert_tokens_to_ids(tokens)}"
+            )
+
+        # todo: print unk token and id
 
         example = {
             "good_sentence": good_sentence,
@@ -48,7 +66,7 @@ def interactive_mode():
             logits_normalized_base_sentence,
             logits_normalized_2nd_good_sentence,
             oov_counts,
-        ) = analize_example(bert, tokenizer, -1, example, sentences_per_example)
+        ) = analize_example(model, tokenizer, -1, example, sentences_per_example)
         diff_penLP = round(penLP_base_sentence - penLP_bad_sentence, 3)
 
         print_red("PenLP:")
@@ -61,8 +79,8 @@ def interactive_mode():
 
         # analize both sentences with topk for each masking
         if diff_penLP >= 0:
-            print_detailed_sentence_info(bert, tokenizer, good_sentence)
-            print_detailed_sentence_info(bert, tokenizer, bad_sentence)
+            print_detailed_sentence_info(model, tokenizer, good_sentence)
+            print_detailed_sentence_info(model, tokenizer, bad_sentence)
 
 
 # todo same gpt2 as in the paper, comparable bert
@@ -109,17 +127,25 @@ def main():
     if len(sys.argv) > 1:
         interactive_mode()
     else:
-        # run_blimp_en()
+        model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
+        run_blimp_en(
+            model_type=model_types.ROBERTA,
+            model_name=model_dir,
+            # testset_filenames=None,
+            # testset_dir_path=None,
+            max_examples=1000,
+        )
         # raise SystemExit
         # print('choosing model type ..')
-        models_to_run = [
-            model_types.BERT,
-            model_types.GEPPETTO,
-            model_types.GPT,
-            model_types.GILBERTO,
-        ]
-        for model_type in models_to_run:
-            run_tests_for_model_type(model_type)
+        # models_to_run = [
+        #     model_types.BERT,
+        #     model_types.GEPPETTO,
+        #     model_types.GPT,
+        #     model_types.GILBERTO,
+        # ]
+        # from linguistic_tests.run_syntactic_tests import run_tests_for_model_type
+        # for model_type in models_to_run:
+        #     run_tests_for_model_type(model_type)
 
 
 if __name__ == "__main__":

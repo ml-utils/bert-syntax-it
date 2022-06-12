@@ -5,6 +5,8 @@ from unittest import TestCase
 import pytest
 import torch
 from _pytest._code.code import ExceptionInfo
+from fairseq.models.roberta import RobertaModel as RobertaModel_FS
+from linguistic_tests.lm_utils import CustomTokenizerWrapper
 from linguistic_tests.lm_utils import get_models_dir
 from pytest_socket import SocketBlockedError
 from transformers import AlbertTokenizer
@@ -12,8 +14,9 @@ from transformers import AutoTokenizer
 from transformers import BertForMaskedLM
 from transformers import BertTokenizer
 from transformers import CamembertTokenizer
-
-# import pytest
+from transformers import RobertaForMaskedLM
+from transformers import RobertaModel
+from transformers import RobertaTokenizer
 
 
 class TestLoadModels(TestCase):
@@ -24,6 +27,36 @@ class TestLoadModels(TestCase):
     dict_path = os.path.join(model_dir, dict_name)
     torch_model_filename = "pytorch_model.bin"
     torch_model_path = model_dir + "/" + torch_model_filename
+
+    def test_load_with_sentencepiece_unigram(self):
+        self._test_load_with_sentencepiece_helper("bostromkaj/uni_20k_ep20_pytorch/")
+
+    def test_load_with_sentencepiece_bpe(self):
+        self._test_load_with_sentencepiece_helper("bostromkaj/bpe_20k_ep20_pytorch/")
+
+    def _test_load_with_sentencepiece_helper(self, model_subdir: str):
+        # filename = "tokenizer.model"
+        # filepath = str(get_models_dir() / (model_subdir + filename))
+        sp = CustomTokenizerWrapper(
+            str(get_models_dir() / model_subdir)
+        )  # spm.SentencePieceProcessor(model_file=filepath)
+
+        print("encode: text => id")
+        print(sp.encode_as_pieces("This is a test"))
+        print(sp.encode_as_ids("This is a test"))
+
+        print("decode: id => text")
+        print(sp.decode_pieces(["▁This", "▁is", "▁a", "▁t", "est"]))
+        print(sp.decode_ids([201, 39, 5, 379, 586]))
+
+        vocabs = [sp.id_to_piece(id) for id in range(sp.get_piece_size())]
+        print(f"vocab first {100} {vocabs[0:100]}")
+        tokens = sp.encode_as_pieces("Hello world!")
+        print(f"tokens: {tokens}")
+        # assert tokens.tolist() == [0, 31414, 232, 328, 2]
+        # print(roberta.decode(tokens))  # 'Hello world!'
+
+        self.__test_tokenizer_helper(sp)
 
     def test_load_remotely(self):
         # remote calls are blocked, enabled with annotations  only for specific tests
@@ -61,12 +94,18 @@ class TestLoadModels(TestCase):
         self.assertInErrorMsg("Internal", run_err)
         self.assertInErrorMsg("sentencepiece_processor.cc", run_err)
 
-    def test_load_as_RobertaModel(self):
-        from transformers import RobertaTokenizer, RobertaModel
-
+    def test_load_as_huggingfaces_RobertaModel(self):
         roberta = RobertaModel.from_pretrained(TestLoadModels.model_dir)
         print(type(roberta))
 
+        roberta2 = RobertaForMaskedLM.from_pretrained(TestLoadModels.model_dir)
+        print(type(roberta2))
+
+        # todo: asserts on the model
+        # outputs = model(tokens_tensor, token_type_ids=segment_tensor)
+        # check output type format, how to access the loss and token scores
+
+    def test_load_as_huggingfaces_RobertaTokenizer(self):
         model_dir2 = str(
             get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch"  # + "/"
         )  # + "\\"
@@ -80,9 +119,24 @@ class TestLoadModels(TestCase):
             os_err,
         )
 
-    def test_load_with_fairseq_RobertaModel(self):
+    def test_load_as_custom_transformers_tokenizer(self):
+        from tokenizers import Tokenizer
 
-        from fairseq.models.roberta import RobertaModel as RobertaModel_FS
+        filename = "tokenizer.model"  # nb: default and custom tokenizers saved
+        # with hugginface transformers have a tokenizer.json instead (not a tokenizer.model file)
+        # see https://huggingface.co/roberta-base/tree/main
+        # and https://discuss.huggingface.co/t/creating-a-custom-tokenizer-for-roberta/2809
+        filepath = get_models_dir() / ("bostromkaj/bpe_20k_ep20_pytorch/" + filename)
+        filepath = str(filepath)
+        print(f"{filepath=}")
+        with pytest.raises(Exception) as stream_exception:
+            tokenizer = Tokenizer.from_file(
+                filepath  # expected: A path to a local JSON file representing a previously serialized
+            )
+            print(type(tokenizer))
+        self.assertInErrorMsg("stream did not contain valid UTF-8", stream_exception)
+
+    def test_load_with_fairseq_RobertaModel(self):
 
         with pytest.raises(OSError) as os_err:
             roberta = RobertaModel_FS.from_pretrained(
@@ -306,13 +360,35 @@ class TestLoadModels(TestCase):
         print(f"Sentence tokens: {tokens}")
 
         print(f"{txt} to {tokens=}")
+        special_tokens_properties1 = [
+            "bos_token",
+            "unk_token",
+            "eos_token",
+            "pad_token",
+        ]
         print(
-            f"Special tokens: {tokenizer.bos_token=}, {tokenizer.unk_token=}, "
-            f"{tokenizer.cls_token=}, {tokenizer.eos_token=}, {tokenizer.mask_token=}, "
-            f"{tokenizer.sep_token=}, {tokenizer.pad_token=}, "
-            f"\n{tokenizer.all_special_tokens=}, "
-            f"\nvocab size: {tokenizer.vocab_size}"
+            f"Special tokens: {tokenizer.all_special_tokens=}, {tokenizer.vocab_size=}"
         )
+        for special_token_property in special_tokens_properties1:
+            token = getattr(tokenizer, special_token_property)
+            print(
+                f"{special_token_property}: "
+                f"{token=}"
+                f", with id: {tokenizer.convert_tokens_to_ids([token])}"
+            )
+
+        special_tokens_properties2 = ["cls_token", "mask_token", "sep_token"]
+        for special_token_property in special_tokens_properties2:
+            if hasattr(tokenizer, special_token_property):
+                token = getattr(tokenizer, special_token_property)
+                print(
+                    f"special_token_property: "
+                    f"{token}"
+                    f", with id: {tokenizer.convert_tokens_to_ids([token])}"
+                )
+            else:
+                print(f"this tokenizer has no {special_token_property} property")
+
         vocab = tokenizer.get_vocab()
         max_prints = 20
         for token, idx in vocab.items():

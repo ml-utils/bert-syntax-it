@@ -37,7 +37,7 @@ def run_tests_blimp():
 
 
 def run_tests_lau_et_al():
-    # todo
+    # todo: compare results with other models
     return 0
 
 
@@ -49,7 +49,11 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
 
 
 def run_blimp_en(
-    model_type=None, model_name=None, testset_filenames=None, testset_dir_path=None
+    model_type=None,
+    model_name=None,
+    testset_filenames=None,
+    testset_dir_path=None,
+    max_examples=1000,
 ):
     if model_type is None:
         model_type = model_types.ROBERTA  # model_types.GPT  #
@@ -90,6 +94,7 @@ def run_blimp_en(
                     SentenceNames.SENTENCE_GOOD_2ND: "",
                 }
             )
+        examples = examples[0:max_examples]
         testset = {"sentences": examples}
         sentences_per_example = 2
         run_testset(

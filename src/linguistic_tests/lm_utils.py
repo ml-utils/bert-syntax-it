@@ -5,7 +5,9 @@ from enum import IntEnum
 from pathlib import Path
 
 import cython
+import sentencepiece as spm
 import torch
+from sentencepiece import SentencePieceProcessor
 from torch.utils.hipify.hipify_python import bcolors
 from tqdm import tqdm
 from transformers import AutoModel
@@ -17,6 +19,7 @@ from transformers import CamembertTokenizer
 from transformers import GPT2LMHeadModel
 from transformers import GPT2Tokenizer
 from transformers import RobertaForMaskedLM
+from transformers import RobertaModel
 from transformers import RobertaTokenizer
 
 
@@ -82,6 +85,116 @@ class DEVICES:
     CUDA = "cuda:X"
 
 
+class CustomModelWrapper:
+    def __init__(self, model_dir: str = None):
+        if model_dir is None:
+            model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch/")
+        self.model = RobertaModel.from_pretrained(model_dir)
+
+
+class CustomTokenizerWrapper:
+    def __init__(self, model_dir: str = None):
+
+        # load tokenizer:
+        if model_dir is None:
+            model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch/")
+        _tokenizer_filename = "tokenizer.model"
+        _tokenizer_filepath = os.path.join(model_dir, _tokenizer_filename)
+        print(f"{_tokenizer_filepath=}")
+        self.sp_tokenizer: SentencePieceProcessor = spm.SentencePieceProcessor(
+            model_file=_tokenizer_filepath
+        )
+
+    @property
+    def bos_token(self):
+        return self.id_to_piece(self.sp_tokenizer.bos_id())
+
+    @property
+    def eos_token(self):
+        return self.id_to_piece(self.sp_tokenizer.eos_id())
+
+    @property
+    def unk_token(self):
+        return self.id_to_piece(self.sp_tokenizer.unk_id())
+
+    @property
+    def pad_token(self):
+        return self.id_to_piece(self.sp_tokenizer.pad_id())
+
+    @property
+    def all_special_tokens(self):
+        # https://github.com/NVIDIA/NeMo/issues/2404
+        # "No pad_token,eos_token,sep_token,cls_token in SentencePieceTokenizer"
+        #
+        # https://huggingface.co/transformers/v3.5.1/_modules/transformers/tokenization_albert.html
+        #         bos_token="[CLS]",
+        #         eos_token="[SEP]",
+        #         unk_token="<unk>",
+        #         sep_token="[SEP]",
+        #         pad_token="<pad>",
+        #         cls_token="[CLS]",
+        #         mask_token="[MASK]",
+        return [
+            self.bos_token,
+            self.eos_token,
+            self.unk_token,
+            self.pad_token,
+        ]
+
+    @property
+    def vocab_size(self):
+        return self.sp_tokenizer.get_piece_size()
+
+    # todo/check, fix: this is not actually compatible with gpt2 output of get_vocab (idx value probably has not same meaning)
+    def get_vocab(self):
+        return {
+            self.sp_tokenizer.id_to_piece(id): id
+            for id in range(self.sp_tokenizer.get_piece_size())
+        }
+
+    def get_piece_size(self):
+        return self.sp_tokenizer.get_piece_size()
+
+    def tokenize(self, text: str):
+        return self.sp_tokenizer.encode_as_pieces(text)
+
+    def encode_as_pieces(self, text: str):
+        return self.sp_tokenizer.encode_as_pieces(text)
+
+    def convert_tokens_to_ids(self, tokens: list[str]):
+        ids = [self.piece_to_id(token) for token in tokens]
+        return ids
+
+    def id_to_piece(self, id: int):
+        # id <=> piece conversion
+        if id == -1:
+            return None
+        return self.sp_tokenizer.id_to_piece(id)
+
+    def piece_to_id(self, token: str):
+        # id <=> piece conversion
+        if token is None:
+            return None
+        return self.sp_tokenizer.piece_to_id(token)
+
+    def encode_as_ids(self, text: str):
+        return self.sp_tokenizer.encode_as_ids(text)
+
+    def decode_pieces(self, tokens: list[str]):
+        # decode: id => text
+        return self.sp_tokenizer.decode_pieces(tokens)
+
+    def decode_ids(self, ids: list[int]):
+        # decode: id => text
+        return self.sp_tokenizer.decode_ids(ids)
+
+    @classmethod
+    def from_pretrained(
+        cls, pretrained_model_name_or_path: str = None, *model_args, **kwargs
+    ):
+        return CustomTokenizerWrapper(model_dir=pretrained_model_name_or_path)
+
+
 def get_project_root() -> Path:
     return Path(__file__).parent.parent.parent
 
@@ -124,7 +237,7 @@ def print_orange(txt: str):
 
 def load_pretrained(
     model_type,
-    model_name,
+    model_name: str,
     device=DEVICES.CPU,
     dict_name=None,
     do_lower_case=False,
@@ -176,7 +289,11 @@ def load_pretrained(
         print(f"loading model {model_name}..")
         model = RobertaForMaskedLM.from_pretrained(model_name)
         print(f"model loaded. Loading tokenizer {model_name}..")
-        tokenizer = RobertaTokenizer.from_pretrained(model_name, do_lower_case=True)
+
+        if "bostromkaj" in model_name:
+            tokenizer = CustomTokenizerWrapper.from_pretrained(model_name)
+        else:
+            tokenizer = RobertaTokenizer.from_pretrained(model_name, do_lower_case=True)
         print("tokenizer loaded.")
     elif model_type == model_types.GILBERTO:
         print(f"loading model {model_name}..")
