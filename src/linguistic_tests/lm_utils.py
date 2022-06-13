@@ -10,6 +10,7 @@ import torch
 from sentencepiece import SentencePieceProcessor
 from torch.utils.hipify.hipify_python import bcolors
 from tqdm import tqdm
+from transformers import AlbertTokenizer
 from transformers import AutoModel
 from transformers import AutoTokenizer
 from transformers import BertForMaskedLM  # BertModel as BertForMaskedLM  #
@@ -93,7 +94,7 @@ class CustomModelWrapper:
 
 
 class CustomTokenizerWrapper:
-    def __init__(self, model_dir: str = None):
+    def __init__(self, model_dir: str = None, custom_tokens=None):
 
         # load tokenizer:
         if model_dir is None:
@@ -104,6 +105,38 @@ class CustomTokenizerWrapper:
         self.sp_tokenizer: SentencePieceProcessor = spm.SentencePieceProcessor(
             model_file=_tokenizer_filepath
         )
+
+        self._ids_to_tokens = {
+            id: self.sp_tokenizer.id_to_piece(id)
+            for id in range(self.sp_tokenizer.get_piece_size())
+        }
+
+        self._tokens_to_ids = {
+            self.sp_tokenizer.id_to_piece(id): id
+            for id in range(self.sp_tokenizer.get_piece_size())
+        }
+
+        # in https://huggingface.co/transformers/v4.5.1/_modules/transformers/models/deberta_v2/tokenization_deberta_v2.html
+        #         # self.vocab['[PAD]'] = 0
+        #         # self.vocab['[CLS]'] = 1
+        #         # self.vocab['[SEP]'] = 2
+        #         # self.vocab['[UNK]'] = 3
+        # in the fairseq Dictionary order:
+        #         #         bos="<s>", bos/cls
+        #         #         pad="<pad>",
+        #         #         eos="</s>", eos/sep
+        #         #         unk="<unk>",
+        if custom_tokens is None:
+            self._custom_tokens = {}
+            # self.custom_tokens = {
+            #     "[PAD]": 20000,
+            #     "[CLS]": 20001,
+            #     "[SEP]": 20002,
+            #     "[UNK]": 20003,
+            #     "[MASK]": 20004,
+            # }
+        else:
+            self._custom_tokens = custom_tokens
 
     @property
     def bos_token(self):
@@ -145,12 +178,13 @@ class CustomTokenizerWrapper:
     def vocab_size(self):
         return self.sp_tokenizer.get_piece_size()
 
+    @property
+    def ids_to_tokens(self):
+        return self._ids_to_tokens
+
     # todo/check, fix: this is not actually compatible with gpt2 output of get_vocab (idx value probably has not same meaning)
     def get_vocab(self):
-        return {
-            self.sp_tokenizer.id_to_piece(id): id
-            for id in range(self.sp_tokenizer.get_piece_size())
-        }
+        return self._tokens_to_ids
 
     def get_piece_size(self):
         return self.sp_tokenizer.get_piece_size()
@@ -162,8 +196,14 @@ class CustomTokenizerWrapper:
         return self.sp_tokenizer.encode_as_pieces(text)
 
     def convert_tokens_to_ids(self, tokens: list[str]):
+
         ids = [self.piece_to_id(token) for token in tokens]
         return ids
+
+    def convert_ids_to_tokens(self, ids: list[int]):
+
+        tokens = [self.id_to_piece(id) for id in ids]
+        return tokens
 
     def id_to_piece(self, id: int):
         # id <=> piece conversion
@@ -175,7 +215,11 @@ class CustomTokenizerWrapper:
         # id <=> piece conversion
         if token is None:
             return None
-        return self.sp_tokenizer.piece_to_id(token)
+
+        if token in self._custom_tokens.keys():
+            return self._custom_tokens[token]
+        else:
+            return self.sp_tokenizer.piece_to_id(token)
 
     def encode_as_ids(self, text: str):
         return self.sp_tokenizer.encode_as_ids(text)
@@ -287,11 +331,14 @@ def load_pretrained(
 
     elif model_type in [model_types.ROBERTA]:
         print(f"loading model {model_name}..")
-        model = RobertaForMaskedLM.from_pretrained(model_name)
+        model = RobertaForMaskedLM.from_pretrained(model_name)  # RobertaForMaskedLM
+        # todo: try using RobertaModel.from_pretrained with a different output format
         print(f"model loaded. Loading tokenizer {model_name}..")
 
         if "bostromkaj" in model_name:
-            tokenizer = CustomTokenizerWrapper.from_pretrained(model_name)
+            tokenizer_model_path = os.path.join(model_name, "tokenizer.model")
+            print(f"{tokenizer_model_path=}")
+            tokenizer = AlbertTokenizer.from_pretrained(tokenizer_model_path)
         else:
             tokenizer = RobertaTokenizer.from_pretrained(model_name, do_lower_case=True)
         print("tokenizer loaded.")

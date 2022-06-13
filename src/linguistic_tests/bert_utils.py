@@ -10,10 +10,12 @@ from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.lm_utils import sentence_score_bases
 from linguistic_tests.lm_utils import special_tokens
 from scipy.special import softmax
-from transformers import BertForMaskedLM as BertForMaskedLM
+from transformers import BertForMaskedLM
 from transformers import BertForMaskedLM as BertPreTrainedModel
 from transformers import BertTokenizer
 from transformers import GPT2LMHeadModel
+from transformers import RobertaForMaskedLM
+from transformers import RobertaModel
 from transformers.modeling_outputs import MaskedLMOutput
 
 
@@ -208,7 +210,7 @@ def get_score_descr(score_based_on):
 
 
 def __get_acceptability_diffs(
-    bert,
+    model,
     tokenizer,
     penLP_by_sentence,
     normalized_logits_by_sentence,
@@ -218,14 +220,16 @@ def __get_acceptability_diffs(
     tokens_by_sentence,
     score_based_on=sentence_score_bases.SOFTMAX,
 ):
-    if isinstance(bert, BertForMaskedLM):
+    if type(model) in [BertForMaskedLM, RobertaModel, RobertaForMaskedLM]:
         if score_based_on == sentence_score_bases.SOFTMAX:
             score_by_sentence = penLP_by_sentence
         elif score_based_on == sentence_score_bases.NORMALIZED_LOGITS:
             score_by_sentence = normalized_logits_by_sentence
         score_descr = get_score_descr(score_based_on)
-    elif isinstance(bert, GPT2LMHeadModel):
+    elif type(model) in [GPT2LMHeadModel]:
         score_by_sentence = penLP_by_sentence
+    else:
+        raise ValueError(f"Unrecognized model type: {type(model)}")
 
     score_bad_sentence = score_by_sentence[sent_idx.BAD]
     score_base_sentence = score_by_sentence[sent_idx.GOOD_1]
@@ -254,7 +258,7 @@ def __get_acceptability_diffs(
             sentence_ids = tokenizer.convert_tokens_to_ids(
                 tokens_by_sentence[sentence_idx]
             )
-            estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose=True)
+            estimate_sentence_probability(model, tokenizer, sentence_ids, verbose=True)
             if sentence_idx == 0:
                 base_sentence_less_acceptable = True
             elif sentence_idx == 2:
@@ -420,6 +424,11 @@ def get_bert_output(
 
 def convert_ids_to_tokens(tokenizer: BertTokenizer, ids):
     """Converts a sequence of ids in wordpiece tokens using the vocab."""
+    if hasattr(tokenizer, "convert_ids_to_tokens") and callable(
+        getattr(tokenizer, "convert_ids_to_tokens")
+    ):
+        return tokenizer.convert_ids_to_tokens(ids)
+
     tokens = []
     for i in ids:
         if torch.is_tensor(i):
@@ -429,8 +438,8 @@ def convert_ids_to_tokens(tokenizer: BertTokenizer, ids):
         # print(f"id: {i}, type: {type(i)}")
         try:
             tokens.append(tokenizer.ids_to_tokens[i])
-        except Exception:
-            print(f"Unable to find id {i} {type(i)} in the vocabulary")
+        except Exception as err:
+            print(f"Unable to find id {i} {type(i)} in the vocabulary. {str(err)}")
 
     return tokens
 

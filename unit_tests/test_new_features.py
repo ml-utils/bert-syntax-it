@@ -12,4 +12,4 @@ class TestNewFeatures(TestCase):
 
     def test_no_remote_Calls(self):
         with pytest.raises(SocketBlockedError):
-            _ = BertForMaskedLM.from_pretrained("bert-base")
+            _ = BertForMaskedLM.from_pretrained("bert-base-uncased")

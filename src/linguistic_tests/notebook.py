@@ -19,10 +19,13 @@ def interactive_mode():
 
     # load model than wait for input sentences
     model_dir = str(
-        get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch"
-    )  # str(get_models_dir() / "bert-base-italian-xxl-cased")
+        # get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch"
+        # get_models_dir() / "bostromkaj/uni_20k_ep20_pytorch"
+        "bert-base-uncased",
+        # str(get_models_dir() / "bert-base-italian-xxl-cased")
+    )
     model_name = model_dir
-    model_type = model_types.ROBERTA  # model_types.BERT
+    model_type = model_types.BERT  # model_types.ROBERTA  #
     # eval_suite = 'it'
     model, tokenizer = load_model_and_tokenizer(
         model_type, model_name, do_lower_case=False
@@ -62,11 +65,12 @@ def interactive_mode():
             penLP_base_sentence,
             penLP_bad_sentence,
             penLP_2nd_good_sentence,
-            logits_normalized_bad_sentence,
-            logits_normalized_base_sentence,
-            logits_normalized_2nd_good_sentence,
+            # logits_normalized_bad_sentence,
+            # logits_normalized_base_sentence,
+            # logits_normalized_2nd_good_sentence,
             oov_counts,
         ) = analize_example(model, tokenizer, -1, example, sentences_per_example)
+
         diff_penLP = round(penLP_base_sentence - penLP_bad_sentence, 3)
 
         print_red("PenLP:")

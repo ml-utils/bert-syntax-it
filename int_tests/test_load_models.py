@@ -6,6 +6,7 @@ import pytest
 import torch
 from _pytest._code.code import ExceptionInfo
 from fairseq.models.roberta import RobertaModel as RobertaModel_FS
+from linguistic_tests.bert_utils import convert_ids_to_tokens
 from linguistic_tests.lm_utils import CustomTokenizerWrapper
 from linguistic_tests.lm_utils import get_models_dir
 from pytest_socket import SocketBlockedError
@@ -20,19 +21,293 @@ from transformers import RobertaTokenizer
 
 
 class TestLoadModels(TestCase):
-    model_dir = str(
-        get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch"
-    )  # "../models/bostromkaj/bpe_20k_ep20_pytorch/"
+    tok_bpe_subdirs = "bostromkaj/bpe_20k_ep20_pytorch"
+    tok_uni_subdirs = "bostromkaj/uni_20k_ep20_pytorch"
+    model_dir_uni = str(get_models_dir() / tok_uni_subdirs)
+    model_dir_bpe = str(get_models_dir() / tok_bpe_subdirs)
     dict_name = "dict.txt"
-    dict_path = os.path.join(model_dir, dict_name)
+    sentencepiece_tokenizer_filename = "tokenizer.model"
     torch_model_filename = "pytorch_model.bin"
-    torch_model_path = model_dir + "/" + torch_model_filename
+    dict_path_uni = os.path.join(model_dir_uni, dict_name)
+    tok_bpe_path = os.path.join(model_dir_bpe, sentencepiece_tokenizer_filename)
+    tok_uni_path = os.path.join(model_dir_uni, sentencepiece_tokenizer_filename)
+    torch_model_path_bpe = os.path.join(model_dir_bpe, torch_model_filename)
+    torch_model_path_uni = os.path.join(model_dir_uni, torch_model_filename)
 
     def test_load_with_sentencepiece_unigram(self):
         self._test_load_with_sentencepiece_helper("bostromkaj/uni_20k_ep20_pytorch/")
 
     def test_load_with_sentencepiece_bpe(self):
         self._test_load_with_sentencepiece_helper("bostromkaj/bpe_20k_ep20_pytorch/")
+
+    def test_sentencepiece_custom_tokens(self):
+        custom_tokens_deberta = {
+            "[PAD]": 20000,
+            "[CLS]": 20001,
+            "[SEP]": 20002,
+            "[UNK]": 20003,
+            "[MASK]": 20004,
+        }
+        _ = {  # custom_tokens_fairseq
+            "[CLS]": 20000,  # bos
+            "[PAD]": 20001,
+            "[SEP]": 20002,  # eos
+            # "[UNK]": 20003,
+            "[MASK]": 20003,
+        }
+
+        _ = {  # custom_tokens_actual
+            "[CLS]": 20000,  # bos, <s>
+            "[SEP]": 20001,  # eos, </s>
+            "<pad>": 20002,
+            "[MASK]": 20003,
+        }
+        model_subdir = "bostromkaj/bpe_20k_ep20_pytorch/"
+        model_dir_path = str(get_models_dir() / model_subdir)
+        _ = CustomTokenizerWrapper(  # tokenizer
+            model_dir=model_dir_path, custom_tokens=custom_tokens_deberta
+        )
+        roberta = RobertaModel.from_pretrained(model_dir_path)
+        roberta2 = RobertaForMaskedLM.from_pretrained(model_dir_path)
+        print(f"{type(roberta)=}, {type(roberta2)=}, ")
+        _ = "The [MASK] is on the table"  # sentence =
+        _ = 1  # or 2?  # mask_idx =
+        # todo: get topk
+
+        # print: with custom_tokens1: .., topk are ..
+
+        # training a Roberta model with fairseq and sentencepiece tokenizer:
+        # https://github.com/musixmatchresearch/umberto/issues/2
+        # # Encode Data with SentencePiece Tokenizer
+        # spm_encode \
+        #     --model=spm.bpe.model \ [ model that is from output of sp training ]
+        #     --extra_options=bos:eos \ [ saying that you want begin of sequence and end of sequence encoded ]
+        #     --output_format=piece \ [ here you are telling that encoded data will be as tokens of spm ]
+        #     < file.raw \ [ raw data in input]
+        #     > file.bpe [ encoded data in output ]
+        #
+        # https://github.com/google/sentencepiece
+        # % spm_encode --extra_options=bos:eos (add <s> and </s>)
+
+    def test_sentencepiece_special_tokens(self):
+        model_subdir = "bostromkaj/bpe_20k_ep20_pytorch/"
+        tokenizer = CustomTokenizerWrapper(str(get_models_dir() / model_subdir))
+
+        # todo: see processor.SetEncodeExtraOptions("bos:eos");   // add <s> and </s>.
+        # https://github.com/google/sentencepiece/blob/master/doc/api.md
+        # tokenizer.sp_tokenizer.SetEncodeExtraOptions("bos:eos")
+
+        special_tokens = [
+            "<mask>",
+            "[MASK]",
+            "<sep>",
+            "[SEP]",
+            "<bos>",
+            "<eos>",
+            "[CLS]",
+            "<cls>",
+            "<pad>",
+            "<s>",
+            "</s>",
+        ]
+        sentence_with_special_tokens = (
+            "<mask> [MASK] <sep> [SEP] <bos> <eos> [CLS] <cls> <pad> <s> </s>"
+        )
+        special_pieces = tokenizer.encode_as_pieces(sentence_with_special_tokens)
+        special_ids = tokenizer.convert_tokens_to_ids(special_tokens)
+        print(f"{special_tokens=}")
+        print(f"{sentence_with_special_tokens=}")
+        print(f"{special_pieces=}")
+        print(f"{special_ids=}")
+
+        # processor.IsControl(10);     // returns true if the given id is a control token. e.g., <s>, </s>
+        print(f"{tokenizer.sp_tokenizer.IsControl(10)=}")
+        print(f"{tokenizer.sp_tokenizer.IsControl(0)=}")
+
+        ids_to_check = [0, tokenizer.vocab_size - 1, tokenizer.vocab_size, 20004]
+        for id in ids_to_check:
+            # with pytest.raises(IndexError)as idx_err:
+            try:
+                print(f"id {id} corresponds to token: {tokenizer.id_to_piece(id)}")
+            except IndexError:  # as idx_err
+                print(
+                    f"id {id} is out of range in the vocabulary size of {tokenizer.vocab_size}"
+                )
+
+        # todo: check if in the vocabulary there are tokens, and print them, with "<"
+        vocab = tokenizer.get_vocab()
+        print("printing tokens containing '<' or '['")
+        for token, id in vocab.items():
+            if "<" in token or "[" in token:
+                print(f"token {token} has id {id}")
+
+        # print(f"{tokenizer.sp_tokenizer.sep_token=}")
+
+        first_tokens_count = 10
+        print(
+            f"first {first_tokens_count} tokens are: "
+            f"{[(i, tokenizer.ids_to_tokens[i]) for i in range(first_tokens_count)]}"
+        )
+
+        # from https://huggingface.co/docs/transformers/model_doc/roberta
+        # https://github.com/huggingface/transformers/blob/v4.19.4/src/transformers/models/roberta/tokenization_roberta.py#L103
+        #         bos_token="<s>",
+        #         eos_token="</s>",
+        #         sep_token="</s>",
+        #         cls_token="<s>",
+        #         unk_token="<unk>",
+        #         pad_token="<pad>",
+        #         mask_token="<mask>",
+
+        # from https://github.com/facebookresearch/fairseq/blob/b5a039c292facba9c73f59ff34621ec131d82341/fairseq/data/dictionary.py
+        #         bos="<s>",
+        #         pad="<pad>",
+        #         eos="</s>",
+        #         unk="<unk>",
+        #
+        #         self.bos_index = self.add_symbol(bos)
+        #         self.pad_index = self.add_symbol(pad)
+        #         self.eos_index = self.add_symbol(eos)
+        #         self.unk_index = self.add_symbol(unk)
+        #
+        # https://github.com/facebookresearch/fairseq/issues/1309
+
+        # see https://github.com/google/sentencepiece
+        # by default the unk token has id 0, as in the Bostrom models.
+        # the bos and eos tokens by default have ids 1 and 2, but they can be disabled,
+        # while the unk token cannot.
+        # so they must have been disabled when training the Bostrom tokenizers.
+        # https://github.com/google/sentencepiece/blob/master/doc/special_symbols.md
+
+        print("bos=", tokenizer.sp_tokenizer.bos_id())
+        print("eos=", tokenizer.sp_tokenizer.eos_id())
+        print("unk=", tokenizer.sp_tokenizer.unk_id())
+        print("pad=", tokenizer.sp_tokenizer.pad_id())  # disabled by default
+        # gives:
+        # bos= -1
+        # eos= -1
+        # unk= 0
+        # pad= -1
+
+        # https://github.com/google/sentencepiece/blob/master/python/sentencepiece_python_module_example.ipynb
+        # Training sentencepiece model from the word list with frequency
+        # We can train the sentencepiece model from the pair of <word, frequency>.
+        # First, you make a TSV file where the first column is the word and the
+        # second column is the frequency. Then, feed this TSV file with
+        # --input_format=tsv flag. Note that when feeding TSV as training data,
+        # we implicitly assume that --split_by_whtespace=true.
+        #
+        # import sentencepiece as spm
+        #
+        # spm.SentencePieceTrainer.train('--input=word_freq_list.tsv --input_format=tsv --model_prefix=m --vocab_size=2000')
+        # sp = spm.SentencePieceProcessor()
+        # sp.load('m.model')
+        #
+        # print(sp.encode_as_pieces('this is a test.'))
+
+        # https://github.com/google/sentencepiece/blob/master/python/README.md
+        print(tokenizer.sp_tokenizer.encode("This is a test"))
+        print(
+            tokenizer.sp_tokenizer.encode(
+                ["This is a test", "Hello world"], out_type=int
+            )
+        )
+        print(tokenizer.sp_tokenizer.encode("This is a test", out_type=str))
+        print(
+            tokenizer.sp_tokenizer.encode(
+                ["This is a test", "Hello world"], out_type=str
+            )
+        )
+
+        return_str = "\r"
+        print(f"{tokenizer.sp_tokenizer.piece_to_id(return_str)=}")
+        print(f"{tokenizer.sp_tokenizer.piece_to_id('▁')=}")
+
+        # https://github.com/facebookresearch/fairseq/issues/459
+
+    def test_fill_mask(self):
+        model_subdir = "bostromkaj/bpe_20k_ep20_pytorch/"
+        tokenizer = CustomTokenizerWrapper(str(get_models_dir() / model_subdir))
+
+        topk = self.fill_mask("My name is <mask>.", tokenizer)
+        print(f"{topk=}")
+
+    def fill_mask(
+        self, masked_input: str, tokenizer: CustomTokenizerWrapper, topk: int = 5
+    ):
+        masked_token = "<mask>"
+        assert (
+            masked_token in masked_input and masked_input.count(masked_token) == 1
+        ), "Please add one {0} token for the input, eg: 'He is a {0} guy'".format(
+            masked_token
+        )
+
+        text_spans = masked_input.split(masked_token)
+        print(f"{text_spans=}")
+        # text_spans_bpe = (' {0} '.format(masked_token)).join(
+        #     [self.bpe.encode(text_span.rstrip()) for text_span in text_spans]
+        # ).strip()
+        print(f"{tokenizer.encode_as_pieces(text_spans[0].rstrip())=}")
+        text_spans_bpe0 = (
+            (" {} ".format(masked_token))
+            .join(
+                [
+                    tokenizer.encode_as_pieces(text_span.rstrip())
+                    for text_span in text_spans
+                ][0]
+            )
+            .strip()
+        )
+        print(f"{text_spans_bpe0=}")
+        # text_spans_bpe = (' {0} '.format(masked_token)).join(
+        #     [tokenizer.encode_as_pieces(text_span.rstrip()) for text_span in text_spans]
+        # ).strip()
+
+        return
+        tokens = self.task.source_dictionary.encode_line(
+            "<s> " + text_spans_bpe0,
+            append_eos=True,
+        )
+
+        _ = (tokens == self.task.mask_idx).nonzero()  # masked_index =
+        if tokens.dim() == 1:
+            tokens = tokens.unsqueeze(0)
+
+        # with utils.eval(self.model):
+        #     features, extra = self.model(
+        #         tokens.long().to(device=self.device),
+        #         features_only=False,
+        #         return_all_hiddens=False,
+        #     )
+        # logits = features[0, masked_index, :].squeeze()
+        # prob = logits.softmax(dim=0)
+        # values, index = prob.topk(k=topk, dim=0)
+        # topk_predicted_token_bpe = self.task.source_dictionary.string(index)
+        #
+        topk_filled_outputs = []
+        # for index, predicted_token_bpe in enumerate(
+        #     topk_predicted_token_bpe.split(" ")
+        # ):
+        #     predicted_token = self.bpe.decode(predicted_token_bpe)
+        #     if " {}".format(masked_token) in masked_input:
+        #         topk_filled_outputs.append(
+        #             (
+        #                 masked_input.replace(
+        #                     " {}".format(masked_token), predicted_token
+        #                 ),
+        #                 values[index].item(),
+        #                 predicted_token,
+        #             )
+        #         )
+        #     else:
+        #         topk_filled_outputs.append(
+        #             (
+        #                 masked_input.replace(masked_token, predicted_token),
+        #                 values[index].item(),
+        #                 predicted_token,
+        #             )
+        #         )
+        return topk_filled_outputs
 
     def _test_load_with_sentencepiece_helper(self, model_subdir: str):
         # filename = "tokenizer.model"
@@ -61,12 +336,16 @@ class TestLoadModels(TestCase):
     def test_load_remotely(self):
         # remote calls are blocked, enabled with annotations  only for specific tests
         with pytest.raises(SocketBlockedError):
-            _ = BertForMaskedLM.from_pretrained("bert-base")
+            _ = BertForMaskedLM.from_pretrained("bert-base-uncased")
 
-    @pytest.mark.skip("using an edited config.json (not the default)")
+    @pytest.mark.skip("cannot reproduce the error")
+    @pytest.mark.enable_socket
     def test_load_with_AutoTokenizer_with_default_config_json(self):
         with pytest.raises(ValueError) as val_err:
-            tokenizer = AutoTokenizer.from_pretrained(TestLoadModels.model_dir)
+            # TestLoadModels.model_dir_uni: "OSError"
+            # TestLoadModels.torch_model_path_uni gives "Connection error, and we cannot find the requested files in the cached path. Please try again or make sure your Internet connection
+            # is on.'"
+            tokenizer = AutoTokenizer.from_pretrained(TestLoadModels.model_dir_uni)
             self.__test_tokenizer_helper(tokenizer)
         print(f"{val_err}=")
         self.assertInErrorMsg("Unrecognized model", val_err)
@@ -78,7 +357,7 @@ class TestLoadModels(TestCase):
 
     def test_load_with_AutoTokenizer_with_edited_config_json(self):
         with pytest.raises(OSError) as os_err:
-            tokenizer = AutoTokenizer.from_pretrained(TestLoadModels.model_dir)
+            tokenizer = AutoTokenizer.from_pretrained(TestLoadModels.model_dir_bpe)
             self.__test_tokenizer_helper(tokenizer)
         self.assertInErrorMsg("Can't load tokenizer for ", os_err)
         self.assertInErrorMsg(
@@ -88,18 +367,20 @@ class TestLoadModels(TestCase):
 
     def test_load_with_CamembertTokenizer(self):
         with pytest.raises(RuntimeError) as run_err:
-            tokenizer = CamembertTokenizer.from_pretrained(TestLoadModels.dict_path)
+            tokenizer = CamembertTokenizer.from_pretrained(TestLoadModels.dict_path_uni)
             self.__test_tokenizer_helper(tokenizer)
         print(f"{run_err}=")
         self.assertInErrorMsg("Internal", run_err)
         self.assertInErrorMsg("sentencepiece_processor.cc", run_err)
 
     def test_load_as_huggingfaces_RobertaModel(self):
-        roberta = RobertaModel.from_pretrained(TestLoadModels.model_dir)
+        roberta = RobertaModel.from_pretrained(TestLoadModels.model_dir_uni)
         print(type(roberta))
 
-        roberta2 = RobertaForMaskedLM.from_pretrained(TestLoadModels.model_dir)
+        roberta2 = RobertaForMaskedLM.from_pretrained(TestLoadModels.model_dir_uni)
         print(type(roberta2))
+
+        # check: no need to specify model type in the config.json?
 
         # todo: asserts on the model
         # outputs = model(tokens_tensor, token_type_ids=segment_tensor)
@@ -117,6 +398,16 @@ class TestLoadModels(TestCase):
         self.assertInErrorMsg(
             "is the correct path to a directory containing all relevant files for a RobertaTokenizer tokenizer.",
             os_err,
+        )
+
+        # todo: try using an earlier verison of transformers (model was saved in 2019)
+        # the tokenizer gets recognized (when loaded from AlbertTokenizer, which gives a warning)
+        # as a Bert tokenizer. Try the 2019 BertTokenizer version ?
+        with pytest.raises(ValueError) as val_err:
+            tokenizer = RobertaTokenizer.from_pretrained(TestLoadModels.tok_uni_path)
+        self.assertInErrorMsg(
+            "Calling RobertaTokenizer.from_pretrained() with the path to a single file or url is not supported for this tokenizer. Use a model identifier or the path to a directory instead.",
+            val_err,
         )
 
     def test_load_as_custom_transformers_tokenizer(self):
@@ -140,7 +431,7 @@ class TestLoadModels(TestCase):
 
         with pytest.raises(OSError) as os_err:
             roberta = RobertaModel_FS.from_pretrained(
-                TestLoadModels.model_dir,
+                TestLoadModels.model_dir_uni,
             )
             # skipped because of raised error above:
             roberta.eval()  # disable dropout (or leave in train mode to finetune)
@@ -154,11 +445,17 @@ class TestLoadModels(TestCase):
 
         with pytest.raises(KeyError) as key_err:
             roberta = RobertaModel_FS.from_pretrained(
-                TestLoadModels.model_dir,
+                TestLoadModels.model_dir_uni,
                 checkpoint_file="pytorch_model.bin",  # by default looks for a "model.pt", so a pythorch model file, note a .bin file (like roberta base from huggingfaces)
             )
             print(type(roberta))
         self.assertInErrorMsg("best_loss", key_err)
+
+        # from fairseq.models.roberta import RobertaModel
+        # roberta = RobertaModel.from_pretrained('checkpoints',
+        #                                        'checkpoint_best.pt',
+        #                                        'path/to/data')
+        # assert isinstance(roberta.model, torch.nn.Module)
 
     def test_load_checkpoint_with_Torch(self):
         import torch
@@ -167,7 +464,7 @@ class TestLoadModels(TestCase):
         # optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
         from collections import OrderedDict
 
-        checkpoint = torch.load(TestLoadModels.torch_model_path)
+        checkpoint = torch.load(TestLoadModels.torch_model_path_uni)
 
         assert isinstance(checkpoint, OrderedDict)
         assert len(checkpoint) == 201
@@ -260,7 +557,7 @@ class TestLoadModels(TestCase):
         #
         # model.eval()
 
-    def test_load_with_BertTokenizer(self):
+    def test_load_with_BertTokenizer_dict_file(self):
         # fixme: loaded tokenizer doen not work properly (all tokens are UNK)
         #  it's using sentencepiece module, with split tokens like:
         #  'This is a test' = ['▁This', '▁is', '▁a', '▁', 't', 'est']
@@ -280,24 +577,45 @@ class TestLoadModels(TestCase):
         # https://github.com/huggingface/transformers/blob/main/src/transformers/models/bert/convert_bert_pytorch_checkpoint_to_original_tf.py
 
         print("loading with BertTokenizer..")
-        tokenizer = BertTokenizer.from_pretrained(TestLoadModels.dict_path)
+        tokenizer = BertTokenizer.from_pretrained(TestLoadModels.dict_path_uni)
         self.__test_tokenizer_helper(tokenizer)
+
+    def test_load_with_BertTokenizer_model_file(self):
+        print("loading with BertTokenizer..")
+
+        print(f"{TestLoadModels.tok_uni_path=}")
+        with pytest.raises(UnicodeDecodeError) as utf8_err:
+            tokenizer = BertTokenizer.from_pretrained(TestLoadModels.tok_uni_path)
+            print(f"{type(tokenizer)=}")
+            self.__test_tokenizer_helper(tokenizer)
+        self.assertInErrorMsg("utf-8", utf8_err)
+        self.assertInErrorMsg("invalid start byte", utf8_err)
+        # self.assertInErrorMsg("codec can't decode byte 0xa3 in position 27", utf8_err)
 
     def test_load_with_AlbertTokenizer(self):
         print("loading with AlbertTokenizer..")
 
         with pytest.raises(RuntimeError) as run_err:
-            tokenizer = AlbertTokenizer.from_pretrained(TestLoadModels.dict_path)
+            tokenizer = AlbertTokenizer.from_pretrained(TestLoadModels.dict_path_uni)
             self.__test_tokenizer_helper(tokenizer)
         print(f"{run_err=}")
         self.assertInErrorMsg("Internal", run_err)
         self.assertInErrorMsg("sentencepiece_processor.cc", run_err)
+
+        print(f"{TestLoadModels.tok_uni_path=}")
+        tokenizer = AlbertTokenizer.from_pretrained(TestLoadModels.tok_uni_path)
+        print(f"{type(tokenizer)=}")
+
+        self.__test_tokenizer_helper(tokenizer)
 
     def assertInErrorMsg(self, expected_str, error: ExceptionInfo):
         if error.type in [FileNotFoundError]:
             msg = f"{str(error.value)} {error.value.args[1]}  {error.value.strerror}  {error.value.filename}"
         elif error.type in [RuntimeError, ValueError, OSError]:
             msg = error.value.args[0]
+        elif error.type in [UnicodeDecodeError]:
+            print(f"{error.value.args[0]=}")
+            msg = str(error)
         else:  # KeyError?
             msg = str(error)
         self.assertIn(expected_str, msg)
@@ -306,16 +624,16 @@ class TestLoadModels(TestCase):
         print("loading with Torch..")
 
         # see https://pytorch.org/hub/huggingface_pytorch-transformers/
-        # config = torch.hub.load("local", 'config', TestLoadModels.model_dir)  # repo_owner, repo_name = repo_info.split('/') ValueError: not enough values to unpack (expected 2, got 1)
+        # config = torch.hub.load("local", 'config', TestLoadModels.model_dir_uni)  # repo_owner, repo_name = repo_info.split('/') ValueError: not enough values to unpack (expected 2, got 1)
 
         with pytest.raises(FileNotFoundError) as f_err:
             tokenizer = torch.hub.load(
-                TestLoadModels.model_dir,
+                TestLoadModels.model_dir_uni,
                 "tokenizer",
                 source="local",
                 pretrained=True,
                 # config=config
-                # "local", "tokenizer", TestLoadModels.model_dir,  # config=config
+                # "local", "tokenizer", TestLoadModels.model_dir_uni,  # config=config
             )
             self.__test_tokenizer_helper(tokenizer)
         print(f"{f_err=}")
@@ -323,7 +641,7 @@ class TestLoadModels(TestCase):
 
         with pytest.raises(FileNotFoundError) as f_err2:
             roberta = torch.hub.load(
-                TestLoadModels.model_dir,  # repo_or_dir # 'pytorch/fairseq',
+                TestLoadModels.model_dir_uni,  # repo_or_dir # 'pytorch/fairseq',
                 "roberta",  # model arg: "..", # 'roberta.large' # model (string):
                 # the name of a callable (entrypoint) defined in the
                 # repo/dir's ``hubconf.py``.
@@ -397,3 +715,13 @@ class TestLoadModels(TestCase):
             print(f"{token=}, {idx=}")
 
         print(f"vocab: {dict(islice(vocab.items(), 0, 20))}")
+
+        #  <class 'transformers.models.albert.tokenization_albert.AlbertTokenizer'>.
+
+        if isinstance(tokenizer, AlbertTokenizer) and hasattr(
+            tokenizer, "convert_ids_to_tokens"
+        ):
+            print(f"{convert_ids_to_tokens(tokenizer, [20003])=}")
+
+        # IndexError: piece id is out of range.
+        # print(f"{tokenizer.convert_ids_to_tokens([20004])=}")
