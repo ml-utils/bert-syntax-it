@@ -54,7 +54,7 @@ class TestRunTestSets(TestCase):
             model,
             tokenizer,
             DEVICES.CPU,
-            phenomena=phenomena,
+            phenomena_root_filenames=phenomena,
             testset_dir_path=testset_dir_path,
         )
 

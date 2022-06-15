@@ -2,6 +2,7 @@ import sys
 
 from linguistic_tests.bert_utils import analize_example
 from linguistic_tests.lm_utils import get_models_dir
+from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import model_types
 from linguistic_tests.lm_utils import print_red
@@ -132,13 +133,24 @@ def main():
     if len(sys.argv) > 1:
         interactive_mode()
     else:
+        model_type = model_types.ROBERTA  # model_types.GPT  #
         model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
+        # model_name = "roberta-large"  # "roberta-base" #"gpt2-medium"
+        # "gpt2-large"  # 'gpt2'  #  "bert-large-uncased"
+        # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
+        testset_filenames = [
+            "wh_island.jsonl",
+            "adjunct_island.jsonl",
+            "complex_NP_island.jsonl",
+        ]
+        p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
+        testset_dir_path = str(p)
         run_blimp_en(
-            model_type=model_types.ROBERTA,
+            model_type=model_type,
             model_name=model_dir,
-            # testset_filenames=None,
-            # testset_dir_path=None,
-            max_examples=1000,
+            testset_filenames=testset_filenames,
+            testset_dir_path=testset_dir_path,
+            max_examples=5,
         )
         # raise SystemExit
         # print('choosing model type ..')

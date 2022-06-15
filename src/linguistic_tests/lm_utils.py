@@ -42,6 +42,12 @@ class SentenceNames(StrEnum):
         return self.name
 
 
+class ScoringMeasures(StrEnum):
+    LP = "unnormalized_log_probability"
+    PenLP = "log_probability_normalized_by_sentence_lenght_penalty"
+    PenNormLogits = "PenNormLogits"
+
+
 class SprouseSentencesOrder(IntEnum):
     SHORT_NONISLAND = 0
     LONG_NONISLAND = 1
@@ -68,6 +74,7 @@ class special_tokens:
     UNK: str = "[UNK]"
 
 
+# todo: change into IntEnum
 @cython.cclass
 class model_types:
     BERT = 0

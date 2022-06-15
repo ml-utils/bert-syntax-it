@@ -6,6 +6,7 @@ from linguistic_tests.lm_utils import get_pen_score
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
+from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.lm_utils import sentence_score_bases
 from linguistic_tests.lm_utils import special_tokens
@@ -202,9 +203,9 @@ def __get_example_tokens_and_oov_counts(tokenizer, sentences):
 
 def get_score_descr(score_based_on):
     if score_based_on == sentence_score_bases.SOFTMAX:
-        return "PenLP"
+        return ScoringMeasures.PenLP.name
     elif score_based_on == sentence_score_bases.NORMALIZED_LOGITS:
-        return "PenNormLogits"
+        return ScoringMeasures.PenNormLogits
     else:
         return score_based_on
 

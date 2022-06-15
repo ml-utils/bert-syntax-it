@@ -1,4 +1,5 @@
 from functools import reduce
+from typing import List
 
 import numpy as np
 import torch
@@ -6,11 +7,62 @@ from linguistic_tests.lm_utils import get_penalty_term
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import model_types
 from linguistic_tests.lm_utils import sent_idx
+from linguistic_tests.testset import TestSet
 from scipy.special import softmax
 from tqdm import tqdm
 
 
-def run_testset(model_type, model, tokenizer, device, testset, sentences_per_example):
+def score_dataclass_testset(
+    model_type: model_types, model, tokenizer, device, testset: TestSet
+):
+    for example_idx, example in enumerate(tqdm(testset.examples)):
+        score_example(
+            device,
+            example,
+            model,
+            model_type,
+            tokenizer,
+        )
+
+    # todo, fixme: some scoring measures are calculated only for Bert-like (bidirectional) models, where
+    #  the score is just an approximation of the acceptability
+    #  if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
+    for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
+        for (
+            stype_acceptable_sentence
+        ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
+            accurate_count = 0
+            for example_idx, example in enumerate(tqdm(testset.examples)):
+                if example.is_scored_accurately(
+                    scoring_measure, stype_acceptable_sentence
+                ):
+                    accurate_count += 1
+            accuracy = accurate_count / len(testset.examples)
+            testset.accuracy_per_score_type_per_sentence_type[scoring_measure][
+                stype_acceptable_sentence
+            ] = accuracy
+
+    return testset
+
+
+def print_accuracy_scores(testset: TestSet):
+    print(f"test results report, {testset.linguistic_phenomenon}:")
+    for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
+        # print(f"scores with {scoring_measure}")
+        for (
+            stype_acceptable_sentence
+        ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
+            accuracy = testset.accuracy_per_score_type_per_sentence_type[
+                scoring_measure
+            ][stype_acceptable_sentence]
+            print(
+                f"Accuracy with {scoring_measure.name} for {stype_acceptable_sentence.name}: {accuracy:%} "
+            )
+
+
+def run_testset(
+    model_type: model_types, model, tokenizer, device, testset, sentences_per_example
+):
     """
     Adapted from https://github.com/jhlau/acceptability-prediction-in-context/
     blob/master/code/compute_model_score.py
@@ -21,7 +73,7 @@ def run_testset(model_type, model, tokenizer, device, testset, sentences_per_exa
     :param testset:
     :return:
     """
-    sent_ids = []
+    sent_ids: List[int] = []
 
     correct_lps_1st_sentence = 0
     correct_pen_lps_1st_sentence = 0
@@ -113,7 +165,7 @@ def run_testset(model_type, model, tokenizer, device, testset, sentences_per_exa
         )
 
 
-def compute_example_scores_wdataclasses(
+def score_example(
     device,
     example,
     model,
@@ -161,7 +213,7 @@ def get_example_scores(
     example_data,
     model,
     model_type,
-    sent_ids,
+    sent_ids: List[int],
     tokenizer,
     sentences_per_example,
     sprouse_format=False,

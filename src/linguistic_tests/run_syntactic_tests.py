@@ -1,8 +1,10 @@
-import json
 import os
 
 from linguistic_tests.bert_utils import estimate_sentence_probability
+from linguistic_tests.compute_model_score import print_accuracy_scores
 from linguistic_tests.compute_model_score import run_testset
+from linguistic_tests.compute_model_score import score_dataclass_testset
+from linguistic_tests.file_utils import get_file_root
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
@@ -11,8 +13,8 @@ from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
-from linguistic_tests.lm_utils import SentenceNames
-from tqdm import tqdm
+from linguistic_tests.lm_utils import ScoringMeasures
+from linguistic_tests.testset import parse_testset
 
 
 def run_agreement_tests():
@@ -49,57 +51,43 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
 
 
 def run_blimp_en(
-    model_type=None,
-    model_name=None,
-    testset_filenames=None,
-    testset_dir_path=None,
+    model_type,
+    model_name,
+    testset_filenames,
+    testset_dir_path,
     max_examples=1000,
 ):
-    if model_type is None:
-        model_type = model_types.ROBERTA  # model_types.GPT  #
-        model_name = "roberta-large"  # "roberta-base" #"gpt2-medium"
-        # "gpt2-large"  # 'gpt2'  #  "bert-large-uncased"
-        # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
-    model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
-
-    if testset_filenames is None:
-        testset_filenames = [
-            "wh_island.jsonl",
-            "adjunct_island.jsonl",
-            "complex_NP_island.jsonl",
-        ]
-    if testset_dir_path is None:
-        p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
-        testset_dir_path = str(p)
-
+    parsed_testsets = []
     for testset_filename in testset_filenames:
         testset_filepath = os.path.join(testset_dir_path, testset_filename)
-
-        print(f"loading testset file {testset_filepath}..")
-        with open(testset_filepath, "r") as json_file:
-            json_list = list(json_file)
-        print("testset loaded.")
-
-        examples = []
-        for json_str in tqdm(json_list):
-            example = json.loads(json_str)
-            # print(f"result: {example}")
-            # print(isinstance(example, dict))
-            sentence_good = example[SentenceNames.SENTENCE_GOOD]
-            sentence_bad = example[SentenceNames.SENTENCE_BAD]
-            examples.append(
-                {
-                    SentenceNames.SENTENCE_GOOD: sentence_good,
-                    SentenceNames.SENTENCE_BAD: sentence_bad,
-                    SentenceNames.SENTENCE_GOOD_2ND: "",
-                }
-            )
-        examples = examples[0:max_examples]
-        testset = {"sentences": examples}
-        sentences_per_example = 2
-        run_testset(
-            model_type, model, tokenizer, DEVICES.CPU, testset, sentences_per_example
+        print(f"Parsing testset {testset_filepath}")
+        testset_dict = load_testset_data(testset_filepath, examples_format="json_lines")
+        examples_list = testset_dict["sentences"]
+        phenomenon_name = get_file_root(testset_filename)
+        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        parsed_testset = parse_testset(
+            phenomenon_name,
+            model_name,
+            examples_list,
+            "blimp",
+            scoring_measures,
+            max_examples=max_examples,
         )
+        parsed_testsets.append(parsed_testset)
+
+    model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
+    for parsed_testset in parsed_testsets:
+        parsed_testset.examples = parsed_testset.examples[0:max_examples]
+
+        score_dataclass_testset(
+            model_type, model, tokenizer, DEVICES.CPU, parsed_testset
+        )
+
+    # todo: save scored testsets as pickle files
+    # filename: blimp/sprouse/.., datetime, phenomena, ..
+
+    for scored_testset in parsed_testsets:
+        print_accuracy_scores(scored_testset)
 
 
 def run_tests_it(model_type, testset_filenames=None, testset_dir_path=None):

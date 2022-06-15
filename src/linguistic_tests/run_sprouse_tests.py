@@ -1,13 +1,14 @@
 import os.path
 
-from linguistic_tests.compute_model_score import compute_example_scores_wdataclasses
 from linguistic_tests.compute_model_score import get_example_scores
+from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import get_file_root
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.testset import Example
@@ -30,8 +31,8 @@ def run_sprouse_tests(
     model,
     tokenizer,
     device,
-    phenomena=None,
-    testset_dir_path=None,
+    phenomena_root_filenames,
+    testset_dir_path,
     examples_format="sprouse",
     sentence_ordering=SprouseSentencesOrder,
 ) -> list[TestSet]:
@@ -46,19 +47,10 @@ def run_sprouse_tests(
     # todo: add a max_examples variable to limit the tested examples to a fixed number, while still having more for some phenomena
 
     # testset_filepath = get_out_dir() + "blimp/from_blim_en/islands/complex_NP_island.jsonl"  # wh_island.jsonl' # adjunct_island.jsonl'
-    if phenomena is None:
-        phenomena = [  # 'rc_adjunct_island',
-            # 'rc_complex_np', 'rc_subject_island', 'rc_wh_island', # fixme: rc_wh_island empty file
-            "wh_adjunct_island",
-            "wh_complex_np",
-            "wh_subject_island",
-            "wh_whether_island",
-        ]
-    if testset_dir_path is None:
-        testset_dir_path = str(get_syntactic_tests_dir() / "sprouse/")
+
     print(f"Running testsets from dir {testset_dir_path}")
     scored_testsets = []
-    for phenomenon_name in phenomena:
+    for phenomenon_name in phenomena_root_filenames:
         print(f"Running testset for {phenomenon_name}..")
         filename = phenomenon_name + ".jsonl"
         filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
@@ -128,8 +120,9 @@ def run_sprouse_test(
     testset_dict = load_testset_data(filepath, examples_format=examples_format)
     examples_list = testset_dict["sentences"]
     phenomenon_name = get_file_root(filepath)
+    scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
     parsed_testset = parse_testset(
-        phenomenon_name, str(type(model)), examples_list, "sprouse"
+        phenomenon_name, str(type(model)), examples_list, "sprouse", scoring_measures
     )
 
     # run_testset(model_type, model, tokenizer, device, testset)
@@ -155,9 +148,9 @@ def run_sprouse_test(
 
 def run_sprouse_test_helper_wdataclasses(
     model_type, model, tokenizer, device, testset: TestSet
-):
+) -> TestSet:
     for example_idx, example in enumerate(tqdm(testset.examples)):
-        compute_example_scores_wdataclasses(
+        score_example(
             device,
             example,
             model,
@@ -311,8 +304,8 @@ def get_dd_scores_wdataclasses(example):
     #  (according to min and max token weights)
     #  store absolute values and normalized values
 
-    example_dd_with_lp = get_example_dd_score(example, "lp")
-    example_dd_with_penlp = get_example_dd_score(example, "pen_lp")
+    example_dd_with_lp = get_example_dd_score(example, ScoringMeasures.LP)
+    example_dd_with_penlp = get_example_dd_score(example, ScoringMeasures.PenLP)
 
     return example_dd_with_lp, example_dd_with_penlp
 
@@ -395,48 +388,32 @@ def assert_almost_equale(val1, val2, precision=14):
 
 def plot_all_phenomena(phenomena_names, lp_avg_scores):
     for idx, phenomenon in enumerate(phenomena_names):
-        plot_results(phenomenon, lp_avg_scores[idx], "lp")
+        plot_results(phenomenon, lp_avg_scores[idx], ScoringMeasures.LP.name)
 
 
-def score_testsets():
+def score_testsets(
+    model_type: model_types,
+    model_name: str,
+    testset_root_filenames: list[str] = None,
+    testset_dir_path: str = None,
+):
     # create_test_jsonl_files_tests()
 
-    model_type = (
-        model_types.GEPPETTO  # model_types.BERT  #
-    )  # model_types.GPT # model_types.ROBERTA  #
-    model_name = "LorenzoDeMattei/GePpeTto"  # "dbmdz/bert-base-italian-xxl-cased"  #
-    # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
     device = DEVICES.CPU
     model, tokenizer = load_model(model_type, model_name, device)
 
-    run_custom_testsets = True
-    # scored_testsets = []
-    if run_custom_testsets:
-        tests_dir = str(get_syntactic_tests_dir() / "sprouse/")  # "syntactic_tests_it/"
-        phenomena = [
-            # "wh_adjunct_islands",
-            # "wh_complex_np_islands",
-            # "wh_whether_island",
-            # "wh_subject_islands",
-            "custom-wh_adjunct_islands",
-            "custom-wh_complex_np_islands",
-            "custom-wh_whether_island",
-            "custom-wh_subject_islands",
-        ]
-        examples_format = "sprouse"  # "blimp"
-        sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
-        scored_testsets = run_sprouse_tests(
-            model_type,
-            model,
-            tokenizer,
-            device,
-            phenomena=phenomena,
-            testset_dir_path=tests_dir,
-            examples_format=examples_format,
-            sentence_ordering=sentence_ordering,
-        )
-    else:
-        scored_testsets = run_sprouse_tests(model_type, model, tokenizer, device)
+    examples_format = "sprouse"  # "blimp"
+    sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
+    scored_testsets = run_sprouse_tests(
+        model_type,
+        model,
+        tokenizer,
+        device,
+        phenomena_root_filenames=testset_root_filenames,
+        testset_dir_path=testset_dir_path,
+        examples_format=examples_format,
+        sentence_ordering=sentence_ordering,
+    )
 
     for scored_testset in scored_testsets:
         scored_testset.model_descr = model_name
@@ -469,8 +446,8 @@ def load_and_plot_pickle(loaded_testsets=None):
 
 
 def plot_testsets(scored_testsets):
-    plot_results(scored_testsets, "lp")
-    plot_results(scored_testsets, "pen_lp")
+    plot_results(scored_testsets, ScoringMeasures.LP.name)
+    plot_results(scored_testsets, ScoringMeasures.PenLP.name)
 
 
 def print_sorted_sentences_to_check_spelling_errors2(score_descr, loaded_testsets=None):
@@ -551,9 +528,44 @@ def print_examples_compare_diff(score_descr, sent_type1, sent_type2, testsets=No
 
 
 def main():
-    # score_testsets()
+    model_type = (
+        model_types.GEPPETTO  # model_types.BERT  #
+    )  # model_types.GPT # model_types.ROBERTA  #
+    model_name = "LorenzoDeMattei/GePpeTto"  # "dbmdz/bert-base-italian-xxl-cased"  #
+    # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
+    tests_subdir = "sprouse/"  # "syntactic_tests_it/"
+    testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
+
+    sprouse_testsets_root_filenames = [  # 'rc_adjunct_island',
+        # 'rc_complex_np', 'rc_subject_island', 'rc_wh_island', # fixme: rc_wh_island empty file
+        "wh_adjunct_island",
+        "wh_complex_np",
+        "wh_subject_island",
+        "wh_whether_island",
+    ]
+    custom_it_island_testsets_root_filenames = [
+        # "wh_adjunct_islands",
+        # "wh_complex_np_islands",
+        # "wh_whether_island",
+        # "wh_subject_islands",
+        "custom-wh_adjunct_islands",
+        "custom-wh_complex_np_islands",
+        "custom-wh_whether_island",
+        "custom-wh_subject_islands",
+    ]
+    if tests_subdir == "syntactic_tests_it/":
+        testsets_root_filenames = custom_it_island_testsets_root_filenames
+    elif tests_subdir == "sprouse/":
+        testsets_root_filenames = sprouse_testsets_root_filenames
+    score_testsets(
+        model_type,
+        model_name,
+        testset_root_filenames=testsets_root_filenames,
+        testset_dir_path=testset_dir_path,
+    )
+
     loaded_testsets = load_pickles()
-    score_descr = "pen_lp"
+    score_descr = ScoringMeasures.PenLP.name
     print_sorted_sentences_to_check_spelling_errors2(score_descr, loaded_testsets)
     print_sorted_sentences_to_check_spelling_errors(score_descr, loaded_testsets)
 

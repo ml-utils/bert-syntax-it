@@ -6,6 +6,7 @@ from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.run_sprouse_tests import run_sprouse_tests
 from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
@@ -22,7 +23,10 @@ class TestTestset(TestCase):
         filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
         testset = load_testset_data(filepath, examples_format="sprouse")
         examples_list = testset["sentences"]
-        parsed_testset = parse_testset(filename, "some_model", examples_list, "sprouse")
+        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        parsed_testset = parse_testset(
+            filename, "some_model", examples_list, "sprouse", scoring_measures
+        )
 
         assert len(parsed_testset.examples) == 2
         for example in parsed_testset.examples:
@@ -37,7 +41,10 @@ class TestTestset(TestCase):
         filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
         testset = load_testset_data(filepath, examples_format="json_lines")
         examples_list = testset["sentences"]
-        parsed_testset = parse_testset(filename, "some_model", examples_list, "blimp")
+        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        parsed_testset = parse_testset(
+            filename, "some_model", examples_list, "blimp", scoring_measures
+        )
 
         assert len(parsed_testset.examples) == 2
         for example in parsed_testset.examples:
@@ -52,7 +59,10 @@ class TestTestset(TestCase):
         filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
         testset = load_testset_data(filepath, examples_format="blimp")
         examples_list = testset["sentences"]
-        parsed_testset = parse_testset(filename, "some_model", examples_list, "sprouse")
+        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        parsed_testset = parse_testset(
+            filename, "some_model", examples_list, "sprouse", scoring_measures
+        )
 
         assert len(parsed_testset.examples) == 2
         for example in parsed_testset.examples:
@@ -86,7 +96,7 @@ def test_serialization(tmp_path):
         model,
         tokenizer,
         DEVICES.CPU,
-        phenomena=phenomena,
+        phenomena_root_filenames=phenomena,
         testset_dir_path=testset_dir_path,
     )
 
