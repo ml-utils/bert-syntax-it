@@ -3,6 +3,7 @@ import os.path
 from enum import Enum
 from enum import IntEnum
 from pathlib import Path
+from typing import Union
 
 import cython
 import sentencepiece as spm
@@ -138,6 +139,10 @@ class CustomTokenizerWrapper:
         else:
             self._custom_tokens = custom_tokens
 
+    def _change_custom_tokens(self, custom_tokens):
+        self._custom_tokens = custom_tokens
+        print(f"the new custom tokens mapping is {self._custom_tokens=}")
+
     @property
     def bos_token(self):
         return self.id_to_piece(self.sp_tokenizer.bos_id())
@@ -189,13 +194,13 @@ class CustomTokenizerWrapper:
     def get_piece_size(self):
         return self.sp_tokenizer.get_piece_size()
 
-    def tokenize(self, text: str):
+    def tokenize(self, text: str) -> list[str]:
         return self.sp_tokenizer.encode_as_pieces(text)
 
-    def encode_as_pieces(self, text: str):
+    def encode_as_pieces(self, text: str) -> list[str]:
         return self.sp_tokenizer.encode_as_pieces(text)
 
-    def convert_tokens_to_ids(self, tokens: list[str]):
+    def convert_tokens_to_ids(self, tokens: list[str]) -> list[int]:
 
         ids = [self.piece_to_id(token) for token in tokens]
         return ids
@@ -205,13 +210,13 @@ class CustomTokenizerWrapper:
         tokens = [self.id_to_piece(id) for id in ids]
         return tokens
 
-    def id_to_piece(self, id: int):
+    def id_to_piece(self, id: int) -> Union[str, None]:  # typing.Optional[str]
         # id <=> piece conversion
         if id == -1:
             return None
         return self.sp_tokenizer.id_to_piece(id)
 
-    def piece_to_id(self, token: str):
+    def piece_to_id(self, token: str) -> int:
         # id <=> piece conversion
         if token is None:
             return None

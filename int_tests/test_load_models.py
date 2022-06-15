@@ -5,10 +5,11 @@ from unittest import TestCase
 import pytest
 import torch
 from _pytest._code.code import ExceptionInfo
-from fairseq.models.roberta import RobertaModel as RobertaModel_FS
 from linguistic_tests.bert_utils import convert_ids_to_tokens
+from linguistic_tests.bert_utils import get_bert_output
 from linguistic_tests.lm_utils import CustomTokenizerWrapper
 from linguistic_tests.lm_utils import get_models_dir
+from linguistic_tests.lm_utils import print_orange
 from pytest_socket import SocketBlockedError
 from transformers import AlbertTokenizer
 from transformers import AutoTokenizer
@@ -18,21 +19,28 @@ from transformers import CamembertTokenizer
 from transformers import RobertaForMaskedLM
 from transformers import RobertaModel
 from transformers import RobertaTokenizer
+from transformers.convert_slow_tokenizer import SentencePieceExtractor
 
 
 class TestLoadModels(TestCase):
-    tok_bpe_subdirs = "bostromkaj/bpe_20k_ep20_pytorch"
-    tok_uni_subdirs = "bostromkaj/uni_20k_ep20_pytorch"
-    model_dir_uni = str(get_models_dir() / tok_uni_subdirs)
-    model_dir_bpe = str(get_models_dir() / tok_bpe_subdirs)
+    model_bpe_subdirs = "bostromkaj/bpe_20k_ep20_pytorch"
+    model_uni_subdirs = "bostromkaj/uni_20k_ep20_pytorch"
+    model_bpe_edited_subdirs = "bostromkaj/bpe_20k_ep20_pytorch_edited"
+    model_uni_edited_subdirs = "bostromkaj/uni_20k_ep20_pytorch_edited"
+    model_dir_uni = str(get_models_dir() / model_uni_subdirs)
+    model_dir_bpe = str(get_models_dir() / model_bpe_subdirs)
+    model_dir_bpe_edited = str(get_models_dir() / model_bpe_edited_subdirs)
+    model_dir_uni_edited = str(get_models_dir() / model_uni_edited_subdirs)
     dict_name = "dict.txt"
     sentencepiece_tokenizer_filename = "tokenizer.model"
     torch_model_filename = "pytorch_model.bin"
+    vocab_filename = "vocab.json"
     dict_path_uni = os.path.join(model_dir_uni, dict_name)
     tok_bpe_path = os.path.join(model_dir_bpe, sentencepiece_tokenizer_filename)
     tok_uni_path = os.path.join(model_dir_uni, sentencepiece_tokenizer_filename)
     torch_model_path_bpe = os.path.join(model_dir_bpe, torch_model_filename)
     torch_model_path_uni = os.path.join(model_dir_uni, torch_model_filename)
+    model_dir_bpe_edited_vocabfile = os.path.join(model_dir_bpe_edited, vocab_filename)
 
     def test_load_with_sentencepiece_unigram(self):
         self._test_load_with_sentencepiece_helper("bostromkaj/uni_20k_ep20_pytorch/")
@@ -41,6 +49,19 @@ class TestLoadModels(TestCase):
         self._test_load_with_sentencepiece_helper("bostromkaj/bpe_20k_ep20_pytorch/")
 
     def test_sentencepiece_custom_tokens(self):
+        model_subdir = "bostromkaj/uni_20k_ep20_pytorch/"
+        model_dir_path = str(get_models_dir() / model_subdir)
+        custom_tokenizer = CustomTokenizerWrapper(  # custom_tokenizer
+            model_dir=model_dir_path, custom_tokens={}
+        )
+        # roberta = RobertaModel.from_pretrained(model_dir_path)
+        roberta2 = RobertaForMaskedLM.from_pretrained(model_dir_path)
+        print(
+            # f"{type(roberta)=}, "
+            f"{type(roberta2)=}, "
+        )
+
+        # generate all 5x4x3 combinations of custom tokens ids
         custom_tokens_deberta = {
             "[PAD]": 20000,
             "[CLS]": 20001,
@@ -48,31 +69,94 @@ class TestLoadModels(TestCase):
             "[UNK]": 20003,
             "[MASK]": 20004,
         }
-        _ = {  # custom_tokens_fairseq
+        custom_tokens_fairseq = {  # custom_tokens_fairseq
             "[CLS]": 20000,  # bos
             "[PAD]": 20001,
             "[SEP]": 20002,  # eos
             # "[UNK]": 20003,
             "[MASK]": 20003,
         }
-
-        _ = {  # custom_tokens_actual
+        custom_tokens_albert_tokenizer = {  # custom_tokens_actual
             "[CLS]": 20000,  # bos, <s>
             "[SEP]": 20001,  # eos, </s>
             "<pad>": 20002,
             "[MASK]": 20003,
         }
-        model_subdir = "bostromkaj/bpe_20k_ep20_pytorch/"
-        model_dir_path = str(get_models_dir() / model_subdir)
-        _ = CustomTokenizerWrapper(  # tokenizer
-            model_dir=model_dir_path, custom_tokens=custom_tokens_deberta
-        )
-        roberta = RobertaModel.from_pretrained(model_dir_path)
-        roberta2 = RobertaForMaskedLM.from_pretrained(model_dir_path)
-        print(f"{type(roberta)=}, {type(roberta2)=}, ")
-        _ = "The [MASK] is on the table"  # sentence =
+
+        # tokenizer.all_special_tokens=['<s>', '</s>', '<unk>', '<pad>', '<mask>'],
+        # tokenizer.convert_tokens_to_ids(tokenizer.all_special_tokens)=[20000, 20001, 0, 20002, 20003]
+        custom_tokens_roberta_tokenizer = {
+            "<s>": 20000,
+            "</s>": 20001,
+            "<pad>": 20002,
+            "<mask>": 20003,
+        }
+
+        custom_tokens_configs = [
+            custom_tokens_deberta,
+            custom_tokens_fairseq,
+            custom_tokens_albert_tokenizer,
+            custom_tokens_roberta_tokenizer,
+        ]
+
+        # generate all 5x4x3 combinations assignig ids to ["[CLS]", "[SEP]", "[MASK]"]
+        possible_ids = [20000, 20001, 20002, 20003, 20004]
+        custom_tokens_configs = []
+        for id_for_bos in possible_ids:
+            remaining_ids = possible_ids.copy()
+            remaining_ids.remove(id_for_bos)
+            for id_for_eos in remaining_ids:
+                remaining_ids2 = remaining_ids.copy()
+                remaining_ids2.remove(id_for_eos)
+                for id_for_mask in remaining_ids2:
+                    custom_tokens_config = {
+                        "[CLS]": id_for_bos,  # [CLS], bos, <s>
+                        "[SEP]": id_for_eos,  # [SEP], eos, </s>
+                        "[MASK]": id_for_mask,
+                    }
+                    custom_tokens_configs.append(custom_tokens_config)
+        assert len(custom_tokens_configs) == 60
+
+        # todo: check/print which configuration's predictions generate the sentences with lowest loss
+
+        # custom_tokens_configs = [custom_tokens_roberta_tokenizer]
+
+        working_config_count = 0
+        for custom_tokens_config in custom_tokens_configs:
+            # load custom tokenizer only once, add method to change the special tokens ids
+            custom_tokenizer._change_custom_tokens(custom_tokens_config)
+
+            (
+                topk_prediction_includes_expected,
+                topk_ids,
+                topk_tokens,
+            ) = self._test_sentencepiece_custom_tokens_helper(
+                custom_tokenizer, roberta2
+            )
+
+            verbose = False
+            if verbose:
+                if topk_prediction_includes_expected:
+                    print(
+                        f"This custom_tokens configuration predicts correctly: {custom_tokens_config=}"
+                    )
+                    print(f"{topk_ids=}")
+                    print(f"{topk_tokens=}")
+                    working_config_count += 1
+                else:
+                    print(
+                        f"This custom_tokens configuration does NOT predict correctly: {custom_tokens_config=}"
+                    )
+                    print(f"{topk_ids=}")
+                    print_orange(f"{topk_tokens=}")
+
+        print(f"{working_config_count=}")
+        # assert working_config_count > 0
+
+        _ = "The coffee is on the [MASK]"  # sentence =
         _ = 1  # or 2?  # mask_idx =
         # todo: get topk
+        # check which results contain "table"
 
         # print: with custom_tokens1: .., topk are ..
 
@@ -88,6 +172,90 @@ class TestLoadModels(TestCase):
         #
         # https://github.com/google/sentencepiece
         # % spm_encode --extra_options=bos:eos (add <s> and </s>)
+
+    def _test_sentencepiece_robertatokenizer_helper(
+        self, roberta_tokenizer: RobertaTokenizer, model
+    ):
+        masked_sentence = "The pen is on the <mask>."
+        masked_index_in_sentence = len(roberta_tokenizer.tokenize("The pen is on the"))
+        tokenized_as = roberta_tokenizer.tokenize(masked_sentence)
+        input_ids = roberta_tokenizer(masked_sentence)["input_ids"]
+        print(f"\n{masked_sentence=}" f"\n{input_ids=}" f"\n{tokenized_as=}")
+        (
+            logits,
+            res_softmax,
+            res_normalized,
+            logits_shifted_above_zero,
+        ) = get_bert_output(
+            model, roberta_tokenizer, input_ids, masked_index_in_sentence
+        )
+        k = 5
+        topk_probs, topk_ids = torch.topk(res_softmax, k)
+        topk_ids = list(topk_ids)
+        topk_tokens = convert_ids_to_tokens(
+            roberta_tokenizer, topk_ids
+        )  # nb: topk_ids might be a list of tensors, not int
+        print(f"{topk_tokens=}, {topk_ids=}")
+        # decode the topk ids to tokens, and see if "table" is contained
+        # (or encode "table" first and see if the id is in the topk)
+
+        exprected_prediction_token = roberta_tokenizer.tokenize("table")[0]
+        exprected_prediction_token_id = roberta_tokenizer.convert_tokens_to_ids(
+            [exprected_prediction_token]
+        )
+
+        print(f"{type(exprected_prediction_token_id)=}, {type(topk_ids)=}")
+
+        topk_prediction_includes_expected = exprected_prediction_token_id in topk_ids
+
+        return topk_prediction_includes_expected, topk_ids, topk_tokens
+
+    def _test_sentencepiece_custom_tokens_helper(self, custom_tokenizer, model):
+        # encode the sentence: "The coffee is on the ***mask*** ."
+        # tokens = ["[CLS]", "The", "coffee", "is", "on", "the", "[MASK]", ".", "[SEP]"]
+
+        # can't use this: tokens_tot = custom_tokenizer.encode_as_pieces("[CLS] The coffee is on the [MASK] . [SEP]")
+        tokens_l = custom_tokenizer.tokenize("The pen is on the")
+        # tokens_r = custom_tokenizer.tokenize(".")  # removed because it adds also a spece token before
+        tokens_tot = (
+            ["[CLS]"] + tokens_l + ["[MASK]"] + ["[SEP]"]
+        )  # + tokens_r + ["[SEP]"]
+        # bos_id = custom_tokenizer.piece_to_id("[CLS]")
+        # mask_id = custom_tokenizer.piece_to_id("[MASK]")
+        # eos_id = custom_tokenizer.piece_to_id("[SEP]")
+        # sentence_ids = [bos_id] + tokens_l + [mask_id] + tokens_r + [eos_id]
+        exprected_prediction_token = custom_tokenizer.encode_as_pieces("table")[0]
+        exprected_prediction_token_id = custom_tokenizer.piece_to_id(
+            exprected_prediction_token
+        )
+        masked_index_in_sentence = len(["[CLS]"] + tokens_l)
+        sentence_ids = custom_tokenizer.convert_tokens_to_ids(tokens_tot)
+        print(f"tokenized as: {tokens_tot=} \n " f"with ids: {sentence_ids=}")
+
+        # pass the sentence ids to the model and predict topk
+        (
+            logits,
+            res_softmax,
+            res_normalized,
+            logits_shifted_above_zero,
+        ) = get_bert_output(
+            model, custom_tokenizer, sentence_ids, masked_index_in_sentence
+        )
+        k = 5
+        topk_probs, topk_ids = torch.topk(res_softmax, k)
+        topk_tokens = convert_ids_to_tokens(
+            custom_tokenizer, topk_ids
+        )  # nb: topk_ids might be a list of tensors, not int
+
+        # decode the topk ids to tokens, and see if "table" is contained
+        # (or encode "table" first and see if the id is in the topk)
+        topk_prediction_includes_expected = exprected_prediction_token_id in topk_ids
+
+        return topk_prediction_includes_expected, topk_ids, topk_tokens
+
+    def test_load_with_sententepiece_tokenizers_huggingface(self):
+        # SentencePieceExtractor
+        pass
 
     def test_sentencepiece_special_tokens(self):
         model_subdir = "bostromkaj/bpe_20k_ep20_pytorch/"
@@ -355,16 +523,6 @@ class TestLoadModels(TestCase):
         )
         self.assertInErrorMsg("bert, openai-gpt, gpt2, transfo-xl, xlnet", val_err)
 
-    def test_load_with_AutoTokenizer_with_edited_config_json(self):
-        with pytest.raises(OSError) as os_err:
-            tokenizer = AutoTokenizer.from_pretrained(TestLoadModels.model_dir_bpe)
-            self.__test_tokenizer_helper(tokenizer)
-        self.assertInErrorMsg("Can't load tokenizer for ", os_err)
-        self.assertInErrorMsg(
-            " is the correct path to a directory containing all relevant files for a RobertaTokenizerFast tokenizer.",
-            os_err,
-        )
-
     def test_load_with_CamembertTokenizer(self):
         with pytest.raises(RuntimeError) as run_err:
             tokenizer = CamembertTokenizer.from_pretrained(TestLoadModels.dict_path_uni)
@@ -386,13 +544,44 @@ class TestLoadModels(TestCase):
         # outputs = model(tokens_tensor, token_type_ids=segment_tensor)
         # check output type format, how to access the loss and token scores
 
+    def test_load_with_AutoTokenizer_from_edited_files(self):
+        with pytest.raises(OSError) as os_err1:
+            tokenizer0 = AutoTokenizer.from_pretrained(
+                TestLoadModels.model_dir_uni_edited
+            )
+            self.__test_tokenizer_helper(tokenizer0)
+        self.assertInErrorMsg("Can't load tokenizer for ", os_err1)
+        self.assertInErrorMsg(
+            "is the correct path to a directory containing all relevant files for a "
+            "BertTokenizerFast tokenizer.",
+            os_err1,
+        )
+
+        # with pytest.raises(TypeError) as type_err:
+        with pytest.raises(OSError) as _:
+            tokenizer1 = AutoTokenizer.from_pretrained(
+                TestLoadModels.model_dir_bpe_edited
+            )
+            self.__test_tokenizer_helper(tokenizer1)
+        # self.assertInErrorMsg("Can't convert", type_err)
+        # self.assertInErrorMsg("(list) to Union[Merges, Filename]", type_err)
+
+        with pytest.raises(OSError) as os_err2:
+            tokenizer2 = AutoTokenizer.from_pretrained(TestLoadModels.model_dir_bpe)
+            self.__test_tokenizer_helper(tokenizer2)
+        self.assertInErrorMsg("Can't load tokenizer for ", os_err2)
+        self.assertInErrorMsg(
+            " is the correct path to a directory containing all relevant files for a RobertaTokenizerFast tokenizer.",
+            os_err2,
+        )
+
     def test_load_as_huggingfaces_RobertaTokenizer(self):
         model_dir2 = str(
             get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch"  # + "/"
         )  # + "\\"
         with pytest.raises(OSError) as os_err:
-            tokenizer = RobertaTokenizer.from_pretrained(model_dir2)
-            self.__test_tokenizer_helper(tokenizer)
+            tokenizer3 = RobertaTokenizer.from_pretrained(model_dir2)
+            self.__test_tokenizer_helper(tokenizer3)
         self.assertInErrorMsg("Can't load tokenizer for ", os_err)
         self.assertInErrorMsg("make sure ", os_err)
         self.assertInErrorMsg(
@@ -404,14 +593,87 @@ class TestLoadModels(TestCase):
         # the tokenizer gets recognized (when loaded from AlbertTokenizer, which gives a warning)
         # as a Bert tokenizer. Try the 2019 BertTokenizer version ?
         with pytest.raises(ValueError) as val_err:
-            tokenizer = RobertaTokenizer.from_pretrained(TestLoadModels.tok_uni_path)
+            _ = RobertaTokenizer.from_pretrained(TestLoadModels.tok_uni_path)
         self.assertInErrorMsg(
-            "Calling RobertaTokenizer.from_pretrained() with the path to a single file or url is not supported for this tokenizer. Use a model identifier or the path to a directory instead.",
+            "Calling RobertaTokenizer.from_pretrained() with the path to a single file or url is "
+            "not supported for this tokenizer. Use a model identifier or the path to a directory instead.",
             val_err,
         )
 
+    @pytest.mark.skip("done with command line script")
+    def test_use_SentencePieceExtractor(self):
+        _ = SentencePieceExtractor(
+            TestLoadModels.tok_uni_path
+        )  # TestLoadModels.tok_bpe_path
+
+        # generate files (vocab, merge) with the extractor
+        # try to load with ..BertTokenizerFast and RobertaTokenizer(Fast or not)
+        # from pretrained
+        # check if special tokens have been added (vocab count, ids above 19999,
+        # any special token recognized ("[MASK]", etc)
+
+        # see test_load_with_AutoTokenizer_with_edited_config_json
+
     def test_load_as_custom_transformers_tokenizer(self):
-        from tokenizers import Tokenizer
+
+        from tokenizers.implementations.sentencepiece_unigram import (
+            Tokenizer,
+        )
+        from tokenizers.implementations import (
+            SentencePieceUnigramTokenizer,
+        )
+
+        special_tokens = [
+            "<mask>",
+            "[MASK]",
+            "<sep>",
+            "[SEP]",
+            "<bos>",
+            "<eos>",
+            "[CLS]",
+            "<cls>",
+            "<pad>",
+            "<s>",
+            "</s>",
+            "[PAD]",
+            "<unk>",
+            " [UNK]",
+        ]
+        sentence_with_special_tokens = "<mask> [MASK] <sep> [SEP] <bos> <eos> [CLS] <cls> <pad> [PAD] <s> </s> <unk> [UNK]"
+
+        # https://pypi.org/project/tokenizers/
+        # Initialize a tokenizer
+
+        # expects filename ..
+        tokenizer_uni2 = SentencePieceUnigramTokenizer.from_spm(
+            TestLoadModels.tok_uni_path
+        )
+
+        print("\n")
+        for special_token in special_tokens:
+            special_token_id = tokenizer_uni2.token_to_id(special_token)
+            print(f"special token {special_token} id: {special_token_id}")
+        encoded = tokenizer_uni2.encode(sentence_with_special_tokens)
+        print(encoded.ids)
+        print(encoded.tokens)
+        # tokenizer_uni2.save("tokenizer_uni2.json", pretty=True)
+
+        print(f"{tokenizer_uni2.get_vocab_size()=}")  # 20000
+        special_tokens_to_add = ["[MASK]", "[SEP]", "[CLS]"]
+        tokenizer_uni2.add_special_tokens(special_tokens_to_add)
+        for added_special_token in special_tokens_to_add:
+            added_special_token_id = tokenizer_uni2.token_to_id(added_special_token)
+            print(
+                f"added special token {added_special_token} id: {added_special_token_id}"
+            )
+
+        # vocab = "./path/to/vocab.json"
+        # merges = "./path/to/merges.txt"
+        # tokenizer_uni1 = SentencePieceUnigramTokenizer(vocab, merges)
+        # encoded = tokenizer_uni1.encode(sentence_with_special_tokens)
+        # print(encoded.ids)
+        # print(encoded.tokens)
+        # tokenizer_uni1.save("tokenizer_uni1.json", pretty=True)
 
         filename = "tokenizer.model"  # nb: default and custom tokenizers saved
         # with hugginface transformers have a tokenizer.json instead (not a tokenizer.model file)
@@ -428,6 +690,7 @@ class TestLoadModels(TestCase):
         self.assertInErrorMsg("stream did not contain valid UTF-8", stream_exception)
 
     def test_load_with_fairseq_RobertaModel(self):
+        from fairseq.models.roberta import RobertaModel as RobertaModel_FS
 
         with pytest.raises(OSError) as os_err:
             roberta = RobertaModel_FS.from_pretrained(
@@ -580,6 +843,82 @@ class TestLoadModels(TestCase):
         tokenizer = BertTokenizer.from_pretrained(TestLoadModels.dict_path_uni)
         self.__test_tokenizer_helper(tokenizer)
 
+    def test_load_with_RobertaTokenizer(self):
+
+        # Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+        roberta_tokenizer = RobertaTokenizer.from_pretrained(
+            TestLoadModels.model_dir_uni_edited
+        )
+        roberta2 = RobertaForMaskedLM.from_pretrained(
+            TestLoadModels.model_dir_uni_edited
+        )
+
+        print(
+            f"\n{roberta_tokenizer.vocab_size=}, "
+            f"\n{roberta_tokenizer.sep_token=}, "
+            f"\n{roberta_tokenizer.mask_token=}, "
+            f"\n{roberta_tokenizer.eos_token=}, "
+            f"\n{roberta_tokenizer.cls_token=}, "
+            f"\n{roberta_tokenizer.bos_token=}, "
+            f"\n{roberta_tokenizer.all_special_tokens=}, "
+            f"\n{roberta_tokenizer.convert_tokens_to_ids(roberta_tokenizer.all_special_tokens)=}"
+        )
+        # tokenizer.vocab_size=20000,
+        # tokenizer.sep_token='</s>',
+        # tokenizer.mask_token='<mask>',
+        # tokenizer.eos_token='</s>',
+        # tokenizer.cls_token='<s>',
+        # tokenizer.bos_token='<s>',
+        # tokenizer.all_special_tokens=['<s>', '</s>', '<unk>', '<pad>', '<mask>'],
+
+        self.__test_tokenizer_helper(roberta_tokenizer)
+
+        (
+            topk_prediction_includes_expected,
+            topk_ids,
+            topk_tokens,
+        ) = self._test_sentencepiece_robertatokenizer_helper(
+            roberta_tokenizer, roberta2
+        )
+        print(f"{topk_prediction_includes_expected=}")
+        print(f"{topk_ids=}")
+        print_orange(f"{topk_tokens=}")
+
+    def test_load_with_BertTokenizer_model_dir(self):
+        pass
+        # OSError: Can't load tokenizer for
+        # is the correct path to a directory containing all relevant files for a BertTokenizer tokenizer
+        # tokenizer = BertTokenizer.from_pretrained(TestLoadModels.model_dir_bpe_edited)
+        # tokenizer = BertTokenizer.from_pretrained(TestLoadModels.model_dir_uni_edited)
+
+        # bert_tokenizer = BertTokenizer.from_pretrained(
+        #     TestLoadModels.model_dir_uni_edited)
+
+        # OSError: Can't load tokenizer
+        # is the correct path to a directory containing all relevant files for a BertTokenizerFast tokenizer.
+        # tokenizer = BertTokenizerFast.from_pretrained(TestLoadModels.model_dir_uni_edited)
+        # tokenizer = BertTokenizerFast.from_pretrained(TestLoadModels.model_dir_bpe_edited)
+
+        # UnicodeDecodeError: 'utf-8' codec can't decode byte 0x80 in position 28: invalid start byte
+        # tokenizer = BertTokenizer.from_pretrained(TestLoadModels.tok_bpe_path)
+
+        # TypeError: __init__() got multiple values for argument 'self'
+        # transformers\configuration_utils.py:675: TypeError
+        # tokenizer = BertTokenizer.from_pretrained(TestLoadModels.model_dir_bpe_edited_vocabfile)
+
+        # ValueError: Calling BertTokenizerFast.from_pretrained() with the path to a single file or url is not supported for this tokenizer.
+        # Use a model identifier or the path to a directory instead.
+        # tokenizer = BertTokenizerFast.from_pretrained(TestLoadModels.model_dir_bpe_edited_vocabfile)
+
+        # OSError: Can't load tokenizer for is the correct path to a directory containing all relevant files for a BertTokenizerFast tokenizer
+        # tokenizer = BertTokenizerFast.from_pretrained(TestLoadModels.model_dir_bpe_edited)
+
+        # tokenizer = RobertaTokenizerFast.from_pretrained(TestLoadModels.model_dir_bpe_edited)
+
+        # warning: The tokenizer class you load from this checkpoint is 'BertTokenizer'.
+        # typeerror ..
+        # tokenizer = RobertaTokenizerFast.from_pretrained(TestLoadModels.model_dir_bpe_edited)
+
     def test_load_with_BertTokenizer_model_file(self):
         print("loading with BertTokenizer..")
 
@@ -607,6 +946,26 @@ class TestLoadModels(TestCase):
         print(f"{type(tokenizer)=}")
 
         self.__test_tokenizer_helper(tokenizer)
+
+        # todo: test tokens indexes correspondence with dict.txt
+        #  try to decode/encode tokens based on dict.txt indexes?
+        # lines in uni dict.txt:
+        #  2393 <unk>
+        #  1991 ▁bridge
+        #  2285 ▁Bridge
+        #  2410 ▁letter
+        # 16042 northwest
+        # 20000 筤
+        print(
+            f"{convert_ids_to_tokens(tokenizer, [1,2,3,4,5,2360,2374,2375,2376,2393,16042,19999])=}"
+        )
+        print(f"{convert_ids_to_tokens(tokenizer, [15,16,17,18,19,20])=}")
+        print(f"{convert_ids_to_tokens(tokenizer, [21,22,23,24,25])=}")
+        print(f"{convert_ids_to_tokens(tokenizer, [5,10,15,20,25,30,35])=}")
+
+        # todo:
+        # test predicting masked sentences, see topk and check that the most
+        # likely prediction is in the topk
 
     def assertInErrorMsg(self, expected_str, error: ExceptionInfo):
         if error.type in [FileNotFoundError]:

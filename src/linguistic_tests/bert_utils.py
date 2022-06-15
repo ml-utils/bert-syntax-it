@@ -424,24 +424,30 @@ def get_bert_output(
 
 def convert_ids_to_tokens(tokenizer: BertTokenizer, ids):
     """Converts a sequence of ids in wordpiece tokens using the vocab."""
+
+    if torch.is_tensor(ids[0]):
+        ids_as_ints = []
+        for i in ids:
+            if torch.is_tensor(i):
+                if torch.numel(i) > 1:
+                    print_orange(
+                        f"Warning: tensor has more than one item: " f"{i.size()}"
+                    )
+                ids_as_ints.append(i.item())
+        ids = ids_as_ints
+
     if hasattr(tokenizer, "convert_ids_to_tokens") and callable(
         getattr(tokenizer, "convert_ids_to_tokens")
     ):
         return tokenizer.convert_ids_to_tokens(ids)
-
-    tokens = []
-    for i in ids:
-        if torch.is_tensor(i):
-            if torch.numel(i) > 1:
-                print_orange(f"Warning: tensor has more than one item: " f"{i.size()}")
-            i = i.item()
-        # print(f"id: {i}, type: {type(i)}")
-        try:
-            tokens.append(tokenizer.ids_to_tokens[i])
-        except Exception as err:
-            print(f"Unable to find id {i} {type(i)} in the vocabulary. {str(err)}")
-
-    return tokens
+    else:
+        tokens = []
+        for i in ids:
+            try:
+                tokens.append(tokenizer.ids_to_tokens[i])
+            except Exception as err:
+                print(f"Unable to find id {i} {type(i)} in the vocabulary. {str(err)}")
+        return tokens
 
 
 def estimate_sentence_probability(
