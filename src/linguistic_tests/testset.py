@@ -51,7 +51,7 @@ class TypedSentence:
 
 @dataclass
 class Example:
-    # todo: convert in dict[]
+    # todo: convert to dict[]
     sentences: list[TypedSentence]
 
     min_token_weight: float = 200

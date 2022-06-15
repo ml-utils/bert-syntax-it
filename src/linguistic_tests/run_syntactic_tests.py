@@ -1,7 +1,6 @@
 import os
 
 from linguistic_tests.bert_utils import estimate_sentence_probability
-from linguistic_tests.compute_model_score import print_accuracy_scores
 from linguistic_tests.compute_model_score import run_testset
 from linguistic_tests.compute_model_score import score_dataclass_testset
 from linguistic_tests.file_utils import get_file_root
@@ -77,17 +76,23 @@ def run_blimp_en(
 
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
     for parsed_testset in parsed_testsets:
+        print(
+            f"Scoring testset {parsed_testset.linguistic_phenomenon}, on {model_type=} {model_name=}"
+        )
         parsed_testset.examples = parsed_testset.examples[0:max_examples]
 
-        score_dataclass_testset(
+        scored_testset = score_dataclass_testset(
             model_type, model, tokenizer, DEVICES.CPU, parsed_testset
         )
 
-    # todo: save scored testsets as pickle files
-    # filename: blimp/sprouse/.., datetime, phenomena, ..
+        scored_testset.model_descr = model_name
+        scored_testset.save_to_picle(
+            # todo: filename: blimp/sprouse/.., datetime, phenomena, ..
+            scored_testset.linguistic_phenomenon
+            + ".testset.pickle"
+        )
 
-    for scored_testset in parsed_testsets:
-        print_accuracy_scores(scored_testset)
+    return parsed_testsets
 
 
 def run_tests_it(model_type, testset_filenames=None, testset_dir_path=None):

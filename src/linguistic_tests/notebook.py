@@ -1,6 +1,7 @@
 import sys
 
 from linguistic_tests.bert_utils import analize_example
+from linguistic_tests.compute_model_score import print_accuracy_scores
 from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model_and_tokenizer
@@ -134,10 +135,12 @@ def main():
         interactive_mode()
     else:
         model_type = model_types.ROBERTA  # model_types.GPT  #
-        model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
-        # model_name = "roberta-large"  # "roberta-base" #"gpt2-medium"
+        # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
+        model_name = (
+            "roberta-large"  # "bert-base-uncased"  #  "roberta-base" #"gpt2-medium"
+        )
         # "gpt2-large"  # 'gpt2'  #  "bert-large-uncased"
-        # "bert-base-uncased"  #    'dbmdz/bert-base-italian-xxl-cased' #
+        #    'dbmdz/bert-base-italian-xxl-cased' #
         testset_filenames = [
             "wh_island.jsonl",
             "adjunct_island.jsonl",
@@ -145,13 +148,15 @@ def main():
         ]
         p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
         testset_dir_path = str(p)
-        run_blimp_en(
+        scored_testsets = run_blimp_en(
             model_type=model_type,
-            model_name=model_dir,
+            model_name=model_name,
             testset_filenames=testset_filenames,
             testset_dir_path=testset_dir_path,
-            max_examples=5,
+            max_examples=1000,
         )
+        for scored_testset in scored_testsets:
+            print_accuracy_scores(scored_testset)
         # raise SystemExit
         # print('choosing model type ..')
         # models_to_run = [
