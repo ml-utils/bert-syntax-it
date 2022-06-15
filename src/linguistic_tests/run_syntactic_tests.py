@@ -149,7 +149,7 @@ def run_tests_it(model_type, testset_filenames=None, testset_dir_path=None):
 
 
 def run_tests_for_model_type(model_type):
-    print("model_type: {model_type}")
+    print(f"model_type: {model_type}")
     # model_name, eval_suite = arg_parse()
 
     # todo: run on the following testsets (minimal pairs):

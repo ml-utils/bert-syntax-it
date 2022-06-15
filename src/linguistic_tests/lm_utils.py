@@ -5,7 +5,6 @@ from enum import IntEnum
 from pathlib import Path
 from typing import Union
 
-import cython
 import sentencepiece as spm
 import torch
 from sentencepiece import SentencePieceProcessor
@@ -74,9 +73,7 @@ class special_tokens:
     UNK: str = "[UNK]"
 
 
-# todo: change into IntEnum
-@cython.cclass
-class model_types:
+class model_types(IntEnum):
     BERT = 0
     GPT = 1
     ROBERTA = 2
