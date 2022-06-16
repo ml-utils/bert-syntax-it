@@ -25,7 +25,7 @@ class TestRunTestSets(TestCase):
     #  unit tests
 
     @pytest.mark.enable_socket
-    def test_run_blimp_en_tessts(self):
+    def test_run_blimp_en_tests(self):
         testset_filenames = ["mini_wh_island.jsonl"]
         p = get_test_data_dir() / "blimp"
         testset_dir_path = str(p)
