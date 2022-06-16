@@ -1,16 +1,11 @@
 import os
 
 from linguistic_tests.bert_utils import estimate_sentence_probability
-from linguistic_tests.compute_model_score import run_testset
 from linguistic_tests.compute_model_score import score_dataclass_testset
 from linguistic_tests.file_utils import get_file_root
 from linguistic_tests.lm_utils import DEVICES
-from linguistic_tests.lm_utils import get_models_dir
-from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import model_types
-from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.testset import parse_testset
@@ -95,64 +90,6 @@ def run_blimp_en(
     return parsed_testsets
 
 
-def run_tests_it(model_type, testset_filenames=None, testset_dir_path=None):
-    if model_type == model_types.GPT:
-        model_name = "GroNLP/gpt2-small-italian"
-    if model_type == model_types.GEPPETTO:
-        model_name = "LorenzoDeMattei/GePpeTto"
-    elif model_type == model_types.BERT:
-        model_name = "bert-base-uncased"  # NB bert large uncased is about 1GB
-        model_name = str(get_models_dir() / "bert-base-italian-uncased")
-        model_name = str(get_models_dir() / "bert-base-italian-cased/")
-        model_name = str(get_models_dir() / "bert-base-italian-xxl-cased")
-        model_name = "dbmdz/bert-base-italian-cased"
-        model_name = "dbmdz/bert-base-italian-xxl-cased"
-        # model_name = # str(get_models_dir() / "gilberto-uncased-from-camembert.tar.gz")
-        # eval_suite = 'it'
-    elif model_type == model_types.GILBERTO:
-        model_name = "idb-ita/gilberto-uncased-from-camembert"
-
-    model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
-    if testset_dir_path is None:
-        p = (
-            get_syntactic_tests_dir() / "syntactic_tests_it"
-        )  # "./outputs/syntactic_tests_it/"
-        testset_dir_path = str(p)
-    if testset_filenames is None:
-        testset_filenames = [  # 'variations_tests.jsonl'
-            "wh_adjunct_islands.jsonl",
-            "wh_complex_np_islands.jsonl",
-            "wh_subject_islands.jsonl",
-            "wh_whether_island.jsonl",
-        ]
-    sentences_per_example = 3
-    for test_file in testset_filenames:
-        filepath = os.path.join(testset_dir_path, test_file)
-        print_orange(f"running test {filepath}")
-        testset_data = load_testset_data(filepath)
-
-        if model_type in [model_types.BERT, model_types.GILBERTO, model_types.ROBERTA]:
-            # run_testset(testsets_dir, test_file, model, tokenizer,
-            # score_based_on=sentence_score_bases.SOFTMAX)
-            run_testset(
-                model_type,
-                model,
-                tokenizer,
-                DEVICES.CPU,
-                testset_data,
-                sentences_per_example,
-            )
-        elif model_type in [model_types.GPT, model_types.GEPPETTO]:
-            run_testset(
-                model_type,
-                model,
-                tokenizer,
-                DEVICES.CPU,
-                testset_data,
-                sentences_per_example,
-            )
-
-
 def run_tests_for_model_type(model_type):
     print(f"model_type: {model_type}")
     # model_name, eval_suite = arg_parse()
@@ -165,7 +102,7 @@ def run_tests_for_model_type(model_type):
     # acceptability-prediction-in-context/tree/
     # 0a274d1d9f70f389ddc6b6d796bd8f815833056c/code
 
-    run_tests_it(model_type)
+    # run_syntactic_tests_it_legacy_impl(model_type)
 
     # if model_type == model_types.GPT:
     #    print('importing gpt_tests..')

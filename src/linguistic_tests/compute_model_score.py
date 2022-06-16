@@ -136,6 +136,43 @@ def run_testset(
                     correct_pen_logweights_2nd_sentence += 1
 
     examples_count = len(testset["sentences"])
+    print_accuracies(
+        examples_count,
+        model_type,
+        correct_lps_1st_sentence,
+        correct_pen_lps_1st_sentence,
+        correct_lps_2nd_sentence,
+        correct_pen_lps_2nd_sentence,
+        correct_logweights_1st_sentence,
+        correct_pen_logweights_1st_sentence,
+        correct_logweights_2nd_sentence,
+        correct_pen_logweights_2nd_sentence,
+    )
+
+    return (
+        correct_lps_1st_sentence,
+        correct_pen_lps_1st_sentence,
+        correct_lps_2nd_sentence,
+        correct_pen_lps_2nd_sentence,
+        correct_logweights_1st_sentence,
+        correct_pen_logweights_1st_sentence,
+        correct_logweights_2nd_sentence,
+        correct_pen_logweights_2nd_sentence,
+    )
+
+
+def print_accuracies(
+    examples_count,
+    model_type,
+    correct_lps_1st_sentence,
+    correct_pen_lps_1st_sentence,
+    correct_lps_2nd_sentence,
+    correct_pen_lps_2nd_sentence,
+    correct_logweights_1st_sentence=None,
+    correct_pen_logweights_1st_sentence=None,
+    correct_logweights_2nd_sentence=None,
+    correct_pen_logweights_2nd_sentence=None,
+):
     print("test results report:")
     print(
         f"acc. correct_lps_1st_sentence: {perc(correct_lps_1st_sentence, examples_count):.1f} %"
