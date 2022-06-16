@@ -11,14 +11,6 @@ from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.testset import parse_testset
 
 
-def run_agreement_tests():
-    return 0
-
-
-def get_masked_word_probability(bert, tokenizer):
-    return 0
-
-
 def run_tests_goldberg():
     # todo: use sentence acceptability estimates (PenLP e PenNL), and see
     #  results on goldberg testset

@@ -21,9 +21,7 @@ from linguistic_tests.run_legacy_tests import read_gulordava
 from linguistic_tests.run_legacy_tests import rnd
 from linguistic_tests.run_legacy_tests import run_eval
 from linguistic_tests.run_legacy_tests import run_testset_bert
-from linguistic_tests.run_syntactic_tests import get_masked_word_probability
 from linguistic_tests.run_syntactic_tests import print_detailed_sentence_info
-from linguistic_tests.run_syntactic_tests import run_agreement_tests
 from linguistic_tests.run_syntactic_tests import run_tests_blimp
 from linguistic_tests.run_syntactic_tests import run_tests_goldberg
 from linguistic_tests.run_syntactic_tests import run_tests_lau_et_al
@@ -68,11 +66,6 @@ class TestNotebook(TestCase):
     @pytest.mark.skip("todo")
     def test_get_example_analysis_as_tuple(self):
         get_example_analysis_as_tuple()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_get_masked_word_probability(self):
-        get_masked_word_probability()
         raise NotImplementedError
 
     def test_get_perc(self):
@@ -127,11 +120,6 @@ class TestNotebook(TestCase):
     @pytest.mark.skip("todo")
     def test_rnd(self):
         rnd()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_run_agreement_tests(self):
-        run_agreement_tests()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
