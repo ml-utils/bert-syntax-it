@@ -24,11 +24,8 @@ from linguistic_tests.run_legacy_tests import run_testset_bert
 from linguistic_tests.run_syntactic_tests import get_masked_word_probability
 from linguistic_tests.run_syntactic_tests import print_detailed_sentence_info
 from linguistic_tests.run_syntactic_tests import run_agreement_tests
-from linguistic_tests.run_syntactic_tests import run_blimp_en
 from linguistic_tests.run_syntactic_tests import run_tests_blimp
-from linguistic_tests.run_syntactic_tests import run_tests_for_model_type
 from linguistic_tests.run_syntactic_tests import run_tests_goldberg
-from linguistic_tests.run_syntactic_tests import run_tests_it
 from linguistic_tests.run_syntactic_tests import run_tests_lau_et_al
 
 
@@ -138,11 +135,6 @@ class TestNotebook(TestCase):
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
-    def test_run_blimp_en(self):
-        run_blimp_en()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
     def test_run_eval(self):
         run_eval()
         raise NotImplementedError
@@ -153,18 +145,8 @@ class TestNotebook(TestCase):
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
-    def test_run_tests_for_model_type(self):
-        run_tests_for_model_type()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
     def test_run_tests_goldberg(self):
         run_tests_goldberg()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_run_tests_it(self):
-        run_tests_it()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
