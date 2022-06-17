@@ -463,6 +463,7 @@ def estimate_sentence_probability(
     tokenizer: BertTokenizer,
     sentence_ids: list[int],
     verbose: bool = False,
+    scorebase=sentence_score_bases.SOFTMAX,
 ):
     # iterate for each word, mask it and get the probability
     # sum the logs of the probabilities
@@ -484,7 +485,12 @@ def estimate_sentence_probability(
             topk_tokens,
             logits_nonnegative,
         ) = get_sentence_probs_from_word_ids(
-            bert, tokenizer, masked_sentence_ids, [masked_word_id], masked_index + 1
+            bert,
+            tokenizer,
+            masked_sentence_ids,
+            [masked_word_id],
+            masked_index + 1,
+            scorebase=scorebase,
         )
         probability_of_this_masking = probability_of_words_predictions_in_this_masking[
             0
@@ -574,7 +580,12 @@ def estimate_sentence_probability_from_text(
 
 
 def get_probs_for_words(
-    bert: BertPreTrainedModel, tokenizer: BertTokenizer, sent, w1, w2
+    bert: BertPreTrainedModel,
+    tokenizer: BertTokenizer,
+    sent,
+    w1,
+    w2,
+    scorebase=sentence_score_bases.SOFTMAX,
 ):
     tokens, masked_word_idx = tokenize_sentence(tokenizer, sent)
 
@@ -586,7 +597,12 @@ def get_probs_for_words(
         return None
 
     probs_for_words, topk_tokens, _ = get_sentence_probs_from_word_ids(
-        bert, tokenizer, sentence_ids, masked_words_ids, masked_word_idx
+        bert,
+        tokenizer,
+        sentence_ids,
+        masked_words_ids,
+        masked_word_idx,
+        scorebase=scorebase,
     )
     return probs_for_words
 
@@ -597,7 +613,7 @@ def get_sentence_probs_from_word_ids(
     sentence_ids,
     masked_words_ids,
     masked_word_idx,
-    scorebase=sentence_score_bases.SOFTMAX,
+    scorebase,
 ):
     """
     :param bert:
@@ -629,8 +645,10 @@ def get_sentence_probs_from_word_ids(
         scores = __get_scores_from_word_ids(res_softmax, masked_words_ids)
     elif scorebase == sentence_score_bases.NORMALIZED_LOGITS:
         scores = __get_scores_from_word_ids(logits, masked_words_ids)
+    elif scorebase == sentence_score_bases.LOGISTIC_FUN:
+        scores = __get_scores_from_word_ids(res_logistic, masked_words_ids)
     else:
-        raise Exception("Error, no scorebase defined.")
+        raise ValueError(f"Invalid scorebase defined: {scorebase}.")
 
     logits_nonnegative = __get_scores_from_word_ids(
         logits_shifted_above_zero, masked_words_ids
