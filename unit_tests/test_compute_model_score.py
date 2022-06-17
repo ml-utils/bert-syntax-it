@@ -15,7 +15,7 @@ from linguistic_tests.compute_model_score import perc
 from linguistic_tests.compute_model_score import reduce_to_log_product
 from linguistic_tests.compute_model_score import run_testset
 from linguistic_tests.lm_utils import DEVICES
-from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import ModelTypes
 from numpy import log
 from transformers import BertForMaskedLM
 from transformers import BertTokenizer
@@ -81,7 +81,7 @@ class TestComputeModelScore(TestCase):
                 # sentence_log_weight = -3.0
                 # mock: reduce_to_log_product.return_value = -3.0
                 self.get_example_scores_helper(
-                    model_types.BERT,
+                    ModelTypes.BERT,
                     model,
                     mock_bert_t,
                     sent_ids,
@@ -173,7 +173,7 @@ class TestComputeModelScore(TestCase):
         )
 
         actual_score = get_sentence_score_JHLau(
-            model_types.GPT, mock_gpt2_m, mock_gpt2_t, sentence_tokens, DEVICES.CPU
+            ModelTypes.GPT, mock_gpt2_m, mock_gpt2_t, sentence_tokens, DEVICES.CPU
         )
         assert actual_score != 0
         assert actual_score != -200
@@ -183,13 +183,13 @@ class TestComputeModelScore(TestCase):
 
     def test_get_sentence_score_JHLau_bert(self):
         self.get_sentence_score_JHLau_bert_helper(
-            model_types.BERT, BertForMaskedLM, MaskedLMOutput, BertTokenizer
+            ModelTypes.BERT, BertForMaskedLM, MaskedLMOutput, BertTokenizer
         )
         self.get_sentence_score_JHLau_bert_helper(
-            model_types.ROBERTA, RobertaForMaskedLM, MaskedLMOutput, RobertaTokenizer
+            ModelTypes.ROBERTA, RobertaForMaskedLM, MaskedLMOutput, RobertaTokenizer
         )
         self.get_sentence_score_JHLau_bert_helper(
-            model_types.GILBERTO,
+            ModelTypes.GILBERTO,
             CamembertForMaskedLM,
             MaskedLMOutput,
             CamembertTokenizer,
@@ -321,7 +321,7 @@ class TestComputeModelScore(TestCase):
             compute_model_score, "get_example_scores", return_value=mocked_model_score
         ) as _:
             run_testset(
-                model_types.BERT,
+                ModelTypes.BERT,
                 model,
                 tokenizer,
                 DEVICES.CPU,

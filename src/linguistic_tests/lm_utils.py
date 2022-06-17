@@ -85,7 +85,7 @@ class special_tokens:
     UNK: str = "[UNK]"
 
 
-class model_types(IntEnum):
+class ModelTypes(IntEnum):
     BERT = 0
     GPT = 1
     ROBERTA = 2
@@ -318,13 +318,13 @@ def load_pretrained(
         print(f"model loaded of type {type(model)}. Loading tokenizer {model_name}..")
         tokenizer = AutoTokenizer.from_pretrained(model_name)
         print(f"tokenizer loaded of type {type(tokenizer)}.")
-    elif model_type == model_types.GPT:
+    elif model_type == ModelTypes.GPT:
         print(f"loading model {model_name}..")
         model = GPT2LMHeadModel.from_pretrained(model_name)
         print(f"model loaded. Loading tokenizer {model_name}..")
         tokenizer = GPT2Tokenizer.from_pretrained(model_name)
         print("tokenizer loaded.")
-    elif model_type == model_types.BERT:
+    elif model_type == ModelTypes.BERT:
         print(f"loading model {model_name}..")
         model = BertForMaskedLM.from_pretrained(
             model_name
@@ -343,14 +343,14 @@ def load_pretrained(
         )
         print("tokenizer loaded.")
 
-    elif model_type == model_types.GEPPETTO:
+    elif model_type == ModelTypes.GEPPETTO:
         print(f"loading model {model_name}..")
         model = GPT2LMHeadModel.from_pretrained(model_name)  # GPT2Model
         print(f"model loaded. Loading tokenizer {model_name}..")
         tokenizer = GPT2Tokenizer.from_pretrained(model_name)
         print("tokenizer loaded.")
 
-    elif model_type in [model_types.ROBERTA]:
+    elif model_type in [ModelTypes.ROBERTA]:
         print(f"loading model {model_name}..")
         model = RobertaForMaskedLM.from_pretrained(model_name)  # RobertaForMaskedLM
         # todo: try using RobertaModel.from_pretrained with a different output format
@@ -363,7 +363,7 @@ def load_pretrained(
         else:
             tokenizer = RobertaTokenizer.from_pretrained(model_name, do_lower_case=True)
         print("tokenizer loaded.")
-    elif model_type == model_types.GILBERTO:
+    elif model_type == ModelTypes.GILBERTO:
         print(f"loading model {model_name}..")
         model = CamembertForMaskedLM.from_pretrained(model_name)
         print(f"model loaded. Loading tokenizer {model_name}..")

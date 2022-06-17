@@ -29,7 +29,7 @@ from linguistic_tests.bert_utils import tokenize_sentence
 from linguistic_tests.compute_model_score import get_sentence_score_JHLau
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import ModelTypes
 from scipy.special import softmax
 from tqdm import tqdm
 from transformers import BertForMaskedLM as BRT_M
@@ -321,7 +321,7 @@ class TestBertUtils(TestCase):
                 bert_tokenized_sentence = bert_tokenizer.tokenize(sentence)
                 # gpt_text_len = len(gpt_tokenized_sentence)
                 bert_sentence_lp_expected, _ = get_sentence_score_JHLau(
-                    model_types.BERT,
+                    ModelTypes.BERT,
                     bert_model,
                     bert_tokenizer,
                     bert_tokenized_sentence,

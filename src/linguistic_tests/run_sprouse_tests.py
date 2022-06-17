@@ -9,7 +9,7 @@ from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.lm_utils import SprouseSentencesOrder
@@ -23,15 +23,15 @@ from tqdm import tqdm
 
 
 model_names_it = {
-    model_types.GEPPETTO: "LorenzoDeMattei/GePpeTto",
-    model_types.BERT: "dbmdz/bert-base-italian-xxl-cased",
-    model_types.GILBERTO: "idb-ita/gilberto-uncased-from-camembert",
+    ModelTypes.GEPPETTO: "LorenzoDeMattei/GePpeTto",
+    ModelTypes.BERT: "dbmdz/bert-base-italian-xxl-cased",
+    ModelTypes.GILBERTO: "idb-ita/gilberto-uncased-from-camembert",
 }  # model_types.GPT # model_types.ROBERTA  #
 
 model_names_en = {
-    model_types.BERT: "bert-base-uncased",  # "bert-large-uncased"  #
-    model_types.GPT: "gpt2-large",
-    model_types.ROBERTA: "roberta-large",
+    ModelTypes.BERT: "bert-base-uncased",  # "bert-large-uncased"  #
+    ModelTypes.GPT: "gpt2-large",
+    ModelTypes.ROBERTA: "roberta-large",
 }
 
 sprouse_testsets_root_filenames = [  # 'rc_adjunct_island',
@@ -450,7 +450,7 @@ def plot_all_phenomena(phenomena_names, lp_avg_scores):
 
 
 def score_testsets(
-    model_type: model_types,
+    model_type: ModelTypes,
     model_name: str,
     broader_test_type: str,
     testset_root_filenames: list[str] = None,
@@ -620,7 +620,7 @@ def print_examples_compare_diff(
 def print_testset_results(
     scored_testsets: List[TestSet],
     broader_test_type: str,
-    model_type: model_types,
+    model_type: ModelTypes,
     testsets_root_filenames: List[str],
 ):
     print("Printing accuracy scores..")
@@ -693,7 +693,7 @@ def main():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
         "--model_types",
-        help=f"specify the models to run. { {i.name: i.value for i in model_types} }",
+        help=f"specify the models to run. { {i.name: i.value for i in ModelTypes} }",
         nargs="+",  # 0 or more values expected => creates a list
         type=int,
         choices=[i.value for i in model_names_it.keys()],
@@ -701,7 +701,7 @@ def main():
     )
     args = arg_parser.parse_args()
     model_types_to_run = [
-        model_types(model_type_int) for model_type_int in args.model_types
+        ModelTypes(model_type_int) for model_type_int in args.model_types
     ]
     print(f"Will run tests with models: {model_types_to_run}")
 

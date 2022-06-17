@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from linguistic_tests.lm_utils import get_penalty_term
 from linguistic_tests.lm_utils import get_sentences_from_example
-from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.testset import TestSet
 from scipy.special import softmax
@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 
 def score_dataclass_testset(
-    model_type: model_types, model, tokenizer, device, testset: TestSet
+    model_type: ModelTypes, model, tokenizer, device, testset: TestSet
 ):
     for example_idx, example in enumerate(tqdm(testset.examples)):
         score_example(
@@ -61,7 +61,7 @@ def print_accuracy_scores(testset: TestSet):
 
 
 def run_testset(
-    model_type: model_types, model, tokenizer, device, testset, sentences_per_example
+    model_type: ModelTypes, model, tokenizer, device, testset, sentences_per_example
 ):
     """
     Adapted from https://github.com/jhlau/acceptability-prediction-in-context/
@@ -103,7 +103,7 @@ def run_testset(
             correct_lps_1st_sentence += 1
         if pen_lps[sent_idx.GOOD_1] > pen_lps[sent_idx.BAD]:
             correct_pen_lps_1st_sentence += 1
-        if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
+        if model_type in [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]:
             if (
                 sentence_log_weights[sent_idx.GOOD_1]
                 > sentence_log_weights[sent_idx.BAD]
@@ -120,9 +120,9 @@ def run_testset(
             if pen_lps[sent_idx.GOOD_2] > pen_lps[sent_idx.BAD]:
                 correct_pen_lps_2nd_sentence += 1
             if model_type in [
-                model_types.BERT,
-                model_types.ROBERTA,
-                model_types.GILBERTO,
+                ModelTypes.BERT,
+                ModelTypes.ROBERTA,
+                ModelTypes.GILBERTO,
             ]:
                 if (
                     sentence_log_weights[sent_idx.GOOD_2]
@@ -187,7 +187,7 @@ def print_accuracies(
         f"acc. correct_pen_lps_2nd_sentence: {perc(correct_pen_lps_2nd_sentence, examples_count):.1f} %"
     )
 
-    if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
+    if model_type in [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]:
         print(
             f"acc. correct_logweights_1st_sentence: {perc(correct_logweights_1st_sentence, examples_count):.1f} %"
         )
@@ -218,14 +218,14 @@ def score_example(
         lp, token_weights = get_sentence_score_JHLau(
             model_type, model, tokenizer, sentence.tokens, device
         )
-        if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
+        if model_type in [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]:
             example.min_token_weight = min(min(token_weights), example.min_token_weight)
             example.max_token_weight = max(max(token_weights), example.max_token_weight)
             sentence.token_weights = token_weights
         sentence.lp = lp
         penalty = get_penalty_term(text_len)
         sentence.pen_lp = lp / penalty
-    if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
+    if model_type in [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]:
         # normalize token weights
         example.max_token_weight -= example.min_token_weight  # normalize the max value
         for _idx, typed_sentence in enumerate(example.sentences):
@@ -275,7 +275,7 @@ def get_example_scores(
         lp, token_weights = get_sentence_score_JHLau(
             model_type, model, tokenizer, sentence_tokens, device
         )
-        if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
+        if model_type in [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]:
             min_token_weight = min(min(token_weights), min_token_weight)
             max_token_weight = max(max(token_weights), max_token_weight)
             token_weights_by_sentence.append(token_weights)
@@ -285,7 +285,7 @@ def get_example_scores(
         # mean_lps.append(lp / text_len)
         pen_lps.append(lp / penalty)
         sent_ids.append(sent_id)
-    if model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:
+    if model_type in [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]:
         # normalize token weights
         max_token_weight -= min_token_weight  # normalize the max value
         for sentence_idx, token_weights_this_sentence in enumerate(
@@ -350,7 +350,7 @@ def get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, devi
     if len(sentence_tokens) == 0:
         return -200, None
 
-    if model_type in [model_types.GPT, model_types.GEPPETTO]:
+    if model_type in [ModelTypes.GPT, ModelTypes.GEPPETTO]:
 
         # not use context variant:
         # prepend the sentence with <|endoftext|> token, so that the loss is
@@ -364,7 +364,7 @@ def get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, devi
         loss = model(tensor_input, labels=tensor_input)
         return float(loss[0]) * -1.0 * len(sentence_tokens), None
 
-    elif model_type in [model_types.BERT, model_types.ROBERTA, model_types.GILBERTO]:  #
+    elif model_type in [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]:  #
 
         batched_indexed_tokens = []
         batched_segment_ids = []

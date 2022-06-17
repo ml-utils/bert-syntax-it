@@ -15,7 +15,7 @@ from linguistic_tests.compute_model_score import perc
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import sentence_score_bases
@@ -237,7 +237,7 @@ def arg_parse():
 
 
 def custom_eval(sentence, bert, tokenizer):
-    bert, tokenizer = load_model_and_tokenizer(model_types.BERT, "bert-base-uncased")
+    bert, tokenizer = load_model_and_tokenizer(ModelTypes.BERT, "bert-base-uncased")
 
     compare_tokens, compare_target_idx = tokenize_sentence(
         tokenizer, "What is ***your*** name?"

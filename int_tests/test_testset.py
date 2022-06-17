@@ -5,7 +5,7 @@ import pytest
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.run_sprouse_tests import run_sprouse_tests
 from linguistic_tests.testset import load_testset_from_pickle
@@ -83,7 +83,7 @@ def test_serialization(tmp_path):
     # parsed_testset = parse_testset(filename, "some_model", examples_list, "sprouse")
 
     # todo: use a real model to score the testset
-    model_type = model_types.BERT
+    model_type = ModelTypes.BERT
     model_name = "dbmdz/bert-base-italian-xxl-cased"
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
     phenomena = [

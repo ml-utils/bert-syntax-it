@@ -5,7 +5,7 @@ from linguistic_tests.compute_model_score import print_accuracy_scores
 from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model_and_tokenizer
-from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import red_txt
 from linguistic_tests.run_syntactic_tests import print_detailed_sentence_info
@@ -28,7 +28,7 @@ def interactive_mode():
         # str(get_models_dir() / "bert-base-italian-xxl-cased")
     )
     model_name = model_dir
-    model_type = model_types.ROBERTA  # model_types.BERT  #
+    model_type = ModelTypes.ROBERTA  # model_types.BERT  #
     # eval_suite = 'it'
     model, tokenizer = load_model_and_tokenizer(
         model_type, model_name, do_lower_case=False
@@ -134,7 +134,7 @@ def main():
     if len(sys.argv) > 1:
         interactive_mode()
     else:
-        model_type = model_types.ROBERTA  # model_types.GPT  #
+        model_type = ModelTypes.ROBERTA  # model_types.GPT  #
         # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
         model_name = (
             "roberta-large"  # "bert-base-uncased"  #  "roberta-base" #"gpt2-medium"

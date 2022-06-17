@@ -9,7 +9,7 @@ from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_sprouse_tests import run_sprouse_tests
@@ -34,7 +34,7 @@ class TestRunTestSets(TestCase):
         p = get_test_data_dir() / "blimp"
         testset_dir_path = str(p)
         run_blimp_en(
-            model_type=model_types.BERT,
+            model_type=ModelTypes.BERT,
             model_name="bert-base-uncased",
             testset_filenames=testset_filenames,
             testset_dir_path=testset_dir_path,
@@ -45,7 +45,7 @@ class TestRunTestSets(TestCase):
     def test_run_sprouse_tests(self, mock1):
         assert plt.show is mock1
 
-        model_type = model_types.BERT
+        model_type = ModelTypes.BERT
         model_name = "dbmdz/bert-base-italian-xxl-cased"
         model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
         phenomena = [
@@ -68,7 +68,7 @@ class TestRunTestSets(TestCase):
     @pytest.mark.slow
     @pytest.mark.enable_socket
     def test_run_syntactic_it_tests(self):
-        model_type = model_types.BERT
+        model_type = ModelTypes.BERT
         testset_files = [
             "mini_wh_adjunct_islands.jsonl",
         ]
@@ -89,7 +89,7 @@ class TestRunTestSets(TestCase):
         import tqdm
         import json
 
-        model_type = model_types.ROBERTA  # model_types.GPT  #
+        model_type = ModelTypes.ROBERTA  # model_types.GPT  #
         model_name = "roberta-large"  # "roberta-base" #"gpt2-medium"
         # "gpt2-large"  # 'gpt2' #  "bert-large-uncased"
         model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
@@ -139,11 +139,11 @@ class TestRunTestSets(TestCase):
     def run_syntactic_tests_it_legacy_impl(
         model_type, testset_filenames=None, testset_dir_path=None
     ):
-        if model_type == model_types.GPT:
+        if model_type == ModelTypes.GPT:
             model_name = "GroNLP/gpt2-small-italian"
-        if model_type == model_types.GEPPETTO:
+        if model_type == ModelTypes.GEPPETTO:
             model_name = "LorenzoDeMattei/GePpeTto"
-        elif model_type == model_types.BERT:
+        elif model_type == ModelTypes.BERT:
             model_name = "bert-base-uncased"  # NB bert large uncased is about 1GB
             model_name = str(get_models_dir() / "bert-base-italian-uncased")
             model_name = str(get_models_dir() / "bert-base-italian-cased/")
@@ -152,7 +152,7 @@ class TestRunTestSets(TestCase):
             model_name = "dbmdz/bert-base-italian-xxl-cased"
             # model_name = # str(get_models_dir() / "gilberto-uncased-from-camembert.tar.gz")
             # eval_suite = 'it'
-        elif model_type == model_types.GILBERTO:
+        elif model_type == ModelTypes.GILBERTO:
             model_name = "idb-ita/gilberto-uncased-from-camembert"
 
         model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
@@ -175,9 +175,9 @@ class TestRunTestSets(TestCase):
             testset_data = load_testset_data(filepath)
 
             if model_type in [
-                model_types.BERT,
-                model_types.GILBERTO,
-                model_types.ROBERTA,
+                ModelTypes.BERT,
+                ModelTypes.GILBERTO,
+                ModelTypes.ROBERTA,
             ]:
                 # run_testset(testsets_dir, test_file, model, tokenizer,
                 # score_based_on=sentence_score_bases.SOFTMAX)
@@ -189,7 +189,7 @@ class TestRunTestSets(TestCase):
                     testset_data,
                     sentences_per_example,
                 )
-            elif model_type in [model_types.GPT, model_types.GEPPETTO]:
+            elif model_type in [ModelTypes.GPT, ModelTypes.GEPPETTO]:
                 run_testset(
                     model_type,
                     model,

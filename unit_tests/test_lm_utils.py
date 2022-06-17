@@ -14,7 +14,7 @@ from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import model_types
+from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import red_txt
@@ -118,15 +118,15 @@ class TestLMUtils(TestCase):
             ]
 
         self.__test_load_model_helper(
-            model_types.BERT, "bert-base-uncased", BRT_M, BRT_T
+            ModelTypes.BERT, "bert-base-uncased", BRT_M, BRT_T
         )
-        self.__test_load_model_helper(model_types.GPT, "gpt2", GPT_M, GPT_T)
+        self.__test_load_model_helper(ModelTypes.GPT, "gpt2", GPT_M, GPT_T)
         self.__test_load_model_helper(
-            model_types.GEPPETTO, "LorenzoDeMattei/GePpeTto", GPT_M, GPT_T
+            ModelTypes.GEPPETTO, "LorenzoDeMattei/GePpeTto", GPT_M, GPT_T
         )
-        self.__test_load_model_helper(model_types.ROBERTA, "roberta-base", RB_M, RB_T)
+        self.__test_load_model_helper(ModelTypes.ROBERTA, "roberta-base", RB_M, RB_T)
         self.__test_load_model_helper(
-            model_types.GILBERTO, "idb-ita/gilberto-uncased-from-camembert", CM_M, CM_T
+            ModelTypes.GILBERTO, "idb-ita/gilberto-uncased-from-camembert", CM_M, CM_T
         )
 
     @staticmethod
@@ -162,31 +162,27 @@ class TestLMUtils(TestCase):
             ]
 
         bert_name = "bert-base-uncased"
-        bert, b_tokenizer = load_model_and_tokenizer(model_types.BERT, bert_name)
+        bert, b_tokenizer = load_model_and_tokenizer(ModelTypes.BERT, bert_name)
         assert isinstance(bert, BRT_M)
         assert isinstance(b_tokenizer, BRT_T)
 
         gpt2_name = "gpt2"
-        gpt2, g_tokenizer = load_model_and_tokenizer(model_types.GPT, gpt2_name)
+        gpt2, g_tokenizer = load_model_and_tokenizer(ModelTypes.GPT, gpt2_name)
         assert isinstance(gpt2, GPT_M)
         assert isinstance(g_tokenizer, GPT_T)
 
         gpt2_it_name = "LorenzoDeMattei/GePpeTto"
-        gpt2_it, g_it_tokenizer = load_model_and_tokenizer(
-            model_types.GPT, gpt2_it_name
-        )
+        gpt2_it, g_it_tokenizer = load_model_and_tokenizer(ModelTypes.GPT, gpt2_it_name)
         assert isinstance(gpt2_it, GPT_M)
         assert isinstance(g_it_tokenizer, GPT_T)
 
         rob_name = "roberta-base"
-        roberta, rob_tokenizer = load_model_and_tokenizer(model_types.ROBERTA, rob_name)
+        roberta, rob_tokenizer = load_model_and_tokenizer(ModelTypes.ROBERTA, rob_name)
         assert isinstance(roberta, RB_M)
         assert isinstance(rob_tokenizer, RB_T)
 
         gil_name = "idb-ita/gilberto-uncased-from-camembert"
-        roberta, rob_tokenizer = load_model_and_tokenizer(
-            model_types.GILBERTO, gil_name
-        )
+        roberta, rob_tokenizer = load_model_and_tokenizer(ModelTypes.GILBERTO, gil_name)
         assert isinstance(roberta, CM_M)
         assert isinstance(rob_tokenizer, CM_T)
 
