@@ -201,7 +201,7 @@ class TestSet:
             reverse=reverse,
         )
 
-    def save_to_picle(self, filename):
+    def save_to_pickle(self, filename):
         print(f"saving testset to {filename}")
         with open(filename, "wb") as file:
             pickle.dump(self, file)

@@ -439,7 +439,7 @@ def save_scored_testsets(
             model_name,
             broader_test_type=broader_test_type,
         )
-        scored_testset.save_to_picle(filename)
+        scored_testset.save_to_pickle(filename)
 
 
 def get_pickle_filename(

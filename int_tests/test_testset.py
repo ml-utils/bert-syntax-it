@@ -109,7 +109,7 @@ def test_serialization(tmp_path):
     )
 
     tmp_file = tmp_path / "tmpfile.pickle"
-    scored_testsets[0].save_to_picle(tmp_file)
+    scored_testsets[0].save_to_pickle(tmp_file)
 
     testset_fromfile = load_testset_from_pickle(tmp_file)
 

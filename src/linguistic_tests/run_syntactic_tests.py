@@ -61,10 +61,8 @@ def run_blimp_en(
         )
 
         scored_testset.model_descr = model_name
-        scored_testset.save_to_picle(
-            # todo: filename: blimp/sprouse/.., datetime, phenomena, ..
-            scored_testset.linguistic_phenomenon
-            + ".testset.pickle"
+        scored_testset.save_to_pickle(
+            scored_testset.linguistic_phenomenon + ".testset.pickle"
         )
 
     return parsed_testsets
