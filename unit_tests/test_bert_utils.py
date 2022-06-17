@@ -221,7 +221,8 @@ class TestBertUtils(TestCase):
 
         sentence_ids = tokenizer_m.convert_tokens_to_ids(tokens)
 
-        res_m, res_softmax_m, res_normalized_m = (
+        res_m, res_softmax_m, res_logistic, res_normalized_m = (
+            torch.rand(vocab_size),
             torch.rand(vocab_size),
             torch.rand(vocab_size),
             torch.rand(vocab_size),
@@ -232,6 +233,7 @@ class TestBertUtils(TestCase):
         mock_get_bert_output.return_value = (
             res_m,
             res_softmax_m,
+            res_logistic,
             res_normalized_m,
             None,
         )
