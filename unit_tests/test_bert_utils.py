@@ -132,7 +132,7 @@ class TestBertUtils(TestCase):
 
     def test_get_bert_output(self):
 
-        tokenizer_m = Mock(spec=BertTokenizerFast)
+        # tokenizer_m = Mock(spec=BertTokenizerFast)
         output_m = Mock(spec=MaskedLMOutput)
         model_m = Mock(spec=BRT_M, return_value=output_m)
         # sentence = "Ha detto che il libro di ***mask*** ha 300 pagine."
@@ -154,7 +154,7 @@ class TestBertUtils(TestCase):
             res_logistic,
             res_normalized,
             logits_shifted_above_zero,
-        ) = get_bert_output(model_m, tokenizer_m, sentence_ids, masked_word_idx)
+        ) = get_bert_output(model_m, sentence_ids, masked_word_idx)
 
         assert isinstance(res, torch.Tensor)
         # assert res.shape == (k,)

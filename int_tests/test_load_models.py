@@ -56,9 +56,7 @@ class TestLoadModels(TestCase):
             res_logistic,
             res_normalized,
             logits_shifted_above_zero,
-        ) = get_bert_output(
-            model, roberta_tokenizer, input_ids, masked_index_in_sentence
-        )
+        ) = get_bert_output(model, input_ids, masked_index_in_sentence)
         k = 5
         topk_probs, topk_ids = torch.topk(res_softmax, k)
         topk_ids = list(topk_ids)
@@ -109,9 +107,7 @@ class TestLoadModels(TestCase):
             res_logistic,
             res_normalized,
             logits_shifted_above_zero,
-        ) = get_bert_output(
-            model, custom_tokenizer, sentence_ids, masked_index_in_sentence
-        )
+        ) = get_bert_output(model, sentence_ids, masked_index_in_sentence)
         k = 5
         topk_probs, topk_ids = torch.topk(res_softmax, k)
         topk_tokens = convert_ids_to_tokens(

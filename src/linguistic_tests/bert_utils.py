@@ -366,7 +366,7 @@ def get_topk(
         res_logistic,
         res_normalized,
         logits_shifted_above_zero,
-    ) = get_bert_output(bert, tokenizer, sentence_ids, masked_word_idx)
+    ) = get_bert_output(bert, sentence_ids, masked_word_idx)
     topk_probs_nonsoftmax = torch.topk(res_normalized, k)
     topk_tokens, topk_probs = get_topk_tokens_from_bert_output(
         res_softmax, tokenizer, k
@@ -384,7 +384,6 @@ def get_topk_tokens_from_bert_output(res_softmax, tokenizer, k=5):
 
 def get_bert_output(
     bert: BertPreTrainedModel,
-    tokenizer: BertTokenizer,
     sentence_ids,
     masked_word_idx,
     verbose=False,
@@ -617,7 +616,7 @@ def get_sentence_probs_from_word_ids(
         res_logistic,
         res_normalized,
         logits_shifted_above_zero,
-    ) = get_bert_output(bert, tokenizer, sentence_ids, masked_word_idx)
+    ) = get_bert_output(bert, sentence_ids, masked_word_idx)
 
     topk_tokens, top_probs = get_topk_tokens_from_bert_output(
         res_softmax, tokenizer, k=10
