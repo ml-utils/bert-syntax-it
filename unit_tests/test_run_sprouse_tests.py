@@ -2,11 +2,14 @@ from unittest import TestCase
 
 import pytest
 from linguistic_tests.run_sprouse_tests import get_dd_score
+from linguistic_tests.run_sprouse_tests import get_pickle_filename
 from linguistic_tests.run_sprouse_tests import main
 from linguistic_tests.run_sprouse_tests import plot_all_phenomena
 from linguistic_tests.run_sprouse_tests import plot_results
-from linguistic_tests.run_sprouse_tests import run_sprouse_test
+from linguistic_tests.run_sprouse_tests import print_testset_results
 from linguistic_tests.run_sprouse_tests import run_sprouse_test_helper
+from linguistic_tests.run_sprouse_tests import save_scored_testsets
+from linguistic_tests.run_sprouse_tests import score_sprouse_testset
 from linguistic_tests.run_sprouse_tests import score_sprouse_testsets
 
 
@@ -27,11 +30,6 @@ class TestRunSprouseTests(TestCase):
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
-    def test_run_sprouse_test(self):
-        run_sprouse_test()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
     def test_run_sprouse_test_helper(self):
         run_sprouse_test_helper()
         raise NotImplementedError
@@ -39,6 +37,26 @@ class TestRunSprouseTests(TestCase):
     @pytest.mark.skip("todo")
     def test_run_sprouse_tests(self):
         score_sprouse_testsets()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_score_sprouse_testset(self):
+        score_sprouse_testset()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_save_scored_testsets(self):
+        save_scored_testsets()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_print_testset_results(self):
+        print_testset_results()
+        raise NotImplementedError
+
+    @pytest.mark.skip("todo")
+    def test_get_pickle_filename(self):
+        get_pickle_filename()
         raise NotImplementedError
 
     def test_get_dd_score(self):
