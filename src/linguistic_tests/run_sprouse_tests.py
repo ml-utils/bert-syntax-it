@@ -77,12 +77,12 @@ def score_sprouse_testsets(
     scored_testsets = []
     for parsed_testset in parsed_testsets:
 
-        scored_testset = run_sprouse_test(
-            parsed_testset,
+        scored_testset = score_sprouse_testset(
             model_type,
             model,
             tokenizer,
             device,
+            parsed_testset,
         )
         scored_testsets.append(scored_testset)
 
@@ -141,34 +141,6 @@ def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
     ax.plot(x_values, y_values, linestyle="--", label="island structure")
     ax.set_title(scored_testset.linguistic_phenomenon)
     ax.set_ylabel(f"{score_name} values")
-
-
-def run_sprouse_test(
-    parsed_testset,
-    model_type,
-    model,
-    tokenizer,
-    device,
-):
-
-    # run_testset(model_type, model, tokenizer, device, testset)
-    # lp_averages = run_sprouse_test_helper(
-    #     model_type,
-    #     model,
-    #     tokenizer,
-    #     device,
-    #     testset,
-    #     sentence_ordering=sentence_ordering,
-    # )
-    scored_testset = score_sprouse_testset(
-        model_type,
-        model,
-        tokenizer,
-        device,
-        parsed_testset,
-    )
-
-    return scored_testset
 
 
 def score_sprouse_testset(
