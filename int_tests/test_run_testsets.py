@@ -34,11 +34,13 @@ class TestRunTestSets(TestCase):
         testset_filenames = ["mini_wh_island"]
         p = get_test_data_dir() / "blimp"
         testset_dir_path = str(p)
+        examples_format = "json_lines"
         run_blimp_en(
             model_type=ModelTypes.BERT,
             model_name="bert-base-uncased",
             testset_filenames=testset_filenames,
             testset_dir_path=testset_dir_path,
+            examples_format=examples_format,
         )
 
     @pytest.mark.enable_socket

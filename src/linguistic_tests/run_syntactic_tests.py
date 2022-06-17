@@ -36,9 +36,9 @@ def run_blimp_en(
     model_name,
     testset_filenames,
     testset_dir_path,
+    examples_format="blimp",
     max_examples=1000,
 ):
-    examples_format = "blimp"
     sent_types_descr = "blimp"
     parsed_testsets = parse_testsets(
         testset_dir_path,
