@@ -142,9 +142,9 @@ def main():
         # "gpt2-large"  # 'gpt2'  #  "bert-large-uncased"
         #    'dbmdz/bert-base-italian-xxl-cased' #
         testset_filenames = [
-            "wh_island.jsonl",
-            "adjunct_island.jsonl",
-            "complex_NP_island.jsonl",
+            "wh_island",  # .jsonl
+            "adjunct_island",
+            "complex_NP_island",
         ]
         p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
         testset_dir_path = str(p)

@@ -2,14 +2,50 @@ import csv
 import dataclasses
 import json
 import os.path
+from typing import List
 
 import pandas
 from linguistic_tests.lm_utils import BlimpSentencesOrder
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_testset_data
+from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
+from linguistic_tests.testset import parse_testset
+from linguistic_tests.testset import TestSet
 from tqdm import tqdm
+
+
+def parse_testsets(
+    testset_dir_path,
+    testset_filenames,
+    examples_format,
+    sent_types_descr,
+    model_name,
+    max_examples,
+) -> List[TestSet]:
+    parsed_testsets = []
+    for testset_filename in testset_filenames:
+        testset_filepath = os.path.join(testset_dir_path, testset_filename + ".jsonl")
+        print(f"Parsing testset {testset_filepath}")
+        testset_dict = load_testset_data(
+            testset_filepath, examples_format=examples_format
+        )  # es.: "json_lines"
+        examples_list = testset_dict["sentences"]
+        phenomenon_name = get_file_root(testset_filename)
+        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        parsed_testset = parse_testset(
+            phenomenon_name,
+            model_name,
+            examples_list,
+            sent_types_descr,  # "blimp" or "sprouse"
+            scoring_measures,
+            max_examples=max_examples,
+        )
+
+        parsed_testsets.append(parsed_testset)
+
+    return parsed_testsets
 
 
 def convert_testset_to_csv(

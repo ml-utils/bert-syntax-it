@@ -1,21 +1,18 @@
-import os.path
 from typing import List
 
 from linguistic_tests.compute_model_score import get_example_scores
 from linguistic_tests.compute_model_score import print_accuracy_scores
 from linguistic_tests.compute_model_score import score_example
-from linguistic_tests.file_utils import get_file_root
+from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
-from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import load_testset_from_pickle
-from linguistic_tests.testset import parse_testset
 from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from linguistic_tests.testset import TestSet
 from matplotlib import pyplot as plt
@@ -63,10 +60,7 @@ def score_sprouse_testsets(
     model,
     tokenizer,
     device,
-    phenomena_root_filenames,
-    testset_dir_path,
-    examples_format="sprouse",
-    sentence_ordering=SprouseSentencesOrder,
+    parsed_testsets: List[TestSet],
 ) -> list[TestSet]:
     # todo: compare results (for each phenomena) on the 8 original Sprouse sentences, and the new 50 italian ones
 
@@ -80,20 +74,15 @@ def score_sprouse_testsets(
 
     # testset_filepath = get_out_dir() + "blimp/from_blim_en/islands/complex_NP_island.jsonl"  # wh_island.jsonl' # adjunct_island.jsonl'
 
-    print(f"Running testsets from dir {testset_dir_path}")
     scored_testsets = []
-    for phenomenon_name in phenomena_root_filenames:
-        print(f"Running testset for {phenomenon_name}..")
-        filename = phenomenon_name + ".jsonl"
-        filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
+    for parsed_testset in parsed_testsets:
+
         scored_testset = run_sprouse_test(
-            filepath,
+            parsed_testset,
             model_type,
             model,
             tokenizer,
             device,
-            examples_format=examples_format,
-            sentence_ordering=sentence_ordering,
         )
         scored_testsets.append(scored_testset)
 
@@ -155,21 +144,12 @@ def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
 
 
 def run_sprouse_test(
-    filepath,
+    parsed_testset,
     model_type,
     model,
     tokenizer,
     device,
-    examples_format="sprouse",
-    sentence_ordering=SprouseSentencesOrder,
 ):
-    testset_dict = load_testset_data(filepath, examples_format=examples_format)
-    examples_list = testset_dict["sentences"]
-    phenomenon_name = get_file_root(filepath)
-    scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
-    parsed_testset = parse_testset(
-        phenomenon_name, str(type(model)), examples_list, "sprouse", scoring_measures
-    )
 
     # run_testset(model_type, model, tokenizer, device, testset)
     # lp_averages = run_sprouse_test_helper(
@@ -706,21 +686,28 @@ def main():
         # create_test_jsonl_files_tests()
 
         model_name = model_names_it[model_type]
+        examples_format = "sprouse"  # "blimp", "json_lines", "sprouse"
+        sent_types_descr = "sprouse"  # "blimp" or "sprouse"
+        # sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
+        print(f"Running testsets from dir {testset_dir_path}")
+        parsed_testsets = parse_testsets(
+            testset_dir_path,
+            testsets_root_filenames,
+            examples_format,
+            sent_types_descr,
+            model_name,
+            max_examples=1000,
+        )
+
         device = DEVICES.CPU
         model, tokenizer = load_model(model_type, model_name, device)
-
-        examples_format = "sprouse"  # "blimp"
-        sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
 
         scored_testsets = score_sprouse_testsets(
             model_type,
             model,
             tokenizer,
             device,
-            phenomena_root_filenames=testsets_root_filenames,
-            testset_dir_path=testset_dir_path,
-            examples_format=examples_format,
-            sentence_ordering=sentence_ordering,
+            parsed_testsets,
         )
 
         save_scored_testsets(scored_testsets, model_name, broader_test_type)

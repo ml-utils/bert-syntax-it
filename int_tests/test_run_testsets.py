@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import pytest
 from linguistic_tests.compute_model_score import run_testset
+from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
@@ -30,7 +31,7 @@ class TestRunTestSets(TestCase):
 
     @pytest.mark.enable_socket
     def test_run_blimp_en_tests(self):
-        testset_filenames = ["mini_wh_island.jsonl"]
+        testset_filenames = ["mini_wh_island"]
         p = get_test_data_dir() / "blimp"
         testset_dir_path = str(p)
         run_blimp_en(
@@ -53,13 +54,20 @@ class TestRunTestSets(TestCase):
         ]
         p = get_test_data_dir() / "sprouse"
         testset_dir_path = str(p)
+        parsed_testsets = parse_testsets(
+            testset_dir_path,
+            phenomena,
+            "sprouse",
+            "sprouse",
+            model_name,
+            max_examples=1000,
+        )
         scored_testsets = score_sprouse_testsets(
             model_type,
             model,
             tokenizer,
             DEVICES.CPU,
-            phenomena_root_filenames=phenomena,
-            testset_dir_path=testset_dir_path,
+            parsed_testsets,
         )
 
         for testset in scored_testsets:

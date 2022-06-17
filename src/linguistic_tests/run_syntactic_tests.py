@@ -1,14 +1,9 @@
-import os
-
 from linguistic_tests.bert_utils import estimate_sentence_probability
 from linguistic_tests.compute_model_score import score_dataclass_testset
-from linguistic_tests.file_utils import get_file_root
+from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
-from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import print_red
-from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.testset import parse_testset
 
 
 def run_tests_goldberg():
@@ -43,23 +38,16 @@ def run_blimp_en(
     testset_dir_path,
     max_examples=1000,
 ):
-    parsed_testsets = []
-    for testset_filename in testset_filenames:
-        testset_filepath = os.path.join(testset_dir_path, testset_filename)
-        print(f"Parsing testset {testset_filepath}")
-        testset_dict = load_testset_data(testset_filepath, examples_format="json_lines")
-        examples_list = testset_dict["sentences"]
-        phenomenon_name = get_file_root(testset_filename)
-        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
-        parsed_testset = parse_testset(
-            phenomenon_name,
-            model_name,
-            examples_list,
-            "blimp",
-            scoring_measures,
-            max_examples=max_examples,
-        )
-        parsed_testsets.append(parsed_testset)
+    examples_format = "blimp"
+    sent_types_descr = "blimp"
+    parsed_testsets = parse_testsets(
+        testset_dir_path,
+        testset_filenames,
+        examples_format,
+        sent_types_descr,
+        model_name,
+        max_examples=1000,
+    )
 
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
     for parsed_testset in parsed_testsets:

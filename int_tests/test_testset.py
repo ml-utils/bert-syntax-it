@@ -2,6 +2,7 @@ import os
 from unittest import TestCase
 
 import pytest
+from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
@@ -91,13 +92,20 @@ def test_serialization(tmp_path):
     ]
     p = get_test_data_dir() / "sprouse"
     testset_dir_path = str(p)
+    parsed_testsets = parse_testsets(
+        testset_dir_path,
+        phenomena,
+        "sprouse",
+        "sprouse",
+        model_name,
+        max_examples=1000,
+    )
     scored_testsets = score_sprouse_testsets(
         model_type,
         model,
         tokenizer,
         DEVICES.CPU,
-        phenomena_root_filenames=phenomena,
-        testset_dir_path=testset_dir_path,
+        parsed_testsets,
     )
 
     tmp_file = tmp_path / "tmpfile.pickle"
