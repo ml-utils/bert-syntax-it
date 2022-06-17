@@ -21,6 +21,18 @@ from matplotlib import pyplot as plt
 from tqdm import tqdm
 
 
+model_names_it = {
+    model_types.GEPPETTO: "LorenzoDeMattei/GePpeTto",
+    model_types.BERT: "dbmdz/bert-base-italian-xxl-cased",
+    model_types.GILBERTO: "idb-ita/gilberto-uncased-from-camembert",
+}  # model_types.GPT # model_types.ROBERTA  #
+
+model_names_en = {
+    model_types.BERT: "bert-base-uncased",  # "bert-large-uncased"  #
+    model_types.GPT: "gpt2-large",
+    model_types.ROBERTA: "roberta-large",
+}
+
 # todo: parse the csv file
 # 4 sentences for each examples (long vs short, island vs non island)
 # turn into 3 examples: island long vs the other 3 sentences
@@ -587,10 +599,22 @@ def print_examples_compare_diff(
 
 
 def main():
+    import argparse
 
-    # todo: enable command line arguments to choose which models to run
-    # runs_args = []
-    # run_args0 = {"model_type": }
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument(
+        "--model_types",
+        help=f"specify the models to run. { {i.name: i.value for i in model_types} }",
+        nargs="+",  # 0 or more values expected => creates a list
+        type=int,
+        choices=[i.value for i in model_types],
+        default=[i.value for i in model_types],
+    )
+    args = arg_parser.parse_args()
+    model_types_to_run = [
+        model_types(model_type_int) for model_type_int in args.model_types
+    ]
+    print(f"Will run tests with models: {model_types_to_run=}")
 
     # add score with logistic function (instead of softmax)
 
@@ -599,22 +623,6 @@ def main():
     # save results to csv (for import in excel table)
     # autosave plots as *.png
 
-    # todo: make a list with all the models to test and run them
-    # Bert (dbmdz/bert-base-italian-xxl-cased)
-    # GePpeTto
-    # GilBERTo (idb-ita/gilberto-uncased-from-camembert)
-
-    model_type1 = model_types.GEPPETTO
-    model_type2 = model_types.BERT  # model_types.GPT # model_types.ROBERTA  #
-    model_type3 = model_types.GILBERTO
-    model_types_to_run = [model_type1, model_type2, model_type3]
-
-    model_name1 = "LorenzoDeMattei/GePpeTto"
-    model_name2 = "dbmdz/bert-base-italian-xxl-cased"
-    model_name3 = "idb-ita/gilberto-uncased-from-camembert"
-    model_names = [model_name1, model_name2, model_name3]
-
-    # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
     tests_subdir = "sprouse/"  # "syntactic_tests_it/"  #
     testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
@@ -642,17 +650,17 @@ def main():
         testsets_root_filenames = sprouse_testsets_root_filenames
         broader_test_type = "sprouse"
 
-    for model_type, model_name in zip(model_types_to_run, model_names):
+    for model_type in model_types_to_run:
         score_testsets(
             model_type,
-            model_name,
+            model_names_it[model_type],
             broader_test_type=broader_test_type,
             testset_root_filenames=testsets_root_filenames,
             testset_dir_path=testset_dir_path,
         )
 
         loaded_testsets = load_pickles(
-            testsets_root_filenames, model_name, broader_test_type
+            testsets_root_filenames, model_names_it[model_type], broader_test_type
         )
 
         print("Printing accuracy scores..")
@@ -671,14 +679,14 @@ def main():
         print_sorted_sentences_to_check_spelling_errors2(
             score_descr,
             testsets_root_filenames,
-            model_name,
+            model_names_it[model_type],
             broader_test_type,
             loaded_testsets,
         )
         print_sorted_sentences_to_check_spelling_errors(
             score_descr,
             testsets_root_filenames,
-            model_name,
+            model_names_it[model_type],
             broader_test_type,
             loaded_testsets,
         )
@@ -688,7 +696,7 @@ def main():
             SentenceNames.SHORT_ISLAND,
             SentenceNames.LONG_ISLAND,
             testsets_root_filenames,
-            model_name,
+            model_names_it[model_type],
             broader_test_type,
             testsets=loaded_testsets,
         )
@@ -697,7 +705,7 @@ def main():
             SentenceNames.LONG_NONISLAND,
             SentenceNames.LONG_ISLAND,
             testsets_root_filenames,
-            model_name,
+            model_names_it[model_type],
             broader_test_type,
             testsets=loaded_testsets,
         )
@@ -706,14 +714,14 @@ def main():
             SentenceNames.SHORT_NONISLAND,
             SentenceNames.SHORT_ISLAND,
             testsets_root_filenames,
-            model_name,
+            model_names_it[model_type],
             broader_test_type,
             testsets=loaded_testsets,
         )
 
         load_and_plot_pickle(
             testsets_root_filenames,
-            model_name,
+            model_names_it[model_type],
             broader_test_type,
             loaded_testsets=loaded_testsets,
         )
