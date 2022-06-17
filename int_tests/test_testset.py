@@ -7,7 +7,7 @@ from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.run_sprouse_tests import run_sprouse_tests
+from linguistic_tests.run_sprouse_tests import score_sprouse_testsets
 from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
 
@@ -91,7 +91,7 @@ def test_serialization(tmp_path):
     ]
     p = get_test_data_dir() / "sprouse"
     testset_dir_path = str(p)
-    scored_testsets = run_sprouse_tests(
+    scored_testsets = score_sprouse_testsets(
         model_type,
         model,
         tokenizer,

@@ -58,7 +58,7 @@ custom_it_island_testsets_root_filenames = [
 # one file for each phenomena (2x4), ..8x3 examples in each file
 
 
-def run_sprouse_tests(
+def score_sprouse_testsets(
     model_type,
     model,
     tokenizer,
@@ -449,31 +449,9 @@ def plot_all_phenomena(phenomena_names, lp_avg_scores):
         plot_results(phenomenon, lp_avg_scores[idx], ScoringMeasures.LP.name)
 
 
-def score_testsets(
-    model_type: ModelTypes,
-    model_name: str,
-    broader_test_type: str,
-    testset_root_filenames: list[str] = None,
-    testset_dir_path: str = None,
+def save_scored_testsets(
+    scored_testsets: List[TestSet], model_name: str, broader_test_type: str
 ):
-    # create_test_jsonl_files_tests()
-
-    device = DEVICES.CPU
-    model, tokenizer = load_model(model_type, model_name, device)
-
-    examples_format = "sprouse"  # "blimp"
-    sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
-    scored_testsets = run_sprouse_tests(
-        model_type,
-        model,
-        tokenizer,
-        device,
-        phenomena_root_filenames=testset_root_filenames,
-        testset_dir_path=testset_dir_path,
-        examples_format=examples_format,
-        sentence_ordering=sentence_ordering,
-    )
-
     for scored_testset in scored_testsets:
         scored_testset.model_descr = model_name
         filename = get_pickle_filename(
@@ -725,14 +703,27 @@ def main():
         # save results to csv (for import in excel table)
         # autosave plots as *.png
 
-        score_testsets(
+        # create_test_jsonl_files_tests()
+
+        model_name = model_names_it[model_type]
+        device = DEVICES.CPU
+        model, tokenizer = load_model(model_type, model_name, device)
+
+        examples_format = "sprouse"  # "blimp"
+        sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
+
+        scored_testsets = score_sprouse_testsets(
             model_type,
-            model_names_it[model_type],
-            broader_test_type=broader_test_type,
-            testset_root_filenames=testsets_root_filenames,
+            model,
+            tokenizer,
+            device,
+            phenomena_root_filenames=testsets_root_filenames,
             testset_dir_path=testset_dir_path,
+            examples_format=examples_format,
+            sentence_ordering=sentence_ordering,
         )
 
+        save_scored_testsets(scored_testsets, model_name, broader_test_type)
         loaded_testsets = load_pickles(
             testsets_root_filenames, model_names_it[model_type], broader_test_type
         )

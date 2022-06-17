@@ -7,7 +7,7 @@ from linguistic_tests.run_sprouse_tests import plot_all_phenomena
 from linguistic_tests.run_sprouse_tests import plot_results
 from linguistic_tests.run_sprouse_tests import run_sprouse_test
 from linguistic_tests.run_sprouse_tests import run_sprouse_test_helper
-from linguistic_tests.run_sprouse_tests import run_sprouse_tests
+from linguistic_tests.run_sprouse_tests import score_sprouse_testsets
 
 
 class TestRunSprouseTests(TestCase):
@@ -38,7 +38,7 @@ class TestRunSprouseTests(TestCase):
 
     @pytest.mark.skip("todo")
     def test_run_sprouse_tests(self):
-        run_sprouse_tests()
+        score_sprouse_testsets()
         raise NotImplementedError
 
     def test_get_dd_score(self):
