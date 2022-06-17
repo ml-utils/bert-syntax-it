@@ -46,6 +46,18 @@ class ScoringMeasures(StrEnum):
     PenLP = "log_probability_normalized_by_sentence_lenght_penalty"
     PenNormLogits = "PenNormLogits"
 
+    def __eq__(self, b):
+
+        return (
+            self is b
+            or self.name == b
+            or self.name == str(b)
+            or (hasattr(b, "value") and b.value == self.name)
+        )
+
+    def __hash__(self):
+        return hash(self.name)
+
 
 class SprouseSentencesOrder(IntEnum):
     SHORT_NONISLAND = 0

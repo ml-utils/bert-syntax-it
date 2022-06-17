@@ -1,6 +1,7 @@
 import os.path
 
 from linguistic_tests.compute_model_score import get_example_scores
+from linguistic_tests.compute_model_score import print_accuracy_scores
 from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import get_file_root
 from linguistic_tests.lm_utils import DEVICES
@@ -68,10 +69,23 @@ def run_sprouse_tests(
     return scored_testsets
 
 
-def plot_results(scored_testsets, score_name):
+def plot_results(scored_testsets: list[TestSet], score_name):
     fig, axs = plt.subplots(2, 2)
     axs_list = axs.reshape(-1)
     print(f"type axs_list: {type(axs_list)}, {len(axs_list)=}, {axs_list=}")
+
+    preferred_axs_order = {"whether": 0, "complex": 1, "subject": 2, "adjunct": 3}
+    for phenomenon_short_name, preferred_index in preferred_axs_order.items():
+        if (
+            phenomenon_short_name
+            not in scored_testsets[preferred_index].linguistic_phenomenon
+        ):
+            for idx, testset in enumerate(scored_testsets):
+                if phenomenon_short_name in testset.linguistic_phenomenon:
+                    scored_testsets.remove(testset)
+                    scored_testsets.insert(preferred_index, testset)
+                    break
+
     for scored_testset, ax in zip(scored_testsets, axs_list):
         _plot_results_subplot(scored_testset, score_name, ax)
 
@@ -96,6 +110,7 @@ def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
     long_nonisland_avg = [1, score_averages[SentenceNames.LONG_NONISLAND]]
     x_values = [short_nonisland_average[0], long_nonisland_avg[0]]
     y_values = [short_nonisland_average[1], long_nonisland_avg[1]]
+    # ax.set_ylim([-32.5, -26.5])  # todo: set limits as min/max across all testsets
     ax.plot(x_values, y_values, label="non-island structure")
 
     # island line
@@ -134,7 +149,7 @@ def run_sprouse_test(
     #     testset,
     #     sentence_ordering=sentence_ordering,
     # )
-    scored_testset = run_sprouse_test_helper_wdataclasses(
+    scored_testset = score_sprouse_testset(
         model_type,
         model,
         tokenizer,
@@ -146,7 +161,7 @@ def run_sprouse_test(
     return scored_testset
 
 
-def run_sprouse_test_helper_wdataclasses(
+def score_sprouse_testset(
     model_type, model, tokenizer, device, testset: TestSet
 ) -> TestSet:
     for example_idx, example in enumerate(tqdm(testset.examples)):
@@ -205,8 +220,23 @@ def run_sprouse_test_helper_wdataclasses(
         ],
     )
 
-    print(f"Testset accuracy with DDs_with_lp: {testset.accuracy_by_DD_lp}")
-    print(f"Testset accuracy with DDs_with_penlp: {testset.accuracy_by_DD_penlp}")
+    print(f"Testset accuracy with DDs_with_lp: {testset.accuracy_by_DD_lp:%}")
+    print(f"Testset accuracy with DDs_with_penlp: {testset.accuracy_by_DD_penlp:%}")
+
+    for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
+        for (
+            stype_acceptable_sentence
+        ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
+            accurate_count = 0
+            for example_idx, example in enumerate(tqdm(testset.examples)):
+                if example.is_scored_accurately(
+                    scoring_measure, stype_acceptable_sentence
+                ):
+                    accurate_count += 1
+            accuracy = accurate_count / len(testset.examples)
+            testset.accuracy_per_score_type_per_sentence_type[scoring_measure][
+                stype_acceptable_sentence
+            ] = accuracy
 
     return testset
 
@@ -394,6 +424,7 @@ def plot_all_phenomena(phenomena_names, lp_avg_scores):
 def score_testsets(
     model_type: model_types,
     model_name: str,
+    broader_test_type: str,
     testset_root_filenames: list[str] = None,
     testset_dir_path: str = None,
 ):
@@ -417,30 +448,49 @@ def score_testsets(
 
     for scored_testset in scored_testsets:
         scored_testset.model_descr = model_name
-        scored_testset.save_to_picle(
-            scored_testset.linguistic_phenomenon + ".testset.pickle"
+        filename = get_pickle_filename(
+            scored_testset.linguistic_phenomenon,
+            model_name,
+            broader_test_type=broader_test_type,
         )
+        scored_testset.save_to_picle(filename)
 
 
-def load_pickles() -> list[TestSet]:
-    phenomena = [
-        "custom-wh_whether_island",
-        "custom-wh_complex_np_islands",
-        "custom-wh_subject_islands",
-        "custom-wh_adjunct_islands",
-    ]
+def get_pickle_filename(
+    linguistic_phenomenon,
+    model_name,
+    broader_test_type,
+):
+    filename = (
+        f"{broader_test_type}_"
+        f"{linguistic_phenomenon}_"
+        f"{model_name.replace('/', '_')}.testset.pickle"
+    )
+    return filename
+
+
+def load_pickles(phenomena, model_name, broader_test_type) -> list[TestSet]:
+    # phenomena = [
+    #     "custom-wh_whether_island",
+    #     "custom-wh_complex_np_islands",
+    #     "custom-wh_subject_islands",
+    #     "custom-wh_adjunct_islands",
+    # ]
     loaded_testsets = []
     for phenomenon in phenomena:
-        loaded_testset = load_testset_from_pickle(phenomenon + ".testset.pickle")
+        filename = get_pickle_filename(phenomenon, model_name, broader_test_type)
+        loaded_testset = load_testset_from_pickle(filename)
         loaded_testsets.append(loaded_testset)
 
     return loaded_testsets
 
 
-def load_and_plot_pickle(loaded_testsets=None):
+def load_and_plot_pickle(
+    phenomena, model_name, broader_test_type, loaded_testsets=None
+):
 
     if loaded_testsets is None:
-        loaded_testsets = load_pickles()
+        loaded_testsets = load_pickles(phenomena, model_name, broader_test_type)
 
     plot_testsets(loaded_testsets)
 
@@ -450,10 +500,12 @@ def plot_testsets(scored_testsets):
     plot_results(scored_testsets, ScoringMeasures.PenLP.name)
 
 
-def print_sorted_sentences_to_check_spelling_errors2(score_descr, loaded_testsets=None):
+def print_sorted_sentences_to_check_spelling_errors2(
+    score_descr, phenomena, model_name, broader_test_type, loaded_testsets=None
+):
 
     if loaded_testsets is None:
-        loaded_testsets = load_pickles()
+        loaded_testsets = load_pickles(phenomena, model_name, broader_test_type)
 
     for testset in loaded_testsets:
         print(
@@ -472,11 +524,13 @@ def print_sorted_sentences_to_check_spelling_errors2(score_descr, loaded_testset
             )
 
 
-def print_sorted_sentences_to_check_spelling_errors(score_descr, loaded_testsets=None):
+def print_sorted_sentences_to_check_spelling_errors(
+    score_descr, phenomena, model_name, broader_test_type, loaded_testsets=None
+):
     print("printing sorted_sentences_to_check_spelling_errors")
 
     if loaded_testsets is None:
-        loaded_testsets = load_pickles()
+        loaded_testsets = load_pickles(phenomena, model_name, broader_test_type)
 
     for testset in loaded_testsets:
         print(
@@ -496,9 +550,17 @@ def print_sorted_sentences_to_check_spelling_errors(score_descr, loaded_testsets
                 )
 
 
-def print_examples_compare_diff(score_descr, sent_type1, sent_type2, testsets=None):
+def print_examples_compare_diff(
+    score_descr,
+    sent_type1,
+    sent_type2,
+    phenomena,
+    model_name,
+    broader_test_type,
+    testsets=None,
+):
     if testsets is None:
-        testsets = load_pickles()
+        testsets = load_pickles(phenomena, model_name, broader_test_type)
 
     max_testsets = 4
     for testset in testsets[:max_testsets]:
@@ -528,12 +590,35 @@ def print_examples_compare_diff(score_descr, sent_type1, sent_type2, testsets=No
 
 
 def main():
-    model_type = (
-        model_types.GEPPETTO  # model_types.BERT  #
-    )  # model_types.GPT # model_types.ROBERTA  #
-    model_name = "LorenzoDeMattei/GePpeTto"  # "dbmdz/bert-base-italian-xxl-cased"  #
+
+    # todo: enable command line arguments to choose which models to run
+    # runs_args = []
+    # run_args0 = {"model_type": }
+
+    # add score with logistic function (instead of softmax)
+
+    # todo: check that accuracy values are scored and stored correctly
+    #  (it seems they are scored twice and not shown when loading pickles)
+    # save results to csv (for import in excel table)
+    # autosave plots as *.png
+
+    # todo: make a list with all the models to test and run them
+    # Bert (dbmdz/bert-base-italian-xxl-cased)
+    # GePpeTto
+    # GilBERTo (idb-ita/gilberto-uncased-from-camembert)
+
+    model_type1 = model_types.GEPPETTO
+    model_type2 = model_types.BERT  # model_types.GPT # model_types.ROBERTA  #
+    model_type3 = model_types.GILBERTO
+    model_types_to_run = [model_type1, model_type2, model_type3]
+
+    model_name1 = "LorenzoDeMattei/GePpeTto"
+    model_name2 = "dbmdz/bert-base-italian-xxl-cased"
+    model_name3 = "idb-ita/gilberto-uncased-from-camembert"
+    model_names = [model_name1, model_name2, model_name3]
+
     # "bert-base-uncased"  # "gpt2-large"  # "roberta-large" # "bert-large-uncased"  #
-    tests_subdir = "sprouse/"  # "syntactic_tests_it/"
+    tests_subdir = "sprouse/"  # "syntactic_tests_it/"  #
     testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
     sprouse_testsets_root_filenames = [  # 'rc_adjunct_island',
@@ -548,46 +633,88 @@ def main():
         # "wh_complex_np_islands",
         # "wh_whether_island",
         # "wh_subject_islands",
-        "custom-wh_adjunct_islands",
-        "custom-wh_complex_np_islands",
-        "custom-wh_whether_island",
-        "custom-wh_subject_islands",
+        "wh_whether_island",
+        "wh_complex_np_islands",
+        "wh_subject_islands",
+        "wh_adjunct_islands",
     ]
     if tests_subdir == "syntactic_tests_it/":
         testsets_root_filenames = custom_it_island_testsets_root_filenames
+        broader_test_type = "it_tests"
     elif tests_subdir == "sprouse/":
         testsets_root_filenames = sprouse_testsets_root_filenames
-    score_testsets(
-        model_type,
-        model_name,
-        testset_root_filenames=testsets_root_filenames,
-        testset_dir_path=testset_dir_path,
-    )
+        broader_test_type = "sprouse"
 
-    loaded_testsets = load_pickles()
-    score_descr = ScoringMeasures.PenLP.name
-    print_sorted_sentences_to_check_spelling_errors2(score_descr, loaded_testsets)
-    print_sorted_sentences_to_check_spelling_errors(score_descr, loaded_testsets)
+    for model_type, model_name in zip(model_types_to_run, model_names):
+        score_testsets(
+            model_type,
+            model_name,
+            broader_test_type=broader_test_type,
+            testset_root_filenames=testsets_root_filenames,
+            testset_dir_path=testset_dir_path,
+        )
 
-    print_examples_compare_diff(
-        score_descr,
-        SentenceNames.SHORT_ISLAND,
-        SentenceNames.LONG_ISLAND,
-        testsets=loaded_testsets,
-    )
-    print_examples_compare_diff(
-        score_descr,
-        SentenceNames.LONG_NONISLAND,
-        SentenceNames.LONG_ISLAND,
-        testsets=loaded_testsets,
-    )
-    print_examples_compare_diff(
-        score_descr,
-        SentenceNames.SHORT_NONISLAND,
-        SentenceNames.SHORT_ISLAND,
-        testsets=loaded_testsets,
-    )
-    load_and_plot_pickle(testsets=loaded_testsets)
+        loaded_testsets = load_pickles(
+            testsets_root_filenames, model_name, broader_test_type
+        )
+
+        print("Printing accuracy scores..")
+        for scored_testset in loaded_testsets:
+            print_accuracy_scores(scored_testset)
+
+        # print results in table format for the doc report
+
+        score_descr = ScoringMeasures.PenLP.name
+
+        print_sorted_sentences_to_check_spelling_errors2(
+            score_descr,
+            testsets_root_filenames,
+            model_name,
+            broader_test_type,
+            loaded_testsets,
+        )
+        print_sorted_sentences_to_check_spelling_errors(
+            score_descr,
+            testsets_root_filenames,
+            model_name,
+            broader_test_type,
+            loaded_testsets,
+        )
+
+        print_examples_compare_diff(
+            score_descr,
+            SentenceNames.SHORT_ISLAND,
+            SentenceNames.LONG_ISLAND,
+            testsets_root_filenames,
+            model_name,
+            broader_test_type,
+            testsets=loaded_testsets,
+        )
+        print_examples_compare_diff(
+            score_descr,
+            SentenceNames.LONG_NONISLAND,
+            SentenceNames.LONG_ISLAND,
+            testsets_root_filenames,
+            model_name,
+            broader_test_type,
+            testsets=loaded_testsets,
+        )
+        print_examples_compare_diff(
+            score_descr,
+            SentenceNames.SHORT_NONISLAND,
+            SentenceNames.SHORT_ISLAND,
+            testsets_root_filenames,
+            model_name,
+            broader_test_type,
+            testsets=loaded_testsets,
+        )
+
+        load_and_plot_pickle(
+            testsets_root_filenames,
+            model_name,
+            broader_test_type,
+            loaded_testsets=loaded_testsets,
+        )
 
     # todo:
     #  sort and print examples by DD value

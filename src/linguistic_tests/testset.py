@@ -208,6 +208,7 @@ class TestSet:
 
 
 def load_testset_from_pickle(filename) -> TestSet:
+    print(f"Loading {filename}..")
     with open(filename, "rb") as file:
         data = pickle.load(file)
     return data
