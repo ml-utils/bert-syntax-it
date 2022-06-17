@@ -10,6 +10,7 @@ from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.lm_utils import sentence_score_bases
 from linguistic_tests.lm_utils import special_tokens
+from scipy.special import expit as logistic
 from scipy.special import softmax
 from transformers import BertForMaskedLM
 from transformers import BertForMaskedLM as BertPreTrainedModel
@@ -359,9 +360,13 @@ def get_topk(
     masked_word_idx,
     k=5,
 ):
-    (res, res_softmax, res_normalized, logits_shifted_above_zero) = get_bert_output(
-        bert, tokenizer, sentence_ids, masked_word_idx
-    )
+    (
+        res,
+        res_softmax,
+        res_logistic,
+        res_normalized,
+        logits_shifted_above_zero,
+    ) = get_bert_output(bert, tokenizer, sentence_ids, masked_word_idx)
     topk_probs_nonsoftmax = torch.topk(res_normalized, k)
     topk_tokens, topk_probs = get_topk_tokens_from_bert_output(
         res_softmax, tokenizer, k
@@ -386,25 +391,28 @@ def get_bert_output(
 ):
     # todo: check that masked_word_idx remains correct when some words are
     #  split (and therefore there are more tokens than words)
-    tens = torch.LongTensor(sentence_ids).unsqueeze(0)
+    sentence_ids_as_tensor = torch.LongTensor(sentence_ids).unsqueeze(0)
 
-    res_unsliced = bert(tens)
+    bert_out = bert(sentence_ids_as_tensor)
+    if isinstance(bert_out, MaskedLMOutput):
+        logits = bert_out.logits
+    else:
+        logits = bert_out
 
-    if isinstance(res_unsliced, MaskedLMOutput):
-        res_unsliced = res_unsliced.logits
     # print(f'masked_word_idx: {masked_word_idx}, {type(res_unsliced)=}')
     # masked_word_idx: 1, type(res_unsliced):
     # <class 'transformers.modeling_outputs.MaskedLMOutput'>
     # masked_word_idx: 5, type(res_unsliced): <class 'torch.Tensor'>
     # type(res_unsliced):
     # <class 'transformers.modeling_outputs.CausalLMOutputWithCrossAttentions'>
-    res = res_unsliced[0, masked_word_idx]
+    res = logits[0, masked_word_idx]
 
     # todo: produce probabilities not with softmax (not using an exponential,
     #  to avoiding the maximization of top results),
     #  then compare these probailities with the softmax ones, expecially for
     #  ungrammatical sentences
     res_softmax = softmax(res.detach(), -1)
+    res_logistic = logistic(res.detach())
 
     logits_min = torch.min(res.detach())
     logits_shifted_from_zero = torch.subtract(res.detach(), logits_min)
@@ -412,15 +420,15 @@ def get_bert_output(
     res_normalized = torch.div(logits_shifted_from_zero, logits_sum)
 
     if verbose:
-        print(f"tens size {tens.size()}")
-        print(f"res_unsliced size {res_unsliced.size()}")
+        print(f"tens size {sentence_ids_as_tensor.size()}")
+        print(f"res_unsliced size {logits.size()}")
         print(f"res size {res.size()}")
         print(f"res_softmax size {res_softmax.size()}")
         print(f"res_normalized size {res_normalized.size()}")
 
     # RuntimeError: Can't call numpy() on Tensor that requires grad.
     # Use tensor.detach().numpy() instead.
-    return res, res_softmax, res_normalized, logits_shifted_from_zero
+    return res, res_softmax, res_logistic, res_normalized, logits_shifted_from_zero
 
 
 def convert_ids_to_tokens(tokenizer: BertTokenizer, ids):
@@ -603,9 +611,13 @@ def get_sentence_probs_from_word_ids(
     normalized_prob, normalized
     :return:
     """
-    logits, res_softmax, res_normalized, logits_shifted_above_zero = get_bert_output(
-        bert, tokenizer, sentence_ids, masked_word_idx
-    )
+    (
+        logits,
+        res_softmax,
+        res_logistic,
+        res_normalized,
+        logits_shifted_above_zero,
+    ) = get_bert_output(bert, tokenizer, sentence_ids, masked_word_idx)
 
     topk_tokens, top_probs = get_topk_tokens_from_bert_output(
         res_softmax, tokenizer, k=10

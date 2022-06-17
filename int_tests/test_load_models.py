@@ -53,6 +53,7 @@ class TestLoadModels(TestCase):
         (
             logits,
             res_softmax,
+            res_logistic,
             res_normalized,
             logits_shifted_above_zero,
         ) = get_bert_output(
@@ -105,6 +106,7 @@ class TestLoadModels(TestCase):
         (
             logits,
             res_softmax,
+            res_logistic,
             res_normalized,
             logits_shifted_above_zero,
         ) = get_bert_output(

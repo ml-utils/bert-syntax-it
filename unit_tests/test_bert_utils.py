@@ -138,17 +138,23 @@ class TestBertUtils(TestCase):
         # sentence = "Ha detto che il libro di ***mask*** ha 300 pagine."
         # tokens_list = ["He", "said", "the", "[MASK]", "book", "has", "300", "pages"]
         sentence_ids = [CLS_ID, 555, 556, 557, MASK_ID, 558, 559, 560, 561, SEP_ID]
-        tokens_count = len(sentence_ids)
+        sentence_tokens_count = len(sentence_ids)
         masked_word_idx = 4
 
         # bert output is a MaskedLMOutput
         vocab_size = 1000
-        logits = torch.rand(1, tokens_count, vocab_size)
+        # why there is one value for each token in the sentence, instead of just for the masked word(s)?
+        # check if for the non masked words they are all zeros
+        logits = torch.rand(1, sentence_tokens_count, vocab_size)
         output_m.logits = logits
 
-        (res, res_softmax, res_normalized, logits_shifted_above_zero) = get_bert_output(
-            model_m, tokenizer_m, sentence_ids, masked_word_idx
-        )
+        (
+            res,
+            res_softmax,
+            res_logistic,
+            res_normalized,
+            logits_shifted_above_zero,
+        ) = get_bert_output(model_m, tokenizer_m, sentence_ids, masked_word_idx)
 
         assert isinstance(res, torch.Tensor)
         # assert res.shape == (k,)

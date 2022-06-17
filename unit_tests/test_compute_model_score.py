@@ -38,7 +38,7 @@ class TestComputeModelScore(TestCase):
     # @pytest.mark.skip("todo")
     def test_get_example_scores(self):
 
-        # todo: test for bert (logitis) and gpt (softmax only)
+        # todo: test for bert (logits) and gpt (softmax only)
 
         sentence_tokens = [
             "Chi",
