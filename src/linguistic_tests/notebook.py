@@ -153,6 +153,7 @@ def main():
             model_name=model_name,
             testset_filenames=testset_filenames,
             testset_dir_path=testset_dir_path,
+            examples_format="json_lines",
             max_examples=1000,
         )
         for scored_testset in scored_testsets:
