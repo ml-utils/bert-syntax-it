@@ -167,8 +167,7 @@ def run_sprouse_test(
         device,
         parsed_testset,
     )
-    lp_averages = scored_testset.lp_average_by_sentence_type
-    print(f"{lp_averages=}")
+
     return scored_testset
 
 
@@ -591,6 +590,9 @@ def print_testset_results(
         print(
             f"Testset accuracy with DDs_with_penlp: {scored_testset.accuracy_by_DD_penlp:%}"
         )
+
+        lp_averages = scored_testset.lp_average_by_sentence_type
+        print(f"{lp_averages=}")
 
     score_descr = ScoringMeasures.PenLP.name
 
