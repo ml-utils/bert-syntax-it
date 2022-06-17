@@ -89,7 +89,7 @@ class TestRunTestSets(TestCase):
         import tqdm
         import json
 
-        model_type = ModelTypes.ROBERTA  # model_types.GPT  #
+        model_type = ModelTypes.ROBERTA  # ModelTypes.GPT  #
         model_name = "roberta-large"  # "roberta-base" #"gpt2-medium"
         # "gpt2-large"  # 'gpt2' #  "bert-large-uncased"
         model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)

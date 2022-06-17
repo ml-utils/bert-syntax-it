@@ -26,7 +26,7 @@ model_names_it = {
     ModelTypes.GEPPETTO: "LorenzoDeMattei/GePpeTto",
     ModelTypes.BERT: "dbmdz/bert-base-italian-xxl-cased",
     ModelTypes.GILBERTO: "idb-ita/gilberto-uncased-from-camembert",
-}  # model_types.GPT # model_types.ROBERTA  #
+}  # ModelTypes.GPT # ModelTypes.ROBERTA  #
 
 model_names_en = {
     ModelTypes.BERT: "bert-base-uncased",  # "bert-large-uncased"  #

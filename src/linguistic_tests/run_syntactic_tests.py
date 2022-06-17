@@ -96,7 +96,7 @@ def run_tests_for_model_type(model_type):
 
     # run_syntactic_tests_it_legacy_impl(model_type)
 
-    # if model_type == model_types.GPT:
+    # if model_type == ModelTypes.GPT:
     #    print('importing gpt_tests..')
     #     from gpt_tests import main as main2
     #    print('imported.')

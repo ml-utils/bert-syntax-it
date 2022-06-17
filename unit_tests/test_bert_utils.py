@@ -333,7 +333,7 @@ class TestBertUtils(TestCase):
                         bert_sentence_lp_expected, bert_sentence_lp_actual, 4
                     )
 
-                # gpt_sentence_lp_expected, _ = get_sentence_score_JHLau(model_types.GPT, gpt_model, gpt_tokenizer,
+                # gpt_sentence_lp_expected, _ = get_sentence_score_JHLau(ModelTypes.GPT, gpt_model, gpt_tokenizer,
                 #                                                    gpt_tokenized_sentence, device=None)
 
 
