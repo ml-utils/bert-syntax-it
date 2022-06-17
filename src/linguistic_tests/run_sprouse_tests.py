@@ -33,6 +33,24 @@ model_names_en = {
     model_types.ROBERTA: "roberta-large",
 }
 
+sprouse_testsets_root_filenames = [  # 'rc_adjunct_island',
+    # 'rc_complex_np', 'rc_subject_island', 'rc_wh_island', # fixme: rc_wh_island empty file
+    "wh_adjunct_island",
+    "wh_complex_np",
+    "wh_subject_island",
+    "wh_whether_island",
+]
+custom_it_island_testsets_root_filenames = [
+    # "wh_adjunct_islands",
+    # "wh_complex_np_islands",
+    # "wh_whether_island",
+    # "wh_subject_islands",
+    "wh_whether_island",
+    "wh_complex_np_islands",
+    "wh_subject_islands",
+    "wh_adjunct_islands",
+]
+
 # todo: parse the csv file
 # 4 sentences for each examples (long vs short, island vs non island)
 # turn into 3 examples: island long vs the other 3 sentences
@@ -607,8 +625,8 @@ def main():
         help=f"specify the models to run. { {i.name: i.value for i in model_types} }",
         nargs="+",  # 0 or more values expected => creates a list
         type=int,
-        choices=[i.value for i in model_types],
-        default=[i.value for i in model_types],
+        choices=[i.value for i in model_names_it.keys()],
+        default=[i.value for i in model_names_it.keys()],
     )
     args = arg_parser.parse_args()
     model_types_to_run = [
@@ -616,33 +634,10 @@ def main():
     ]
     print(f"Will run tests with models: {model_types_to_run=}")
 
-    # add score with logistic function (instead of softmax)
-
-    # todo: check that accuracy values are scored and stored correctly
-    #  (it seems they are scored twice and not shown when loading pickles)
-    # save results to csv (for import in excel table)
-    # autosave plots as *.png
-
+    # todo: also add command line option for tests subdir path
     tests_subdir = "sprouse/"  # "syntactic_tests_it/"  #
     testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
-    sprouse_testsets_root_filenames = [  # 'rc_adjunct_island',
-        # 'rc_complex_np', 'rc_subject_island', 'rc_wh_island', # fixme: rc_wh_island empty file
-        "wh_adjunct_island",
-        "wh_complex_np",
-        "wh_subject_island",
-        "wh_whether_island",
-    ]
-    custom_it_island_testsets_root_filenames = [
-        # "wh_adjunct_islands",
-        # "wh_complex_np_islands",
-        # "wh_whether_island",
-        # "wh_subject_islands",
-        "wh_whether_island",
-        "wh_complex_np_islands",
-        "wh_subject_islands",
-        "wh_adjunct_islands",
-    ]
     if tests_subdir == "syntactic_tests_it/":
         testsets_root_filenames = custom_it_island_testsets_root_filenames
         broader_test_type = "it_tests"
@@ -651,6 +646,14 @@ def main():
         broader_test_type = "sprouse"
 
     for model_type in model_types_to_run:
+
+        # add score with logistic function (instead of softmax)
+
+        # todo: check that accuracy values are scored and stored correctly
+        #  (it seems they are scored twice and not shown when loading pickles)
+        # save results to csv (for import in excel table)
+        # autosave plots as *.png
+
         score_testsets(
             model_type,
             model_names_it[model_type],
