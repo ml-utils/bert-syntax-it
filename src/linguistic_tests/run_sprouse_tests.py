@@ -1,4 +1,5 @@
 import os.path
+from typing import List
 
 from linguistic_tests.compute_model_score import get_example_scores
 from linguistic_tests.compute_model_score import print_accuracy_scores
@@ -616,6 +617,76 @@ def print_examples_compare_diff(
             )
 
 
+def print_testset_results(
+    scored_testsets: List[TestSet],
+    broader_test_type: str,
+    model_type: model_types,
+    testsets_root_filenames: List[str],
+):
+    print("Printing accuracy scores..")
+    for scored_testset in scored_testsets:
+        # todo: also print results in table format or csv for excel export or word doc report
+        print_accuracy_scores(scored_testset)
+        print(
+            f"Testset accuracy with DDs_with_lp: {scored_testset.accuracy_by_DD_lp:%}"
+        )
+        print(
+            f"Testset accuracy with DDs_with_penlp: {scored_testset.accuracy_by_DD_penlp:%}"
+        )
+
+    score_descr = ScoringMeasures.PenLP.name
+
+    print_sorted_sentences_to_check_spelling_errors2(
+        score_descr,
+        testsets_root_filenames,
+        model_names_it[model_type],
+        broader_test_type,
+        scored_testsets,
+    )
+    print_sorted_sentences_to_check_spelling_errors(
+        score_descr,
+        testsets_root_filenames,
+        model_names_it[model_type],
+        broader_test_type,
+        scored_testsets,
+    )
+
+    print_examples_compare_diff(
+        score_descr,
+        SentenceNames.SHORT_ISLAND,
+        SentenceNames.LONG_ISLAND,
+        testsets_root_filenames,
+        model_names_it[model_type],
+        broader_test_type,
+        testsets=scored_testsets,
+    )
+    print_examples_compare_diff(
+        score_descr,
+        SentenceNames.LONG_NONISLAND,
+        SentenceNames.LONG_ISLAND,
+        testsets_root_filenames,
+        model_names_it[model_type],
+        broader_test_type,
+        testsets=scored_testsets,
+    )
+    print_examples_compare_diff(
+        score_descr,
+        SentenceNames.SHORT_NONISLAND,
+        SentenceNames.SHORT_ISLAND,
+        testsets_root_filenames,
+        model_names_it[model_type],
+        broader_test_type,
+        testsets=scored_testsets,
+    )
+
+    load_and_plot_pickle(
+        testsets_root_filenames,
+        model_names_it[model_type],
+        broader_test_type,
+        loaded_testsets=scored_testsets,
+    )
+
+
 def main():
     import argparse
 
@@ -632,7 +703,7 @@ def main():
     model_types_to_run = [
         model_types(model_type_int) for model_type_int in args.model_types
     ]
-    print(f"Will run tests with models: {model_types_to_run=}")
+    print(f"Will run tests with models: {model_types_to_run}")
 
     # todo: also add command line option for tests subdir path
     tests_subdir = "sprouse/"  # "syntactic_tests_it/"  #
@@ -666,79 +737,17 @@ def main():
             testsets_root_filenames, model_names_it[model_type], broader_test_type
         )
 
-        print("Printing accuracy scores..")
-        for scored_testset in loaded_testsets:
-            # todo: also print results in table format or csv for excel export or word doc report
-            print_accuracy_scores(scored_testset)
-            print(
-                f"Testset accuracy with DDs_with_lp: {scored_testset.accuracy_by_DD_lp:%}"
-            )
-            print(
-                f"Testset accuracy with DDs_with_penlp: {scored_testset.accuracy_by_DD_penlp:%}"
-            )
-
-        score_descr = ScoringMeasures.PenLP.name
-
-        print_sorted_sentences_to_check_spelling_errors2(
-            score_descr,
-            testsets_root_filenames,
-            model_names_it[model_type],
-            broader_test_type,
-            loaded_testsets,
-        )
-        print_sorted_sentences_to_check_spelling_errors(
-            score_descr,
-            testsets_root_filenames,
-            model_names_it[model_type],
-            broader_test_type,
-            loaded_testsets,
-        )
-
-        print_examples_compare_diff(
-            score_descr,
-            SentenceNames.SHORT_ISLAND,
-            SentenceNames.LONG_ISLAND,
-            testsets_root_filenames,
-            model_names_it[model_type],
-            broader_test_type,
-            testsets=loaded_testsets,
-        )
-        print_examples_compare_diff(
-            score_descr,
-            SentenceNames.LONG_NONISLAND,
-            SentenceNames.LONG_ISLAND,
-            testsets_root_filenames,
-            model_names_it[model_type],
-            broader_test_type,
-            testsets=loaded_testsets,
-        )
-        print_examples_compare_diff(
-            score_descr,
-            SentenceNames.SHORT_NONISLAND,
-            SentenceNames.SHORT_ISLAND,
-            testsets_root_filenames,
-            model_names_it[model_type],
-            broader_test_type,
-            testsets=loaded_testsets,
-        )
-
-        load_and_plot_pickle(
-            testsets_root_filenames,
-            model_names_it[model_type],
-            broader_test_type,
-            loaded_testsets=loaded_testsets,
+        print_testset_results(
+            loaded_testsets, broader_test_type, model_type, testsets_root_filenames
         )
 
     # todo:
-    #  sort and print examples by DD value
-    # ..
-    # show the examples with ..
     # plot with 7+1x7 subplots of a testset (one subplot for each example)
-    # ..
+
+    # todo:
     # normalize sentence/tokens scores for Bert models, to have scores comparables across a whole testset
     #
     # normalize results to a likert scale, for comparison with Sprouse et al 2016
-    #
 
 
 if __name__ == "__main__":
