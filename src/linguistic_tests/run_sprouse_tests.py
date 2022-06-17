@@ -220,9 +220,6 @@ def score_sprouse_testset(
         ],
     )
 
-    print(f"Testset accuracy with DDs_with_lp: {testset.accuracy_by_DD_lp:%}")
-    print(f"Testset accuracy with DDs_with_penlp: {testset.accuracy_by_DD_penlp:%}")
-
     for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
         for (
             stype_acceptable_sentence
@@ -660,9 +657,14 @@ def main():
 
         print("Printing accuracy scores..")
         for scored_testset in loaded_testsets:
+            # todo: also print results in table format or csv for excel export or word doc report
             print_accuracy_scores(scored_testset)
-
-        # print results in table format for the doc report
+            print(
+                f"Testset accuracy with DDs_with_lp: {scored_testset.accuracy_by_DD_lp:%}"
+            )
+            print(
+                f"Testset accuracy with DDs_with_penlp: {scored_testset.accuracy_by_DD_penlp:%}"
+            )
 
         score_descr = ScoringMeasures.PenLP.name
 
