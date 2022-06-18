@@ -3,6 +3,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import pytest
+from linguistic_tests.compute_model_score import logistic2
 from linguistic_tests.compute_model_score import run_testset
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
@@ -218,3 +219,51 @@ class TestRunTestSets(TestCase):
                     testset_data,
                     sentences_per_example,
                 )
+
+    @pytest.mark.skip("todo")
+    def test_model_outputs(self):
+        # plot the whole nd array of a model logits output
+        # sort the values (np.sort) and use the index for the x-axis
+
+        # todo: load a model
+        # tokenize a sentence and pass it as input
+        raise NotImplementedError
+
+    def plot_logistic2(self):
+        import matplotlib.pyplot as plt
+        import numpy as np
+
+        # 100 linearly spaced numbers
+        x = np.linspace(-30, 30, 1000)
+
+        # the function, which is y = x^2 here
+        y = logistic2(x)
+
+        # setting the axes at the centre
+        # fig = plt.figure()
+        # ax = fig.add_subplot(1, 1, 1)
+        # ax.spines['left'].set_position('center')
+        # ax.spines['bottom'].set_position('zero')
+        # ax.spines['right'].set_color('none')
+        # ax.spines['top'].set_color('none')
+        # ax.xaxis.set_ticks_position('bottom')
+        # ax.yaxis.set_ticks_position('left')
+
+        plt.xlim((-20, 20))
+
+        # plot the function
+        plt.plot(x, y, label="default")
+
+        y_k_05 = logistic2(x, k=0.5)
+        plt.plot(x, y_k_05, label="y_k_05")
+
+        y_k_025 = logistic2(x, k=0.25)
+        plt.plot(x, y_k_025, label="y_k_025")
+
+        y_k_010 = logistic2(x, k=0.1)
+        plt.plot(x, y_k_010, label="y_k_010")
+
+        # show the plot
+
+        plt.legend()
+        plt.show()

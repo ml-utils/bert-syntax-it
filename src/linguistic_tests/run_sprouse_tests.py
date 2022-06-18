@@ -421,18 +421,26 @@ def load_pickles(phenomena, model_name, broader_test_type) -> list[TestSet]:
 
 
 def load_and_plot_pickle(
-    phenomena, model_name, broader_test_type, loaded_testsets=None
+    phenomena,
+    model_name,
+    broader_test_type,
+    model_type: ModelTypes,
+    loaded_testsets=None,
 ):
 
     if loaded_testsets is None:
         loaded_testsets = load_pickles(phenomena, model_name, broader_test_type)
 
-    plot_testsets(loaded_testsets)
+    plot_testsets(loaded_testsets, model_type)
 
 
-def plot_testsets(scored_testsets):
+def plot_testsets(scored_testsets: List[TestSet], model_type: ModelTypes):
     plot_results(scored_testsets, ScoringMeasures.LP.name)
     plot_results(scored_testsets, ScoringMeasures.PenLP.name)
+
+    if model_type in BERT_LIKE_MODEL_TYPES:
+        plot_results(scored_testsets, ScoringMeasures.LL.name)
+        plot_results(scored_testsets, ScoringMeasures.PLL.name)
 
 
 def print_sorted_sentences_to_check_spelling_errors2(
@@ -606,6 +614,7 @@ def print_testset_results(
         testsets_root_filenames,
         model_names_it[model_type],
         broader_test_type,
+        model_type,
         loaded_testsets=scored_testsets,
     )
 

@@ -11,6 +11,7 @@ from linguistic_tests import compute_model_score
 from linguistic_tests.compute_model_score import count_accurate_in_example
 from linguistic_tests.compute_model_score import get_example_scores
 from linguistic_tests.compute_model_score import get_sentence_score_JHLau
+from linguistic_tests.compute_model_score import logistic2
 from linguistic_tests.compute_model_score import perc
 from linguistic_tests.compute_model_score import reduce_to_log_product
 from linguistic_tests.compute_model_score import run_testset
@@ -337,3 +338,7 @@ class TestComputeModelScore(TestCase):
                 testset,
                 sentences_per_example,
             )
+
+    def test_logistic2(self):
+        assert logistic2(20) > 0.99
+        assert logistic2(-20) < 0.01

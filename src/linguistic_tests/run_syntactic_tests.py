@@ -4,6 +4,7 @@ from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
+from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import ScoringMeasures
 
@@ -62,7 +63,7 @@ def run_blimp_en(
 
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
     for parsed_testset in parsed_testsets:
-        print(
+        print_orange(
             f"Scoring testset {parsed_testset.linguistic_phenomenon}, on {model_type=} {model_name=}"
         )
         parsed_testset.examples = parsed_testset.examples[0:max_examples]

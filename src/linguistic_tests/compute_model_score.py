@@ -10,7 +10,6 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import TestSet
-from scipy.special import expit as logistic
 from scipy.special import softmax
 from tqdm import tqdm
 
@@ -347,8 +346,27 @@ def perc(value, total):
     return 100 * (value / total)
 
 
+def logistic2(x, L=1, x0=0, k=1):
+    r"""
+    A logistic function.
+    :param x:
+    :param L: the curve's maximum value
+    :param x0: the x value of the sigmoid's midpoint
+    :param k: the logistic growth rate or steepness of the curve
+    :return:
+    """
+    exponent = -k * (x - x0)
+    return L / (1 + np.exp(exponent))
+
+
+def logistic3(x):
+    return logistic2(x, k=0.25)
+
+
 # nb, for bert it uses softmax
-def get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, device):
+def get_sentence_score_JHLau(
+    model_type, model, tokenizer, sentence_tokens, device, verbose=False
+):
     """
 
     :param model_type:
@@ -445,14 +463,27 @@ def get_sentence_score_JHLau(model_type, model, tokenizer, sentence_tokens, devi
                 tokenizer.convert_tokens_to_ids([tokenize_combined[masked_index]])[0]
             ]
             tokens_scores.append(float(token_score))
-            predicted_prob = softmax(predicted_score.cpu().numpy())
+            predicted_scores_numpy = predicted_score.cpu().numpy()
+            predicted_prob = softmax(predicted_scores_numpy)
 
-            logistic_score = logistic(predicted_score.cpu().numpy())
+            logistic_score = logistic3(predicted_scores_numpy)
+
             masked_word_id = tokenizer.convert_tokens_to_ids(
                 [tokenize_combined[masked_index]]
             )[0]
             lp += np.log(predicted_prob[masked_word_id])
             log_logistic += np.log(logistic_score[masked_word_id])
+            # verbose=True
+            if verbose:
+                print(
+                    f"masked word  scores: "
+                    f"{predicted_scores_numpy[masked_word_id]=}, "
+                    f"{logistic_score[masked_word_id]=}, "
+                    f"{predicted_prob[masked_word_id]=}, "
+                    f"{np.log(logistic_score[masked_word_id])=}, "
+                    f"{np.log(predicted_prob[masked_word_id])=}, "
+                    f"({tokenize_combined[masked_index]})"
+                )
         return lp, log_logistic, tokens_scores
     else:
         raise ValueError(f"Error: unrecognized model type {model_type}")

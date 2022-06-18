@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 import torch
+from linguistic_tests.compute_model_score import logistic3
 from linguistic_tests.lm_utils import get_pen_score
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import print_orange
@@ -10,7 +11,6 @@ from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.lm_utils import sentence_score_bases
 from linguistic_tests.lm_utils import special_tokens
-from scipy.special import expit as logistic
 from scipy.special import softmax
 from transformers import BertForMaskedLM
 from transformers import BertForMaskedLM as BertPreTrainedModel
@@ -430,7 +430,7 @@ def get_bert_output(
     #  then compare these probailities with the softmax ones, expecially for
     #  ungrammatical sentences
     res_softmax = softmax(res.detach(), -1)
-    res_logistic = logistic(res.detach())
+    res_logistic = logistic3(res.detach())
 
     logits_min = torch.min(res.detach())
     logits_shifted_from_zero = torch.subtract(res.detach(), logits_min)

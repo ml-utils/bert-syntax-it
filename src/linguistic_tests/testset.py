@@ -196,6 +196,10 @@ class TestSet:
             return self.avg_DD_lp
         elif scoring_measure == ScoringMeasures.PenLP:
             return self.avg_DD_penlp
+        elif scoring_measure == ScoringMeasures.LL:
+            return self.avg_DD_ll
+        elif scoring_measure == ScoringMeasures.PLL:
+            return self.avg_DD_penll
         else:
             raise ValueError(f"Unexpected scoring_measure: {scoring_measure}")
 
