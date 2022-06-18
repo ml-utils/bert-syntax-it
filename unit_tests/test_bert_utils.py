@@ -328,7 +328,7 @@ class TestBertUtils(TestCase):
                 )
                 bert_tokenized_sentence = bert_tokenizer.tokenize(sentence)
                 # gpt_text_len = len(gpt_tokenized_sentence)
-                bert_sentence_lp_expected, _ = get_sentence_score_JHLau(
+                bert_sentence_lp_expected, _, _ = get_sentence_score_JHLau(
                     ModelTypes.BERT,
                     bert_model,
                     bert_tokenizer,

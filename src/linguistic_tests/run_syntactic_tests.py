@@ -1,9 +1,11 @@
 from linguistic_tests.bert_utils import estimate_sentence_probability
 from linguistic_tests.compute_model_score import score_dataclass_testset
 from linguistic_tests.file_utils import parse_testsets
+from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import print_red
+from linguistic_tests.lm_utils import ScoringMeasures
 
 
 def run_tests_goldberg():
@@ -24,11 +26,13 @@ def run_tests_lau_et_al():
     return 0
 
 
-def print_detailed_sentence_info(bert, tokenizer, sentence_txt):
+def print_detailed_sentence_info(bert, tokenizer, sentence_txt, scorebase):
     print_red(f"printing details for sentence {sentence_txt}")
     tokens = tokenizer.tokenize(sentence_txt)
     sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
-    estimate_sentence_probability(bert, tokenizer, sentence_ids, verbose=True)
+    estimate_sentence_probability(
+        bert, tokenizer, sentence_ids, scorebase, verbose=True
+    )
 
 
 def run_blimp_en(
@@ -40,12 +44,19 @@ def run_blimp_en(
     max_examples=1000,
 ):
     sent_types_descr = "blimp"
+
+    scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+    if model_type in BERT_LIKE_MODEL_TYPES:
+        scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
+
     parsed_testsets = parse_testsets(
         testset_dir_path,
         testset_filenames,
         examples_format,
         sent_types_descr,
         model_name,
+        model_type,
+        scoring_measures,
         max_examples=1000,
     )
 

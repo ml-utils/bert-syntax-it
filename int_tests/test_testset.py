@@ -24,9 +24,19 @@ class TestTestset(TestCase):
         filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
         testset = load_testset_data(filepath, examples_format="sprouse")
         examples_list = testset["sentences"]
-        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        scoring_measures = [
+            ScoringMeasures.LP,
+            ScoringMeasures.PenLP,
+            ScoringMeasures.LL,
+            ScoringMeasures.PLL,
+        ]
         parsed_testset = parse_testset(
-            filename, "some_model", examples_list, "sprouse", scoring_measures
+            filename,
+            ModelTypes.BERT,
+            "some_model",
+            examples_list,
+            "sprouse",
+            scoring_measures,
         )
 
         assert len(parsed_testset.examples) == 2
@@ -42,9 +52,19 @@ class TestTestset(TestCase):
         filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
         testset = load_testset_data(filepath, examples_format="json_lines")
         examples_list = testset["sentences"]
-        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        scoring_measures = [
+            ScoringMeasures.LP,
+            ScoringMeasures.PenLP,
+            ScoringMeasures.LL,
+            ScoringMeasures.PLL,
+        ]
         parsed_testset = parse_testset(
-            filename, "some_model", examples_list, "blimp", scoring_measures
+            filename,
+            ModelTypes.BERT,
+            "some_model",
+            examples_list,
+            "blimp",
+            scoring_measures,
         )
 
         assert len(parsed_testset.examples) == 2
@@ -60,9 +80,19 @@ class TestTestset(TestCase):
         filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
         testset = load_testset_data(filepath, examples_format="blimp")
         examples_list = testset["sentences"]
-        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        scoring_measures = [
+            ScoringMeasures.LP,
+            ScoringMeasures.PenLP,
+            ScoringMeasures.LL,
+            ScoringMeasures.PLL,
+        ]
         parsed_testset = parse_testset(
-            filename, "some_model", examples_list, "sprouse", scoring_measures
+            filename,
+            ModelTypes.BERT,
+            "some_model",
+            examples_list,
+            "sprouse",
+            scoring_measures,
         )
 
         assert len(parsed_testset.examples) == 2
@@ -92,12 +122,20 @@ def test_serialization(tmp_path):
     ]
     p = get_test_data_dir() / "sprouse"
     testset_dir_path = str(p)
+    scoring_measures = [
+        ScoringMeasures.LP,
+        ScoringMeasures.PenLP,
+        ScoringMeasures.LL,
+        ScoringMeasures.PLL,
+    ]
     parsed_testsets = parse_testsets(
         testset_dir_path,
         phenomena,
         "sprouse",
         "sprouse",
         model_name,
+        model_type,
+        scoring_measures,
         max_examples=1000,
     )
     scored_testsets = score_sprouse_testsets(

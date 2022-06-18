@@ -8,6 +8,7 @@ from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import red_txt
+from linguistic_tests.lm_utils import sentence_score_bases
 from linguistic_tests.run_syntactic_tests import print_detailed_sentence_info
 from linguistic_tests.run_syntactic_tests import run_blimp_en
 
@@ -20,6 +21,8 @@ def interactive_mode():
     # todo: list special tokens
 
     # load model than wait for input sentences
+    scorebase = sentence_score_bases.LOGISTIC_FUN
+    print(f"Scores are based on {scorebase=}")
     model_dir = str(
         # get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch"
         get_models_dir()
@@ -86,8 +89,8 @@ def interactive_mode():
 
         # analize both sentences with topk for each masking
         if diff_penLP >= 0:
-            print_detailed_sentence_info(model, tokenizer, good_sentence)
-            print_detailed_sentence_info(model, tokenizer, bad_sentence)
+            print_detailed_sentence_info(model, tokenizer, good_sentence, scorebase)
+            print_detailed_sentence_info(model, tokenizer, bad_sentence, scorebase)
 
 
 # todo same gpt2 as in the paper, comparable bert

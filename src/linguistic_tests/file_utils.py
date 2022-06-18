@@ -9,6 +9,7 @@ from linguistic_tests.lm_utils import BlimpSentencesOrder
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_testset_data
+from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.testset import parse_testset
@@ -17,13 +18,16 @@ from tqdm import tqdm
 
 
 def parse_testsets(
-    testset_dir_path,
-    testset_filenames,
-    examples_format,
+    testset_dir_path: str,
+    testset_filenames: List[str],
+    examples_format: str,
     sent_types_descr,
-    model_name,
-    max_examples,
+    model_name: str,
+    model_type: ModelTypes,
+    scoring_measures: List[ScoringMeasures],
+    max_examples: int,
 ) -> List[TestSet]:
+    # todo: add scorebase var in testset class
     parsed_testsets = []
     for testset_filename in testset_filenames:
         testset_filepath = os.path.join(testset_dir_path, testset_filename + ".jsonl")
@@ -33,9 +37,10 @@ def parse_testsets(
         )  # es.: "json_lines"
         examples_list = testset_dict["sentences"]
         phenomenon_name = get_file_root(testset_filename)
-        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+
         parsed_testset = parse_testset(
             phenomenon_name,
+            model_type,
             model_name,
             examples_list,
             sent_types_descr,  # "blimp" or "sprouse"

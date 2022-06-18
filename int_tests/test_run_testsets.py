@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 from linguistic_tests.compute_model_score import run_testset
 from linguistic_tests.file_utils import parse_testsets
+from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
@@ -12,6 +13,7 @@ from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
+from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_sprouse_tests import score_sprouse_testsets
 from linguistic_tests.run_syntactic_tests import run_blimp_en
@@ -56,12 +58,17 @@ class TestRunTestSets(TestCase):
         ]
         p = get_test_data_dir() / "sprouse"
         testset_dir_path = str(p)
+        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
         parsed_testsets = parse_testsets(
             testset_dir_path,
             phenomena,
             "sprouse",
             "sprouse",
             model_name,
+            model_type,
+            scoring_measures,
             max_examples=1000,
         )
         scored_testsets = score_sprouse_testsets(
@@ -74,6 +81,9 @@ class TestRunTestSets(TestCase):
 
         for testset in scored_testsets:
             assert testset.avg_DD_lp != -200
+            assert testset.avg_DD_penlp != -200
+            assert testset.avg_DD_ll != -200
+            assert testset.avg_DD_penll != -200
 
     @pytest.mark.slow
     @pytest.mark.enable_socket

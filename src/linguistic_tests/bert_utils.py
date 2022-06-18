@@ -45,7 +45,7 @@ def analize_example(
     example_idx: int,
     example,
     sentences_per_example,
-    score_based_on=sentence_score_bases.SOFTMAX,
+    score_based_on,  # =sentence_score_bases.SOFTMAX,
 ):
     """
     :param bert:
@@ -63,7 +63,9 @@ def analize_example(
         penLP_by_sentence,
         words_logits_by_sentence,
         normalized_logits_by_sentence,
-    ) = __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence)
+    ) = __get_example_estimates(
+        bert, tokenizer, sentences, tokens_by_sentence, score_based_on
+    )
 
     (
         base_sentence_less_acceptable,
@@ -121,7 +123,7 @@ def analize_example(
     # ..
 
 
-def __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence):
+def __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence, scorebase):
     penLP_by_sentence = []
     words_logits_by_sentence = []
     max_logits = 0
@@ -130,7 +132,11 @@ def __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence):
             # prob = estimate_sentence_probability_from_text(bert, tokenizer,
             # sentence)
             pen_lp, logits_nonnegative_for_each_word = get_sentence_scores(
-                bert, tokenizer, sentence, tokens_by_sentence[sentence_idx]
+                bert,
+                tokenizer,
+                sentence,
+                tokens_by_sentence[sentence_idx],
+                scorebase,
             )
             penLP_by_sentence.append(pen_lp)
             if isinstance(bert, BertForMaskedLM):
@@ -203,10 +209,14 @@ def __get_example_tokens_and_oov_counts(tokenizer, sentences):
 
 
 def get_score_descr(score_based_on):
+    # todo, fixme: check why only the penalty versions of the scores is returned here
+
     if score_based_on == sentence_score_bases.SOFTMAX:
         return ScoringMeasures.PenLP.name
     elif score_based_on == sentence_score_bases.NORMALIZED_LOGITS:
         return ScoringMeasures.PenNormLogits
+    elif score_based_on == sentence_score_bases.LOGISTIC_FUN:
+        return ScoringMeasures.PLL
     else:
         return score_based_on
 
@@ -220,7 +230,7 @@ def __get_acceptability_diffs(
     oov_counts,
     sentences,
     tokens_by_sentence,
-    score_based_on=sentence_score_bases.SOFTMAX,
+    score_based_on,  # =sentence_score_bases.SOFTMAX,
 ):
     if type(model) in [BertForMaskedLM, RobertaModel, RobertaForMaskedLM]:
         if score_based_on == sentence_score_bases.SOFTMAX:
@@ -260,7 +270,9 @@ def __get_acceptability_diffs(
             sentence_ids = tokenizer.convert_tokens_to_ids(
                 tokens_by_sentence[sentence_idx]
             )
-            estimate_sentence_probability(model, tokenizer, sentence_ids, verbose=True)
+            estimate_sentence_probability(
+                model, tokenizer, sentence_ids, score_based_on, verbose=True
+            )
             if sentence_idx == 0:
                 base_sentence_less_acceptable = True
             elif sentence_idx == 2:
@@ -304,12 +316,19 @@ def generate_text_with_bert(
 
 
 def get_sentence_scores(
-    bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence, sentence_tokens
+    bert: BertPreTrainedModel,
+    tokenizer: BertTokenizer,
+    sentence,
+    sentence_tokens,
+    scorebase,
 ):
 
     text_len = len(sentence_tokens)
     lp, logits_nonnegative = estimate_sentence_probability_from_text(
-        bert, tokenizer, sentence
+        bert,
+        tokenizer,
+        sentence,
+        scorebase,
     )
     # lp = bert_get_logprobs(sentence_tokens, bert, tokenizer)
     # model_score(tokenize_input, tokenize_context, bert, tokenizer, device,
@@ -462,8 +481,8 @@ def estimate_sentence_probability(
     bert: BertPreTrainedModel,
     tokenizer: BertTokenizer,
     sentence_ids: list[int],
+    scorebase,  # =sentence_score_bases.SOFTMAX,
     verbose: bool = False,
-    scorebase=sentence_score_bases.SOFTMAX,
 ):
     # iterate for each word, mask it and get the probability
     # sum the logs of the probabilities
@@ -572,11 +591,14 @@ def bert_get_logprobs(tokenize_input, model, tokenizer):
 
 
 def estimate_sentence_probability_from_text(
-    bert: BertPreTrainedModel, tokenizer: BertTokenizer, sentence: str
+    bert: BertPreTrainedModel,
+    tokenizer: BertTokenizer,
+    sentence: str,
+    scorebase,  # =sentence_score_bases.SOFTMAX,
 ):
     tokens = tokenizer.tokenize(sentence)
     sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
-    return estimate_sentence_probability(bert, tokenizer, sentence_ids)
+    return estimate_sentence_probability(bert, tokenizer, sentence_ids, scorebase)
 
 
 def get_probs_for_words(
@@ -585,7 +607,7 @@ def get_probs_for_words(
     sent,
     w1,
     w2,
-    scorebase=sentence_score_bases.SOFTMAX,
+    scorebase,  # =sentence_score_bases.SOFTMAX,
 ):
     tokens, masked_word_idx = tokenize_sentence(tokenizer, sent)
 

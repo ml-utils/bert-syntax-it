@@ -1,13 +1,14 @@
 from typing import List
 
-from linguistic_tests.compute_model_score import get_example_scores
 from linguistic_tests.compute_model_score import print_accuracy_scores
 from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import parse_testsets
+from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import ModelTypes
+from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.lm_utils import SprouseSentencesOrder
@@ -146,6 +147,7 @@ def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
 def score_sprouse_testset(
     model_type, model, tokenizer, device, testset: TestSet
 ) -> TestSet:
+    # todo set scorebase param
     for example_idx, example in enumerate(tqdm(testset.examples)):
         score_example(
             device,
@@ -155,11 +157,20 @@ def score_sprouse_testset(
             tokenizer,
         )
 
-        example.DD_with_lp, example.DD_with_penlp = get_dd_scores_wdataclasses(example)
+        (
+            example.DD_with_lp,
+            example.DD_with_penlp,
+            example.dd_with_ll,
+            example.dd_with_pll,
+        ) = get_dd_scores_wdataclasses(example)
         if example.DD_with_lp > 0:
             testset.accuracy_by_DD_lp += 1 / len(testset.examples)
         if example.DD_with_penlp > 0:
             testset.accuracy_by_DD_penlp += 1 / len(testset.examples)
+        if example.DD_with_ll > 0:
+            testset.accuracy_by_DD_ll += 1 / len(testset.examples)
+        if example.DD_with_penll > 0:
+            testset.accuracy_by_DD_penll += 1 / len(testset.examples)
 
         for _idx, typed_sentence in enumerate(example.sentences):
             stype = typed_sentence.stype
@@ -167,10 +178,18 @@ def score_sprouse_testset(
 
             testset.lp_average_by_sentence_type[stype] += sentence.lp
             testset.penlp_average_by_sentence_type[stype] += sentence.pen_lp
+            if model_type in BERT_LIKE_MODEL_TYPES:
+                testset.ll_average_by_sentence_type[stype] += sentence.log_logistic
+                testset.penll_average_by_sentence_type[
+                    stype
+                ] += sentence.pen_log_logistic
 
     for stype in testset.lp_average_by_sentence_type.keys():
         testset.lp_average_by_sentence_type[stype] /= len(testset.examples)
         testset.penlp_average_by_sentence_type[stype] /= len(testset.examples)
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            testset.ll_average_by_sentence_type[stype] /= len(testset.examples)
+            testset.penll_average_by_sentence_type[stype] /= len(testset.examples)
 
     # todo: lp scores should be normalized across the whole testset
     testset.avg_DD_lp = get_dd_score_parametric(
@@ -201,6 +220,35 @@ def score_sprouse_testset(
             SentenceNames.LONG_ISLAND
         ],
     )
+    if model_type in BERT_LIKE_MODEL_TYPES:
+        testset.avg_DD_ll = get_dd_score_parametric(
+            a_short_nonisland_score=testset.ll_average_by_sentence_type[
+                SentenceNames.SHORT_NONISLAND
+            ],
+            b_long_nonisland_score=testset.ll_average_by_sentence_type[
+                SentenceNames.LONG_NONISLAND
+            ],
+            c_short_island_score=testset.ll_average_by_sentence_type[
+                SentenceNames.SHORT_ISLAND
+            ],
+            d_long_island_score=testset.ll_average_by_sentence_type[
+                SentenceNames.LONG_ISLAND
+            ],
+        )
+        testset.avg_DD_penll = get_dd_score_parametric(
+            a_short_nonisland_score=testset.penll_average_by_sentence_type[
+                SentenceNames.SHORT_NONISLAND
+            ],
+            b_long_nonisland_score=testset.penll_average_by_sentence_type[
+                SentenceNames.LONG_NONISLAND
+            ],
+            c_short_island_score=testset.penll_average_by_sentence_type[
+                SentenceNames.SHORT_ISLAND
+            ],
+            d_long_island_score=testset.penll_average_by_sentence_type[
+                SentenceNames.LONG_ISLAND
+            ],
+        )
 
     for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
         for (
@@ -218,83 +266,6 @@ def score_sprouse_testset(
             ] = accuracy
 
     return testset
-
-
-def run_sprouse_test_helper(
-    model_type,
-    model,
-    tokenizer,
-    device,
-    testset,
-    examples_in_sprouse_format=True,
-    sentence_ordering=SprouseSentencesOrder,
-    max_examples=50,
-    verbose=False,
-):
-    sent_ids = []
-    sentences_per_example = 4
-
-    if len(testset["sentences"]) > 50:
-        testset["sentences"] = testset["sentences"][:max_examples]
-
-    examples_count = len(testset["sentences"])
-    lp_short_nonisland_average = 0
-    lp_long_nonisland_avg = 0
-    lp_short_island_avg = 0
-    lp_long_island_avg = 0
-    penlp_short_nonisland_average = 0
-    DDs_with_lp = []
-    DDs_with_pen_lp = []
-
-    for example_idx, example_data in enumerate(tqdm(testset["sentences"])):
-
-        (
-            lps,
-            pen_lps,
-            pen_sentence_log_weights,
-            sentence_log_weights,
-            sentences,
-        ) = get_example_scores(
-            device,
-            example_data,
-            model,
-            model_type,
-            sent_ids,
-            tokenizer,
-            sentences_per_example,
-            sprouse_format=examples_in_sprouse_format,
-        )
-        if verbose:
-            print_example(sentences, sentence_ordering)
-
-        DDs_with_lp.append(get_dd_score(lps, sentence_ordering))
-        DDs_with_pen_lp.append(get_dd_score(pen_lps, sentence_ordering))
-        lp_short_nonisland_average += lps[sentence_ordering.SHORT_NONISLAND]
-        lp_long_nonisland_avg += lps[sentence_ordering.LONG_NONISLAND]
-        lp_short_island_avg += lps[sentence_ordering.SHORT_ISLAND]
-        lp_long_island_avg += lps[sentence_ordering.LONG_ISLAND]
-        penlp_short_nonisland_average += pen_lps[0]
-
-    lp_short_nonisland_average /= examples_count
-    lp_long_nonisland_avg /= examples_count
-    lp_short_island_avg /= examples_count
-    lp_long_island_avg /= examples_count
-    penlp_short_nonisland_average /= examples_count
-    lp_averages = [
-        lp_short_nonisland_average,
-        lp_long_nonisland_avg,
-        lp_short_island_avg,
-        lp_long_island_avg,
-    ]
-
-    correc_count_DD_lp = len([x for x in DDs_with_lp if x > 0])
-    accuracy_DD_lp = correc_count_DD_lp / len(DDs_with_lp)
-    print(f"accuracy with DDs_with_lp: {accuracy_DD_lp}")
-    correc_count_DD_penlp = len([x for x in DDs_with_pen_lp if x > 0])
-    accuracy_DD_penlp = correc_count_DD_penlp / len(DDs_with_lp)
-    print(f"accuracy with DDs_with_penlp: {accuracy_DD_penlp}")
-
-    return lp_averages
 
 
 def print_example(example_data, sentence_ordering):
@@ -315,8 +286,15 @@ def get_dd_scores_wdataclasses(example):
 
     example_dd_with_lp = get_example_dd_score(example, ScoringMeasures.LP)
     example_dd_with_penlp = get_example_dd_score(example, ScoringMeasures.PenLP)
+    example_dd_with_ll = get_example_dd_score(example, ScoringMeasures.LL)
+    example_dd_with_pll = get_example_dd_score(example, ScoringMeasures.PLL)
 
-    return example_dd_with_lp, example_dd_with_penlp
+    return (
+        example_dd_with_lp,
+        example_dd_with_penlp,
+        example_dd_with_ll,
+        example_dd_with_pll,
+    )
 
 
 def get_example_dd_score(example: Example, score_name):
@@ -562,9 +540,22 @@ def print_testset_results(
         print(
             f"Testset accuracy with DDs_with_penlp: {scored_testset.accuracy_by_DD_penlp:%}"
         )
-
         lp_averages = scored_testset.lp_average_by_sentence_type
+        penlp_averages = scored_testset.penlp_average_by_sentence_type
         print(f"{lp_averages=}")
+        print(f"{penlp_averages=}")
+
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            print(
+                f"Testset accuracy with DDs_with_ll: {scored_testset.accuracy_by_DD_ll:%}"
+            )
+            print(
+                f"Testset accuracy with DDs_with_penll: {scored_testset.accuracy_by_DD_penll:%}"
+            )
+            ll_averages = scored_testset.ll_average_by_sentence_type
+            penll_averages = scored_testset.penll_average_by_sentence_type
+            print(f"{ll_averages=}")
+            print(f"{penll_averages=}")
 
     score_descr = ScoringMeasures.PenLP.name
 
@@ -649,7 +640,7 @@ def main():
         broader_test_type = "sprouse"
 
     for model_type in model_types_to_run:
-
+        print_orange(f"Starting test session for {model_type=}")
         # add score with logistic function (instead of softmax)
 
         # todo: check that accuracy values are scored and stored correctly
@@ -664,12 +655,18 @@ def main():
         sent_types_descr = "sprouse"  # "blimp" or "sprouse"
         # sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
         print(f"Running testsets from dir {testset_dir_path}")
+        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
         parsed_testsets = parse_testsets(
+            # todo: add scorebase var in testset class
             testset_dir_path,
             testsets_root_filenames,
             examples_format,
             sent_types_descr,
             model_name,
+            model_type,
+            scoring_measures,
             max_examples=1000,
         )
 
@@ -692,6 +689,8 @@ def main():
         print_testset_results(
             loaded_testsets, broader_test_type, model_type, testsets_root_filenames
         )
+
+        print_orange(f"Finished test session for {model_type=}")
 
     # todo:
     # plot with 7+1x7 subplots of a testset (one subplot for each example)

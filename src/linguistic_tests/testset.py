@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
 
+from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 
@@ -25,6 +27,8 @@ class Sentence:
 
     lp: float = -200
     pen_lp: float = -200
+    log_logistic = -200
+    pen_log_logistic = -200
     sentence_log_weight: float = -200
     pen_sentence_log_weight: float = -200
     # lps: list[float] = field(default_factory=list)
@@ -39,6 +43,10 @@ class Sentence:
             return self.lp
         elif scoring_measure == ScoringMeasures.PenLP:
             return self.pen_lp
+        elif scoring_measure == ScoringMeasures.LL:
+            return self.log_logistic
+        elif scoring_measure == ScoringMeasures.PLL:
+            return self.pen_log_logistic
         else:
             raise ValueError(f"Unexpected scoring_measure: {scoring_measure}")
 
@@ -60,6 +68,8 @@ class Example:
 
     DD_with_lp: float = -200
     DD_with_penlp: float = -200
+    DD_with_ll: float = -200
+    DD_with_penll: float = -200
 
     def __getitem__(self, key: SentenceNames) -> Sentence:
         for typed_sentence in self.sentences:
@@ -106,18 +116,33 @@ class TestSet:
 
     sent_types: InitVar[list[SentenceNames]]
     scoring_measures: InitVar[list[ScoringMeasures]]
+    model_type: InitVar[ModelTypes]
+
     lp_average_by_sentence_type: dict[SentenceNames, float] = field(
         default_factory=dict
     )
     penlp_average_by_sentence_type: dict[SentenceNames, float] = field(
         default_factory=dict
     )
+    ll_average_by_sentence_type: dict[SentenceNames, float] = field(
+        default_factory=dict
+    )
+    penll_average_by_sentence_type: dict[SentenceNames, float] = field(
+        default_factory=dict
+    )
+
     avg_DD_lp: float = -200
     avg_DD_penlp: float = -200
+    avg_DD_ll: float = -200
+    avg_DD_penll: float = -200
+
     accuracy_by_DD_lp: float = 0
     accuracy_by_DD_penlp: float = 0
+    accuracy_by_DD_ll: float = 0
+    accuracy_by_DD_penll: float = 0
+
     accuracy_per_score_type_per_sentence_type: dict[
-        SentenceNames, dict[SentenceNames, float]
+        ScoringMeasures, dict[SentenceNames, float]
     ] = field(default_factory=dict)
 
     min_token_weight: float = 200
@@ -126,10 +151,14 @@ class TestSet:
     # todo: add model descriptor, indicating from which model the scrores where calculated
     # todo: normalize score_averages ..
 
-    def __post_init__(self, sent_types, scoring_measures):
+    def __post_init__(self, sent_types, scoring_measures, model_type: ModelTypes):
         for stype in sent_types:
             self.lp_average_by_sentence_type[stype] = 0
             self.penlp_average_by_sentence_type[stype] = 0
+
+            if model_type in BERT_LIKE_MODEL_TYPES:
+                self.ll_average_by_sentence_type[stype] = 0
+                self.penll_average_by_sentence_type[stype] = 0
 
         # todo: for bert-like models there are additional scoring measures
         #  (depending on the chosen approximations for sentence acceptability
@@ -155,6 +184,10 @@ class TestSet:
             return self.lp_average_by_sentence_type
         elif scoring_measure == ScoringMeasures.PenLP:
             return self.penlp_average_by_sentence_type
+        if scoring_measure == ScoringMeasures.LL:
+            return self.ll_average_by_sentence_type
+        elif scoring_measure == ScoringMeasures.PLL:
+            return self.penll_average_by_sentence_type
         else:
             raise ValueError(f"Unexpected scoring_measure: {scoring_measure}")
 
@@ -216,6 +249,7 @@ def load_testset_from_pickle(filename) -> TestSet:
 
 def parse_testset(
     linguistic_phenomenon,
+    model_type: ModelTypes,
     model_descr,
     examples_list: list,
     sent_types_descr: str,
@@ -246,6 +280,7 @@ def parse_testset(
         parsed_examples,
         sent_types,
         scoring_measures,
+        model_type,
     )
 
 

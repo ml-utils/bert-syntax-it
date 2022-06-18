@@ -66,6 +66,9 @@ class TestComputeModelScore(TestCase):
             # 'Dopo aver fatto cosa, Gianni è partito per Parigi?'
         ]
         lp = -8.3
+        log_logistic = (
+            -200
+        )  # todo: replace with actual value returned by a bert model for this sentence
         token_weights = np.random.random_sample(
             size=len(sentence_tokens)
         )  # list, len(sentence_tokens), min 11 max 21 (floats)
@@ -75,7 +78,7 @@ class TestComputeModelScore(TestCase):
             with patch.object(
                 compute_model_score,
                 "get_sentence_score_JHLau",
-                return_value=(lp, token_weights),
+                return_value=(lp, log_logistic, token_weights),
             ) as _:
                 # don't mock: get_penalty_term
                 # sentence_log_weight = -3.0
@@ -107,6 +110,8 @@ class TestComputeModelScore(TestCase):
         (
             lps,
             pen_lps,
+            lls,
+            penlls,
             pen_sentence_log_weights,
             sentence_log_weights,
             sentences,
@@ -127,7 +132,7 @@ class TestComputeModelScore(TestCase):
 
     def test_get_sentence_score_JHLau_empty(self):
         actual_score = get_sentence_score_JHLau(None, None, None, [], None)
-        assert actual_score == (-200, None)
+        assert actual_score == (-200, None, None)
 
     def test_get_sentence_score_JHLau_gpt(self):
         vocab_size = 1000
@@ -175,8 +180,9 @@ class TestComputeModelScore(TestCase):
         actual_score = get_sentence_score_JHLau(
             ModelTypes.GPT, mock_gpt2_m, mock_gpt2_t, sentence_tokens, DEVICES.CPU
         )
-        assert actual_score != 0
-        assert actual_score != -200
+        assert len(actual_score) == 3
+        assert actual_score[0] != 0
+        assert actual_score[0] != -200
 
         mock_gpt2_t.convert_tokens_to_ids.assert_called_once()
         mock_gpt2_m.assert_called_once()
@@ -266,6 +272,7 @@ class TestComputeModelScore(TestCase):
         )
 
         # todo: more checks on the returned values
+        assert len(actual_score) == 3
         assert actual_score != 0
         assert actual_score != -200
 
@@ -308,6 +315,8 @@ class TestComputeModelScore(TestCase):
             }
         }
         mocked_model_score = (
+            [0.1, 0.2, 0.3],
+            [0.1, 0.2, 0.3],
             [0.1, 0.2, 0.3],
             [0.1, 0.2, 0.3],
             [0.1, 0.2, 0.3],

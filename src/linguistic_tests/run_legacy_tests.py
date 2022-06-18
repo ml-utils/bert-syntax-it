@@ -18,7 +18,6 @@ from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
-from linguistic_tests.lm_utils import sentence_score_bases
 from linguistic_tests.utils import vocab_it
 from torch.utils.hipify.hipify_python import bcolors
 
@@ -325,7 +324,7 @@ def run_testset_bert(
     model,
     tokenizer,
     sentences_per_example,
-    score_based_on=sentence_score_bases.SOFTMAX,
+    score_based_on,  # =sentence_score_bases.SOFTMAX,
 ):
     filepath = os.path.join(testsets_dir, filename)
     print_orange(f"running test {filepath}")

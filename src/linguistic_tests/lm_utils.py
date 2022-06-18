@@ -45,6 +45,9 @@ class ScoringMeasures(StrEnum):
     LP = "unnormalized_log_probability"
     PenLP = "log_probability_normalized_by_sentence_lenght_penalty"
     PenNormLogits = "PenNormLogits"
+    NormLogits = "NormLogits"
+    LL = "LogLogistic"
+    PLL = "PenLogistic"
 
     def __eq__(self, b):
 
@@ -102,6 +105,9 @@ class sentence_score_bases:
 class DEVICES:
     CPU = "cpu"
     CUDA = "cuda:X"
+
+
+BERT_LIKE_MODEL_TYPES = [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]
 
 
 class CustomModelWrapper:
