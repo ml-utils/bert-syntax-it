@@ -392,29 +392,44 @@ def test_bert_output():
     # tokenizer_m = Mock(spec=BertTokenizerFast)
     # tokenizer_m.convert_tokens_to_ids.return_value = sentence_ids
 
-    tens = torch.LongTensor(sentence_ids).unsqueeze(0)
+    input_tensor = torch.LongTensor(sentence_ids)
+    batch_size = 1
+    input_tensor_batch = input_tensor.unsqueeze(0)  # equivalent to [input_tensor]
 
     output_m = Mock(spec=MaskedLMOutput)
-    output_m.logits = torch.rand(1, len(tokens), vocab_size)
+
+    output_m.logits = torch.rand(batch_size, len(tokens), vocab_size)
     model_m = Mock(spec=BRT_M, return_value=output_m)
 
-    res_unsliced = model_m(tens).logits
+    model_output = model_m(input_tensor_batch)
+    logits_whole_batch = (
+        model_output.logits
+    )  # (batch_size=1, sequence_length, config.vocab_size))
 
-    res_sequeezed = torch.squeeze(res_unsliced)
-    res = res_sequeezed
+    logits_sentence = torch.squeeze(
+        logits_whole_batch
+    )  # (sequence_length, config.vocab_size))
 
-    res_softmax = softmax(res.detach(), -1)
-    res_normalized = torch.div(res.detach(), torch.sum(res.detach()))
+    # todo, check: the softmax should be done individually for each tensor/array logits_sentence_softmax[i]
+    # where i is the index of a token in the sentence
+    # and why we also have a dimension with one entry for each token in the sentence, rather than just
+    # for the masked token? possible answer: because there might be more than one masked token (ie 15% of
+    # sentence); but then, should't the ..logits corresponding to the non-masked token be 0?
+    LAST_DIMENSION_IDX = -1
+    logits_sentence_softmax = softmax(logits_sentence.detach(), axis=LAST_DIMENSION_IDX)
+    logits_sentence_normalized = torch.div(
+        logits_sentence.detach(), torch.sum(logits_sentence.detach())
+    )
 
-    assert isinstance(tens, torch.Tensor)
-    assert isinstance(res, torch.Tensor)
-    assert isinstance(res_unsliced, torch.Tensor)
-    assert isinstance(res_softmax, torch.Tensor)
-    assert isinstance(res_normalized, torch.Tensor)
+    assert isinstance(input_tensor_batch, torch.Tensor)
+    assert isinstance(logits_sentence, torch.Tensor)
+    assert isinstance(logits_whole_batch, torch.Tensor)
+    assert isinstance(logits_sentence_softmax, torch.Tensor)
+    assert isinstance(logits_sentence_normalized, torch.Tensor)
 
-    assert tens.shape == (1, tokens_count)
-    assert res_unsliced.shape == (1, tokens_count, vocab_size)
+    assert input_tensor_batch.shape == (batch_size, tokens_count)
+    assert logits_whole_batch.shape == (batch_size, tokens_count, vocab_size)
 
-    assert res.shape == (tokens_count, vocab_size)
-    assert res_softmax.shape == (tokens_count, vocab_size)
-    assert res_normalized.shape == (tokens_count, vocab_size)
+    assert logits_sentence.shape == (tokens_count, vocab_size)
+    assert logits_sentence_softmax.shape == (tokens_count, vocab_size)
+    assert logits_sentence_normalized.shape == (tokens_count, vocab_size)

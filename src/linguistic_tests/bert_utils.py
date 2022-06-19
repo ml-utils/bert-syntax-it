@@ -418,44 +418,71 @@ def get_bert_output(
 
     # todo: check that masked_word_idx remains correct when some words are
     #  split (and therefore there are more tokens than words)
-    sentence_ids_as_tensor = torch.LongTensor(sentence_ids).unsqueeze(0)
+    sentence_ids_as_tensor = torch.LongTensor(sentence_ids)
+    # equivalent to batch = [sentence_ids_as_tensor] (batch of 1 element)
+    sentence_ids_in_tensor_batch = sentence_ids_as_tensor.unsqueeze(0)
 
-    bert_out = bert(sentence_ids_as_tensor)
+    # <class 'transformers.modeling_outputs.MaskedLMOutput'>
+    bert_out = bert(sentence_ids_in_tensor_batch)
+
+    # NB: in CausalLMOutput, logits has shape:
+    # (batch_size, sequence_length, config.vocab_size))
+    # Represents the prediction scores of the language modeling head
+    # (scores for each vocabulary token before SoftMax).
+    # https://huggingface.co/docs/transformers/main_classes/output
     if isinstance(bert_out, MaskedLMOutput):
-        logits = bert_out.logits
+        logits_whole_batch = bert_out.logits
     else:
-        logits = bert_out
+        logits_whole_batch = bert_out
 
     # print(f'masked_word_idx: {masked_word_idx}, {type(res_unsliced)=}')
     # masked_word_idx: 1, type(res_unsliced):
-    # <class 'transformers.modeling_outputs.MaskedLMOutput'>
     # masked_word_idx: 5, type(res_unsliced): <class 'torch.Tensor'>
-    # type(res_unsliced):
+
     # <class 'transformers.modeling_outputs.CausalLMOutputWithCrossAttentions'>
-    res = logits[0, masked_word_idx]
+    first_element_in_batch_idx = 0
+    # going from shape (batch_size, sequence_length, config.vocab_size))
+    # to shape = (vocab_size)
+    logits_masked_word_predictions = logits_whole_batch[
+        first_element_in_batch_idx, masked_word_idx
+    ]
 
     # todo: produce probabilities not with softmax (not using an exponential,
     #  to avoiding the maximization of top results),
     #  then compare these probailities with the softmax ones, expecially for
     #  ungrammatical sentences
-    res_softmax = softmax(res.detach(), -1)
-    res_logistic = logistic3(res.detach())
+    detached_logits_masked_word_predictions = logits_masked_word_predictions.detach()
+    LAST_DIMENSION_IDX = -1
+    softmax_on_logits_masked_word_predictions = softmax(
+        detached_logits_masked_word_predictions, axis=LAST_DIMENSION_IDX
+    )
+    logistic_values_on_logits_masked_word_predictions = logistic3(
+        detached_logits_masked_word_predictions
+    )
 
-    logits_min = torch.min(res.detach())
-    logits_shifted_from_zero = torch.subtract(res.detach(), logits_min)
+    logits_min = torch.min(detached_logits_masked_word_predictions)
+    logits_shifted_from_zero = torch.subtract(
+        detached_logits_masked_word_predictions, logits_min
+    )
     logits_sum = torch.sum(logits_shifted_from_zero)
-    res_normalized = torch.div(logits_shifted_from_zero, logits_sum)
+    logits_normalized = torch.div(logits_shifted_from_zero, logits_sum)
 
     if verbose:
-        print(f"tens size {sentence_ids_as_tensor.size()}")
-        print(f"res_unsliced size {logits.size()}")
-        print(f"res size {res.size()}")
-        print(f"res_softmax size {res_softmax.size()}")
-        print(f"res_normalized size {res_normalized.size()}")
+        print(f"tens size {sentence_ids_in_tensor_batch.size()}")
+        print(f"res_unsliced size {logits_whole_batch.size()}")
+        print(f"res size {detached_logits_masked_word_predictions.size()}")
+        print(f"res_softmax size {softmax_on_logits_masked_word_predictions.size()}")
+        print(f"res_normalized size {logits_normalized.size()}")
 
     # RuntimeError: Can't call numpy() on Tensor that requires grad.
     # Use tensor.detach().numpy() instead.
-    return res, res_softmax, res_logistic, res_normalized, logits_shifted_from_zero
+    return (
+        detached_logits_masked_word_predictions,
+        softmax_on_logits_masked_word_predictions,
+        logistic_values_on_logits_masked_word_predictions,
+        logits_normalized,
+        logits_shifted_from_zero,
+    )
 
 
 def convert_ids_to_tokens(tokenizer: BertTokenizer, ids):
