@@ -407,6 +407,15 @@ def get_bert_output(
     masked_word_idx,
     verbose=False,
 ):
+    # from the docs:
+    # https: // huggingface.co / docs / transformers / main_classes / output
+    # The outputs object is a SequenceClassifierOutput, as we can see in the
+    # documentation of that class below, it means it has an optional loss, a
+    # logits an optional hidden_states and an optional attentions attribute.
+    # Here we have the loss since we passed along labels, but we don’t have
+    # hidden_states and attentions because we didn’t pass
+    # output_hidden_states=True or output_attentions=True.
+
     # todo: check that masked_word_idx remains correct when some words are
     #  split (and therefore there are more tokens than words)
     sentence_ids_as_tensor = torch.LongTensor(sentence_ids).unsqueeze(0)

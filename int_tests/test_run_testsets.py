@@ -2,6 +2,7 @@ import os
 from unittest import TestCase
 from unittest.mock import patch
 
+import numpy as np
 import pytest
 from linguistic_tests.compute_model_score import logistic2
 from linguistic_tests.compute_model_score import run_testset
@@ -18,7 +19,10 @@ from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_sprouse_tests import score_sprouse_testsets
 from linguistic_tests.run_syntactic_tests import run_blimp_en
+from linguistic_tests.testset import TypedSentence
 from matplotlib import pyplot as plt
+from torch import no_grad
+from torch import tensor
 
 from int_tests.int_tests_utils import get_test_data_dir
 
@@ -220,18 +224,14 @@ class TestRunTestSets(TestCase):
                     sentences_per_example,
                 )
 
-    @pytest.mark.skip("todo")
-    def test_model_outputs(self):
-        # plot the whole nd array of a model logits output
-        # sort the values (np.sort) and use the index for the x-axis
+    @pytest.mark.enable_socket
+    @patch.object(plt, "show")
+    def test_model_outputs(self, pyplot_show_mock):
+        assert plt.show is pyplot_show_mock
+        plot_span_of_Bert_output_logitis()
 
-        # todo: load a model
-        # tokenize a sentence and pass it as input
-        raise NotImplementedError
-
-    def plot_logistic2(self):
-        import matplotlib.pyplot as plt
-        import numpy as np
+    @staticmethod
+    def plot_logistic2():
 
         # 100 linearly spaced numbers
         x = np.linspace(-30, 30, 1000)
@@ -249,7 +249,7 @@ class TestRunTestSets(TestCase):
         # ax.xaxis.set_ticks_position('bottom')
         # ax.yaxis.set_ticks_position('left')
 
-        plt.xlim((-20, 20))
+        # plt.xlim((-20, 20))
 
         # plot the function
         plt.plot(x, y, label="default")
@@ -267,3 +267,200 @@ class TestRunTestSets(TestCase):
 
         plt.legend()
         plt.show()
+
+
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
+
+
+def plot_span_of_Bert_output_logitis():
+
+    model_type = ModelTypes.BERT
+    model_name = "dbmdz/bert-base-italian-xxl-cased"
+    model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
+
+    do_random_sentences = True
+    if not do_random_sentences:
+        phenomena = [
+            "wh_adjunct_island",  # "mini_wh_adjunct_island",
+        ]
+        p = get_test_data_dir() / "sprouse"
+        testset_dir_path = str(p)
+        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
+        parsed_testsets = parse_testsets(
+            testset_dir_path,
+            phenomena,
+            "sprouse",
+            "sprouse",
+            model_name,
+            model_type,
+            scoring_measures,
+            max_examples=1000,
+        )
+        examples_to_plot = parsed_testsets[0].examples  # examples[0:2]
+    else:
+        example_dict = {"sentences": [0, 1, 2, 3]}
+        example_adict = AttrDict(example_dict)
+        examples_to_plot = [example_adict]
+
+    print(f"there are {len(examples_to_plot)=}")
+    for example in examples_to_plot:
+        fig, axs = plt.subplots(2, 2)
+        axs_list = axs.reshape(-1)
+
+        for typed_sentence, ax in zip(example.sentences, axs_list):
+            if do_random_sentences:
+                _plot_scores_of_random_sentence(tokenizer, model, ax)
+            else:
+                _plot_typed_sentence_scores(typed_sentence, tokenizer, model, ax)
+
+        # plt.legend()
+        # plt.suptitle(f"Model: {scored_testsets[0].model_descr}")
+        fig.subplots_adjust(
+            left=0.05,  # the left side of the subplots of the figure
+            bottom=0.05,  # the bottom of the subplots of the figure
+            right=0.95,  # the right side of the subplots of the figure
+            top=0.95,  # the top of the subplots of the figure
+            wspace=0.120,  # the amount of width reserved for space between subplots,
+            # expressed as a fraction of the average axis width
+            hspace=0.2,  # the amount of height reserved for space between subplots,
+            # expressed as a fraction of the average axis height
+        )
+        fig.suptitle(f"Model: {model_name}")  # plt.suptitle(title)
+        plt.show()
+
+
+def _plot_scores_of_random_sentence(tokenizer, model, ax):
+    import random
+
+    sentence_lenght = 10
+    vocab_size = 32100
+    random_ids = [random.randint(0, vocab_size) for _ in range(sentence_lenght)]
+
+    sentence_tokens = tokenizer.convert_ids_to_tokens(random_ids)
+    sentence_type_descr = "RAND"
+    _plot_sentence_scores(
+        sentence_tokens, sentence_type_descr, ax, tokenizer, model, zoom=False
+    )
+
+
+def _plot_typed_sentence_scores(typed_sentence: TypedSentence, tokenizer, model, ax):
+
+    sentence = typed_sentence.sent
+    sentence.tokens = tokenizer.tokenize(sentence.txt)  # , return_tensors='pt'
+    sentence_tokens = sentence.tokens
+    sentence_type_descr = typed_sentence.stype.name
+    _plot_sentence_scores(sentence_tokens, sentence_type_descr, ax, tokenizer, model)
+
+
+def _plot_sentence_scores(
+    sentence_tokens, sentence_type_descr, ax, tokenizer, model, zoom=True
+):
+
+    batched_indexed_tokens = []
+    batched_segment_ids = []
+    device = DEVICES.CPU
+    # not use_context variant:
+    tokenize_combined = ["[CLS]"] + sentence_tokens + ["[SEP]"]
+    for i in range(len(sentence_tokens)):
+        # Mask a token that we will try to predict back with
+        # `BertForMaskedLM`
+        masked_index = i + 1 + 0  # not use_context variant
+        tokenize_masked = tokenize_combined.copy()
+        tokenize_masked[masked_index] = "[MASK]"
+        # unidir bert
+        # for j in range(masked_index, len(tokenize_combined)-1):
+        #    tokenize_masked[j] = '[MASK]'
+
+        # Convert token to vocabulary indices
+        indexed_tokens = tokenizer.convert_tokens_to_ids(tokenize_masked)
+        # Define sentence A and B indices associated to 1st and 2nd
+        # sentences (see paper)
+        segment_ids = [0] * len(tokenize_masked)
+
+        batched_indexed_tokens.append(indexed_tokens)
+        batched_segment_ids.append(segment_ids)
+    tokens_tensor = tensor(batched_indexed_tokens, device=device)
+    segment_tensor = tensor(batched_segment_ids, device=device)
+
+    with no_grad():
+        outputs = model(tokens_tensor, token_type_ids=segment_tensor)
+        predictions = outputs[0]
+        vocab_size = len(predictions[0, 1].cpu().numpy())
+        min_masking_rank = vocab_size - 1
+        for i in range(len(sentence_tokens)):
+            masked_index = i + 1 + 0  # not use_context variant
+            predicted_score = predictions[i, masked_index]
+
+            predicted_scores_numpy = predicted_score.cpu().numpy()
+
+            sorted_output = np.sort(predicted_scores_numpy)
+            # todo: slice the output array to the last 2500 values
+            if zoom:
+                top_values_to_plot = 2500
+            else:
+                top_values_to_plot = len(sorted_output)
+            output_to_plot_y = sorted_output[-top_values_to_plot:]
+            output_to_plot_x = range(
+                len(sorted_output) - top_values_to_plot, len(sorted_output)
+            )
+            plotted_lines = ax.plot(
+                output_to_plot_x,
+                output_to_plot_y,
+                label=f"{tokenize_combined[masked_index]}",
+            )
+            masked_token_id = tokenizer.convert_tokens_to_ids(
+                [tokenize_combined[masked_index]]
+            )[0]
+            token_score = np.asscalar(predicted_score[masked_token_id])
+            print(f"{type(token_score)=}, {token_score=}")
+            np_where_result = np.where(
+                sorted_output == token_score
+            )  # np.where(np.isclose(sorted_output, token_score), sorted_output)
+            np_where_aq_result = np.where(np.isclose(sorted_output, token_score))
+            # np_where_gt_result = np.where(sorted_output > token_score)
+            # np_where_lt_result = np.where(sorted_output < token_score)
+            print(f"{np_where_result=}, {len(np_where_result[0])=}, {token_score=}")
+            print(f"{len(np_where_aq_result[0])=}")
+            # print(f"{len(np_where_gt_result[0])=}")
+            # print(f"{len(np_where_lt_result[0])=}")
+            # print(f"{np_where_gt_result[0][0]=}")
+            masked_token_new_id = np.asscalar(
+                np_where_result[0]
+            )  # nb: Tuple of arrays returned from np.where:  (array([..found_indexes], dtype=..),)
+            min_masking_rank = min(masked_token_new_id, min_masking_rank)
+            ax.axvline(x=masked_token_new_id, color=plotted_lines[0].get_color())
+            ax.grid(True)
+            # ax.xaxis.grid(which='minor')
+
+            # todo:
+            # count how many, in the bert output array (sorted_output), are above certain tresholds:
+            print(f"{vocab_size=}, {len(sorted_output)=}, {sorted_output.shape=}")
+            thresholds = [0, 5, 10, 15, 20]
+            for threshold in thresholds:
+                argwhere_result = np.argwhere(sorted_output > threshold)
+                print(f"{argwhere_result.shape=}, {argwhere_result.size=}")
+                if argwhere_result.size > 0:
+                    idx = argwhere_result[0]
+                    print(
+                        f"Idx of first element above {threshold} is {idx} (marks the top {len(sorted_output) - idx}), with value {sorted_output[idx]}"
+                    )
+                else:
+                    print(f"No element above {threshold}")
+
+            # top k min value
+            k_values = [5, 10, 20]
+            for k in k_values:
+                topk_idx = len(sorted_output) - k
+                print(f"top {k=} min value {sorted_output[topk_idx]} ({topk_idx=})")
+    # ax.legend(title=f"{typed_sentence.stype.name}")
+    ax.set_title(f"{sentence_type_descr} ({min_masking_rank=})")
+    # ax.set_ylabel("logitis")
+    if zoom:
+        ax.set_xlim(xmin=min_masking_rank - 5, xmax=vocab_size + 1)
+        ax.set_ylim(ymin=3, ymax=22)
+    ax.legend(loc="upper left")
