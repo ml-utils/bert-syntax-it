@@ -391,16 +391,27 @@ def get_sentence_score_JHLau(
     if model_type in [ModelTypes.GPT, ModelTypes.GEPPETTO]:
 
         # not use context variant:
+        # (nb "context" is a sequence of words preceding the main input sentence)
         # prepend the sentence with <|endoftext|> token, so that the loss is
         # computed correctly
         sentence_ids = tokenizer.convert_tokens_to_ids(sentence_tokens)
-        tensor_input = torch.tensor(
-            [[tokenizer.bos_token_id] + sentence_ids], device=device
+        sentence_ids_in_batch = [[tokenizer.bos_token_id] + sentence_ids]
+        sentence_ids_in_batch_as_tensor = torch.tensor(
+            sentence_ids_in_batch, device=device
         )
-        labels = torch.tensor([[tokenizer.bos_token_id] + sentence_ids], device=device)
-        labels[:, :1] = -1
-        loss = model(tensor_input, labels=tensor_input)
-        return float(loss[0]) * -1.0 * len(sentence_tokens), None, None
+        # nb: this labels variable not actually used when "not using context"
+        batch_labels = torch.tensor(sentence_ids_in_batch, device=device)
+
+        DO_NOT_COMPUT_LOSS_OVER_THESE_TOKENS = -1
+        # slicing assignment: assigning to all the rows, and only first colum (there is just one, len batch=1)
+        batch_labels[:, :1] = DO_NOT_COMPUT_LOSS_OVER_THESE_TOKENS
+        # nb: labels should be the "correct" output tokens the model should return
+        # nb: there is no masked token in this case
+        model_output = model(
+            sentence_ids_in_batch_as_tensor, labels=sentence_ids_in_batch_as_tensor
+        )
+        loss = model_output.loss  # model_output[0]
+        return float(loss) * -1.0 * len(sentence_tokens), None, None
 
     elif model_type in BERT_LIKE_MODEL_TYPES:  #
 
