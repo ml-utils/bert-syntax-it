@@ -228,7 +228,7 @@ class TestBertUtils(TestCase):
             torch.rand(vocab_size),
         )
         mock_get_bert_output = self.create_patch(
-            "linguistic_tests.bert_utils.get_bert_output"
+            "linguistic_tests.bert_utils.get_bert_output_single_masking"
         )
         mock_get_bert_output.return_value = (
             res_m,

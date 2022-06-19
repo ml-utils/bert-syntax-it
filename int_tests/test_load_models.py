@@ -348,8 +348,9 @@ class TestLoadModels(TestCase):
 
     def test_load_remotely(self):
         # remote calls are blocked, enabled with annotations  only for specific tests
+        not_cached_model = "hfl/chinese-macbert-base"  # "bert-base-uncased"
         with pytest.raises(SocketBlockedError):
-            _ = BertForMaskedLM.from_pretrained("bert-base-uncased")
+            _ = BertForMaskedLM.from_pretrained(not_cached_model)
 
     @pytest.mark.skip("cannot reproduce the error")
     @pytest.mark.enable_socket

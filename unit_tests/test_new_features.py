@@ -11,5 +11,6 @@ class TestNewFeatures(TestCase):
         raise NotImplementedError
 
     def test_no_remote_Calls(self):
+        not_cached_model = "hfl/chinese-macbert-base"  # "bert-base-uncased"
         with pytest.raises(SocketBlockedError):
-            _ = BertForMaskedLM.from_pretrained("bert-base-uncased")
+            _ = BertForMaskedLM.from_pretrained(not_cached_model)
