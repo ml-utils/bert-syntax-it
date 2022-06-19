@@ -358,7 +358,13 @@ def _plot_typed_sentence_scores(typed_sentence: TypedSentence, tokenizer, model,
 
 
 def _plot_sentence_scores(
-    sentence_tokens, sentence_type_descr, ax, tokenizer, model, zoom=True
+    sentence_tokens,
+    sentence_type_descr,
+    ax,
+    tokenizer,
+    model,
+    zoom=True,
+    verbose=False,
 ):
 
     batched_indexed_tokens = []
@@ -399,8 +405,8 @@ def _plot_sentence_scores(
             predicted_scores_numpy = predicted_score.cpu().numpy()
 
             sorted_output = np.sort(predicted_scores_numpy)
-            # todo: slice the output array to the last 2500 values
             if zoom:
+                # slicing the output array to the last 2500 values
                 top_values_to_plot = 2500
             else:
                 top_values_to_plot = len(sorted_output)
@@ -418,20 +424,22 @@ def _plot_sentence_scores(
             )[0]
             token_score = np.asscalar(predicted_score[masked_token_id])
             print(f"{type(token_score)=}, {token_score=}")
-            np_where_result = np.where(
-                sorted_output == token_score
-            )  # np.where(np.isclose(sorted_output, token_score), sorted_output)
-            np_where_aq_result = np.where(np.isclose(sorted_output, token_score))
-            # np_where_gt_result = np.where(sorted_output > token_score)
-            # np_where_lt_result = np.where(sorted_output < token_score)
-            print(f"{np_where_result=}, {len(np_where_result[0])=}, {token_score=}")
-            print(f"{len(np_where_aq_result[0])=}")
-            # print(f"{len(np_where_gt_result[0])=}")
-            # print(f"{len(np_where_lt_result[0])=}")
-            # print(f"{np_where_gt_result[0][0]=}")
-            masked_token_new_id = np.asscalar(
-                np_where_result[0]
-            )  # nb: Tuple of arrays returned from np.where:  (array([..found_indexes], dtype=..),)
+            np_where_result = np.where(sorted_output == token_score)
+
+            if verbose:
+                np_where_aq_result = np.where(np.isclose(sorted_output, token_score))
+                # np_where_gt_result = np.where(sorted_output > token_score)
+                # np_where_lt_result = np.where(sorted_output < token_score)
+                print(f"{np_where_result=}, {len(np_where_result[0])=}, {token_score=}")
+                print(f"{len(np_where_aq_result[0])=}")
+                # print(f"{len(np_where_gt_result[0])=}")
+                # print(f"{len(np_where_lt_result[0])=}")
+                # print(f"{np_where_gt_result[0][0]=}")
+            # nb: Tuple of arrays returned from np.where:  (array([..found_indexes], dtype=..),)
+            if len(np_where_result[0]) > 1:
+                masked_token_new_id = np.asscalar(np_where_result[0][0])
+            else:
+                masked_token_new_id = np.asscalar(np_where_result[0])
             min_masking_rank = min(masked_token_new_id, min_masking_rank)
             ax.axvline(x=masked_token_new_id, color=plotted_lines[0].get_color())
             ax.grid(True)
@@ -443,20 +451,26 @@ def _plot_sentence_scores(
             thresholds = [0, 5, 10, 15, 20]
             for threshold in thresholds:
                 argwhere_result = np.argwhere(sorted_output > threshold)
-                print(f"{argwhere_result.shape=}, {argwhere_result.size=}")
+                if verbose:
+                    print(f"{argwhere_result.shape=}, {argwhere_result.size=}")
                 if argwhere_result.size > 0:
                     idx = argwhere_result[0]
-                    print(
-                        f"Idx of first element above {threshold} is {idx} (marks the top {len(sorted_output) - idx}), with value {sorted_output[idx]}"
-                    )
+                    if verbose:
+                        print(
+                            f"Idx of first element above {threshold} "
+                            f"is {idx} (marks the top {len(sorted_output) - idx}), "
+                            f"with value {sorted_output[idx]}"
+                        )
                 else:
-                    print(f"No element above {threshold}")
+                    if verbose:
+                        print(f"No element above {threshold}")
 
             # top k min value
             k_values = [5, 10, 20]
             for k in k_values:
                 topk_idx = len(sorted_output) - k
-                print(f"top {k=} min value {sorted_output[topk_idx]} ({topk_idx=})")
+                if verbose:
+                    print(f"top {k=} min value {sorted_output[topk_idx]} ({topk_idx=})")
     # ax.legend(title=f"{typed_sentence.stype.name}")
     ax.set_title(f"{sentence_type_descr} ({min_masking_rank=})")
     # ax.set_ylabel("logitis")
