@@ -385,7 +385,7 @@ def get_topk(
         res_logistic,
         res_normalized,
         logits_shifted_above_zero,
-    ) = get_bert_output(bert, sentence_ids, masked_word_idx)
+    ) = get_bert_output_single_masking(bert, sentence_ids, masked_word_idx)
     topk_probs_nonsoftmax = torch.topk(res_normalized, k)
     topk_tokens, topk_probs = get_topk_tokens_from_bert_output(
         res_softmax, tokenizer, k
@@ -401,12 +401,22 @@ def get_topk_tokens_from_bert_output(res_softmax, tokenizer, k=5):
     return topk_tokens, topk_probs
 
 
-def get_bert_output(
+def get_bert_output_single_masking(
     bert: BertPreTrainedModel,
     sentence_ids,
     masked_word_idx,
     verbose=False,
 ):
+    """
+        # gets bert output for a single sentence in which only the token at
+        # @masked_word_idx is masked
+    :param bert:
+    :param sentence_ids:
+    :param masked_word_idx:
+    :param verbose:
+    :return:
+    """
+
     # from the docs:
     # https: // huggingface.co / docs / transformers / main_classes / output
     # The outputs object is a SequenceClassifierOutput, as we can see in the
@@ -690,7 +700,7 @@ def get_sentence_probs_from_word_ids(
         res_logistic,
         res_normalized,
         logits_shifted_above_zero,
-    ) = get_bert_output(bert, sentence_ids, masked_word_idx)
+    ) = get_bert_output_single_masking(bert, sentence_ids, masked_word_idx)
 
     topk_tokens, top_probs = get_topk_tokens_from_bert_output(
         res_softmax, tokenizer, k=10

@@ -17,7 +17,7 @@ from linguistic_tests.bert_utils import convert_ids_to_tokens
 from linguistic_tests.bert_utils import count_split_words_in_sentence
 from linguistic_tests.bert_utils import estimate_sentence_probability
 from linguistic_tests.bert_utils import estimate_sentence_probability_from_text
-from linguistic_tests.bert_utils import get_bert_output
+from linguistic_tests.bert_utils import get_bert_output_single_masking
 from linguistic_tests.bert_utils import get_probs_for_words
 from linguistic_tests.bert_utils import get_score_descr
 from linguistic_tests.bert_utils import get_sentence_probs_from_word_ids
@@ -154,7 +154,7 @@ class TestBertUtils(TestCase):
             res_logistic,
             res_normalized,
             logits_shifted_above_zero,
-        ) = get_bert_output(model_m, sentence_ids, masked_word_idx)
+        ) = get_bert_output_single_masking(model_m, sentence_ids, masked_word_idx)
 
         assert isinstance(res, torch.Tensor)
         # assert res.shape == (k,)
@@ -237,7 +237,10 @@ class TestBertUtils(TestCase):
             res_normalized_m,
             None,
         )
-        assert linguistic_tests.bert_utils.get_bert_output is mock_get_bert_output
+        assert (
+            linguistic_tests.bert_utils.get_bert_output_single_masking
+            is mock_get_bert_output
+        )
 
         topk_tokens_m = random.sample(range(0, vocab_size - 1), k)
         topk_probs_m = torch.rand(k)

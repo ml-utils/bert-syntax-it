@@ -12,6 +12,7 @@ from linguistic_tests.testset import Example
 from linguistic_tests.testset import TestSet
 from scipy.special import softmax
 from tqdm import tqdm
+from transformers.modeling_outputs import MaskedLMOutput
 
 
 def score_dataclass_testset(
@@ -419,6 +420,9 @@ def get_sentence_score_JHLau(
 
     elif model_type in BERT_LIKE_MODEL_TYPES:  #
 
+        # gets bert output for a batch containing all variations of the sentence
+        # in which only one word is masked
+
         batched_indexed_tokens = []
         batched_segment_ids = []
 
@@ -439,7 +443,8 @@ def get_sentence_score_JHLau(
             indexed_tokens = tokenizer.convert_tokens_to_ids(tokenize_masked)
             # Define sentence A and B indices associated to 1st and 2nd
             # sentences (see paper)
-            segment_ids = [0] * len(tokenize_masked)
+            SENTENCE_A_IDX = 0
+            segment_ids = [SENTENCE_A_IDX] * len(tokenize_masked)
 
             batched_indexed_tokens.append(indexed_tokens)
             batched_segment_ids.append(segment_ids)
@@ -451,16 +456,23 @@ def get_sentence_score_JHLau(
         # Predict all tokens
         with torch.no_grad():
             # print(f'type(model): {type(model)}')
-            outputs = model(tokens_tensor, token_type_ids=segment_tensor)
-            # when using bert-large-uncased and transformers BertModel:
+            model_output = model(tokens_tensor, token_type_ids=segment_tensor)
+            # when using bert-large-uncased and transformers BertModel (not supported here):
             # type(outputs) : <class 'transformers.modeling_outputs.
             # BaseModelOutputWithPoolingAndCrossAttentions'>
             # fields: attentions, cross attentions, hidden states, last hidden
             # state, past key values, pooler output nb fun(**arg): take a
             # dictionary of key-value pairs and unpack it into keyword
-            # arguments in a function call. when using bert-large-uncased and
-            # transformers BertForMaskedLM: type(outputs) : MaskedLMOutput
-            predictions = outputs[0]
+            # arguments in a function call.
+            # When using bert-large-uncased and transformers BertForMaskedLM:
+            # type(outputs) : MaskedLMOutput
+            if isinstance(model_output, MaskedLMOutput):
+                predictions_logits_whole_batch = (
+                    model_output.logits
+                )  # = model_output[0]
+            else:
+                # former/deprecated version of transformers
+                predictions_logits_whole_batch = model_output
 
         # go through each word and sum their logprobs
         lp = 0.0
@@ -473,7 +485,7 @@ def get_sentence_score_JHLau(
         tokens_scores = []
         for i in range(len(sentence_tokens)):
             masked_index = i + 1 + 0  # not use_context variant
-            predicted_score = predictions[i, masked_index]
+            predicted_score = predictions_logits_whole_batch[i, masked_index]
             token_score = predicted_score[
                 tokenizer.convert_tokens_to_ids([tokenize_combined[masked_index]])[0]
             ]

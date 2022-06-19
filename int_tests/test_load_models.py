@@ -6,7 +6,7 @@ import pytest
 import torch
 from _pytest._code.code import ExceptionInfo
 from linguistic_tests.bert_utils import convert_ids_to_tokens
-from linguistic_tests.bert_utils import get_bert_output
+from linguistic_tests.bert_utils import get_bert_output_single_masking
 from linguistic_tests.lm_utils import CustomTokenizerWrapper
 from linguistic_tests.lm_utils import get_models_dir
 from pytest_socket import SocketBlockedError
@@ -56,7 +56,7 @@ class TestLoadModels(TestCase):
             res_logistic,
             res_normalized,
             logits_shifted_above_zero,
-        ) = get_bert_output(model, input_ids, masked_index_in_sentence)
+        ) = get_bert_output_single_masking(model, input_ids, masked_index_in_sentence)
         k = 5
         topk_probs, topk_ids = torch.topk(res_softmax, k)
         topk_ids = list(topk_ids)
@@ -107,7 +107,9 @@ class TestLoadModels(TestCase):
             res_logistic,
             res_normalized,
             logits_shifted_above_zero,
-        ) = get_bert_output(model, sentence_ids, masked_index_in_sentence)
+        ) = get_bert_output_single_masking(
+            model, sentence_ids, masked_index_in_sentence
+        )
         k = 5
         topk_probs, topk_ids = torch.topk(res_softmax, k)
         topk_tokens = convert_ids_to_tokens(
