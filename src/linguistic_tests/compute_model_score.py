@@ -399,7 +399,7 @@ def get_sentence_score_JHLau(
         sentence_ids_in_batch_as_tensor = torch.tensor(
             sentence_ids_in_batch, device=device
         )
-        # nb: this labels variable not actually used when "not using context"
+
         batch_labels = torch.tensor(sentence_ids_in_batch, device=device)
 
         DO_NOT_COMPUTE_LOSS_OVER_THESE_TOKENS = -1
@@ -409,7 +409,10 @@ def get_sentence_score_JHLau(
         # nb: labels should be the "correct" output tokens the model should return
         # nb: there is no masked token in this case
         model_output = model(
-            sentence_ids_in_batch_as_tensor, labels=sentence_ids_in_batch_as_tensor
+            # nb: this labels variable not actually used when "not using context"
+            # todo, check: is this a copy&paste error?
+            sentence_ids_in_batch_as_tensor,
+            labels=sentence_ids_in_batch_as_tensor,
         )
         loss = model_output.loss  # in this case equivalent to model_output[0]
         return float(loss) * -1.0 * len(sentence_tokens), None, None
