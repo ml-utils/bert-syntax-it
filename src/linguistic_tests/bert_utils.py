@@ -703,34 +703,26 @@ def get_sentence_probs_from_word_ids(
         logits_shifted_above_zero,
     ) = get_bert_output_single_masking(bert, sentence_ids, masked_word_idx)
 
-    # return (
-    #     detached_logits_masked_word_predictions,
-    #     softmax_on_logits_masked_word_predictions,
-    #     logistic_values_on_logits_masked_word_predictions,
-    #     logits_normalized,
-    #     logits_shifted_from_zero,
-    # )
-
-    topk_tokens, top_probs = get_topk_tokens_from_bert_output(
-        softmax_on_logits_masked_word_predictions, tokenizer, k=10
-    )
-
     # todo: implement for logits_nonnegative
     # needs the max value among the two sentences to compare
 
     if scorebase == sentence_score_bases.SOFTMAX:
-        res_to_use = softmax_on_logits_masked_word_predictions
+        model_output_to_use = softmax_on_logits_masked_word_predictions
     elif scorebase == sentence_score_bases.NORMALIZED_LOGITS:
-        res_to_use = logits_masked_word_predictions
+        model_output_to_use = logits_masked_word_predictions
     elif scorebase == sentence_score_bases.LOGISTIC_FUN:
-        res_to_use = logistic_values_on_logits_masked_word_predictions
+        model_output_to_use = logistic_values_on_logits_masked_word_predictions
     else:
         raise ValueError(f"Invalid scorebase defined: {scorebase}.")
 
-    scores = __get_scores_from_word_ids(res_to_use, masked_words_ids)
+    scores = __get_scores_from_word_ids(model_output_to_use, masked_words_ids)
 
     logits_nonnegative = __get_scores_from_word_ids(
         logits_shifted_above_zero, masked_words_ids
+    )
+
+    topk_tokens, top_probs = get_topk_tokens_from_bert_output(
+        softmax_on_logits_masked_word_predictions, tokenizer, k=10
     )
     return scores, topk_tokens, logits_nonnegative
 

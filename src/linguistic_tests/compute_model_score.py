@@ -491,14 +491,16 @@ def get_sentence_score_JHLau(
         tokens_scores = []
         for i in range(len(sentence_tokens)):
             masked_token_index = i + 1 + 0  # not use_context variant
-            predicted_score = predictions_logits_whole_batch[i, masked_token_index]
-            token_score = predicted_score[
+            predictions_scores_this_masking = predictions_logits_whole_batch[
+                i, masked_token_index
+            ]
+            actual_token_score = predictions_scores_this_masking[
                 tokenizer.convert_tokens_to_ids(
                     [sentence_tokens_with_specials[masked_token_index]]
                 )[0]
             ]
-            tokens_scores.append(float(token_score))
-            predicted_scores_numpy = predicted_score.cpu().numpy()
+            tokens_scores.append(float(actual_token_score))
+            predicted_scores_numpy = predictions_scores_this_masking.cpu().numpy()
             predicted_prob = softmax(predicted_scores_numpy)
 
             logistic_score = logistic3(predicted_scores_numpy)

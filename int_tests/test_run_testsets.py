@@ -226,15 +226,15 @@ class TestRunTestSets(TestCase):
 
     @pytest.mark.enable_socket
     @patch.object(plt, "show")
-    def test_model_outputs(self, pyplot_show_mock):
+    def test_model_outputs(self, pyplot_show_mock=None):
         assert plt.show is pyplot_show_mock
         plot_span_of_Bert_output_logitis()
 
     @staticmethod
     def plot_logistic2():
 
-        # 100 linearly spaced numbers
-        x = np.linspace(-30, 30, 1000)
+        # 1000 linearly spaced numbers
+        x = np.linspace(-20, 25, 1000)
 
         # the function, which is y = x^2 here
         y = logistic2(x)
@@ -282,7 +282,8 @@ def plot_span_of_Bert_output_logitis():
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
     do_random_sentences = True
-    if not do_random_sentences:
+    do_real_sentences = True
+    if do_real_sentences:
         phenomena = [
             "wh_adjunct_island",  # "mini_wh_adjunct_island",
         ]
@@ -302,21 +303,33 @@ def plot_span_of_Bert_output_logitis():
             max_examples=1000,
         )
         examples_to_plot = parsed_testsets[0].examples  # examples[0:2]
-    else:
+        plot_span_of_Bert_output_logitis_helper(
+            _plot_typed_sentence_scores, examples_to_plot, tokenizer, model, model_name
+        )
+
+    if do_random_sentences:
         example_dict = {"sentences": [0, 1, 2, 3]}
         example_adict = AttrDict(example_dict)
         examples_to_plot = [example_adict]
+        plot_span_of_Bert_output_logitis_helper(
+            _plot_scores_of_random_sentence,
+            examples_to_plot,
+            tokenizer,
+            model,
+            model_name,
+        )
 
+
+def plot_span_of_Bert_output_logitis_helper(
+    plotting_fun, examples_to_plot, tokenizer, model, model_name
+):
     print(f"there are {len(examples_to_plot)=}")
     for example in examples_to_plot:
         fig, axs = plt.subplots(2, 2)
         axs_list = axs.reshape(-1)
 
         for typed_sentence, ax in zip(example.sentences, axs_list):
-            if do_random_sentences:
-                _plot_scores_of_random_sentence(tokenizer, model, ax)
-            else:
-                _plot_typed_sentence_scores(typed_sentence, tokenizer, model, ax)
+            plotting_fun(typed_sentence, tokenizer, model, ax)
 
         # plt.legend()
         # plt.suptitle(f"Model: {scored_testsets[0].model_descr}")
@@ -334,7 +347,7 @@ def plot_span_of_Bert_output_logitis():
         plt.show()
 
 
-def _plot_scores_of_random_sentence(tokenizer, model, ax):
+def _plot_scores_of_random_sentence(_, tokenizer, model, ax):
     import random
 
     sentence_lenght = 10
@@ -343,7 +356,7 @@ def _plot_scores_of_random_sentence(tokenizer, model, ax):
 
     sentence_tokens = tokenizer.convert_ids_to_tokens(random_ids)
     sentence_type_descr = "RAND"
-    _plot_sentence_scores(
+    _plot_bert_sentence_scores(
         sentence_tokens, sentence_type_descr, ax, tokenizer, model, zoom=False
     )
 
@@ -354,10 +367,12 @@ def _plot_typed_sentence_scores(typed_sentence: TypedSentence, tokenizer, model,
     sentence.tokens = tokenizer.tokenize(sentence.txt)  # , return_tensors='pt'
     sentence_tokens = sentence.tokens
     sentence_type_descr = typed_sentence.stype.name
-    _plot_sentence_scores(sentence_tokens, sentence_type_descr, ax, tokenizer, model)
+    _plot_bert_sentence_scores(
+        sentence_tokens, sentence_type_descr, ax, tokenizer, model, zoom=False
+    )
 
 
-def _plot_sentence_scores(
+def _plot_bert_sentence_scores(
     sentence_tokens,
     sentence_type_descr,
     ax,
@@ -365,8 +380,8 @@ def _plot_sentence_scores(
     model,
     zoom=True,
     verbose=False,
+    plot_probabilities=True,
 ):
-
     batched_indexed_tokens = []
     batched_segment_ids = []
     device = DEVICES.CPU
@@ -375,9 +390,9 @@ def _plot_sentence_scores(
     for i in range(len(sentence_tokens)):
         # Mask a token that we will try to predict back with
         # `BertForMaskedLM`
-        masked_index = i + 1 + 0  # not use_context variant
+        masked_token_index = i + 1 + 0  # not use_context variant
         tokenize_masked = tokenize_combined.copy()
-        tokenize_masked[masked_index] = "[MASK]"
+        tokenize_masked[masked_token_index] = "[MASK]"
         # unidir bert
         # for j in range(masked_index, len(tokenize_combined)-1):
         #    tokenize_masked[j] = '[MASK]'
@@ -394,35 +409,40 @@ def _plot_sentence_scores(
     segment_tensor = tensor(batched_segment_ids, device=device)
 
     with no_grad():
-        outputs = model(tokens_tensor, token_type_ids=segment_tensor)
-        predictions = outputs[0]
-        vocab_size = len(predictions[0, 1].cpu().numpy())
+        model_output = model(tokens_tensor, token_type_ids=segment_tensor)
+        predictions_logits_whole_batch = model_output.logits  # model_output[0]
+        vocab_size = len(predictions_logits_whole_batch[0, 1].cpu().numpy())
         min_masking_rank = vocab_size - 1
         for i in range(len(sentence_tokens)):
-            masked_index = i + 1 + 0  # not use_context variant
-            predicted_score = predictions[i, masked_index]
+            masked_token_index = i + 1 + 0  # not use_context variant
+            predictions_scores_this_masking = predictions_logits_whole_batch[
+                i, masked_token_index
+            ]
 
-            predicted_scores_numpy = predicted_score.cpu().numpy()
-
+            predicted_scores_numpy = predictions_scores_this_masking.cpu().numpy()
             sorted_output = np.sort(predicted_scores_numpy)
+
             if zoom:
                 # slicing the output array to the last 2500 values
                 top_values_to_plot = 2500
             else:
                 top_values_to_plot = len(sorted_output)
+
             output_to_plot_y = sorted_output[-top_values_to_plot:]
+            if plot_probabilities:
+                output_to_plot_y = logistic2(output_to_plot_y)
             output_to_plot_x = range(
                 len(sorted_output) - top_values_to_plot, len(sorted_output)
             )
             plotted_lines = ax.plot(
                 output_to_plot_x,
                 output_to_plot_y,
-                label=f"{tokenize_combined[masked_index]}",
+                label=f"{tokenize_combined[masked_token_index]}",
             )
             masked_token_id = tokenizer.convert_tokens_to_ids(
-                [tokenize_combined[masked_index]]
+                [tokenize_combined[masked_token_index]]
             )[0]
-            token_score = np.asscalar(predicted_score[masked_token_id])
+            token_score = np.asscalar(predictions_scores_this_masking[masked_token_id])
             print(f"{type(token_score)=}, {token_score=}")
             np_where_result = np.where(sorted_output == token_score)
 
@@ -441,8 +461,9 @@ def _plot_sentence_scores(
             else:
                 masked_token_new_id = np.asscalar(np_where_result[0])
             min_masking_rank = min(masked_token_new_id, min_masking_rank)
-            ax.axvline(x=masked_token_new_id, color=plotted_lines[0].get_color())
-            ax.grid(True)
+            if not plot_probabilities:
+                ax.axvline(x=masked_token_new_id, color=plotted_lines[0].get_color())
+
             # ax.xaxis.grid(which='minor')
 
             # todo:
@@ -478,3 +499,4 @@ def _plot_sentence_scores(
         ax.set_xlim(xmin=min_masking_rank - 5, xmax=vocab_size + 1)
         ax.set_ylim(ymin=3, ymax=22)
     ax.legend(loc="upper left")
+    ax.grid(True)
