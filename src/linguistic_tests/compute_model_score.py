@@ -423,40 +423,45 @@ def get_sentence_score_JHLau(
         # gets bert output for a batch containing all variations of the sentence
         # in which only one word is masked
 
-        batched_indexed_tokens = []
-        batched_segment_ids = []
+        batch_of_masked_sentences_ids = []
+        batch_of_segment_ids = []
 
         # not use_context variant:
-        tokenize_combined = ["[CLS]"] + sentence_tokens + ["[SEP]"]
+        sentence_tokens_with_specials = ["[CLS]"] + sentence_tokens + ["[SEP]"]
 
         for i in range(len(sentence_tokens)):
             # Mask a token that we will try to predict back with
             # `BertForMaskedLM`
-            masked_index = i + 1 + 0  # not use_context variant
-            tokenize_masked = tokenize_combined.copy()
-            tokenize_masked[masked_index] = "[MASK]"
+            masked_token_index = i + 1 + 0  # not use_context variant, len(context) = 0
+            sentence_tokens_with_mask = sentence_tokens_with_specials.copy()
+            sentence_tokens_with_mask[masked_token_index] = "[MASK]"
             # unidir bert
             # for j in range(masked_index, len(tokenize_combined)-1):
             #    tokenize_masked[j] = '[MASK]'
 
-            # Convert token to vocabulary indices
-            indexed_tokens = tokenizer.convert_tokens_to_ids(tokenize_masked)
+            sentence_ids_with_mask = tokenizer.convert_tokens_to_ids(
+                sentence_tokens_with_mask
+            )
             # Define sentence A and B indices associated to 1st and 2nd
             # sentences (see paper)
             SENTENCE_A_IDX = 0
-            segment_ids = [SENTENCE_A_IDX] * len(tokenize_masked)
+            segment_ids = [SENTENCE_A_IDX] * len(sentence_tokens_with_mask)
 
-            batched_indexed_tokens.append(indexed_tokens)
-            batched_segment_ids.append(segment_ids)
+            batch_of_masked_sentences_ids.append(sentence_ids_with_mask)
+            batch_of_segment_ids.append(segment_ids)
 
-        # Convert inputs to PyTorch tensors
-        tokens_tensor = torch.tensor(batched_indexed_tokens, device=device)
-        segment_tensor = torch.tensor(batched_segment_ids, device=device)
-        # print(f'sentence_tokens: {sentence_tokens}')
+        sentences_batch_as_tens = torch.tensor(
+            batch_of_masked_sentences_ids, device=device
+        )
+        segments_batch_as_tens = torch.tensor(batch_of_segment_ids, device=device)
+
         # Predict all tokens
         with torch.no_grad():
-            # print(f'type(model): {type(model)}')
-            model_output = model(tokens_tensor, token_type_ids=segment_tensor)
+
+            model_output = model(
+                sentences_batch_as_tens, token_type_ids=segments_batch_as_tens
+            )
+
             # when using bert-large-uncased and transformers BertModel (not supported here):
             # type(outputs) : <class 'transformers.modeling_outputs.
             # BaseModelOutputWithPoolingAndCrossAttentions'>
@@ -466,15 +471,16 @@ def get_sentence_score_JHLau(
             # arguments in a function call.
             # When using bert-large-uncased and transformers BertForMaskedLM:
             # type(outputs) : MaskedLMOutput
+
             if isinstance(model_output, MaskedLMOutput):
                 predictions_logits_whole_batch = (
                     model_output.logits
                 )  # = model_output[0]
             else:
-                # former/deprecated version of transformers
+                # for former/deprecated version of transformers
                 predictions_logits_whole_batch = model_output
 
-        # go through each word and sum their logprobs
+        # go through each word in the sentence and sum the logprobs of their predictions when masked
         lp = 0.0
         log_logistic = 0.0
         #     logits_min_abs = torch.abs(torch.min(res.detach()))
@@ -484,10 +490,12 @@ def get_sentence_score_JHLau(
         #     res_normalized = torch.div(logits_shifted_above_zero, logits_sum)
         tokens_scores = []
         for i in range(len(sentence_tokens)):
-            masked_index = i + 1 + 0  # not use_context variant
-            predicted_score = predictions_logits_whole_batch[i, masked_index]
+            masked_token_index = i + 1 + 0  # not use_context variant
+            predicted_score = predictions_logits_whole_batch[i, masked_token_index]
             token_score = predicted_score[
-                tokenizer.convert_tokens_to_ids([tokenize_combined[masked_index]])[0]
+                tokenizer.convert_tokens_to_ids(
+                    [sentence_tokens_with_specials[masked_token_index]]
+                )[0]
             ]
             tokens_scores.append(float(token_score))
             predicted_scores_numpy = predicted_score.cpu().numpy()
@@ -496,7 +504,7 @@ def get_sentence_score_JHLau(
             logistic_score = logistic3(predicted_scores_numpy)
 
             masked_word_id = tokenizer.convert_tokens_to_ids(
-                [tokenize_combined[masked_index]]
+                [sentence_tokens_with_specials[masked_token_index]]
             )[0]
             lp += np.log(predicted_prob[masked_word_id])
             log_logistic += np.log(logistic_score[masked_word_id])
@@ -509,7 +517,7 @@ def get_sentence_score_JHLau(
                     f"{predicted_prob[masked_word_id]=}, "
                     f"{np.log(logistic_score[masked_word_id])=}, "
                     f"{np.log(predicted_prob[masked_word_id])=}, "
-                    f"({tokenize_combined[masked_index]})"
+                    f"({sentence_tokens_with_specials[masked_token_index]})"
                 )
         return lp, log_logistic, tokens_scores
     else:
