@@ -1,8 +1,4 @@
-from unittest import TestCase
-from unittest.mock import patch
-
 import numpy as np
-import pytest
 from linguistic_tests.compute_model_score import logistic2
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
@@ -20,10 +16,8 @@ from torch import tensor
 from int_tests.int_tests_utils import get_test_data_dir
 
 
-class DiagnosticsWithPlots(TestCase):
-    @patch.object(plt, "show")
-    def test_plot_logistic2(self, pyplot_show_mock=None):
-        assert plt.show is pyplot_show_mock
+class DiagnosticsWithPlots:
+    def plot_logistic2(self):
 
         # generate linearly spaced numbers start, stop, num
         x_range = np.linspace(start=-20, stop=25, num=1000)
@@ -39,10 +33,8 @@ class DiagnosticsWithPlots(TestCase):
         plt.legend()
         plt.show()
 
-    @pytest.mark.enable_socket
-    @patch.object(plt, "show")
-    def test_model_outputs(self, pyplot_show_mock=None):
-        assert plt.show is pyplot_show_mock
+    def model_outputs(self):
+
         plot_span_of_Bert_output_logitis()
 
 

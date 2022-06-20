@@ -364,6 +364,10 @@ def logistic3(x):
     return logistic2(x, k=0.25)
 
 
+def logistic4(x):
+    return logistic2(x, k=4)
+
+
 # nb, for bert it uses softmax
 def get_sentence_score_JHLau(
     model_type, model, tokenizer, sentence_tokens, device, verbose=False
