@@ -1,5 +1,6 @@
 import os
 import pickle
+import time
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
@@ -245,6 +246,10 @@ class TestSet:
     def save_to_pickle(self, filename):
         saving_dir = str(get_results_dir())
         filepath = os.path.join(saving_dir, filename)
+        if os.path.exists(filepath):
+            timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
+            filename = f"{filename}-{timestamp}.testset.pickle"
+            filepath = os.path.join(saving_dir, filename)
         print_orange(f"Saving testset to {filepath}")
         with open(filename, "wb") as file:
             pickle.dump(self, file)

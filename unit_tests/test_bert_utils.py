@@ -11,14 +11,13 @@ import torch
 from linguistic_tests import bert_utils
 from linguistic_tests.bert_utils import analize_example
 from linguistic_tests.bert_utils import analize_sentence
-from linguistic_tests.bert_utils import bert_get_logprobs
+from linguistic_tests.bert_utils import bert_get_logprobs_softmax
 from linguistic_tests.bert_utils import check_unknown_words
 from linguistic_tests.bert_utils import convert_ids_to_tokens
 from linguistic_tests.bert_utils import count_split_words_in_sentence
 from linguistic_tests.bert_utils import estimate_sentence_probability
 from linguistic_tests.bert_utils import estimate_sentence_probability_from_text
 from linguistic_tests.bert_utils import get_bert_output_single_masking
-from linguistic_tests.bert_utils import get_probs_for_words
 from linguistic_tests.bert_utils import get_score_descr
 from linguistic_tests.bert_utils import get_sentence_probs_from_word_ids
 from linguistic_tests.bert_utils import get_sentence_scores
@@ -90,7 +89,7 @@ class TestBertUtils(TestCase):
 
     @pytest.mark.skip("todo")
     def test_bert_get_logprobs(self):
-        bert_get_logprobs()
+        bert_get_logprobs_softmax()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
@@ -149,23 +148,16 @@ class TestBertUtils(TestCase):
         output_m.logits = logits
 
         (
-            res,
-            res_softmax,
-            res_logistic,
-            res_normalized,
-            logits_shifted_above_zero,
+            logits_word_predictions,
+            softmax_probabilities_word_predictions,
+            logistic_probabilities_word_predictions,
         ) = get_bert_output_single_masking(model_m, sentence_ids, masked_word_idx)
 
-        assert isinstance(res, torch.Tensor)
+        assert isinstance(logits_word_predictions, torch.Tensor)
         # assert res.shape == (k,)
-        assert res.shape == (vocab_size,)
-        assert res_softmax.shape == (vocab_size,)
-        assert res_normalized.shape == (vocab_size,)
-
-    @pytest.mark.skip("todo")
-    def test_get_probs_for_words(self):
-        get_probs_for_words()
-        raise NotImplementedError
+        assert logits_word_predictions.shape == (vocab_size,)
+        assert softmax_probabilities_word_predictions.shape == (vocab_size,)
+        assert logistic_probabilities_word_predictions.shape == (vocab_size,)
 
     @pytest.mark.skip("todo")
     def test_get_score_descr(self):
@@ -221,8 +213,11 @@ class TestBertUtils(TestCase):
 
         sentence_ids = tokenizer_m.convert_tokens_to_ids(tokens)
 
-        res_m, res_softmax_m, res_logistic, res_normalized_m = (
-            torch.rand(vocab_size),
+        (
+            logits_word_predictions,
+            softmax_probabilities_word_predictions,
+            logistic_probabilities_word_predictions,
+        ) = (
             torch.rand(vocab_size),
             torch.rand(vocab_size),
             torch.rand(vocab_size),
@@ -231,11 +226,9 @@ class TestBertUtils(TestCase):
             "linguistic_tests.bert_utils.get_bert_output_single_masking"
         )
         mock_get_bert_output.return_value = (
-            res_m,
-            res_softmax_m,
-            res_logistic,
-            res_normalized_m,
-            None,
+            logits_word_predictions,
+            softmax_probabilities_word_predictions,
+            logistic_probabilities_word_predictions,
         )
         assert (
             linguistic_tests.bert_utils.get_bert_output_single_masking
@@ -252,16 +245,16 @@ class TestBertUtils(TestCase):
             topk_probs_m,
         )
 
-        topk_tokens, topk_probs, topk_probs_nonsoftmax = get_topk(
+        topk_tokens, topk_probs_softmax, topk_probs_logistic = get_topk(
             model_m, tokenizer_m, sentence_ids, mask_ix, k=k
         )
 
         assert isinstance(topk_tokens, list)
         assert len(topk_tokens) == k
-        assert isinstance(topk_probs, torch.Tensor)
-        assert topk_probs.shape == (k,)
-        assert isinstance(topk_probs_nonsoftmax, torch.return_types.topk)
-        assert topk_probs_nonsoftmax.values.shape == (k,)
+        assert isinstance(topk_probs_softmax, torch.Tensor)
+        assert topk_probs_softmax.shape == (k,)
+        assert isinstance(topk_probs_logistic, torch.Tensor)
+        assert topk_probs_logistic.values.shape == (k,)
 
     @pytest.mark.skip("todo")
     def test_get_topk_tokens_from_bert_output(self):

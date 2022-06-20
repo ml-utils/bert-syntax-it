@@ -1,3 +1,6 @@
+import os
+import time
+
 from linguistic_tests.bert_utils import estimate_sentence_probability
 from linguistic_tests.compute_model_score import score_dataclass_testset
 from linguistic_tests.file_utils import parse_testsets
@@ -75,9 +78,13 @@ def run_blimp_en(
         )
 
         scored_testset.model_descr = model_name
-        scored_testset.save_to_pickle(
-            scored_testset.linguistic_phenomenon + ".testset.pickle"
-        )
+        filename = f"{scored_testset.linguistic_phenomenon}.testset.pickle"
+        if os.path.exists(filename):
+            timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
+            filename = (
+                f"{scored_testset.linguistic_phenomenon}-{timestamp}.testset.pickle"
+            )
+        scored_testset.save_to_pickle(filename)
 
     return parsed_testsets
 

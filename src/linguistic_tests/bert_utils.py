@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 import torch
 from linguistic_tests.compute_model_score import logistic3
@@ -60,9 +58,8 @@ def analize_example(
     )
 
     (
-        penLP_by_sentence,
-        words_logits_by_sentence,
-        normalized_logits_by_sentence,
+        penLP_from_softmax_by_sentence,
+        penLP_from_logistic_by_sentence,
     ) = __get_example_estimates(
         bert, tokenizer, sentences, tokens_by_sentence, score_based_on
     )
@@ -78,8 +75,8 @@ def analize_example(
     ) = __get_acceptability_diffs(
         bert,
         tokenizer,
-        penLP_by_sentence,
-        normalized_logits_by_sentence,
+        penLP_from_softmax_by_sentence,
+        penLP_from_logistic_by_sentence,
         example_idx,
         oov_counts,
         sentences,
@@ -124,50 +121,24 @@ def analize_example(
 
 
 def __get_example_estimates(bert, tokenizer, sentences, tokens_by_sentence, scorebase):
-    penLP_by_sentence = []
-    words_logits_by_sentence = []
-    max_logits = 0
-    for sentence_idx, sentence in enumerate(sentences):
-        if sentence is not None and len(sentence) > 0:
-            # prob = estimate_sentence_probability_from_text(bert, tokenizer,
-            # sentence)
-            pen_lp, logits_nonnegative_for_each_word = get_sentence_scores(
-                bert,
-                tokenizer,
-                sentence,
-                tokens_by_sentence[sentence_idx],
-                scorebase,
-            )
-            penLP_by_sentence.append(pen_lp)
-            if isinstance(bert, BertForMaskedLM):
-                words_logits_by_sentence.append(logits_nonnegative_for_each_word)
-                if max(logits_nonnegative_for_each_word) > max_logits:
-                    max_logits = max(logits_nonnegative_for_each_word)
+    penLP_from_softmax_by_sentence = []
+    penLP_from_logistic_by_sentence = []
 
-    sentences_estimates_normalized_logits = []
-    if isinstance(bert, BertForMaskedLM):
-        words_normalized_logits_by_sentence = []
-        for sentence_idx, sentence_logits in enumerate(words_logits_by_sentence):
-            words_normalized_logits_by_sentence.append(
-                [word_logits / max_logits for word_logits in sentence_logits]
-            )
-            this_sentence_estimate_normalized_logits = 0
-            # print(f'words_normalized_logits_by_sentence[sentence_idx]:
-            # {words_normalized_logits_by_sentence[sentence_idx]}')
-            for word_logits in words_normalized_logits_by_sentence[sentence_idx]:
-                # do math.log of each word score and add to the total
-                this_sentence_estimate_normalized_logits += math.log(word_logits)
-            this_sentence_estimate_normalized_logits = get_pen_score(
-                this_sentence_estimate_normalized_logits,
-                len(tokens_by_sentence[sentence_idx]),
-            )
-            sentences_estimates_normalized_logits.append(
-                this_sentence_estimate_normalized_logits
-            )
+    for sentence_idx, sentence in enumerate(sentences):
+
+        penLP_from_softmax, penLP_from_logistic = get_sentence_scores(
+            bert,
+            tokenizer,
+            sentence,
+            tokens_by_sentence[sentence_idx],
+            scorebase,
+        )
+        penLP_from_softmax_by_sentence.append(penLP_from_softmax)
+        penLP_from_logistic_by_sentence.append(penLP_from_logistic)
+
     return (
-        penLP_by_sentence,
-        words_logits_by_sentence,
-        sentences_estimates_normalized_logits,
+        penLP_from_softmax_by_sentence,
+        penLP_from_logistic_by_sentence,
     )
 
 
@@ -213,8 +184,6 @@ def get_score_descr(score_based_on):
 
     if score_based_on == sentence_score_bases.SOFTMAX:
         return ScoringMeasures.PenLP.name
-    elif score_based_on == sentence_score_bases.NORMALIZED_LOGITS:
-        return ScoringMeasures.PenNormLogits
     elif score_based_on == sentence_score_bases.LOGISTIC_FUN:
         return ScoringMeasures.PLL
     else:
@@ -224,8 +193,8 @@ def get_score_descr(score_based_on):
 def __get_acceptability_diffs(
     model,
     tokenizer,
-    penLP_by_sentence,
-    normalized_logits_by_sentence,
+    penLP_from_softmax_by_sentence,
+    penLP_from_logistic_by_sentence,
     example_idx,
     oov_counts,
     sentences,
@@ -234,12 +203,14 @@ def __get_acceptability_diffs(
 ):
     if type(model) in [BertForMaskedLM, RobertaModel, RobertaForMaskedLM]:
         if score_based_on == sentence_score_bases.SOFTMAX:
-            score_by_sentence = penLP_by_sentence
-        elif score_based_on == sentence_score_bases.NORMALIZED_LOGITS:
-            score_by_sentence = normalized_logits_by_sentence
+            score_by_sentence = penLP_from_softmax_by_sentence
+        elif score_based_on == sentence_score_bases.LOGISTIC_FUN:
+            score_by_sentence = penLP_from_logistic_by_sentence
         score_descr = get_score_descr(score_based_on)
     elif type(model) in [GPT2LMHeadModel]:
-        score_by_sentence = penLP_by_sentence
+        # actualy Gpt-based models return directly a loss value for the sentence
+        # (a LP or log probability value)
+        score_by_sentence = penLP_from_softmax_by_sentence
     else:
         raise ValueError(f"Unrecognized model type: {type(model)}")
 
@@ -322,9 +293,8 @@ def get_sentence_scores(
     sentence_tokens,
     scorebase,
 ):
-
     text_len = len(sentence_tokens)
-    lp, logits_nonnegative = estimate_sentence_probability_from_text(
+    lp_from_softmax, lp_from_logistic = estimate_sentence_probability_from_text(
         bert,
         tokenizer,
         sentence,
@@ -334,8 +304,9 @@ def get_sentence_scores(
     # model_score(tokenize_input, tokenize_context, bert, tokenizer, device,
     # args)
 
-    pen_lp = get_pen_score(lp, text_len)
-    return pen_lp, logits_nonnegative
+    pen_lp_softmax = get_pen_score(lp_from_softmax, text_len)
+    pen_lp_logistic = get_pen_score(lp_from_logistic, text_len)
+    return pen_lp_softmax, pen_lp_logistic
 
 
 def check_unknown_words(tokenizer: BertTokenizer):
@@ -380,17 +351,17 @@ def get_topk(
     k=5,
 ):
     (
-        res,
-        res_softmax,
-        res_logistic,
-        res_normalized,
-        logits_shifted_above_zero,
+        logits_word_predictions,
+        softmax_probabilities_word_predictions,
+        logistic_probabilities_word_predictions,
     ) = get_bert_output_single_masking(bert, sentence_ids, masked_word_idx)
-    topk_probs_nonsoftmax = torch.topk(res_normalized, k)
-    topk_tokens, topk_probs = get_topk_tokens_from_bert_output(
-        res_softmax, tokenizer, k
+    topk_tokens, topk_probs_logistic = get_topk_tokens_from_bert_output(
+        logistic_probabilities_word_predictions, tokenizer, k
     )
-    return topk_tokens, topk_probs, topk_probs_nonsoftmax
+    _, topk_probs_softmax = get_topk_tokens_from_bert_output(
+        softmax_probabilities_word_predictions, tokenizer, k
+    )
+    return topk_tokens, topk_probs_softmax, topk_probs_logistic
 
 
 def get_topk_tokens_from_bert_output(res_softmax, tokenizer, k=5):
@@ -453,45 +424,33 @@ def get_bert_output_single_masking(
     first_element_in_batch_idx = 0
     # going from shape (batch_size, sequence_length, config.vocab_size))
     # to shape = (vocab_size)
-    logits_masked_word_predictions = logits_whole_batch[
+    logits_masked_word_predictions_cuda = logits_whole_batch[
         first_element_in_batch_idx, masked_word_idx
     ]
 
-    # todo: produce probabilities not with softmax (not using an exponential,
-    #  to avoiding the maximization of top results),
-    #  then compare these probailities with the softmax ones, expecially for
-    #  ungrammatical sentences
-    detached_logits_masked_word_predictions = logits_masked_word_predictions.detach()
+    # todo: compare the probailities outcomes btw logistic function and sofmax,
+    #  for ungrammatical sentences. A way to discriminate (separate linearly)
+    #  grammatical vs ungrammatical/unacceptable sentences?
+    logits_word_predictions = logits_masked_word_predictions_cuda.detach()
     LAST_DIMENSION_IDX = -1
-    softmax_on_logits_masked_word_predictions = softmax(
-        detached_logits_masked_word_predictions, axis=LAST_DIMENSION_IDX
+    softmax_probabilities_word_predictions = softmax(
+        logits_word_predictions, axis=LAST_DIMENSION_IDX
     )
-    logistic_values_on_logits_masked_word_predictions = logistic3(
-        detached_logits_masked_word_predictions
-    )
-
-    logits_min = torch.min(detached_logits_masked_word_predictions)
-    logits_shifted_from_zero = torch.subtract(
-        detached_logits_masked_word_predictions, logits_min
-    )
-    logits_sum = torch.sum(logits_shifted_from_zero)
-    logits_normalized = torch.div(logits_shifted_from_zero, logits_sum)
+    logistic_probabilities_word_predictions = logistic3(logits_word_predictions)
 
     if verbose:
         print(f"tens size {sentence_ids_in_tensor_batch.size()}")
         print(f"res_unsliced size {logits_whole_batch.size()}")
-        print(f"res size {detached_logits_masked_word_predictions.size()}")
-        print(f"res_softmax size {softmax_on_logits_masked_word_predictions.size()}")
-        print(f"res_normalized size {logits_normalized.size()}")
+        print(f"res size {logits_word_predictions.size()}")
+        print(f"res_softmax size {softmax_probabilities_word_predictions.size()}")
 
-    # RuntimeError: Can't call numpy() on Tensor that requires grad.
-    # Use tensor.detach().numpy() instead.
+    # todo: NB: potential naming confusion with the "LP"/"log probability":
+    #  that should be renamed "log logistic probability" and
+    #  "log softmax probability" depending on the function used.
     return (
-        detached_logits_masked_word_predictions,
-        softmax_on_logits_masked_word_predictions,
-        logistic_values_on_logits_masked_word_predictions,
-        logits_normalized,
-        logits_shifted_from_zero,
+        logits_word_predictions,
+        softmax_probabilities_word_predictions,
+        logistic_probabilities_word_predictions,
     )
 
 
@@ -537,8 +496,9 @@ def estimate_sentence_probability(
     CLS_ID = tokenizer.convert_tokens_to_ids(["[CLS]"])[0]
     SEP_ID = tokenizer.convert_tokens_to_ids(["[SEP]"])[0]
 
-    sentence_prob_estimate = 0
-    words_logits_nonnegative = []
+    sentence_log_prob_from_softmax = 0
+    sentence_log_prob_from_logistic = 0
+
     for masked_index in range(len(sentence_ids)):
         masked_sentence_ids = sentence_ids.copy()
         masked_word_id = masked_sentence_ids[masked_index]
@@ -546,30 +506,31 @@ def estimate_sentence_probability(
         masked_sentence_ids = [CLS_ID] + masked_sentence_ids + [SEP_ID]
 
         (
-            probability_of_words_predictions_in_this_masking,
+            softmax_probability_of_words_predictions_in_this_masking,
             topk_tokens,
-            logits_nonnegative,
+            logistic_probability_of_words_predictions_in_this_masking,
         ) = get_sentence_probs_from_word_ids(
             bert,
             tokenizer,
             masked_sentence_ids,
             [masked_word_id],
             masked_index + 1,
-            scorebase=scorebase,
         )
-        probability_of_this_masking = probability_of_words_predictions_in_this_masking[
-            0
-        ]  # we specified only one word
+        FIRST_PROBABILITY_IDX = 0  # NB [masked_word_id] only contains one word_id
+        softmax_probability_of_actual_word = (
+            softmax_probability_of_words_predictions_in_this_masking[
+                FIRST_PROBABILITY_IDX
+            ]
+        )
+        logistic_probability_of_actual_word = (
+            logistic_probability_of_words_predictions_in_this_masking[
+                FIRST_PROBABILITY_IDX
+            ]
+        )
 
-        # todo: unit test to avoid regressions in the output
-        # store, for each word masking, a value in an array, to be normalized
-        # later with the max logits of the 2 sentences to compare
-        # (or even return it and postpone the calculation later, doind a max
-        # over all examples, to have comparable measures)
-        # three arrays, one for each score measure: with softmax, and
-        # normalized logits, and normalized logits as probs
-        words_logits_nonnegative.append(logits_nonnegative[0])
-        sentence_prob_estimate += np.log(probability_of_this_masking)
+        sentence_log_prob_from_softmax += np.log(softmax_probability_of_actual_word)
+        sentence_log_prob_from_logistic += np.log(logistic_probability_of_actual_word)
+
         if verbose:
             print(
                 f"testing {convert_ids_to_tokens(tokenizer, [masked_word_id])}"
@@ -579,14 +540,10 @@ def estimate_sentence_probability(
             )
             # todo: also print the topk for the masking prediction
 
-    # todo: also alternative method with formula from paper balanced on
-    #  sentence lenght
-
-    log_prob = sentence_prob_estimate
-    return log_prob, words_logits_nonnegative  # np.exp(log_prob)
+    return sentence_log_prob_from_softmax, sentence_log_prob_from_logistic
 
 
-def bert_get_logprobs(tokenize_input, model, tokenizer):
+def bert_get_logprobs_softmax(tokenize_input, model, tokenizer):
     batched_indexed_tokens = []
     batched_segment_ids = []
 
@@ -647,48 +604,21 @@ def estimate_sentence_probability_from_text(
     return estimate_sentence_probability(bert, tokenizer, sentence_ids, scorebase)
 
 
-def get_probs_for_words(
-    bert: BertPreTrainedModel,
-    tokenizer: BertTokenizer,
-    sent,
-    w1,
-    w2,
-    scorebase,  # =sentence_score_bases.SOFTMAX,
-):
-    tokens, masked_word_idx = tokenize_sentence(tokenizer, sent)
-
-    sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
-    try:
-        masked_words_ids = tokenizer.convert_tokens_to_ids([w1, w2])
-    except KeyError:
-        print("skipping", w1, w2, "bad wins")
-        return None
-
-    probs_for_words, topk_tokens, _ = get_sentence_probs_from_word_ids(
-        bert,
-        tokenizer,
-        sentence_ids,
-        masked_words_ids,
-        masked_word_idx,
-        scorebase=scorebase,
-    )
-    return probs_for_words
-
-
 def get_sentence_probs_from_word_ids(
     bert: BertPreTrainedModel,
     tokenizer: BertTokenizer,
     sentence_ids,
     masked_words_ids,
-    masked_word_idx,
-    scorebase,
+    masked_word_idx_within_sentence,
 ):
     """
     :param bert:
     :param tokenizer:
     :param sentence_ids:
-    :param masked_words_ids:
-    :param masked_word_idx:
+    :param masked_words_ids: a list of possible predictions we want to get the score for.
+    Typically used for a minimal pair comparison, where one word leads to an acceptable
+    sentence and the other not.
+    :param masked_word_idx_within_sentence:
     :param scorebase: default softmax. Possible values: softmax, logits,
     logits_nonnegative,
     normalized_prob, normalized
@@ -696,35 +626,25 @@ def get_sentence_probs_from_word_ids(
     """
     # fixme: this should use the model call where each word is masked ..
     (
-        logits_masked_word_predictions,
-        softmax_on_logits_masked_word_predictions,
-        logistic_values_on_logits_masked_word_predictions,
-        logits_normalized,
-        logits_shifted_above_zero,
-    ) = get_bert_output_single_masking(bert, sentence_ids, masked_word_idx)
-
-    # todo: implement for logits_nonnegative
-    # needs the max value among the two sentences to compare
-
-    if scorebase == sentence_score_bases.SOFTMAX:
-        model_output_to_use = softmax_on_logits_masked_word_predictions
-    elif scorebase == sentence_score_bases.NORMALIZED_LOGITS:
-        model_output_to_use = logits_masked_word_predictions
-    elif scorebase == sentence_score_bases.LOGISTIC_FUN:
-        model_output_to_use = logistic_values_on_logits_masked_word_predictions
-    else:
-        raise ValueError(f"Invalid scorebase defined: {scorebase}.")
-
-    scores = __get_scores_from_word_ids(model_output_to_use, masked_words_ids)
-
-    logits_nonnegative = __get_scores_from_word_ids(
-        logits_shifted_above_zero, masked_words_ids
+        logits_word_predictions,
+        softmax_probabilities_word_predictions,
+        logistic_probabilities_word_predictions,
+    ) = get_bert_output_single_masking(
+        bert, sentence_ids, masked_word_idx_within_sentence
     )
 
-    topk_tokens, top_probs = get_topk_tokens_from_bert_output(
-        softmax_on_logits_masked_word_predictions, tokenizer, k=10
+    softmax_probabilities = __get_scores_from_word_ids(
+        softmax_probabilities_word_predictions, masked_words_ids
     )
-    return scores, topk_tokens, logits_nonnegative
+
+    logistic_probabilities = __get_scores_from_word_ids(
+        logistic_probabilities_word_predictions, masked_words_ids
+    )
+
+    topk_tokens, _ = get_topk_tokens_from_bert_output(
+        softmax_probabilities_word_predictions, tokenizer, k=10
+    )
+    return softmax_probabilities, topk_tokens, logistic_probabilities
 
 
 def __get_scores_from_word_ids(scores, word_ids_mask_predictions):

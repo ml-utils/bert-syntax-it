@@ -98,7 +98,6 @@ class ModelTypes(IntEnum):
 
 class sentence_score_bases:
     SOFTMAX = 0
-    NORMALIZED_LOGITS = 1
     LOGISTIC_FUN = 2
 
 

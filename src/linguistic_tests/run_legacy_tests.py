@@ -8,8 +8,8 @@ from linguistic_tests.bert_utils import analize_example
 from linguistic_tests.bert_utils import analize_sentence
 from linguistic_tests.bert_utils import check_unknown_words
 from linguistic_tests.bert_utils import estimate_sentence_probability_from_text
-from linguistic_tests.bert_utils import get_probs_for_words
 from linguistic_tests.bert_utils import get_score_descr
+from linguistic_tests.bert_utils import get_sentence_probs_from_word_ids
 from linguistic_tests.bert_utils import tokenize_sentence
 from linguistic_tests.compute_model_score import perc
 from linguistic_tests.lm_utils import get_sentences_from_example
@@ -20,6 +20,8 @@ from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.utils import vocab_it
 from torch.utils.hipify.hipify_python import bcolors
+from transformers import BertPreTrainedModel
+from transformers import BertTokenizer
 
 
 def load_it():
@@ -560,3 +562,30 @@ def t_determiner_noun_agreement_1():
 def print_profession_nouns():
     for noun in vocab_it.nouns_professions:
         print(noun + " ")
+
+
+def get_probs_for_words(
+    bert: BertPreTrainedModel,
+    tokenizer: BertTokenizer,
+    sent,
+    w1,
+    w2,
+    scorebase,  # =sentence_score_bases.SOFTMAX,
+):
+    tokens, masked_word_idx = tokenize_sentence(tokenizer, sent)
+
+    sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
+    try:
+        masked_words_ids = tokenizer.convert_tokens_to_ids([w1, w2])
+    except KeyError:
+        print("skipping", w1, w2, "bad wins")
+        return None
+
+    probs_for_words, topk_tokens, _ = get_sentence_probs_from_word_ids(
+        bert,
+        tokenizer,
+        sentence_ids,
+        masked_words_ids,
+        masked_word_idx,
+    )
+    return probs_for_words
