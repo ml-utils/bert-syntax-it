@@ -26,8 +26,6 @@ from transformers.convert_slow_tokenizer import SentencePieceExtractor
 
 def is_internet_on(url="https://huggingface.co"):
     try:
-        # import urllib2
-        # urllib2.urlopen(url, timeout=1)
         _ = urlopen(url, timeout=2.50)
         return True
     except (URLError, HTTPError):
