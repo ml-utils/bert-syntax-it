@@ -254,7 +254,7 @@ class TestBertUtils(TestCase):
         assert isinstance(topk_probs_softmax, torch.Tensor)
         assert topk_probs_softmax.shape == (k,)
         assert isinstance(topk_probs_logistic, torch.Tensor)
-        assert topk_probs_logistic.values.shape == (k,)
+        assert topk_probs_logistic.shape == (k,)
 
     @pytest.mark.skip("todo")
     def test_get_topk_tokens_from_bert_output(self):

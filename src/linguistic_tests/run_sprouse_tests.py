@@ -204,13 +204,13 @@ def score_sprouse_testset(
             stype = typed_sentence.stype
             sentence = typed_sentence.sent
 
-            testset.lp_average_by_sentence_type[stype] += sentence.lp
-            testset.penlp_average_by_sentence_type[stype] += sentence.pen_lp
+            testset.lp_average_by_sentence_type[stype] += sentence.lp_softmax
+            testset.penlp_average_by_sentence_type[stype] += sentence.pen_lp_softmax
             if model_type in BERT_LIKE_MODEL_TYPES:
-                testset.ll_average_by_sentence_type[stype] += sentence.log_logistic
+                testset.ll_average_by_sentence_type[stype] += sentence.lp_logistic
                 testset.penll_average_by_sentence_type[
                     stype
-                ] += sentence.pen_log_logistic
+                ] += sentence.pen_lp_logistic
 
     for stype in testset.lp_average_by_sentence_type.keys():
         testset.lp_average_by_sentence_type[stype] /= len(testset.examples)

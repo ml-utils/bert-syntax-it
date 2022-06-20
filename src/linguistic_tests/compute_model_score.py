@@ -84,20 +84,12 @@ def run_testset(
     correct_pen_lps_1st_sentence = 0
     correct_lps_2nd_sentence = 0
     correct_pen_lps_2nd_sentence = 0
-    correct_logweights_1st_sentence = 0
-    correct_logweights_2nd_sentence = 0
-    correct_pen_logweights_1st_sentence = 0
-    correct_pen_logweights_2nd_sentence = 0
+    correct_lls_1st_sentence = 0
+    correct_pen_lls_1st_sentence = 0
+    correct_lls_2nd_sentence = 0
+    correct_pen_lls_2nd_sentence = 0
     for example_idx, example_data in enumerate(tqdm(testset["sentences"])):
-        (
-            lps,
-            pen_lps,
-            lls,
-            penlls,
-            pen_sentence_log_weights,
-            sentence_log_weights,
-            sentences,
-        ) = get_example_scores(
+        (lps, pen_lps, lls, penlls, sentences,) = get_example_scores(
             device,
             example_data,
             model,
@@ -111,32 +103,20 @@ def run_testset(
         if pen_lps[sent_idx.GOOD_1] > pen_lps[sent_idx.BAD]:
             correct_pen_lps_1st_sentence += 1
         if model_type in BERT_LIKE_MODEL_TYPES:
-            if (
-                sentence_log_weights[sent_idx.GOOD_1]
-                > sentence_log_weights[sent_idx.BAD]
-            ):
-                correct_logweights_1st_sentence += 1
-            if (
-                pen_sentence_log_weights[sent_idx.GOOD_1]
-                > pen_sentence_log_weights[sent_idx.BAD]
-            ):
-                correct_pen_logweights_1st_sentence += 1
+            if lls[sent_idx.GOOD_1] > lls[sent_idx.BAD]:
+                correct_lls_1st_sentence += 1
+            if penlls[sent_idx.GOOD_1] > penlls[sent_idx.BAD]:
+                correct_pen_lls_1st_sentence += 1
         if len(sentences) > 2:
             if lps[sent_idx.GOOD_2] > lps[sent_idx.BAD]:
                 correct_lps_2nd_sentence += 1
             if pen_lps[sent_idx.GOOD_2] > pen_lps[sent_idx.BAD]:
                 correct_pen_lps_2nd_sentence += 1
             if model_type in BERT_LIKE_MODEL_TYPES:
-                if (
-                    sentence_log_weights[sent_idx.GOOD_2]
-                    > sentence_log_weights[sent_idx.BAD]
-                ):
-                    correct_logweights_2nd_sentence += 1
-                if (
-                    pen_sentence_log_weights[sent_idx.GOOD_2]
-                    > pen_sentence_log_weights[sent_idx.BAD]
-                ):
-                    correct_pen_logweights_2nd_sentence += 1
+                if lls[sent_idx.GOOD_2] > lls[sent_idx.BAD]:
+                    correct_lls_2nd_sentence += 1
+                if penlls[sent_idx.GOOD_2] > penlls[sent_idx.BAD]:
+                    correct_pen_lls_2nd_sentence += 1
 
     examples_count = len(testset["sentences"])
     print_accuracies(
@@ -146,10 +126,10 @@ def run_testset(
         correct_pen_lps_1st_sentence,
         correct_lps_2nd_sentence,
         correct_pen_lps_2nd_sentence,
-        correct_logweights_1st_sentence,
-        correct_pen_logweights_1st_sentence,
-        correct_logweights_2nd_sentence,
-        correct_pen_logweights_2nd_sentence,
+        correct_lls_1st_sentence,
+        correct_pen_lls_1st_sentence,
+        correct_lls_2nd_sentence,
+        correct_pen_lls_2nd_sentence,
     )
 
     return (
@@ -157,10 +137,10 @@ def run_testset(
         correct_pen_lps_1st_sentence,
         correct_lps_2nd_sentence,
         correct_pen_lps_2nd_sentence,
-        correct_logweights_1st_sentence,
-        correct_pen_logweights_1st_sentence,
-        correct_logweights_2nd_sentence,
-        correct_pen_logweights_2nd_sentence,
+        correct_lls_1st_sentence,
+        correct_pen_lls_1st_sentence,
+        correct_lls_2nd_sentence,
+        correct_pen_lls_2nd_sentence,
     )
 
 
@@ -218,36 +198,15 @@ def score_example(
         if len(sentence.tokens) == 0:
             print(f"Warning: lenght 0 for {sentence=} from {example=}")
         text_len = len(sentence.tokens)
-        lp, log_logistic, token_weights = get_sentence_score_JHLau(
+        lp_softmax, lp_logistic = get_sentence_score_JHLau(
             model_type, model, tokenizer, sentence.tokens, device
         )
 
-        sentence.lp = lp
+        sentence.lp_softmax = lp_softmax
+        sentence.lp_logistic = lp_logistic
         penalty = get_penalty_term(text_len)
-        sentence.pen_lp = lp / penalty
-        if model_type in BERT_LIKE_MODEL_TYPES:
-            example.min_token_weight = min(min(token_weights), example.min_token_weight)
-            example.max_token_weight = max(max(token_weights), example.max_token_weight)
-            sentence.token_weights = token_weights
-            sentence.log_logistic = log_logistic
-            sentence.pen_log_logistic = log_logistic / penalty
-
-    if model_type in BERT_LIKE_MODEL_TYPES:
-        # normalize token weights
-        example.max_token_weight -= example.min_token_weight  # normalize the max value
-        for _idx, typed_sentence in enumerate(example.sentences):
-            sentence = typed_sentence.sent
-            # normalized the token weights
-            sentence.token_weights = [
-                (x - example.min_token_weight) / example.max_token_weight
-                for x in sentence.token_weights
-            ]
-        for _idx, typed_sentence in enumerate(example.sentences):
-            sentence = typed_sentence.sent
-            sentence.sentence_log_weight = reduce_to_log_product(sentence.token_weights)
-            text_lenght = len(sentence.tokens)
-            penalty = get_penalty_term(text_lenght)
-            sentence.pen_sentence_log_weight = sentence.sentence_log_weight / penalty
+        sentence.pen_lp_softmax = lp_softmax / penalty
+        sentence.pen_lp_logistic = lp_logistic / penalty
 
     return example
 
@@ -270,57 +229,32 @@ def get_example_scores(
     pen_lps = []
     lls = []
     penlls = []
-    sentence_log_weights = []
-    pen_sentence_log_weights = []
-    token_weights_by_sentence = []
-    min_token_weight = 200
-    max_token_weight = -200
+
     # normalized_weights = []
     for sent_id, sentence in enumerate(sentences):
         sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
         if len(sentence_tokens) == 0:
             print(f"Warning: lenght 0 for {sentence=} from {example_data=}")
         text_len = len(sentence_tokens)
-        lp, log_logistic, token_weights = get_sentence_score_JHLau(
+        lp_softmax, lp_logistic = get_sentence_score_JHLau(
             model_type, model, tokenizer, sentence_tokens, device
         )
-        if model_type in BERT_LIKE_MODEL_TYPES:
-            min_token_weight = min(min(token_weights), min_token_weight)
-            max_token_weight = max(max(token_weights), max_token_weight)
-            token_weights_by_sentence.append(token_weights)
+
         # acceptability measures by sentence idx
         penalty = get_penalty_term(text_len)
-        lps.append(lp)
+        lps.append(lp_softmax)
         # mean_lps.append(lp / text_len)
-        pen_lps.append(lp / penalty)
+        pen_lps.append(lp_softmax / penalty)
         sent_ids.append(sent_id)
     if model_type in BERT_LIKE_MODEL_TYPES:
-        lls.append(log_logistic)
-        penlls.append(log_logistic / penalty)
+        lls.append(lp_logistic)
+        penlls.append(lp_logistic / penalty)
 
-        # normalize token weights
-        max_token_weight -= min_token_weight  # normalize the max value
-        for sentence_idx, token_weights_this_sentence in enumerate(
-            token_weights_by_sentence
-        ):
-            token_weights_by_sentence[sentence_idx] = [
-                (x - min_token_weight) / max_token_weight
-                for x in token_weights_this_sentence
-            ]
-            sentence_log_weight = reduce_to_log_product(
-                token_weights_by_sentence[sentence_idx]
-            )
-            sentence_log_weights.append(sentence_log_weight)
-            text_lenght = len(token_weights_by_sentence[sentence_idx])
-            penalty = get_penalty_term(text_lenght)
-            pen_sentence_log_weights.append(sentence_log_weight / penalty)
     return (
         lps,
         pen_lps,
         lls,
         penlls,
-        pen_sentence_log_weights,
-        sentence_log_weights,
         sentences,
     )
 
@@ -485,46 +419,34 @@ def get_sentence_score_JHLau(
                 predictions_logits_whole_batch = model_output
 
         # go through each word in the sentence and sum the logprobs of their predictions when masked
-        lp = 0.0
-        log_logistic = 0.0
-        #     logits_min_abs = torch.abs(torch.min(res.detach()))
-        #     logits_shifted_above_zero = torch.add(res.detach(),
-        #     logits_min_abs)
-        #     logits_sum = torch.sum(logits_shifted_above_zero)
-        #     res_normalized = torch.div(logits_shifted_above_zero, logits_sum)
-        tokens_scores = []
+        lp_softmax = 0.0
+        lp_logistic = 0.0
         for i in range(len(sentence_tokens)):
             masked_token_index = i + 1 + 0  # not use_context variant
-            predictions_scores_this_masking = predictions_logits_whole_batch[
+            cuda_logits_this_masking = predictions_logits_whole_batch[
                 i, masked_token_index
             ]
-            actual_token_score = predictions_scores_this_masking[
-                tokenizer.convert_tokens_to_ids(
-                    [sentence_tokens_with_specials[masked_token_index]]
-                )[0]
-            ]
-            tokens_scores.append(float(actual_token_score))
-            predicted_scores_numpy = predictions_scores_this_masking.cpu().numpy()
-            predicted_prob = softmax(predicted_scores_numpy)
 
-            logistic_score = logistic3(predicted_scores_numpy)
+            logits = cuda_logits_this_masking.cpu().numpy()
+            softmax_probabilities = softmax(logits)
+            logistic_probabilities = logistic4(logits)
 
             masked_word_id = tokenizer.convert_tokens_to_ids(
                 [sentence_tokens_with_specials[masked_token_index]]
             )[0]
-            lp += np.log(predicted_prob[masked_word_id])
-            log_logistic += np.log(logistic_score[masked_word_id])
+            lp_softmax += np.log(softmax_probabilities[masked_word_id])
+            lp_logistic += np.log(logistic_probabilities[masked_word_id])
             # verbose=True
             if verbose:
                 print(
                     f"masked word  scores: "
-                    f"{predicted_scores_numpy[masked_word_id]=}, "
-                    f"{logistic_score[masked_word_id]=}, "
-                    f"{predicted_prob[masked_word_id]=}, "
-                    f"{np.log(logistic_score[masked_word_id])=}, "
-                    f"{np.log(predicted_prob[masked_word_id])=}, "
+                    f"{logits[masked_word_id]=}, "
+                    f"{logistic_probabilities[masked_word_id]=}, "
+                    f"{softmax_probabilities[masked_word_id]=}, "
+                    f"{np.log(logistic_probabilities[masked_word_id])=}, "
+                    f"{np.log(softmax_probabilities[masked_word_id])=}, "
                     f"({sentence_tokens_with_specials[masked_token_index]})"
                 )
-        return lp, log_logistic, tokens_scores
+        return lp_softmax, lp_logistic
     else:
         raise ValueError(f"Error: unrecognized model type {model_type}")

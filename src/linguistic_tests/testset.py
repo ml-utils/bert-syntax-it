@@ -29,28 +29,23 @@ BLIMP_SENTENCE_TYPES = [
 class Sentence:
     txt: str
 
-    lp: float = -200
-    pen_lp: float = -200
-    log_logistic = -200
-    pen_log_logistic = -200
-    sentence_log_weight: float = -200
-    pen_sentence_log_weight: float = -200
-    # lps: list[float] = field(default_factory=list)
-    # pen_lps: list[float] = field(default_factory=list)
-    token_weights: list[float] = field(default_factory=list)
+    lp_softmax: float = -200
+    pen_lp_softmax: float = -200
+    lp_logistic = -200
+    pen_lp_logistic = -200
 
     # todo? add sentence ids
     tokens: list[str] = field(default_factory=list)
 
     def get_score(self, scoring_measure: ScoringMeasures):
         if scoring_measure == ScoringMeasures.LP:
-            return self.lp
+            return self.lp_softmax
         elif scoring_measure == ScoringMeasures.PenLP:
-            return self.pen_lp
+            return self.pen_lp_softmax
         elif scoring_measure == ScoringMeasures.LL:
-            return self.log_logistic
+            return self.lp_logistic
         elif scoring_measure == ScoringMeasures.PLL:
-            return self.pen_log_logistic
+            return self.pen_lp_logistic
         else:
             raise ValueError(f"Unexpected scoring_measure: {scoring_measure}")
 
@@ -65,10 +60,6 @@ class TypedSentence:
 class Example:
     # todo: convert to dict[]
     sentences: list[TypedSentence]
-
-    min_token_weight: float = 200
-    max_token_weight: float = -200
-    # token_weights_by_sentence = [] # ..todo
 
     DD_with_lp: float = -200
     DD_with_penlp: float = -200
