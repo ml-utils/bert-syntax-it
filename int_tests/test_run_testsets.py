@@ -22,6 +22,7 @@ from linguistic_tests.run_sprouse_tests import score_sprouse_testsets
 from linguistic_tests.run_syntactic_tests import run_blimp_en
 from linguistic_tests.testset import TypedSentence
 from matplotlib import pyplot as plt
+from scipy.special import softmax
 from torch import no_grad
 from torch import tensor
 
@@ -237,41 +238,21 @@ class TestRunTestSets(TestCase):
         assert plt.show is pyplot_show_mock
         plot_span_of_Bert_output_logitis()
 
-    @staticmethod
-    def plot_logistic2():
+    @patch.object(plt, "show")
+    def test_plot_logistic2(self, pyplot_show_mock=None):
+        assert plt.show is pyplot_show_mock
 
-        # 1000 linearly spaced numbers
-        x = np.linspace(-20, 25, 1000)
+        # generate linearly spaced numbers start, stop, num
+        x_range = np.linspace(start=-20, stop=25, num=1000)
 
-        # the function, which is y = x^2 here
-        y = logistic2(x)
+        # _ = logistic2(x_range)  # y_default =
 
-        # setting the axes at the centre
-        # fig = plt.figure()
-        # ax = fig.add_subplot(1, 1, 1)
-        # ax.spines['left'].set_position('center')
-        # ax.spines['bottom'].set_position('zero')
-        # ax.spines['right'].set_color('none')
-        # ax.spines['top'].set_color('none')
-        # ax.xaxis.set_ticks_position('bottom')
-        # ax.yaxis.set_ticks_position('left')
-
-        # plt.xlim((-20, 20))
-
-        # plot the function
-        plt.plot(x, y, label="default")
-
-        y_k_05 = logistic2(x, k=0.5)
-        plt.plot(x, y_k_05, label="y_k_05")
-
-        y_k_025 = logistic2(x, k=0.25)
-        plt.plot(x, y_k_025, label="y_k_025")
-
-        y_k_010 = logistic2(x, k=0.1)
-        plt.plot(x, y_k_010, label="y_k_010")
+        k_values = [4, 2, 1, 0.5, 0.25, 0.1]
+        for k in k_values:
+            y_values = logistic2(x_range, k=k)
+            plt.plot(x_range, y_values, label=f"{k=}")
 
         # show the plot
-
         plt.legend()
         plt.show()
 
@@ -378,7 +359,12 @@ def _plot_typed_sentence_scores(typed_sentence: TypedSentence, tokenizer, model,
     sentence_tokens = sentence.tokens
     sentence_type_descr = typed_sentence.stype.name
     _plot_bert_sentence_scores(
-        sentence_tokens, sentence_type_descr, ax, tokenizer, model, zoom=False
+        sentence_tokens,
+        sentence_type_descr,
+        ax,
+        tokenizer,
+        model,
+        zoom=True,  # zoom=False
     )
 
 
@@ -432,23 +418,36 @@ def _plot_bert_sentence_scores(
             predicted_scores_numpy = predictions_scores_this_masking.cpu().numpy()
             sorted_output = np.sort(predicted_scores_numpy)
 
+            if plot_probabilities:
+                output_to_plot_logistic = logistic2(sorted_output)
+                output_to_plot_softmax = softmax(sorted_output)
+
             if zoom:
                 # slicing the output array to the last 2500 values
-                top_values_to_plot = 2500
+                top_values_to_plot = 40  # 2500
+                output_to_plot_logistic = output_to_plot_logistic[-top_values_to_plot:]
+                output_to_plot_softmax = output_to_plot_softmax[-top_values_to_plot:]
             else:
                 top_values_to_plot = len(sorted_output)
 
-            output_to_plot_y = sorted_output[-top_values_to_plot:]
-            if plot_probabilities:
-                output_to_plot_y = logistic2(output_to_plot_y)
             output_to_plot_x = range(
                 len(sorted_output) - top_values_to_plot, len(sorted_output)
             )
-            plotted_lines = ax.plot(
-                output_to_plot_x,
-                output_to_plot_y,
-                label=f"{tokenize_combined[masked_token_index]}",
+            # plotted_lines_logistic = ax.plot(
+            #     output_to_plot_x,lo
+            #     output_to_plot_logistic,
+            #     label=f"{tokenize_combined[masked_token_index]}",
+            # )
+            print(
+                f"Plotting {len(output_to_plot_softmax)} values: {output_to_plot_softmax}"
             )
+            plotted_lines_softmax = ax.plot(
+                output_to_plot_x,
+                output_to_plot_softmax,
+                # color='r',
+            )
+            ax.set_xticks(output_to_plot_x)
+            plotted_lines = plotted_lines_softmax
             masked_token_id = tokenizer.convert_tokens_to_ids(
                 [tokenize_combined[masked_token_index]]
             )[0]
@@ -507,6 +506,6 @@ def _plot_bert_sentence_scores(
     # ax.set_ylabel("logitis")
     if zoom:
         ax.set_xlim(xmin=min_masking_rank - 5, xmax=vocab_size + 1)
-        ax.set_ylim(ymin=3, ymax=22)
+        # ax.set_ylim(ymin=3, ymax=22)
     ax.legend(loc="upper left")
     ax.grid(True)
