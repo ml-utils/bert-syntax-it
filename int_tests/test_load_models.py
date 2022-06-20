@@ -1,6 +1,9 @@
 import os.path
 from itertools import islice
 from unittest import TestCase
+from urllib.error import HTTPError
+from urllib.error import URLError
+from urllib.request import urlopen
 
 import pytest
 import torch
@@ -19,6 +22,16 @@ from transformers import RobertaForMaskedLM
 from transformers import RobertaModel
 from transformers import RobertaTokenizer
 from transformers.convert_slow_tokenizer import SentencePieceExtractor
+
+
+def is_internet_on(url="https://huggingface.co"):
+    try:
+        # import urllib2
+        # urllib2.urlopen(url, timeout=1)
+        _ = urlopen(url, timeout=2.50)
+        return True
+    except (URLError, HTTPError):
+        return False
 
 
 class TestLoadModels(TestCase):
@@ -346,6 +359,7 @@ class TestLoadModels(TestCase):
         #         )
         return topk_filled_outputs
 
+    @pytest.mark.skipif(not is_internet_on(), reason="No internet connection available")
     def test_load_remotely(self):
         # remote calls are blocked, enabled with annotations  only for specific tests
         not_cached_model = "hfl/chinese-macbert-base"  # "bert-base-uncased"
