@@ -1,10 +1,13 @@
+import os
 import pickle
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
 
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from linguistic_tests.lm_utils import get_results_dir
 from linguistic_tests.lm_utils import ModelTypes
+from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 
@@ -240,13 +243,17 @@ class TestSet:
         )
 
     def save_to_pickle(self, filename):
-        print(f"saving testset to {filename}")
+        saving_dir = str(get_results_dir())
+        filepath = os.path.join(saving_dir, filename)
+        print_orange(f"Saving testset to {filepath}")
         with open(filename, "wb") as file:
             pickle.dump(self, file)
 
 
 def load_testset_from_pickle(filename) -> TestSet:
-    print(f"Loading {filename}..")
+    saving_dir = str(get_results_dir())
+    filepath = os.path.join(saving_dir, filename)
+    print(f"Loading testset from {filepath}..")
     with open(filename, "rb") as file:
         data = pickle.load(file)
     return data

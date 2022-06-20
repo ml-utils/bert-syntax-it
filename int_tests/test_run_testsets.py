@@ -46,6 +46,7 @@ class TestRunTestSets(TestCase):
         run_blimp_en(
             model_type=ModelTypes.BERT,
             model_name="bert-base-uncased",
+            dataset_source="Blimp paper",
             testset_filenames=testset_filenames,
             testset_dir_path=testset_dir_path,
             examples_format=examples_format,
