@@ -8,6 +8,7 @@ from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
+from linguistic_tests.run_sprouse_tests import get_testset_params
 from linguistic_tests.run_sprouse_tests import score_sprouse_testsets
 from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
@@ -126,8 +127,11 @@ def test_serialization(tmp_path):
     phenomena = [
         "mini_wh_adjunct_island",
     ]
-    p = get_test_data_dir() / "sprouse"
+
+    tests_subdir = "sprouse/"
+    p = get_test_data_dir() / tests_subdir
     testset_dir_path = str(p)
+    _, _, dataset_source = get_testset_params(tests_subdir)
     scoring_measures = [
         ScoringMeasures.LP,
         ScoringMeasures.PenLP,
@@ -137,6 +141,7 @@ def test_serialization(tmp_path):
     parsed_testsets = parse_testsets(
         testset_dir_path,
         phenomena,
+        dataset_source,
         "sprouse",
         "sprouse",
         model_name,

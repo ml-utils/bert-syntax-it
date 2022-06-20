@@ -93,11 +93,18 @@ def score_sprouse_testsets(
     return scored_testsets
 
 
+def get_test_session_descr(dataset_source, model_descr, score_name=""):
+    session_descr = f"{dataset_source[:7]}_{model_descr}_{score_name}"
+    session_descr = session_descr.replace(" ", "_").replace("/", "_")
+    return session_descr
+
+
 def plot_results(scored_testsets: list[TestSet], score_name):
     fig, axs = plt.subplots(2, 2, figsize=(12.8, 9.6))  # default figsize=(6.4, 4.8)
 
-    window_title = f"{scored_testsets[0].dataset_source[:7]}_{scored_testsets[0].model_descr}_{score_name}"
-    window_title = window_title.replace(" ", "_").replace("/", "_")
+    window_title = get_test_session_descr(
+        scored_testsets[0].dataset_source, scored_testsets[0].model_descr, score_name
+    )
 
     fig.canvas.manager.set_window_title(window_title)
     axs_list = axs.reshape(-1)
@@ -400,35 +407,34 @@ def plot_all_phenomena(phenomena_names, lp_avg_scores):
 
 
 def save_scored_testsets(
-    scored_testsets: List[TestSet], model_name: str, broader_test_type: str
+    scored_testsets: List[TestSet], model_name: str, dataset_source: str
 ):
     for scored_testset in scored_testsets:
         scored_testset.model_descr = model_name
         filename = get_pickle_filename(
+            dataset_source,
             scored_testset.linguistic_phenomenon,
             model_name,
-            broader_test_type=broader_test_type,
         )
 
         scored_testset.save_to_pickle(filename)
 
 
 def get_pickle_filename(
+    dataset_source,
     linguistic_phenomenon,
-    model_name,
-    broader_test_type,
+    model_descr,
 ):
     # todo: filenames as pyplot filenames
     #  rename as get_pickle_filepath, ad results dir (same as pyplot images)
-    filename = (
-        f"{broader_test_type}_"
-        f"{linguistic_phenomenon}_"
-        f"{model_name.replace('/', '_')}.testset.pickle"
-    )
+
+    filename_base = get_test_session_descr(dataset_source, model_descr)
+
+    filename = f"{filename_base}_{linguistic_phenomenon}_.testset.pickle"
     return filename
 
 
-def load_pickles(phenomena, model_name, broader_test_type) -> list[TestSet]:
+def load_pickles(dataset_source, phenomena, model_name) -> list[TestSet]:
     # phenomena = [
     #     "custom-wh_whether_island",
     #     "custom-wh_complex_np_islands",
@@ -437,7 +443,7 @@ def load_pickles(phenomena, model_name, broader_test_type) -> list[TestSet]:
     # ]
     loaded_testsets = []
     for phenomenon in phenomena:
-        filename = get_pickle_filename(phenomenon, model_name, broader_test_type)
+        filename = get_pickle_filename(dataset_source, phenomenon, model_name)
         loaded_testset = load_testset_from_pickle(filename)
         loaded_testsets.append(loaded_testset)
 
@@ -447,13 +453,13 @@ def load_pickles(phenomena, model_name, broader_test_type) -> list[TestSet]:
 def load_and_plot_pickle(
     phenomena,
     model_name,
-    broader_test_type,
+    dataset_source,
     model_type: ModelTypes,
     loaded_testsets=None,
 ):
 
     if loaded_testsets is None:
-        loaded_testsets = load_pickles(phenomena, model_name, broader_test_type)
+        loaded_testsets = load_pickles(dataset_source, phenomena, model_name)
 
     plot_testsets(loaded_testsets, model_type)
 
@@ -468,11 +474,11 @@ def plot_testsets(scored_testsets: List[TestSet], model_type: ModelTypes):
 
 
 def print_sorted_sentences_to_check_spelling_errors2(
-    score_descr, phenomena, model_name, broader_test_type, loaded_testsets=None
+    score_descr, phenomena, model_name, dataset_source, loaded_testsets=None
 ):
 
     if loaded_testsets is None:
-        loaded_testsets = load_pickles(phenomena, model_name, broader_test_type)
+        loaded_testsets = load_pickles(dataset_source, phenomena, model_name)
 
     for testset in loaded_testsets:
         print(
@@ -492,12 +498,12 @@ def print_sorted_sentences_to_check_spelling_errors2(
 
 
 def print_sorted_sentences_to_check_spelling_errors(
-    score_descr, phenomena, model_name, broader_test_type, loaded_testsets=None
+    score_descr, phenomena, model_name, dataset_source, loaded_testsets=None
 ):
     print("printing sorted_sentences_to_check_spelling_errors")
 
     if loaded_testsets is None:
-        loaded_testsets = load_pickles(phenomena, model_name, broader_test_type)
+        loaded_testsets = load_pickles(dataset_source, phenomena, model_name)
 
     for testset in loaded_testsets:
         print(
@@ -523,11 +529,11 @@ def print_examples_compare_diff(
     sent_type2,
     phenomena,
     model_name,
-    broader_test_type,
+    dataset_source,
     testsets=None,
 ):
     if testsets is None:
-        testsets = load_pickles(phenomena, model_name, broader_test_type)
+        testsets = load_pickles(dataset_source, phenomena, model_name)
 
     max_testsets = 4
     for testset in testsets[:max_testsets]:
@@ -558,7 +564,7 @@ def print_examples_compare_diff(
 
 def print_testset_results(
     scored_testsets: List[TestSet],
-    broader_test_type: str,
+    dataset_source: str,
     model_type: ModelTypes,
     testsets_root_filenames: List[str],
 ):
@@ -595,14 +601,14 @@ def print_testset_results(
         score_descr,
         testsets_root_filenames,
         model_names_it[model_type],
-        broader_test_type,
+        dataset_source,
         scored_testsets,
     )
     print_sorted_sentences_to_check_spelling_errors(
         score_descr,
         testsets_root_filenames,
         model_names_it[model_type],
-        broader_test_type,
+        dataset_source,
         scored_testsets,
     )
 
@@ -612,7 +618,7 @@ def print_testset_results(
         SentenceNames.LONG_ISLAND,
         testsets_root_filenames,
         model_names_it[model_type],
-        broader_test_type,
+        dataset_source,
         testsets=scored_testsets,
     )
     print_examples_compare_diff(
@@ -621,7 +627,7 @@ def print_testset_results(
         SentenceNames.LONG_ISLAND,
         testsets_root_filenames,
         model_names_it[model_type],
-        broader_test_type,
+        dataset_source,
         testsets=scored_testsets,
     )
     print_examples_compare_diff(
@@ -630,14 +636,13 @@ def print_testset_results(
         SentenceNames.SHORT_ISLAND,
         testsets_root_filenames,
         model_names_it[model_type],
-        broader_test_type,
+        dataset_source,
         testsets=scored_testsets,
     )
 
 
 def rescore_testsets_and_save_pickles(
     model_type,
-    broader_test_type,
     testset_dir_path,
     testsets_root_filenames,
     dataset_source,
@@ -673,7 +678,7 @@ def rescore_testsets_and_save_pickles(
         device,
         parsed_testsets,
     )
-    save_scored_testsets(scored_testsets, model_name, broader_test_type)
+    save_scored_testsets(scored_testsets, model_name, dataset_source)
 
 
 def get_testset_params(tests_subdir):
@@ -685,6 +690,8 @@ def get_testset_params(tests_subdir):
         testsets_root_filenames = sprouse_testsets_root_filenames
         broader_test_type = "sprouse"
         dataset_source = "Sprouse et al. 2016 (8 items per phenomenon)"
+    else:
+        raise ValueError(f"Invalid tests_subdir specified: {tests_subdir}")
 
     return testsets_root_filenames, broader_test_type, dataset_source
 
@@ -730,14 +737,15 @@ def main():
         if rescore:
             rescore_testsets_and_save_pickles(
                 model_type,
-                broader_test_type,
                 testset_dir_path,
                 testsets_root_filenames,
                 dataset_source,
             )
 
         loaded_testsets = load_pickles(
-            testsets_root_filenames, model_names_it[model_type], broader_test_type
+            dataset_source,
+            testsets_root_filenames,
+            model_names_it[model_type],
         )
 
         print_testset_results(
@@ -747,7 +755,7 @@ def main():
         load_and_plot_pickle(
             testsets_root_filenames,
             model_names_it[model_type],
-            broader_test_type,
+            dataset_source,
             model_type,
             loaded_testsets=loaded_testsets,
         )

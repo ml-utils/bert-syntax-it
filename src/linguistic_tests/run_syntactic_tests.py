@@ -39,6 +39,7 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt, scorebase):
 def run_blimp_en(
     model_type,
     model_name,
+    dataset_source,
     testset_filenames,
     testset_dir_path,
     examples_format="blimp",
@@ -53,6 +54,7 @@ def run_blimp_en(
     parsed_testsets = parse_testsets(
         testset_dir_path,
         testset_filenames,
+        dataset_source,
         examples_format,
         sent_types_descr,
         model_name,

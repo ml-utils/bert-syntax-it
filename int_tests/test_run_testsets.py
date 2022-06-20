@@ -62,7 +62,7 @@ class TestRunTestSets(TestCase):
         phenomena = [
             "mini_wh_adjunct_island",
         ]
-        tests_subdir = "sprouse"
+        tests_subdir = "sprouse/"
         p = get_test_data_dir() / tests_subdir
         testset_dir_path = str(p)
         _, _, dataset_source = get_testset_params(tests_subdir)
@@ -293,14 +293,17 @@ def plot_span_of_Bert_output_logitis():
         phenomena = [
             "wh_adjunct_island",  # "mini_wh_adjunct_island",
         ]
-        p = get_test_data_dir() / "sprouse"
+        tests_subdir = "sprouse/"
+        p = get_test_data_dir() / tests_subdir
         testset_dir_path = str(p)
+        _, _, dataset_source = get_testset_params(tests_subdir)
         scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
         if model_type in BERT_LIKE_MODEL_TYPES:
             scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
         parsed_testsets = parse_testsets(
             testset_dir_path,
             phenomena,
+            dataset_source,
             "sprouse",
             "sprouse",
             model_name,
