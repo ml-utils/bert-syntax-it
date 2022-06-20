@@ -20,6 +20,7 @@ from tqdm import tqdm
 def parse_testsets(
     testset_dir_path: str,
     testset_filenames: List[str],
+    dataset_source: str,
     examples_format: str,
     sent_types_descr,
     model_name: str,
@@ -42,6 +43,7 @@ def parse_testsets(
             phenomenon_name,
             model_type,
             model_name,
+            dataset_source,
             examples_list,
             sent_types_descr,  # "blimp" or "sprouse"
             scoring_measures,

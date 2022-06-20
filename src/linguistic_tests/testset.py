@@ -112,6 +112,7 @@ class Example:
 class TestSet:
     linguistic_phenomenon: str
     model_descr: str
+    dataset_source: str
     examples: list[Example]
 
     sent_types: InitVar[list[SentenceNames]]
@@ -255,6 +256,7 @@ def parse_testset(
     linguistic_phenomenon,
     model_type: ModelTypes,
     model_descr,
+    dataset_source: str,
     examples_list: list,
     sent_types_descr: str,
     scoring_measures: list[ScoringMeasures],
@@ -281,6 +283,7 @@ def parse_testset(
     return TestSet(
         linguistic_phenomenon,
         model_descr,
+        dataset_source,
         parsed_examples,
         sent_types,
         scoring_measures,

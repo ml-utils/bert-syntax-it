@@ -1,3 +1,5 @@
+import os.path
+import time
 from typing import List
 
 from linguistic_tests.compute_model_score import print_accuracy_scores
@@ -5,6 +7,7 @@ from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
+from linguistic_tests.lm_utils import get_results_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import ModelTypes
@@ -91,7 +94,12 @@ def score_sprouse_testsets(
 
 
 def plot_results(scored_testsets: list[TestSet], score_name):
-    fig, axs = plt.subplots(2, 2)
+    fig, axs = plt.subplots(2, 2, figsize=(12.8, 9.6))  # default figsize=(6.4, 4.8)
+
+    window_title = f"{scored_testsets[0].dataset_source[:7]}_{scored_testsets[0].model_descr}_{score_name}"
+    window_title = window_title.replace(" ", "_").replace("/", "_")
+
+    fig.canvas.manager.set_window_title(window_title)
     axs_list = axs.reshape(-1)
     print(f"type axs_list: {type(axs_list)}, {len(axs_list)=}, {axs_list=}")
 
@@ -110,8 +118,21 @@ def plot_results(scored_testsets: list[TestSet], score_name):
     for scored_testset, ax in zip(scored_testsets, axs_list):
         _plot_results_subplot(scored_testset, score_name, ax)
 
-    plt.suptitle(f"Model: {scored_testsets[0].model_descr}")
-    plt.show()
+    fig.suptitle(
+        f"Model: {scored_testsets[0].model_descr}, "
+        f"\n Dataset: {scored_testset.dataset_source}"
+    )
+
+    filename = f"{window_title}.png"
+    saving_dir = str(get_results_dir())
+    filepath = os.path.join(saving_dir, filename)
+    if os.path.exists(filepath):
+        timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
+        filename = f"{window_title}-{timestamp}.png"
+        filepath = os.path.join(saving_dir, filename)
+    print_orange(f"Saving plot to file {filepath} ..")
+    plt.savefig(filepath)  # , dpi=300
+    # plt.show()
 
 
 def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
@@ -129,7 +150,7 @@ def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
     # nonisland line
     short_nonisland_average = [0, score_averages[SentenceNames.SHORT_NONISLAND]]
     long_nonisland_avg = [1, score_averages[SentenceNames.LONG_NONISLAND]]
-    x_values = [short_nonisland_average[0], long_nonisland_avg[0]]
+    x_values = ["SHORT", "LONG"]
     y_values = [short_nonisland_average[1], long_nonisland_avg[1]]
     # ax.set_ylim([-32.5, -26.5])  # todo: set limits as min/max across all testsets
     ax.plot(x_values, y_values, label="non-island structure")
@@ -388,6 +409,7 @@ def save_scored_testsets(
             model_name,
             broader_test_type=broader_test_type,
         )
+
         scored_testset.save_to_pickle(filename)
 
 
@@ -396,6 +418,8 @@ def get_pickle_filename(
     model_name,
     broader_test_type,
 ):
+    # todo: filenames as pyplot filenames
+    #  rename as get_pickle_filepath, ad results dir (same as pyplot images)
     filename = (
         f"{broader_test_type}_"
         f"{linguistic_phenomenon}_"
@@ -610,13 +634,59 @@ def print_testset_results(
         testsets=scored_testsets,
     )
 
-    load_and_plot_pickle(
+
+def rescore_testsets_and_save_pickles(
+    model_type,
+    broader_test_type,
+    testset_dir_path,
+    testsets_root_filenames,
+    dataset_source,
+):
+    model_name = model_names_it[model_type]
+    examples_format = "sprouse"  # "blimp", "json_lines", "sprouse"
+    sent_types_descr = "sprouse"  # "blimp" or "sprouse"
+    # sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
+    print(f"Running testsets from dir {testset_dir_path}")
+    scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+    if model_type in BERT_LIKE_MODEL_TYPES:
+        scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
+    parsed_testsets = parse_testsets(
+        # todo: add scorebase var in testset class
+        testset_dir_path,
         testsets_root_filenames,
-        model_names_it[model_type],
-        broader_test_type,
+        dataset_source,
+        examples_format,
+        sent_types_descr,
+        model_name,
         model_type,
-        loaded_testsets=scored_testsets,
+        scoring_measures,
+        max_examples=1000,
     )
+
+    device = DEVICES.CPU
+    model, tokenizer = load_model(model_type, model_name, device)
+
+    scored_testsets = score_sprouse_testsets(
+        model_type,
+        model,
+        tokenizer,
+        device,
+        parsed_testsets,
+    )
+    save_scored_testsets(scored_testsets, model_name, broader_test_type)
+
+
+def get_testset_params(tests_subdir):
+    if tests_subdir == "syntactic_tests_it/":
+        testsets_root_filenames = custom_it_island_testsets_root_filenames
+        broader_test_type = "it_tests"
+        dataset_source = "Madeddu (50 items per phenomenon)"
+    elif tests_subdir == "sprouse/":
+        testsets_root_filenames = sprouse_testsets_root_filenames
+        broader_test_type = "sprouse"
+        dataset_source = "Sprouse et al. 2016 (8 items per phenomenon)"
+
+    return testsets_root_filenames, broader_test_type, dataset_source
 
 
 def main():
@@ -638,18 +708,15 @@ def main():
     print(f"Will run tests with models: {model_types_to_run}")
 
     # todo: also add command line option for tests subdir path
-    tests_subdir = "sprouse/"  # "syntactic_tests_it/"  #
+    tests_subdir = "syntactic_tests_it/"  # "sprouse/"  #
     testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
-    if tests_subdir == "syntactic_tests_it/":
-        testsets_root_filenames = custom_it_island_testsets_root_filenames
-        broader_test_type = "it_tests"
-    elif tests_subdir == "sprouse/":
-        testsets_root_filenames = sprouse_testsets_root_filenames
-        broader_test_type = "sprouse"
+    testsets_root_filenames, broader_test_type, dataset_source = get_testset_params(
+        tests_subdir
+    )
 
     for model_type in model_types_to_run:
-        print_orange(f"Starting test session for {model_type=}")
+        print_orange(f"Starting test session for {model_type=}, and {dataset_source=}")
         # add score with logistic function (instead of softmax)
 
         # todo: check that accuracy values are scored and stored correctly
@@ -659,38 +726,16 @@ def main():
 
         # create_test_jsonl_files_tests()
 
-        model_name = model_names_it[model_type]
-        examples_format = "sprouse"  # "blimp", "json_lines", "sprouse"
-        sent_types_descr = "sprouse"  # "blimp" or "sprouse"
-        # sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
-        print(f"Running testsets from dir {testset_dir_path}")
-        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
-        if model_type in BERT_LIKE_MODEL_TYPES:
-            scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
-        parsed_testsets = parse_testsets(
-            # todo: add scorebase var in testset class
-            testset_dir_path,
-            testsets_root_filenames,
-            examples_format,
-            sent_types_descr,
-            model_name,
-            model_type,
-            scoring_measures,
-            max_examples=1000,
-        )
+        rescore = True
+        if rescore:
+            rescore_testsets_and_save_pickles(
+                model_type,
+                broader_test_type,
+                testset_dir_path,
+                testsets_root_filenames,
+                dataset_source,
+            )
 
-        device = DEVICES.CPU
-        model, tokenizer = load_model(model_type, model_name, device)
-
-        scored_testsets = score_sprouse_testsets(
-            model_type,
-            model,
-            tokenizer,
-            device,
-            parsed_testsets,
-        )
-
-        save_scored_testsets(scored_testsets, model_name, broader_test_type)
         loaded_testsets = load_pickles(
             testsets_root_filenames, model_names_it[model_type], broader_test_type
         )
@@ -699,6 +744,13 @@ def main():
             loaded_testsets, broader_test_type, model_type, testsets_root_filenames
         )
 
+        load_and_plot_pickle(
+            testsets_root_filenames,
+            model_names_it[model_type],
+            broader_test_type,
+            model_type,
+            loaded_testsets=loaded_testsets,
+        )
         print_orange(f"Finished test session for {model_type=}")
 
     # todo:

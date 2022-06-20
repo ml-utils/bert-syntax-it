@@ -17,6 +17,7 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
+from linguistic_tests.run_sprouse_tests import get_testset_params
 from linguistic_tests.run_sprouse_tests import score_sprouse_testsets
 from linguistic_tests.run_syntactic_tests import run_blimp_en
 from linguistic_tests.testset import TypedSentence
@@ -61,14 +62,18 @@ class TestRunTestSets(TestCase):
         phenomena = [
             "mini_wh_adjunct_island",
         ]
-        p = get_test_data_dir() / "sprouse"
+        tests_subdir = "sprouse"
+        p = get_test_data_dir() / tests_subdir
         testset_dir_path = str(p)
+        _, _, dataset_source = get_testset_params(tests_subdir)
+
         scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
         if model_type in BERT_LIKE_MODEL_TYPES:
             scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
         parsed_testsets = parse_testsets(
             testset_dir_path,
             phenomena,
+            dataset_source,
             "sprouse",
             "sprouse",
             model_name,
@@ -76,6 +81,7 @@ class TestRunTestSets(TestCase):
             scoring_measures,
             max_examples=1000,
         )
+
         scored_testsets = score_sprouse_testsets(
             model_type,
             model,

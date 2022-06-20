@@ -30,9 +30,11 @@ class TestTestset(TestCase):
             ScoringMeasures.LL,
             ScoringMeasures.PLL,
         ]
+        dataset_source = "Sprouse paper"
         parsed_testset = parse_testset(
             filename,
             ModelTypes.BERT,
+            dataset_source,
             "some_model",
             examples_list,
             "sprouse",
@@ -58,9 +60,11 @@ class TestTestset(TestCase):
             ScoringMeasures.LL,
             ScoringMeasures.PLL,
         ]
+        dataset_source = "Blimp paper"
         parsed_testset = parse_testset(
             filename,
             ModelTypes.BERT,
+            dataset_source,
             "some_model",
             examples_list,
             "blimp",
@@ -86,9 +90,11 @@ class TestTestset(TestCase):
             ScoringMeasures.LL,
             ScoringMeasures.PLL,
         ]
+        dataset_source = "Madeddu"
         parsed_testset = parse_testset(
             filename,
             ModelTypes.BERT,
+            dataset_source,
             "some_model",
             examples_list,
             "sprouse",

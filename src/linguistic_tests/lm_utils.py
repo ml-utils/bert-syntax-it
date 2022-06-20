@@ -279,6 +279,10 @@ def get_syntactic_tests_dir() -> Path:
     return get_project_root() / "outputs"
 
 
+def get_results_dir() -> Path:
+    return get_project_root() / "results"
+
+
 def get_pen_score(unnormalized_score, text_lenght):
     return unnormalized_score / get_penalty_term(text_lenght)
 
