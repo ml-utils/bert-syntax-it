@@ -733,7 +733,7 @@ def main():
 
         # create_test_jsonl_files_tests()
 
-        rescore = True
+        rescore = False
         if rescore:
             rescore_testsets_and_save_pickles(
                 model_type,
