@@ -148,7 +148,6 @@ def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
 
     # todo: normalize the scores centering them to 0 like the z scores in the paper
     DD_value = scored_testset.get_avg_DD(score_name)
-    ax.legend(title=f"DD = {DD_value:.2f}")
 
     # todo? in the legend also plot p value across all the testset examples
     # in the legend also plot accuracy %
@@ -161,6 +160,7 @@ def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
     y_values = [short_nonisland_average[1], long_nonisland_avg[1]]
     # ax.set_ylim([-32.5, -26.5])  # todo: set limits as min/max across all testsets
     ax.plot(x_values, y_values, label="non-island structure")
+    ax.legend(title=f"DD = {DD_value:.2f}")
 
     # island line
     short_island_avg = [0, score_averages[SentenceNames.SHORT_ISLAND]]
@@ -695,7 +695,7 @@ def get_testset_params(tests_subdir):
     return testsets_root_filenames, broader_test_type, dataset_source
 
 
-def main():
+def main(rescore=False):
     import argparse
 
     arg_parser = argparse.ArgumentParser()
@@ -707,10 +707,14 @@ def main():
         choices=[i.value for i in model_names_it.keys()],
         default=[i.value for i in model_names_it.keys()],
     )
+    # arg_parser.add_argument(
+    #     "--rescore"
+    # )
     args = arg_parser.parse_args()
     model_types_to_run = [
         ModelTypes(model_type_int) for model_type_int in args.model_types
     ]
+    # rescore =
     print(f"Will run tests with models: {model_types_to_run}")
 
     # todo: also add command line option for tests subdir path
@@ -732,7 +736,6 @@ def main():
 
         # create_test_jsonl_files_tests()
 
-        rescore = False
         if rescore:
             rescore_testsets_and_save_pickles(
                 model_type,
