@@ -192,15 +192,16 @@ def score_sprouse_testset(
             example.DD_with_penlp,
             example.dd_with_ll,
             example.dd_with_pll,
-        ) = get_dd_scores_wdataclasses(example)
+        ) = get_dd_scores_wdataclasses(example, model_type)
         if example.DD_with_lp > 0:
             testset.accuracy_by_DD_lp += 1 / len(testset.examples)
         if example.DD_with_penlp > 0:
             testset.accuracy_by_DD_penlp += 1 / len(testset.examples)
-        if example.DD_with_ll > 0:
-            testset.accuracy_by_DD_ll += 1 / len(testset.examples)
-        if example.DD_with_penll > 0:
-            testset.accuracy_by_DD_penll += 1 / len(testset.examples)
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            if example.DD_with_ll > 0:
+                testset.accuracy_by_DD_ll += 1 / len(testset.examples)
+            if example.DD_with_penll > 0:
+                testset.accuracy_by_DD_penll += 1 / len(testset.examples)
 
         for _idx, typed_sentence in enumerate(example.sentences):
             stype = typed_sentence.stype
@@ -307,16 +308,15 @@ def print_example(example_data, sentence_ordering):
     )
 
 
-def get_dd_scores_wdataclasses(example):
-
-    # todo, fixme: ddscore should be normalized across the example and across the testset
-    #  (according to min and max token weights)
-    #  store absolute values and normalized values
+def get_dd_scores_wdataclasses(example: Example, model_type: ModelTypes):
 
     example_dd_with_lp = get_example_dd_score(example, ScoringMeasures.LP)
     example_dd_with_penlp = get_example_dd_score(example, ScoringMeasures.PenLP)
-    example_dd_with_ll = get_example_dd_score(example, ScoringMeasures.LL)
-    example_dd_with_pll = get_example_dd_score(example, ScoringMeasures.PLL)
+
+    example_dd_with_ll, example_dd_with_pll = None, None
+    if model_type in BERT_LIKE_MODEL_TYPES:
+        example_dd_with_ll = get_example_dd_score(example, ScoringMeasures.LL)
+        example_dd_with_pll = get_example_dd_score(example, ScoringMeasures.PLL)
 
     return (
         example_dd_with_lp,
@@ -341,7 +341,6 @@ def get_example_dd_score(example: Example, score_name):
         else:
             raise ValueError(f"Unexpected sentence type: {stype}")
 
-    # todo, fixme: use normalized scores (normalized according to min max token weight across testset)
     return get_dd_score_parametric(
         a_short_nonisland.get_score(score_name),
         b_long_nonisland.get_score(score_name),
@@ -508,7 +507,7 @@ def print_sorted_sentences_to_check_spelling_errors(
 
     for testset in loaded_testsets:
         logging.info(
-            f"printing for testset {testset.linguistic_phenomenon} calculated from {testset.model_descr}"
+            f"printing {score_descr} for testset {testset.linguistic_phenomenon} calculated from {testset.model_descr}"
         )
         for stype in SPROUSE_SENTENCE_TYPES:
             logging.info(f"printing for sentence type {stype}..")
@@ -779,4 +778,4 @@ def main(rescore=False, log_level=logging.INFO):
 
 
 if __name__ == "__main__":
-    main()
+    main(rescore=False, log_level=logging.INFO)

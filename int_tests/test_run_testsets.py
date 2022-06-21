@@ -18,6 +18,7 @@ from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_sprouse_tests import get_testset_params
 from linguistic_tests.run_sprouse_tests import score_sprouse_testsets
 from linguistic_tests.run_syntactic_tests import run_blimp_en
+from linguistic_tests.testset import ERROR_LP
 from matplotlib import pyplot as plt
 
 from int_tests.int_tests_utils import get_test_data_dir
@@ -87,10 +88,10 @@ class TestRunTestSets(TestCase):
         )
 
         for testset in scored_testsets:
-            assert testset.avg_DD_lp != -200
-            assert testset.avg_DD_penlp != -200
-            assert testset.avg_DD_ll != -200
-            assert testset.avg_DD_penll != -200
+            assert testset.avg_DD_lp != ERROR_LP
+            assert testset.avg_DD_penlp != ERROR_LP
+            assert testset.avg_DD_ll != ERROR_LP
+            assert testset.avg_DD_penll != ERROR_LP
 
     @pytest.mark.slow
     @pytest.mark.enable_socket

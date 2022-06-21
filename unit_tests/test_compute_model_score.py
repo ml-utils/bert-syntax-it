@@ -16,6 +16,7 @@ from linguistic_tests.compute_model_score import reduce_to_log_product
 from linguistic_tests.compute_model_score import run_testset
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import ModelTypes
+from linguistic_tests.testset import ERROR_LP
 from numpy import log
 from transformers import BertForMaskedLM
 from transformers import BertTokenizer
@@ -66,9 +67,7 @@ class TestComputeModelScore(TestCase):
             # 'Dopo aver fatto cosa, Gianni è partito per Parigi?'
         ]
         lp_softmax = -8.3
-        lp_logistic = (
-            -200
-        )  # todo: replace with actual value returned by a bert model for this sentence
+        lp_logistic = ERROR_LP  # todo: replace with actual value returned by a bert model for this sentence
         with patch.object(
             compute_model_score, "get_sentences_from_example", return_value=sentences
         ) as _:
@@ -113,7 +112,7 @@ class TestComputeModelScore(TestCase):
 
     def test_get_sentence_score_JHLau_empty(self):
         actual_score = get_sentence_score_JHLau(None, None, None, [], None)
-        assert actual_score == (-200, None)
+        assert actual_score == (ERROR_LP, None)
 
     def test_get_sentence_score_JHLau_gpt(self):
         vocab_size = 1000
@@ -163,7 +162,7 @@ class TestComputeModelScore(TestCase):
         )
         assert len(actual_score) == 2
         assert actual_score[0] != 0
-        assert actual_score[0] != -200
+        assert actual_score[0] != ERROR_LP
 
         mock_gpt2_t.convert_tokens_to_ids.assert_called_once()
         mock_gpt2_m.assert_called_once()
@@ -255,7 +254,7 @@ class TestComputeModelScore(TestCase):
         # todo: more checks on the returned values
         assert len(actual_score) == 2
         assert actual_score[0] != 0
-        assert actual_score[0] != -200
+        assert actual_score[0] != ERROR_LP
 
         # todo: specify how many times called
         mock_bert_t.convert_tokens_to_ids.assert_called()

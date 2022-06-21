@@ -8,8 +8,8 @@ from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import get_penalty_term
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import sent_idx
+from linguistic_tests.testset import ERROR_LP
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import TestSet
 from scipy.special import expit as logistic
@@ -192,7 +192,7 @@ def score_example(
     device,
     example: Example,
     model,
-    model_type,
+    model_type: ModelTypes,
     tokenizer,
 ):
     for _idx, typed_sentence in enumerate(example.sentences):
@@ -206,8 +206,14 @@ def score_example(
         )
 
         penalty = get_penalty_term(text_len)
+
         sentence.lp_softmax = lp_softmax
+        logging.log(
+            logging.NOTSET,
+            f"Assigning field {sentence.pen_lp_softmax=} with value {lp_softmax / penalty}: {sentence.txt}",
+        )
         sentence.pen_lp_softmax = lp_softmax / penalty
+        logging.log(logging.NOTSET, f"{sentence.pen_lp_softmax=}")
         if model_type in BERT_LIKE_MODEL_TYPES:
             sentence.lp_logistic = lp_logistic
             sentence.pen_lp_logistic = lp_logistic / penalty
@@ -340,10 +346,10 @@ def get_sentence_score_JHLau(
     sentence when it is masked.
     """
     if len(sentence_tokens) == 0:
-        print_orange(
+        logging.error(
             f"Warning, can't compute score of empty sentence: {sentence_tokens}"
         )
-        return -200, None
+        return ERROR_LP, None
 
     if model_type in [ModelTypes.GPT, ModelTypes.GEPPETTO]:
 

@@ -24,30 +24,40 @@ BLIMP_SENTENCE_TYPES = [
     SentenceNames.SENTENCE_BAD,
 ]
 
+ERROR_LP: float = -200.0
+
 
 @dataclass
 class Sentence:
     txt: str
 
-    lp_softmax: float = -200
-    pen_lp_softmax: float = -200
-    lp_logistic = -200
-    pen_lp_logistic = -200
+    lp_softmax: float = ERROR_LP
+    pen_lp_softmax: float = ERROR_LP
+    lp_logistic: float = ERROR_LP
+    pen_lp_logistic: float = ERROR_LP
 
     # todo? add sentence ids
     tokens: list[str] = field(default_factory=list)
 
     def get_score(self, scoring_measure: ScoringMeasures):
         if scoring_measure == ScoringMeasures.LP:
-            return self.lp_softmax
+            score = self.lp_softmax
         elif scoring_measure == ScoringMeasures.PenLP:
-            return self.pen_lp_softmax
+            score = self.pen_lp_softmax
         elif scoring_measure == ScoringMeasures.LL:
-            return self.lp_logistic
+            score = self.lp_logistic
         elif scoring_measure == ScoringMeasures.PLL:
-            return self.pen_lp_logistic
+            score = self.pen_lp_logistic
         else:
             raise ValueError(f"Unexpected scoring_measure: {scoring_measure}")
+
+        if score == ERROR_LP:
+            raise ValueError(
+                f"Score {scoring_measure} "
+                f"for this sentence not set {score},"
+                f" '{self.txt}' "
+            )
+        return score
 
 
 @dataclass
@@ -61,10 +71,10 @@ class Example:
     # todo: convert to dict[]
     sentences: list[TypedSentence]
 
-    DD_with_lp: float = -200
-    DD_with_penlp: float = -200
-    DD_with_ll: float = -200
-    DD_with_penll: float = -200
+    DD_with_lp: float = ERROR_LP
+    DD_with_penlp: float = ERROR_LP
+    DD_with_ll: float = ERROR_LP
+    DD_with_penll: float = ERROR_LP
 
     def __getitem__(self, key: SentenceNames) -> Sentence:
         for typed_sentence in self.sentences:
@@ -127,10 +137,10 @@ class TestSet:
         default_factory=dict
     )
 
-    avg_DD_lp: float = -200
-    avg_DD_penlp: float = -200
-    avg_DD_ll: float = -200
-    avg_DD_penll: float = -200
+    avg_DD_lp: float = ERROR_LP
+    avg_DD_penlp: float = ERROR_LP
+    avg_DD_ll: float = ERROR_LP
+    avg_DD_penll: float = ERROR_LP
 
     accuracy_by_DD_lp: float = 0
     accuracy_by_DD_penlp: float = 0
@@ -141,8 +151,8 @@ class TestSet:
         ScoringMeasures, dict[SentenceNames, float]
     ] = field(default_factory=dict)
 
-    min_token_weight: float = 200
-    max_token_weight: float = -200
+    min_token_weight: float = -1 * ERROR_LP
+    max_token_weight: float = ERROR_LP
 
     # todo: add model descriptor, indicating from which model the scrores where calculated
     # todo: normalize score_averages ..
@@ -237,6 +247,12 @@ class TestSet:
         )
 
     def save_to_pickle(self, filename):
+
+        for example in self.examples:
+            for typed_sent in example.sentences:
+                assert ERROR_LP != typed_sent.sent.get_score(ScoringMeasures.LP)
+                assert ERROR_LP != typed_sent.sent.get_score(ScoringMeasures.PenLP)
+
         saving_dir = str(get_results_dir())
         filepath = os.path.join(saving_dir, filename)
         if os.path.exists(filepath):
@@ -244,17 +260,33 @@ class TestSet:
             filename = f"{filename}-{timestamp}.testset.pickle"
             filepath = os.path.join(saving_dir, filename)
         print_orange(f"Saving testset to {filepath}")
-        with open(filename, "wb") as file:
+        with open(filepath, "wb") as file:
             pickle.dump(self, file)
 
 
 def load_testset_from_pickle(filename) -> TestSet:
     saving_dir = str(get_results_dir())
+
+    # todo, fixme: should actually look for all the files in that dir that
+    #  start with {filename}, and pick the most recent one.
+    #  or the save method, when the file already exists, could rename the
+    #  existing one and move it to the prev_pickles subdir, before saving
+    #  the new one.
     filepath = os.path.join(saving_dir, filename)
     print(f"Loading testset from {filepath}..")
     with open(filepath, "rb") as file:
-        data = pickle.load(file)
-    return data
+        testset = pickle.load(file)
+
+    for example in testset.examples:
+
+        assert ERROR_LP != example.DD_with_lp
+        assert ERROR_LP != example.DD_with_penlp
+
+        for typed_sent in example.sentences:
+            assert ERROR_LP != typed_sent.sent.get_score(ScoringMeasures.LP)
+            assert ERROR_LP != typed_sent.sent.get_score(ScoringMeasures.PenLP)
+
+    return testset
 
 
 def parse_testset(
