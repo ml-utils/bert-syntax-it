@@ -250,7 +250,7 @@ def load_testset_from_pickle(filename) -> TestSet:
     saving_dir = str(get_results_dir())
     filepath = os.path.join(saving_dir, filename)
     print(f"Loading testset from {filepath}..")
-    with open(filename, "rb") as file:
+    with open(filepath, "rb") as file:
         data = pickle.load(file)
     return data
 
