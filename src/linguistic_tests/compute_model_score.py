@@ -11,6 +11,7 @@ from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import TestSet
+from scipy.special import expit as logistic
 from scipy.special import softmax
 from tqdm import tqdm
 from transformers.modeling_outputs import MaskedLMOutput
@@ -292,8 +293,19 @@ def logistic2(x, L=1, x0=0, k=1):
     :param k: the logistic growth rate or steepness of the curve
     :return:
     """
-    exponent = -k * (x - x0)
-    return L / (1 + np.exp(exponent))
+
+    # with np.errstate(over='raise'):
+    #    try:
+    if L == 1 and x0 == 0 and k == 1:
+        # use default logistic function from scipy
+        logistic_values = logistic(x)
+    else:
+        exponent = -k * (x - x0)  # this gets overflows
+        logistic_values = L / (1 + np.exp(exponent))
+    #    except FloatingPointError as fl_err:
+    # print(f"Warning for params: {k=}, {x0=}, {L=}: {fl_err}")
+
+    return logistic_values
 
 
 def logistic3(x):
@@ -434,7 +446,7 @@ def get_sentence_score_JHLau(
 
             logits = cuda_logits_this_masking.cpu().numpy()
             softmax_probabilities = softmax(logits)
-            logistic_probabilities = logistic4(logits)
+            logistic_probabilities = logistic2(logits)
 
             masked_word_id = tokenizer.convert_tokens_to_ids(
                 [sentence_tokens_with_specials[masked_token_index]]
