@@ -1,6 +1,5 @@
 import logging
 import os.path
-import sys
 import time
 from typing import List
 
@@ -697,37 +696,19 @@ def get_testset_params(tests_subdir):
     return testsets_root_filenames, broader_test_type, dataset_source
 
 
-class NoFontMsgFilter(logging.Filter):
-    # fixme: this filter is not working
-    def filter(self, record):
-        msg = record.getMessage()
-        record_str = str(record)
-        if record.levelno == logging.DEBUG:
-            if "FontEntry" in msg and "findfont" in msg:
-                return False
-            if "FontEntry" in record_str and "findfont" in record_str:
-                return False
-        return True
-
-
-class NoStreamMsgFilter(logging.Filter):
-    # fixme: this filter is not working
-    def filter(self, record):
-        msg = record.getMessage()
-        if record.levelno == logging.DEBUG and " - STREAM " in msg:
-            return False
-        return True
-
-
 def main(
     tests_subdir="syntactic_tests_it/", rescore=False, log_level=logging.INFO
 ):  # tests_subdir="sprouse/"
 
     fmt = "[%(levelname)s] %(asctime)s - %(message)s"
-    logging.basicConfig(level=log_level, format=fmt)
-    stdout_handler = logging.StreamHandler(sys.stdout)
-    stdout_handler.addFilter(NoFontMsgFilter())
-    stdout_handler.addFilter(NoStreamMsgFilter())
+
+    # stdout_handler = logging.StreamHandler(sys.stdout)
+    # stdout_handler.addFilter(NoFontMsgFilter())
+    # stdout_handler.addFilter(NoStreamMsgFilter())
+    # logging.getLogger('matplotlib.font_manager').disabled = True
+    logging.basicConfig(format=fmt)  # level=log_level,
+    this_module_logger = logging.getLogger(__name__)
+    this_module_logger.setLevel(logging.DEBUG)
 
     import argparse
 
