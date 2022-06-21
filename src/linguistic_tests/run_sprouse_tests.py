@@ -160,14 +160,14 @@ def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
     y_values = [short_nonisland_average[1], long_nonisland_avg[1]]
     # ax.set_ylim([-32.5, -26.5])  # todo: set limits as min/max across all testsets
     ax.plot(x_values, y_values, label="non-island structure")
-    ax.legend(title=f"DD = {DD_value:.2f}")
 
     # island line
     short_island_avg = [0, score_averages[SentenceNames.SHORT_ISLAND]]
     long_island_avg = [1, score_averages[SentenceNames.LONG_ISLAND]]
     x_values = [short_island_avg[0], long_island_avg[0]]
     y_values = [short_island_avg[1], long_island_avg[1]]
-    ax.plot(x_values, y_values, linestyle="--", label="island structure")
+    ax.plot(x_values, y_values, linestyle="--", label="Island structure")
+    ax.legend(title=f"DD = {DD_value:.2f}")
     ax.set_title(scored_testset.linguistic_phenomenon)
     ax.set_ylabel(f"{score_name} values")
 
