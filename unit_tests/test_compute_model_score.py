@@ -320,8 +320,6 @@ class TestComputeModelScore(TestCase):
             [0.1, 0.2, 0.3],
             [0.1, 0.2, 0.3],
             [0.1, 0.2, 0.3],
-            [0.1, 0.2, 0.3],
-            [0.1, 0.2, 0.3],
             example_sentences,
         )
         model = None
