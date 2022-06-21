@@ -246,9 +246,9 @@ def get_example_scores(
         # mean_lps.append(lp / text_len)
         pen_lps.append(lp_softmax / penalty)
         sent_ids.append(sent_id)
-    if model_type in BERT_LIKE_MODEL_TYPES:
-        lls.append(lp_logistic)
-        penlls.append(lp_logistic / penalty)
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            lls.append(lp_logistic)
+            penlls.append(lp_logistic / penalty)
 
     return (
         lps,

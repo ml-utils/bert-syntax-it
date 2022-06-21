@@ -219,7 +219,6 @@ def score_sprouse_testset(
             testset.ll_average_by_sentence_type[stype] /= len(testset.examples)
             testset.penll_average_by_sentence_type[stype] /= len(testset.examples)
 
-    # todo: lp scores should be normalized across the whole testset
     testset.avg_DD_lp = get_dd_score_parametric(
         a_short_nonisland_score=testset.lp_average_by_sentence_type[
             SentenceNames.SHORT_NONISLAND
