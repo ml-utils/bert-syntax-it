@@ -1,5 +1,6 @@
 import logging
 import os.path
+import sys
 import time
 from typing import List
 
@@ -697,26 +698,36 @@ def get_testset_params(tests_subdir):
 
 
 class NoFontMsgFilter(logging.Filter):
+    # fixme: this filter is not working
     def filter(self, record):
         msg = record.getMessage()
-        return not (
-            record.levelno == logging.DEBUG and "FontEntry" in msg and "findfont" in msg
-        )
+        record_str = str(record)
+        if record.levelno == logging.DEBUG:
+            if "FontEntry" in msg and "findfont" in msg:
+                return False
+            if "FontEntry" in record_str and "findfont" in record_str:
+                return False
+        return True
 
 
 class NoStreamMsgFilter(logging.Filter):
+    # fixme: this filter is not working
     def filter(self, record):
         msg = record.getMessage()
-        return not (record.levelno == logging.DEBUG and " - STREAM " in msg)
+        if record.levelno == logging.DEBUG and " - STREAM " in msg:
+            return False
+        return True
 
 
-def main(rescore=False, log_level=logging.INFO):
+def main(
+    tests_subdir="syntactic_tests_it/", rescore=False, log_level=logging.INFO
+):  # tests_subdir="sprouse/"
 
     fmt = "[%(levelname)s] %(asctime)s - %(message)s"
     logging.basicConfig(level=log_level, format=fmt)
-    logger = logging.getLogger()
-    logger.addFilter(NoFontMsgFilter())
-    logger.addFilter(NoStreamMsgFilter())
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.addFilter(NoFontMsgFilter())
+    stdout_handler.addFilter(NoStreamMsgFilter())
 
     import argparse
 
@@ -740,7 +751,6 @@ def main(rescore=False, log_level=logging.INFO):
     logging.info(f"Will run tests with models: {model_types_to_run}")
 
     # todo: also add command line option for tests subdir path
-    tests_subdir = "syntactic_tests_it/"  # "sprouse/"  #
     testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
     testsets_root_filenames, broader_test_type, dataset_source = get_testset_params(
@@ -795,4 +805,6 @@ def main(rescore=False, log_level=logging.INFO):
 
 
 if __name__ == "__main__":
-    main(rescore=False, log_level=logging.INFO)
+    main(
+        tests_subdir="sprouse/", rescore=True, log_level=logging.DEBUG
+    )  # tests_subdir="syntactic_tests_it/"
