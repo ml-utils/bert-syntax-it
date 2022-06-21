@@ -133,7 +133,7 @@ class TestComputeModelScore(TestCase):
 
     def test_get_sentence_score_JHLau_empty(self):
         actual_score = get_sentence_score_JHLau(None, None, None, [], None)
-        assert actual_score == (-200, None, None)
+        assert actual_score == (-200, None)
 
     def test_get_sentence_score_JHLau_gpt(self):
         vocab_size = 1000
@@ -273,9 +273,9 @@ class TestComputeModelScore(TestCase):
         )
 
         # todo: more checks on the returned values
-        assert len(actual_score) == 3
-        assert actual_score != 0
-        assert actual_score != -200
+        assert len(actual_score) == 2
+        assert actual_score[0] != 0
+        assert actual_score[0] != -200
 
         # todo: specify how many times called
         mock_bert_t.convert_tokens_to_ids.assert_called()
