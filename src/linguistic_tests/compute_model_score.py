@@ -1,3 +1,4 @@
+import logging
 from functools import reduce
 from typing import List
 
@@ -51,9 +52,9 @@ def score_dataclass_testset(
 
 
 def print_accuracy_scores(testset: TestSet):
-    print(f"test results report, {testset.linguistic_phenomenon}:")
+    logging.info(f"test results report, {testset.linguistic_phenomenon}:")
     for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
-        # print(f"scores with {scoring_measure}")
+        logging.debug(f"scores with {scoring_measure}")
         for (
             stype_acceptable_sentence
         ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
@@ -158,7 +159,7 @@ def print_accuracies(
     correct_logweights_2nd_sentence=None,
     correct_pen_logweights_2nd_sentence=None,
 ):
-    print("test results report:")
+    logging.info("test results report:")
     print(
         f"acc. correct_lps_1st_sentence: {perc(correct_lps_1st_sentence, examples_count):.1f} %"
     )
@@ -198,7 +199,7 @@ def score_example(
         sentence = typed_sentence.sent
         sentence.tokens = tokenizer.tokenize(sentence.txt)  # , return_tensors='pt'
         if len(sentence.tokens) == 0:
-            print(f"Warning: lenght 0 for {sentence=} from {example=}")
+            logging.warning(f"Warning: lenght 0 for {sentence=} from {example=}")
         text_len = len(sentence.tokens)
         lp_softmax, lp_logistic = get_sentence_score_JHLau(
             model_type, model, tokenizer, sentence.tokens, device
@@ -237,7 +238,7 @@ def get_example_scores(
     for sent_id, sentence in enumerate(sentences):
         sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
         if len(sentence_tokens) == 0:
-            print(f"Warning: lenght 0 for {sentence=} from {example_data=}")
+            logging.warning(f"Warning: lenght 0 for {sentence=} from {example_data=}")
         text_len = len(sentence_tokens)
         lp_softmax, lp_logistic = get_sentence_score_JHLau(
             model_type, model, tokenizer, sentence_tokens, device
@@ -303,7 +304,7 @@ def logistic2(x, L=1, x0=0, k=1):
         exponent = -k * (x - x0)  # this gets overflows
         logistic_values = L / (1 + np.exp(exponent))
     #    except FloatingPointError as fl_err:
-    # print(f"Warning for params: {k=}, {x0=}, {L=}: {fl_err}")
+    # logging.warning(f"Warning for params: {k=}, {x0=}, {L=}: {fl_err}")
 
     return logistic_values
 

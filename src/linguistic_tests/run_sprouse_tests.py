@@ -1,3 +1,4 @@
+import logging
 import os.path
 import time
 from typing import List
@@ -108,7 +109,7 @@ def plot_results(scored_testsets: list[TestSet], score_name):
 
     fig.canvas.manager.set_window_title(window_title)
     axs_list = axs.reshape(-1)
-    print(f"type axs_list: {type(axs_list)}, {len(axs_list)=}, {axs_list=}")
+    logging.debug(f"type axs_list: {type(axs_list)}, {len(axs_list)=}, {axs_list=}")
 
     preferred_axs_order = {"whether": 0, "complex": 1, "subject": 2, "adjunct": 3}
     for phenomenon_short_name, preferred_index in preferred_axs_order.items():
@@ -296,8 +297,8 @@ def score_sprouse_testset(
 
 
 def print_example(example_data, sentence_ordering):
+    logging.debug(f"sentence ordering is {type(sentence_ordering)}")
     print(
-        f"sentence ordering is {type(sentence_ordering)}"
         f"\nSHORT_NONISLAND: {example_data[sentence_ordering.SHORT_NONISLAND]}"
         f"\nLONG_NONISLAND : {example_data[sentence_ordering.LONG_NONISLAND]}"
         f"\nSHORT_ISLAND : {example_data[sentence_ordering.SHORT_ISLAND]}"
@@ -480,8 +481,8 @@ def print_sorted_sentences_to_check_spelling_errors2(
         loaded_testsets = load_pickles(dataset_source, phenomena, model_name)
 
     for testset in loaded_testsets:
-        print(
-            f"\nprinting for testset {testset.linguistic_phenomenon} calculated from {testset.model_descr}"
+        logging.info(
+            f"printing for testset {testset.linguistic_phenomenon} calculated from {testset.model_descr}"
         )
         typed_sentences = testset.get_all_sentences_sorted_by_score(
             score_descr, reverse=False
@@ -499,17 +500,17 @@ def print_sorted_sentences_to_check_spelling_errors2(
 def print_sorted_sentences_to_check_spelling_errors(
     score_descr, phenomena, model_name, dataset_source, loaded_testsets=None
 ):
-    print("printing sorted_sentences_to_check_spelling_errors")
+    logging.info("printing sorted_sentences_to_check_spelling_errors")
 
     if loaded_testsets is None:
         loaded_testsets = load_pickles(dataset_source, phenomena, model_name)
 
     for testset in loaded_testsets:
-        print(
-            f"\nprinting for testset {testset.linguistic_phenomenon} calculated from {testset.model_descr}"
+        logging.info(
+            f"printing for testset {testset.linguistic_phenomenon} calculated from {testset.model_descr}"
         )
         for stype in SPROUSE_SENTENCE_TYPES:
-            print(f"printing for sentence type {stype}..")
+            logging.info(f"printing for sentence type {stype}..")
             examples = testset.get_examples_sorted_by_sentence_type_and_score(
                 stype, score_descr, reverse=False
             )
@@ -536,8 +537,8 @@ def print_examples_compare_diff(
 
     max_testsets = 4
     for testset in testsets[:max_testsets]:
-        print(
-            f"\nprinting testset for {testset.linguistic_phenomenon} from {testset.model_descr}"
+        logging.info(
+            f"printing testset for {testset.linguistic_phenomenon} from {testset.model_descr}"
         )
         print(f"comparing {sent_type1} and {sent_type2}")
         examples = testset.get_examples_sorted_by_score_diff(
@@ -567,7 +568,7 @@ def print_testset_results(
     model_type: ModelTypes,
     testsets_root_filenames: List[str],
 ):
-    print("Printing accuracy scores..")
+    logging.info("Printing accuracy scores..")
     for scored_testset in scored_testsets:
         # todo: also print results in table format or csv for excel export or word doc report
         print_accuracy_scores(scored_testset)
@@ -650,7 +651,7 @@ def rescore_testsets_and_save_pickles(
     examples_format = "sprouse"  # "blimp", "json_lines", "sprouse"
     sent_types_descr = "sprouse"  # "blimp" or "sprouse"
     # sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
-    print(f"Running testsets from dir {testset_dir_path}")
+    logging.info(f"Running testsets from dir {testset_dir_path}")
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
     if model_type in BERT_LIKE_MODEL_TYPES:
         scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
@@ -696,6 +697,10 @@ def get_testset_params(tests_subdir):
 
 
 def main(rescore=False):
+    log_level = logging.INFO
+    fmt = "[%(levelname)s] %(asctime)s - %(message)s"
+    logging.basicConfig(level=log_level, format=fmt)
+
     import argparse
 
     arg_parser = argparse.ArgumentParser()
@@ -715,7 +720,7 @@ def main(rescore=False):
         ModelTypes(model_type_int) for model_type_int in args.model_types
     ]
     # rescore =
-    print(f"Will run tests with models: {model_types_to_run}")
+    logging.info(f"Will run tests with models: {model_types_to_run}")
 
     # todo: also add command line option for tests subdir path
     tests_subdir = "syntactic_tests_it/"  # "sprouse/"  #
