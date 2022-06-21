@@ -325,7 +325,7 @@ def get_sentence_score_JHLau(
     sentence when it is masked.
     """
     if len(sentence_tokens) == 0:
-        return -200, None, None
+        return -200, None
 
     if model_type in [ModelTypes.GPT, ModelTypes.GEPPETTO]:
 
@@ -354,7 +354,7 @@ def get_sentence_score_JHLau(
             labels=sentence_ids_in_batch_as_tensor,
         )
         loss = model_output.loss  # in this case equivalent to model_output[0]
-        return float(loss) * -1.0 * len(sentence_tokens), None, None
+        return float(loss) * -1.0 * len(sentence_tokens), None
 
     elif model_type in BERT_LIKE_MODEL_TYPES:  #
 
