@@ -171,6 +171,7 @@ def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
     ax.legend(title=f"DD = {DD_value:.2f}")
     ax.set_title(scored_testset.linguistic_phenomenon)
     ax.set_ylabel(f"{score_name} values")
+    ax.set_xlabel("Dependency distance")
 
 
 def score_sprouse_testset(
@@ -696,8 +697,8 @@ def get_testset_params(tests_subdir):
     return testsets_root_filenames, broader_test_type, dataset_source
 
 
-def main(rescore=False):
-    log_level = logging.INFO
+def main(rescore=False, log_level=logging.INFO):
+
     fmt = "[%(levelname)s] %(asctime)s - %(message)s"
     logging.basicConfig(level=log_level, format=fmt)
 
