@@ -696,10 +696,27 @@ def get_testset_params(tests_subdir):
     return testsets_root_filenames, broader_test_type, dataset_source
 
 
+class NoFontMsgFilter(logging.Filter):
+    def filter(self, record):
+        msg = record.getMessage()
+        return not (
+            record.levelno == logging.DEBUG and "FontEntry" in msg and "findfont" in msg
+        )
+
+
+class NoStreamMsgFilter(logging.Filter):
+    def filter(self, record):
+        msg = record.getMessage()
+        return not (record.levelno == logging.DEBUG and " - STREAM " in msg)
+
+
 def main(rescore=False, log_level=logging.INFO):
 
     fmt = "[%(levelname)s] %(asctime)s - %(message)s"
     logging.basicConfig(level=log_level, format=fmt)
+    logger = logging.getLogger()
+    logger.addFilter(NoFontMsgFilter())
+    logger.addFilter(NoStreamMsgFilter())
 
     import argparse
 
