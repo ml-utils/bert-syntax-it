@@ -181,7 +181,7 @@ class TestComputeModelScore(TestCase):
         actual_score = get_sentence_score_JHLau(
             ModelTypes.GPT, mock_gpt2_m, mock_gpt2_t, sentence_tokens, DEVICES.CPU
         )
-        assert len(actual_score) == 3
+        assert len(actual_score) == 2
         assert actual_score[0] != 0
         assert actual_score[0] != -200
 
