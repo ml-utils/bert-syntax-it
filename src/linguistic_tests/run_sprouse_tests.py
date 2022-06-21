@@ -160,7 +160,7 @@ def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
     x_values = ["SHORT", "LONG"]
     y_values = [short_nonisland_average[1], long_nonisland_avg[1]]
     # ax.set_ylim([-32.5, -26.5])  # todo: set limits as min/max across all testsets
-    ax.plot(x_values, y_values, label="non-island structure")
+    ax.plot(x_values, y_values, label="Non-island structure")
 
     # island line
     short_island_avg = [0, score_averages[SentenceNames.SHORT_ISLAND]]
