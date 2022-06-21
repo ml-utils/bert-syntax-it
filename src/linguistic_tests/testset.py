@@ -152,7 +152,9 @@ class TestSet:
             self.lp_average_by_sentence_type[stype] = 0
             self.penlp_average_by_sentence_type[stype] = 0
 
-            if model_type in BERT_LIKE_MODEL_TYPES:
+            if (
+                model_type in BERT_LIKE_MODEL_TYPES
+            ):  # todo: use isinstance(var, (classinfo1, classinfo2, classinfo3))
                 self.ll_average_by_sentence_type[stype] = 0
                 self.penll_average_by_sentence_type[stype] = 0
 
