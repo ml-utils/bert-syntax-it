@@ -4,7 +4,6 @@ from unittest.mock import MagicMock
 from unittest.mock import Mock
 from unittest.mock import patch
 
-import numpy as np
 import pytest
 import torch
 from linguistic_tests import compute_model_score
@@ -66,20 +65,17 @@ class TestComputeModelScore(TestCase):
             # 'Che cosa Gianni è partito per Parigi dopo aver fatto?',
             # 'Dopo aver fatto cosa, Gianni è partito per Parigi?'
         ]
-        lp = -8.3
-        log_logistic = (
+        lp_softmax = -8.3
+        lp_logistic = (
             -200
         )  # todo: replace with actual value returned by a bert model for this sentence
-        token_weights = np.random.random_sample(
-            size=len(sentence_tokens)
-        )  # list, len(sentence_tokens), min 11 max 21 (floats)
         with patch.object(
             compute_model_score, "get_sentences_from_example", return_value=sentences
         ) as _:
             with patch.object(
                 compute_model_score,
                 "get_sentence_score_JHLau",
-                return_value=(lp, log_logistic, token_weights),
+                return_value=(lp_softmax, lp_logistic),
             ) as _:
                 # don't mock: get_penalty_term
                 # sentence_log_weight = -3.0
@@ -91,9 +87,6 @@ class TestComputeModelScore(TestCase):
                     sent_ids,
                     example_data,
                     sentences_per_example,
-                    BertForMaskedLM,
-                    MaskedLMOutput,
-                    BertTokenizer,
                 )
 
     def get_example_scores_helper(
@@ -104,19 +97,8 @@ class TestComputeModelScore(TestCase):
         sent_ids,
         example_data,
         sentences_per_example,
-        model_class,
-        model_output_class,
-        tok_class,
     ):
-        (
-            lps,
-            pen_lps,
-            lls,
-            penlls,
-            pen_sentence_log_weights,
-            sentence_log_weights,
-            sentences,
-        ) = get_example_scores(
+        (lps, pen_lps, lls, penlls, sentences,) = get_example_scores(
             DEVICES.CPU,
             example_data,
             model,
@@ -127,8 +109,6 @@ class TestComputeModelScore(TestCase):
         )
         print(f"\n{lps}")
         print(pen_lps)
-        print(pen_sentence_log_weights)
-        print(sentence_log_weights)
         print(sentences)
 
     def test_get_sentence_score_JHLau_empty(self):
