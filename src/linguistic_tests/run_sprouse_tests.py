@@ -6,6 +6,7 @@ from typing import List
 from linguistic_tests.compute_model_score import print_accuracy_scores
 from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import parse_testsets
+from linguistic_tests.lm_utils import assert_almost_equale
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_results_dir
@@ -17,6 +18,8 @@ from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.testset import Example
+from linguistic_tests.testset import get_dd_score_parametric
+from linguistic_tests.testset import get_merged_score_across_testsets
 from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from linguistic_tests.testset import TestSet
@@ -90,6 +93,22 @@ def score_sprouse_testsets(
             parsed_testset,
         )
         scored_testsets.append(scored_testset)
+
+    # calculating the zscores
+    #  to have a reference for mean and sd, calculate zscore after the 4 testsets have been scored
+    #  merge the arrays of scores for the 4 phenomena in the testset, and for all 4 sentence types in the examples
+    scoring_measures = scored_testsets[
+        0
+    ].accuracy_per_score_type_per_sentence_type.keys()
+    merged_scores_by_scoring_measure: dict[ScoringMeasures, List[float]] = dict()
+    for scoring_measure in scoring_measures:
+        merged_scores = get_merged_score_across_testsets(
+            scoring_measure, scored_testsets
+        )
+        merged_scores_by_scoring_measure[scoring_measure] = merged_scores
+
+    for testset in scored_testsets:
+        testset.set_avg_zscores_by_measure_and_by_stype(scoring_measure, merged_scores)
 
     return scored_testsets
 
@@ -349,27 +368,6 @@ def get_example_dd_score(example: Example, score_name):
     )
 
 
-def get_dd_score_parametric(
-    a_short_nonisland_score,
-    b_long_nonisland_score,
-    c_short_island_score,
-    d_long_island_score,
-):
-    example_lenght_effect = a_short_nonisland_score - b_long_nonisland_score
-    example_structure_effect = a_short_nonisland_score - c_short_island_score
-    example_total_effect = a_short_nonisland_score - d_long_island_score
-    example_island_effect = example_total_effect - (
-        example_lenght_effect + example_structure_effect
-    )
-    example_dd = example_structure_effect - (
-        b_long_nonisland_score - d_long_island_score
-    )
-
-    example_dd *= -1
-    assert_almost_equale(example_island_effect, example_dd)
-    return example_dd
-
-
 def get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
     a_short_nonisland_idx = sentences_ordering.SHORT_NONISLAND
     b_long_nonisland = sentences_ordering.LONG_NONISLAND
@@ -393,12 +391,6 @@ def get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
     example_dd_with_lp *= -1
     assert_almost_equale(example_island_effect_with_lp, example_dd_with_lp)
     return example_dd_with_lp
-
-
-def assert_almost_equale(val1, val2, precision=14):
-    assert abs(val1 - val2) < 10 ** (-1 * precision), (
-        f"val1:{val1}, val2: {val2}, " f"diff: {val1 - val2}"
-    )
 
 
 def plot_all_phenomena(phenomena_names, lp_avg_scores):
@@ -540,7 +532,9 @@ def print_examples_compare_diff(
         logging.info(
             f"printing testset for {testset.linguistic_phenomenon} from {testset.model_descr}"
         )
-        print(f"comparing {sent_type1} and {sent_type2}")
+        print(
+            f"comparing {sent_type1} and {sent_type2} ({testset.linguistic_phenomenon} from {testset.model_descr})"
+        )
         examples = testset.get_examples_sorted_by_score_diff(
             score_descr, sent_type1, sent_type2, reverse=False
         )
@@ -708,7 +702,7 @@ def main(
     # logging.getLogger('matplotlib.font_manager').disabled = True
     logging.basicConfig(format=fmt)  # level=log_level,
     this_module_logger = logging.getLogger(__name__)
-    this_module_logger.setLevel(logging.DEBUG)
+    this_module_logger.setLevel(log_level)
 
     import argparse
 
@@ -787,5 +781,5 @@ def main(
 
 if __name__ == "__main__":
     main(
-        tests_subdir="sprouse/", rescore=True, log_level=logging.DEBUG
-    )  # tests_subdir="syntactic_tests_it/"
+        tests_subdir="sprouse/", rescore=True, log_level=logging.INFO
+    )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"

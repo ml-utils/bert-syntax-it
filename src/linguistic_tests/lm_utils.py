@@ -464,3 +464,9 @@ def get_sentences_from_example(
         sentences = list(example.values())[0:sentences_per_example]  #
 
     return sentences
+
+
+def assert_almost_equale(val1, val2, precision=14):
+    assert abs(val1 - val2) < 10 ** (-1 * precision), (
+        f"val1:{val1}, val2: {val2}, " f"diff: {val1 - val2}"
+    )

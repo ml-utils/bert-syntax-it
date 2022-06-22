@@ -4,13 +4,17 @@ import time
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
+from typing import List
 
+import numpy as np
+from linguistic_tests.lm_utils import assert_almost_equale
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import get_results_dir
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
+from scipy.stats import zmap
 
 SPROUSE_SENTENCE_TYPES = [
     SentenceNames.SHORT_NONISLAND,
@@ -82,6 +86,9 @@ class Example:
                 return typed_sentence.sent
         raise ValueError(f"Invalid key, it's not a SentenceName: {key}")
 
+    def get_score(self, scoring_measure: ScoringMeasures, sent_type: SentenceNames):
+        self[sent_type].get_score(scoring_measure)
+
     def get_structure_effect(self, score_descr) -> float:
         raise NotImplementedError
 
@@ -137,6 +144,11 @@ class TestSet:
         default_factory=dict
     )
 
+    # z scores for a testset, to be used in the sprouse-like plots, so just for the DD caclulations
+    avg_zscores_by_measure_and_by_stype: dict[
+        ScoringMeasures, dict[SentenceNames, float]
+    ] = field(default_factory=dict)
+
     avg_DD_lp: float = ERROR_LP
     avg_DD_penlp: float = ERROR_LP
     avg_DD_ll: float = ERROR_LP
@@ -154,9 +166,6 @@ class TestSet:
     min_token_weight: float = -1 * ERROR_LP
     max_token_weight: float = ERROR_LP
 
-    # todo: add model descriptor, indicating from which model the scrores where calculated
-    # todo: normalize score_averages ..
-
     def __post_init__(self, sent_types, scoring_measures, model_type: ModelTypes):
         for stype in sent_types:
             self.lp_average_by_sentence_type[stype] = 0
@@ -168,14 +177,16 @@ class TestSet:
                 self.ll_average_by_sentence_type[stype] = 0
                 self.penll_average_by_sentence_type[stype] = 0
 
-        # todo: for bert-like models there are additional scoring measures
-        #  (depending on the chosen approximations for sentence acceptability
         for scoring_measure in scoring_measures:
 
-            self.accuracy_per_score_type_per_sentence_type[scoring_measure] = {}
+            self.accuracy_per_score_type_per_sentence_type[scoring_measure] = dict()
+            self.avg_zscores_by_measure_and_by_stype[scoring_measure] = dict()
+
             for stype in sent_types:
 
-                # and example scores accurately a sentence type if it gives it an higher acceptability score
+                self.avg_zscores_by_measure_and_by_stype[scoring_measure][stype] = 0
+
+                # an example scores accurately a sentence type if it gives it an higher acceptability score
                 # than the ungrammatical/unacceptable sentence
                 # so for the ungrammatical/unacceptable sentence there is no point in storing an accuracy value
                 # (it would be like comparing it with iself)
@@ -186,6 +197,34 @@ class TestSet:
                     self.accuracy_per_score_type_per_sentence_type[scoring_measure][
                         stype
                     ] = 0
+
+    def get_sentence_types(self):
+        return self.lp_average_by_sentence_type.keys()
+
+    def set_avg_zscores_by_measure_and_by_stype(
+        self, scoring_measure: ScoringMeasures, merged_scores
+    ):
+
+        for stype in self.get_sentence_types():
+
+            # convert all the scores to zscores
+            all_scores_this_measure_and_stype: List[float] = []
+            for example in self.examples:
+                score = example[stype].get_score(scoring_measure)
+                all_scores_this_measure_and_stype.append(score)
+            all_zscores_this_measure_and_stype: List[float] = zmap(
+                all_scores_this_measure_and_stype, merged_scores
+            )
+
+            # then calculate the averages
+            self.avg_zscores_by_measure_and_by_stype[scoring_measure][
+                stype
+            ] = np.average(all_zscores_this_measure_and_stype)
+
+    def get_avg_zscores_by_measure_and_by_stype(
+        self, scoring_measure: ScoringMeasures, stype: SentenceNames
+    ):
+        return self.avg_zscores_by_measure_and_by_stype[scoring_measure][stype]
 
     def get_avg_scores(self, scoring_measure: ScoringMeasures):
         if scoring_measure == ScoringMeasures.LP:
@@ -198,6 +237,22 @@ class TestSet:
             return self.penll_average_by_sentence_type
         else:
             raise ValueError(f"Unexpected scoring_measure: {scoring_measure}")
+
+    def get_avg_DD_zscores(self, scoring_measure: ScoringMeasures):
+        return get_dd_score_parametric(
+            a_short_nonisland_score=self.avg_zscores_by_measure_and_by_stype[
+                scoring_measure
+            ][SentenceNames.SHORT_NONISLAND],
+            b_long_nonisland_score=self.avg_zscores_by_measure_and_by_stype[
+                scoring_measure
+            ][SentenceNames.LONG_NONISLAND],
+            c_short_island_score=self.avg_zscores_by_measure_and_by_stype[
+                scoring_measure
+            ][SentenceNames.SHORT_ISLAND],
+            d_long_island_score=self.avg_zscores_by_measure_and_by_stype[
+                scoring_measure
+            ][SentenceNames.LONG_ISLAND],
+        )
 
     def get_avg_DD(self, scoring_measure: ScoringMeasures):
         if scoring_measure == ScoringMeasures.LP:
@@ -328,6 +383,18 @@ def parse_testset(
     )
 
 
+def get_merged_score_across_testsets(
+    scoring_measure: ScoringMeasures, testsets: List[TestSet]
+):
+    merged_scores = []
+    for testset in testsets:
+        for example in testset.examples:
+            for typed_sentence in example.sentences:
+                merged_scores.append(typed_sentence.sent.get_score(scoring_measure))
+
+    return merged_scores
+
+
 def parse_example(example: dict, sent_types: list):
     typed_senteces = []
     # print(f"example: {example}")
@@ -342,3 +409,24 @@ def parse_example(example: dict, sent_types: list):
 def parse_typed_sentence(stype: SentenceNames, txt: str):
     sent = Sentence(txt)
     return TypedSentence(stype, sent)
+
+
+def get_dd_score_parametric(
+    a_short_nonisland_score,
+    b_long_nonisland_score,
+    c_short_island_score,
+    d_long_island_score,
+):
+    example_lenght_effect = a_short_nonisland_score - b_long_nonisland_score
+    example_structure_effect = a_short_nonisland_score - c_short_island_score
+    example_total_effect = a_short_nonisland_score - d_long_island_score
+    example_island_effect = example_total_effect - (
+        example_lenght_effect + example_structure_effect
+    )
+    example_dd = example_structure_effect - (
+        b_long_nonisland_score - d_long_island_score
+    )
+
+    example_dd *= -1
+    assert_almost_equale(example_island_effect, example_dd)
+    return example_dd
