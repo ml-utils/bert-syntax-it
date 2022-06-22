@@ -134,7 +134,7 @@ def get_test_session_descr(dataset_source, model_descr, score_name=""):
 
 
 def plot_results(scored_testsets: list[TestSet], score_name, use_zscore=False):
-    fig, axs = plt.subplots(2, 2, figsize=(12.8, 9.6))  # default figsize=(6.4, 4.8)
+    fig, axs = plt.subplots(2, 2, figsize=(12.8, 12.8))  # default figsize=(6.4, 4.8)
 
     window_title = get_test_session_descr(
         scored_testsets[0].dataset_source, scored_testsets[0].model_descr, score_name
@@ -184,7 +184,9 @@ def plot_results(scored_testsets: list[TestSet], score_name, use_zscore=False):
     print_orange(f"Saving plot to file {filepath} ..")
     plt.savefig(filepath)  # , dpi=300
     plt.figlegend(lines, labels)
-    plt.show()
+    # fig.tight_layout()
+
+    # plt.show()
 
 
 def _plot_results_subplot(
@@ -266,6 +268,7 @@ def _plot_results_subplot(
         ax.set_ylabel(f"{scoring_measure} values")
     if set_xlabel:
         ax.set_xlabel("Dependency distance")
+    # ax.set_aspect('equal', 'box')  # , 'box'
     ax.set_title(scored_testset.linguistic_phenomenon)
 
     return lines, labels
