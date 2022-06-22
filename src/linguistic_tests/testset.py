@@ -148,6 +148,9 @@ class TestSet:
     avg_zscores_by_measure_and_by_stype: dict[
         ScoringMeasures, dict[SentenceNames, float]
     ] = field(default_factory=dict)
+    std_error_of_zscores_by_measure_and_by_stype: dict[
+        ScoringMeasures, dict[SentenceNames, float]
+    ] = field(default_factory=dict)
 
     avg_DD_lp: float = ERROR_LP
     avg_DD_penlp: float = ERROR_LP
@@ -181,10 +184,14 @@ class TestSet:
 
             self.accuracy_per_score_type_per_sentence_type[scoring_measure] = dict()
             self.avg_zscores_by_measure_and_by_stype[scoring_measure] = dict()
+            self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure] = dict()
 
             for stype in sent_types:
 
                 self.avg_zscores_by_measure_and_by_stype[scoring_measure][stype] = 0
+                self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
+                    stype
+                ] = 0
 
                 # an example scores accurately a sentence type if it gives it an higher acceptability score
                 # than the ungrammatical/unacceptable sentence
@@ -224,10 +231,52 @@ class TestSet:
                 stype
             ] = np.average(all_zscores_this_measure_and_stype)
 
+            # also calculate the standard errors for the error bars:
+            # std_error = np.std(data, ddof=1) / np.sqrt(len(data))
+            self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
+                stype
+            ] = get_std_error(all_zscores_this_measure_and_stype)
+
     def get_avg_zscores_by_measure_and_by_stype(
         self, scoring_measure: ScoringMeasures, stype: SentenceNames
     ):
         return self.avg_zscores_by_measure_and_by_stype[scoring_measure][stype]
+
+    def get_std_error_of_zscores_by_measure_and_by_stype(
+        self, scoring_measure: ScoringMeasures, stype: SentenceNames
+    ):
+        return self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][stype]
+
+    def get_std_errors_of_zscores_by_measure_and_sentence_structure(
+        self, scoring_measure: ScoringMeasures, sentence_structure: SentenceNames
+    ):
+        if sentence_structure in [
+            SentenceNames.SHORT_NONISLAND,
+            SentenceNames.LONG_NONISLAND,
+        ]:
+            return [
+                self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
+                    SentenceNames.SHORT_NONISLAND
+                ],
+                self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
+                    SentenceNames.LONG_NONISLAND
+                ],
+            ]
+        if sentence_structure in [
+            SentenceNames.SHORT_ISLAND,
+            SentenceNames.LONG_ISLAND,
+        ]:
+            return [
+                self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
+                    SentenceNames.SHORT_ISLAND
+                ],
+                self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
+                    SentenceNames.LONG_ISLAND
+                ],
+            ]
+        raise ValueError(
+            f"Unrecognized sentence type as sentenc structure type: {sentence_structure}"
+        )
 
     def get_avg_scores(self, scoring_measure: ScoringMeasures):
         if scoring_measure == ScoringMeasures.LP:
@@ -256,6 +305,9 @@ class TestSet:
                 scoring_measure
             ][SentenceNames.LONG_ISLAND],
         )
+
+    def get_pvalues_of_avg_DD_zscores(self, scoring_measure: ScoringMeasures):
+        raise NotImplementedError
 
     def get_avg_DD(self, scoring_measure: ScoringMeasures):
         if scoring_measure == ScoringMeasures.LP:
@@ -433,3 +485,7 @@ def get_dd_score_parametric(
     example_dd *= -1
     assert_almost_equale(example_island_effect, example_dd)
     return example_dd
+
+
+def get_std_error(arr):
+    return np.std(arr, ddof=1) / np.sqrt(len(arr))

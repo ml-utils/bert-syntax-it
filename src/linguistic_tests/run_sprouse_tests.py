@@ -119,6 +119,9 @@ def score_sprouse_testsets(
         logging.debug(
             f"{scoring_measure}: {testset.avg_zscores_by_measure_and_by_stype=}"
         )
+        logging.debug(
+            f"{scoring_measure} std errors: {testset.std_error_of_zscores_by_measure_and_by_stype=}"
+        )
 
     return scored_testsets
 
@@ -214,20 +217,35 @@ def _plot_results_subplot(
             score_averages[SentenceNames.LONG_ISLAND],
         ]
 
+    logging.debug(f"{y_values_ni=}")
+    logging.debug(f"{y_values_is=}")
+
     # todo? in the legend also plot p value across all the testset examples
     # in the legend also plot accuracy %
 
     x_values = ["SHORT", "LONG"]
 
-    (non_island_line,) = ax.plot(
-        x_values,
-        y_values_ni,
+    std_errors_ni = (
+        scored_testset.get_std_errors_of_zscores_by_measure_and_sentence_structure(
+            scoring_measure, SentenceNames.SHORT_NONISLAND
+        )
     )
-    (island_line,) = ax.plot(
+    std_errors_is = (
+        scored_testset.get_std_errors_of_zscores_by_measure_and_sentence_structure(
+            scoring_measure, SentenceNames.SHORT_ISLAND
+        )
+    )
+
+    (non_island_line, _, _) = ax.errorbar(
+        x_values, y_values_ni, yerr=std_errors_ni, capsize=5  # marker="o",
+    ).lines
+    (island_line, _, _) = ax.errorbar(
         x_values,
         y_values_is,
         linestyle="--",
-    )
+        yerr=std_errors_is,
+        capsize=5,  # marker="o",
+    ).lines
     lines = [non_island_line, island_line]
     labels = ["Non-island structure", "Island structure"]
 
@@ -239,6 +257,7 @@ def _plot_results_subplot(
     else:
         ax.set_ylabel(f"{scoring_measure} values")
     ax.set_xlabel("Dependency distance")
+
     return lines, labels
 
 
@@ -838,5 +857,5 @@ def main(
 
 if __name__ == "__main__":
     main(
-        tests_subdir="syntactic_tests_it/", rescore=True, log_level=logging.DEBUG
+        tests_subdir="sprouse/", rescore=True, log_level=logging.DEBUG
     )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
