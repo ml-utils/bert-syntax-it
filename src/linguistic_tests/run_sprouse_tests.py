@@ -1,6 +1,7 @@
 import logging
 import os.path
 import time
+from statistics import mean
 from typing import List
 
 from linguistic_tests.compute_model_score import print_accuracy_scores
@@ -70,17 +71,11 @@ def score_sprouse_testsets(
     device,
     parsed_testsets: List[TestSet],
 ) -> list[TestSet]:
-    # todo: compare results (for each phenomena) on the 8 original Sprouse sentences, and the new 50 italian ones
-
     # todo: see activation levels in the model layers, try to identify several phenomena: clause segmentation,
     #  different constructs, long vs short dependencies, wh vs rc dependencies, islands vs non islands
 
     # todo: see if the pretrained models by Bostrom et al. 2020 perform better (on Sprouse and Blimp english test data )
     #  when they use more linguistically plausible subwords units for tokenization.
-
-    # todo: add a max_examples variable to limit the tested examples to a fixed number, while still having more for some phenomena
-
-    # testset_filepath = get_out_dir() + "blimp/from_blim_en/islands/complex_NP_island.jsonl"  # wh_island.jsonl' # adjunct_island.jsonl'
 
     scored_testsets = []
     for parsed_testset in parsed_testsets:
@@ -95,20 +90,35 @@ def score_sprouse_testsets(
         scored_testsets.append(scored_testset)
 
     # calculating the zscores
-    #  to have a reference for mean and sd, calculate zscore after the 4 testsets have been scored
-    #  merge the arrays of scores for the 4 phenomena in the testset, and for all 4 sentence types in the examples
-    scoring_measures = scored_testsets[
-        0
-    ].accuracy_per_score_type_per_sentence_type.keys()
+    #  first get a reference for mean and sd:
+    #  after the 4 testsets have been scored, merge the arrays of scores for
+    #  the 4 phenomena in the testset, and for all 4 sentence types in the
+    #  examples.
+    scoring_measures = scored_testsets[0].get_scoring_measures()
+    logging.debug(f"Calculating zscores for {scoring_measures=}")
     merged_scores_by_scoring_measure: dict[ScoringMeasures, List[float]] = dict()
     for scoring_measure in scoring_measures:
-        merged_scores = get_merged_score_across_testsets(
-            scoring_measure, scored_testsets
-        )
-        merged_scores_by_scoring_measure[scoring_measure] = merged_scores
 
-    for testset in scored_testsets:
-        testset.set_avg_zscores_by_measure_and_by_stype(scoring_measure, merged_scores)
+        merged_scores_by_scoring_measure[
+            scoring_measure
+        ] = get_merged_score_across_testsets(scoring_measure, scored_testsets)
+
+        logging.debug(
+            f"For {scoring_measure.name} got {len(merged_scores_by_scoring_measure[scoring_measure])} scores, "
+            f"with min {min(merged_scores_by_scoring_measure[scoring_measure])}, "
+            f"max {max(merged_scores_by_scoring_measure[scoring_measure])}, "
+            f"and mean {mean(merged_scores_by_scoring_measure[scoring_measure])} "
+        )
+
+    for scoring_measure in merged_scores_by_scoring_measure.keys():
+        for testset in scored_testsets:
+            testset.set_avg_zscores_by_measure_and_by_stype(
+                scoring_measure, merged_scores_by_scoring_measure[scoring_measure]
+            )
+
+        logging.debug(
+            f"{scoring_measure}: {testset.avg_zscores_by_measure_and_by_stype=}"
+        )
 
     return scored_testsets
 
@@ -165,7 +175,7 @@ def plot_results(scored_testsets: list[TestSet], score_name, use_zscore=False):
     print_orange(f"Saving plot to file {filepath} ..")
     plt.savefig(filepath)  # , dpi=300
     plt.figlegend(lines, labels)
-    # plt.show()
+    plt.show()
 
 
 def _plot_results_subplot(
@@ -741,11 +751,13 @@ def main(
 
     fmt = "[%(levelname)s] %(asctime)s - %(message)s"
 
-    # stdout_handler = logging.StreamHandler(sys.stdout)
-    # stdout_handler.addFilter(NoFontMsgFilter())
-    # stdout_handler.addFilter(NoStreamMsgFilter())
-    # logging.getLogger('matplotlib.font_manager').disabled = True
-    logging.basicConfig(format=fmt)  # level=log_level,
+    logging.getLogger("matplotlib.font_manager").disabled = True
+    # stdout_handler = calcula.StreamHandler(sys.stdout)
+    # root_logger = logging.getLogger()
+    # root_logger.addFilter(NoFontMsgFilter())
+    # root_logger.addFilter(NoStreamMsgFilter())
+
+    logging.basicConfig(format=fmt, level=log_level)  #
     this_module_logger = logging.getLogger(__name__)
     this_module_logger.setLevel(log_level)
 
@@ -826,5 +838,5 @@ def main(
 
 if __name__ == "__main__":
     main(
-        tests_subdir="sprouse/", rescore=False, log_level=logging.INFO
+        tests_subdir="syntactic_tests_it/", rescore=True, log_level=logging.DEBUG
     )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"

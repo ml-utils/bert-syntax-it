@@ -42,12 +42,10 @@ class SentenceNames(StrEnum):
 
 
 class ScoringMeasures(StrEnum):
-    LP = "unnormalized_log_probability"
-    PenLP = "log_probability_normalized_by_sentence_lenght_penalty"
-    PenNormLogits = "PenNormLogits"
-    NormLogits = "NormLogits"
-    LL = "LogLogistic"
-    PLL = "PenLogistic"
+    LP = "LogProbability-softmax"
+    PenLP = "PenaltyLogProbability-softmax"
+    LL = "LogProbability-logistic"
+    PLL = "PenaltyLogProbability-logistic"
 
     def __eq__(self, b):
 
@@ -60,6 +58,9 @@ class ScoringMeasures(StrEnum):
 
     def __hash__(self):
         return hash(self.name)
+
+    def __repr__(self):
+        return str(self.name)
 
 
 class SprouseSentencesOrder(IntEnum):
@@ -466,7 +467,8 @@ def get_sentences_from_example(
     return sentences
 
 
-def assert_almost_equale(val1, val2, precision=14):
+def assert_almost_equale(val1, val2, precision=13):
+    # todo: convert this to a warning
     assert abs(val1 - val2) < 10 ** (-1 * precision), (
         f"val1:{val1}, val2: {val2}, " f"diff: {val1 - val2}"
     )

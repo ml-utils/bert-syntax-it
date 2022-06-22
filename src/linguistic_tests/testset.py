@@ -201,6 +201,9 @@ class TestSet:
     def get_sentence_types(self):
         return self.lp_average_by_sentence_type.keys()
 
+    def get_scoring_measures(self):
+        return self.accuracy_per_score_type_per_sentence_type.keys()
+
     def set_avg_zscores_by_measure_and_by_stype(
         self, scoring_measure: ScoringMeasures, merged_scores
     ):
