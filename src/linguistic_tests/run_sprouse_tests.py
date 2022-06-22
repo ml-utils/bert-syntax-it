@@ -25,6 +25,7 @@ from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from linguistic_tests.testset import TestSet
 from matplotlib import pyplot as plt
+from scipy.stats import chi2
 from tqdm import tqdm
 
 
@@ -259,6 +260,12 @@ def _plot_results_subplot(
     ax.set_xlabel("Dependency distance")
 
     return lines, labels
+
+
+def get_pvalue_with_likelihood_ratio_test(full_model_ll, reduced_model_ll):
+    likelihood_ratio = 2 * (reduced_model_ll - full_model_ll)
+    p = chi2.sf(likelihood_ratio, 1)  # L2 has 1 DoF more than L1
+    return p
 
 
 def score_sprouse_testset(
@@ -857,5 +864,5 @@ def main(
 
 if __name__ == "__main__":
     main(
-        tests_subdir="sprouse/", rescore=True, log_level=logging.DEBUG
+        tests_subdir="sprouse/", rescore=False, log_level=logging.DEBUG
     )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
