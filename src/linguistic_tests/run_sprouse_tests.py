@@ -156,9 +156,14 @@ def plot_results(scored_testsets: list[TestSet], score_name, use_zscore=False):
                     scored_testsets.insert(preferred_index, testset)
                     break
 
-    for scored_testset, ax in zip(scored_testsets, axs_list):
+    set_xlabels = [False, False, True, True]
+    for scored_testset, ax, set_xlabel in zip(scored_testsets, axs_list, set_xlabels):
         lines, labels = _plot_results_subplot(
-            scored_testset, score_name, ax, use_zscore=use_zscore
+            scored_testset,
+            score_name,
+            ax,
+            use_zscore=use_zscore,
+            set_xlabel=set_xlabel,
         )
 
     fig.suptitle(
@@ -183,9 +188,12 @@ def plot_results(scored_testsets: list[TestSet], score_name, use_zscore=False):
 
 
 def _plot_results_subplot(
-    scored_testset: TestSet, scoring_measure, ax, use_zscore=False
+    scored_testset: TestSet,
+    scoring_measure,
+    ax,
+    use_zscore=False,
+    set_xlabel=True,
 ):
-
     if use_zscore:
         DD_value = scored_testset.get_avg_DD_zscores(scoring_measure)
 
@@ -205,7 +213,6 @@ def _plot_results_subplot(
                 scoring_measure, SentenceNames.LONG_ISLAND
             ),
         ]
-
     else:
         DD_value = scored_testset.get_avg_DD(scoring_measure)
         score_averages = scored_testset.get_avg_scores(scoring_measure)
@@ -221,8 +228,8 @@ def _plot_results_subplot(
     logging.debug(f"{y_values_ni=}")
     logging.debug(f"{y_values_is=}")
 
-    # todo? in the legend also plot p value across all the testset examples
-    # in the legend also plot accuracy %
+    # todo: add p values
+    # todo: add accuracy %
 
     x_values = ["SHORT", "LONG"]
 
@@ -251,13 +258,15 @@ def _plot_results_subplot(
     labels = ["Non-island structure", "Island structure"]
 
     ax.legend(title=f"DD = {DD_value:.2f}")
-    ax.set_title(scored_testset.linguistic_phenomenon)
+
     if use_zscore:
         ax.set_ylabel(f"z-scores ({scoring_measure})")
         ax.set_ylim(ymin=-1.5, ymax=1.5)
     else:
         ax.set_ylabel(f"{scoring_measure} values")
-    ax.set_xlabel("Dependency distance")
+    if set_xlabel:
+        ax.set_xlabel("Dependency distance")
+    ax.set_title(scored_testset.linguistic_phenomenon)
 
     return lines, labels
 
