@@ -497,15 +497,17 @@ def load_and_plot_pickle(
 
 def plot_testsets(scored_testsets: List[TestSet], model_type: ModelTypes):
 
-    # todo: plot zscores
     plot_results(scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True)
+    plot_results(scored_testsets, ScoringMeasures.LP.name, use_zscore=True)
 
-    plot_results(scored_testsets, ScoringMeasures.LP.name)
-    plot_results(scored_testsets, ScoringMeasures.PenLP.name)
+    # plot_results(scored_testsets, ScoringMeasures.LP.name)
+    # plot_results(scored_testsets, ScoringMeasures.PenLP.name)
 
     if model_type in BERT_LIKE_MODEL_TYPES:
-        plot_results(scored_testsets, ScoringMeasures.LL.name)
-        plot_results(scored_testsets, ScoringMeasures.PLL.name)
+        # plot_results(scored_testsets, ScoringMeasures.LL.name)
+        # plot_results(scored_testsets, ScoringMeasures.PLL.name)
+        plot_results(scored_testsets, ScoringMeasures.LL.name, use_zscore=True)
+        plot_results(scored_testsets, ScoringMeasures.PLL.name, use_zscore=True)
 
 
 def print_sorted_sentences_to_check_spelling_errors2(
