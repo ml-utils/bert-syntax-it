@@ -6,7 +6,6 @@ from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.run_sprouse_tests import get_dd_score
 from linguistic_tests.run_sprouse_tests import get_pickle_filename
 from linguistic_tests.run_sprouse_tests import main
-from linguistic_tests.run_sprouse_tests import plot_all_phenomena
 from linguistic_tests.run_sprouse_tests import plot_results
 from linguistic_tests.run_sprouse_tests import print_example
 from linguistic_tests.run_sprouse_tests import print_testset_results
@@ -20,11 +19,6 @@ class TestRunSprouseTests(TestCase):
     @pytest.mark.skip("todo")
     def test_main(self):
         main()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_plot_all_phenomena(self):
-        plot_all_phenomena()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")

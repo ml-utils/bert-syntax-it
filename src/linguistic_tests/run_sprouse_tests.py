@@ -119,7 +119,7 @@ def get_test_session_descr(dataset_source, model_descr, score_name=""):
     return session_descr
 
 
-def plot_results(scored_testsets: list[TestSet], score_name):
+def plot_results(scored_testsets: list[TestSet], score_name, use_zscore=False):
     fig, axs = plt.subplots(2, 2, figsize=(12.8, 9.6))  # default figsize=(6.4, 4.8)
 
     window_title = get_test_session_descr(
@@ -143,54 +143,93 @@ def plot_results(scored_testsets: list[TestSet], score_name):
                     break
 
     for scored_testset, ax in zip(scored_testsets, axs_list):
-        _plot_results_subplot(scored_testset, score_name, ax)
+        lines, labels = _plot_results_subplot(
+            scored_testset, score_name, ax, use_zscore=use_zscore
+        )
 
     fig.suptitle(
         f"Model: {scored_testsets[0].model_descr}, "
         f"\n Dataset: {scored_testset.dataset_source}"
     )
 
-    filename = f"{window_title}.png"
+    if use_zscore:
+        zscore_note = "-zscores"
+    else:
+        zscore_note = ""
+
     saving_dir = str(get_results_dir())
+    timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
+    filename = f"{window_title}{zscore_note}-{timestamp}.png"
     filepath = os.path.join(saving_dir, filename)
-    if os.path.exists(filepath):
-        timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
-        filename = f"{window_title}-{timestamp}.png"
-        filepath = os.path.join(saving_dir, filename)
+
     print_orange(f"Saving plot to file {filepath} ..")
     plt.savefig(filepath)  # , dpi=300
+    plt.figlegend(lines, labels)
     # plt.show()
 
 
-def _plot_results_subplot(scored_testset: TestSet, score_name, ax):
-    # plt.subplot(2, 2, testset_idx)
-    # plt.plot(x, y)
+def _plot_results_subplot(
+    scored_testset: TestSet, scoring_measure, ax, use_zscore=False
+):
 
-    # todo: normalize the scores centering them to 0 like the z scores in the paper
-    DD_value = scored_testset.get_avg_DD(score_name)
+    if use_zscore:
+        DD_value = scored_testset.get_avg_DD_zscores(scoring_measure)
+
+        y_values_ni = [
+            scored_testset.get_avg_zscores_by_measure_and_by_stype(
+                scoring_measure, SentenceNames.SHORT_NONISLAND
+            ),
+            scored_testset.get_avg_zscores_by_measure_and_by_stype(
+                scoring_measure, SentenceNames.LONG_NONISLAND
+            ),
+        ]
+        y_values_is = [
+            scored_testset.get_avg_zscores_by_measure_and_by_stype(
+                scoring_measure, SentenceNames.SHORT_ISLAND
+            ),
+            scored_testset.get_avg_zscores_by_measure_and_by_stype(
+                scoring_measure, SentenceNames.LONG_ISLAND
+            ),
+        ]
+
+    else:
+        DD_value = scored_testset.get_avg_DD(scoring_measure)
+        score_averages = scored_testset.get_avg_scores(scoring_measure)
+        y_values_ni = [
+            score_averages[SentenceNames.SHORT_NONISLAND],
+            score_averages[SentenceNames.LONG_NONISLAND],
+        ]
+        y_values_is = [
+            score_averages[SentenceNames.SHORT_ISLAND],
+            score_averages[SentenceNames.LONG_ISLAND],
+        ]
 
     # todo? in the legend also plot p value across all the testset examples
     # in the legend also plot accuracy %
-    score_averages = scored_testset.get_avg_scores(score_name)
 
-    # nonisland line
-    short_nonisland_average = [0, score_averages[SentenceNames.SHORT_NONISLAND]]
-    long_nonisland_avg = [1, score_averages[SentenceNames.LONG_NONISLAND]]
     x_values = ["SHORT", "LONG"]
-    y_values = [short_nonisland_average[1], long_nonisland_avg[1]]
-    # ax.set_ylim([-32.5, -26.5])  # todo: set limits as min/max across all testsets
-    ax.plot(x_values, y_values, label="Non-island structure")
 
-    # island line
-    short_island_avg = [0, score_averages[SentenceNames.SHORT_ISLAND]]
-    long_island_avg = [1, score_averages[SentenceNames.LONG_ISLAND]]
-    x_values = [short_island_avg[0], long_island_avg[0]]
-    y_values = [short_island_avg[1], long_island_avg[1]]
-    ax.plot(x_values, y_values, linestyle="--", label="Island structure")
+    (non_island_line,) = ax.plot(
+        x_values,
+        y_values_ni,
+    )
+    (island_line,) = ax.plot(
+        x_values,
+        y_values_is,
+        linestyle="--",
+    )
+    lines = [non_island_line, island_line]
+    labels = ["Non-island structure", "Island structure"]
+
     ax.legend(title=f"DD = {DD_value:.2f}")
     ax.set_title(scored_testset.linguistic_phenomenon)
-    ax.set_ylabel(f"{score_name} values")
+    if use_zscore:
+        ax.set_ylabel(f"z-scores ({scoring_measure})")
+        ax.set_ylim(ymin=-1.5, ymax=1.5)
+    else:
+        ax.set_ylabel(f"{scoring_measure} values")
     ax.set_xlabel("Dependency distance")
+    return lines, labels
 
 
 def score_sprouse_testset(
@@ -393,9 +432,9 @@ def get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
     return example_dd_with_lp
 
 
-def plot_all_phenomena(phenomena_names, lp_avg_scores):
-    for idx, phenomenon in enumerate(phenomena_names):
-        plot_results(phenomenon, lp_avg_scores[idx], ScoringMeasures.LP.name)
+# def plot_all_phenomena(phenomena_names, lp_avg_scores):
+#     for idx, phenomenon in enumerate(phenomena_names):
+#         plot_results(phenomenon, lp_avg_scores[idx], ScoringMeasures.LP.name)
 
 
 def save_scored_testsets(
@@ -457,6 +496,10 @@ def load_and_plot_pickle(
 
 
 def plot_testsets(scored_testsets: List[TestSet], model_type: ModelTypes):
+
+    # todo: plot zscores
+    plot_results(scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True)
+
     plot_results(scored_testsets, ScoringMeasures.LP.name)
     plot_results(scored_testsets, ScoringMeasures.PenLP.name)
 
@@ -781,5 +824,5 @@ def main(
 
 if __name__ == "__main__":
     main(
-        tests_subdir="sprouse/", rescore=True, log_level=logging.INFO
+        tests_subdir="sprouse/", rescore=False, log_level=logging.INFO
     )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
