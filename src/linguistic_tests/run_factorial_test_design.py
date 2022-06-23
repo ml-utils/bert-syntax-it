@@ -760,10 +760,7 @@ def get_testset_params(tests_subdir):
     return testsets_root_filenames, broader_test_type, dataset_source
 
 
-def main(
-    tests_subdir="syntactic_tests_it/", rescore=False, log_level=logging.INFO
-):  # tests_subdir="sprouse/"
-
+def _setup_logging(log_level):
     fmt = "[%(levelname)s] %(asctime)s - %(message)s"
 
     logging.getLogger("matplotlib.font_manager").disabled = True
@@ -775,6 +772,9 @@ def main(
     logging.basicConfig(format=fmt, level=log_level)  #
     this_module_logger = logging.getLogger(__name__)
     this_module_logger.setLevel(log_level)
+
+
+def _parse_arguments():
 
     import argparse
 
@@ -791,6 +791,19 @@ def main(
     #     "--rescore"
     # )
     args = arg_parser.parse_args()
+    return args
+
+
+def main(
+    # todo: save accuracy results to csv file
+    tests_subdir="syntactic_tests_it/",
+    rescore=False,
+    log_level=logging.INFO,
+):  # tests_subdir="sprouse/"
+
+    _setup_logging(log_level)
+    args = _parse_arguments()
+
     model_types_to_run = [
         ModelTypes(model_type_int) for model_type_int in args.model_types
     ]
