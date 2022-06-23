@@ -90,7 +90,7 @@ def run_testset(
     correct_lls_2nd_sentence = 0
     correct_pen_lls_2nd_sentence = 0
     for example_idx, example_data in enumerate(tqdm(testset["sentences"])):
-        (lps, pen_lps, lls, penlls, sentences,) = get_example_scores(
+        (lps, pen_lps, lls, penlls, sentences,) = get_unparsed_example_scores(
             device,
             example_data,
             model,
@@ -219,9 +219,9 @@ def score_example(
     return example
 
 
-def get_example_scores(
+def get_unparsed_example_scores(
     device,
-    example_data,
+    example_data: dict,
     model,
     model_type,
     sent_ids: List[int],

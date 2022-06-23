@@ -8,8 +8,8 @@ import pytest
 import torch
 from linguistic_tests import compute_model_score
 from linguistic_tests.compute_model_score import count_accurate_in_example
-from linguistic_tests.compute_model_score import get_example_scores
 from linguistic_tests.compute_model_score import get_sentence_acceptability_score
+from linguistic_tests.compute_model_score import get_unparsed_example_scores
 from linguistic_tests.compute_model_score import logistic2
 from linguistic_tests.compute_model_score import perc
 from linguistic_tests.compute_model_score import reduce_to_log_product
@@ -97,7 +97,7 @@ class TestComputeModelScore(TestCase):
         example_data,
         sentences_per_example,
     ):
-        (lps, pen_lps, lls, penlls, sentences,) = get_example_scores(
+        (lps, pen_lps, lls, penlls, sentences,) = get_unparsed_example_scores(
             DEVICES.CPU,
             example_data,
             model,

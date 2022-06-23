@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 import pytest
-from linguistic_tests.compute_model_score import get_example_scores
+from linguistic_tests.compute_model_score import get_unparsed_example_scores
 from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.run_factorial_test_design import get_dd_score
 from linguistic_tests.run_factorial_test_design import get_pickle_filename
@@ -112,7 +112,7 @@ class TestRunSprouseTests(TestCase):
                 pen_sentence_log_weights,
                 sentence_log_weights,
                 sentences,
-            ) = get_example_scores(
+            ) = get_unparsed_example_scores(
                 device,
                 example_data,
                 model,
