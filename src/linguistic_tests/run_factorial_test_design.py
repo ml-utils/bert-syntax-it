@@ -81,7 +81,7 @@ def score_sprouse_testsets(
     scored_testsets = []
     for parsed_testset in parsed_testsets:
 
-        scored_testset = score_sprouse_testset(
+        scored_testset = score_factorial_testset(
             model_type,
             model,
             tokenizer,
@@ -280,7 +280,7 @@ def get_pvalue_with_likelihood_ratio_test(full_model_ll, reduced_model_ll):
     return p
 
 
-def score_sprouse_testset(
+def score_factorial_testset(
     model_type, model, tokenizer, device, testset: TestSet
 ) -> TestSet:
     # todo set scorebase param
