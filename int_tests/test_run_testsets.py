@@ -153,18 +153,11 @@ class TestRunTestSets(TestCase):
                 ModelTypes.BERT,
                 ModelTypes.GILBERTO,
                 ModelTypes.ROBERTA,
+                ModelTypes.GPT,
+                ModelTypes.GEPPETTO,
             ]:
                 # run_testset(testsets_dir, test_file, model, tokenizer,
                 # score_based_on=sentence_score_bases.SOFTMAX)
-                get_unparsed_testset_scores(
-                    model_type,
-                    model,
-                    tokenizer,
-                    DEVICES.CPU,
-                    testset_data,
-                    sentences_per_example,
-                )
-            elif model_type in [ModelTypes.GPT, ModelTypes.GEPPETTO]:
                 get_unparsed_testset_scores(
                     model_type,
                     model,
