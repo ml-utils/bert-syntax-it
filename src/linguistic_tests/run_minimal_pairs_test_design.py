@@ -88,7 +88,7 @@ def run_blimp_en(
         )
         parsed_testset.examples = parsed_testset.examples[0:max_examples]
 
-        scored_testset = score_testset_minimal_pairs(
+        scored_testset = score_minimal_pairs_testset(
             model_type, model, tokenizer, DEVICES.CPU, parsed_testset
         )
 
@@ -134,7 +134,7 @@ def run_tests_for_model_type(model_type):
     # custom_eval("What is your name?", bert, tokenizer)
 
 
-def score_testset_minimal_pairs(
+def score_minimal_pairs_testset(
     model_type: ModelTypes, model, tokenizer, device, testset: TestSet
 ):
     for example_idx, example in enumerate(tqdm(testset.examples)):
