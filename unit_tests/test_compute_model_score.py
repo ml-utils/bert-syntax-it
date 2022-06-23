@@ -11,6 +11,7 @@ import pytest
 import torch
 from linguistic_tests import compute_model_score
 from linguistic_tests import lm_utils
+from linguistic_tests.compute_model_score import AcceptabilityScoreRes
 from linguistic_tests.compute_model_score import count_accurate_in_example
 from linguistic_tests.compute_model_score import get_sentence_acceptability_score
 from linguistic_tests.compute_model_score import get_unparsed_example_scores
@@ -333,8 +334,29 @@ class TestComputeModelScore(TestCase):
             with patch.object(
                 compute_model_score,
                 get_sentence_acceptability_score.__name__,
-                return_value=(ERROR_LP, ERROR_LP),
-            ):
+            ) as mock_get_sentence_acceptability_score:
+                assert (
+                    compute_model_score.get_sentence_acceptability_score
+                    is mock_get_sentence_acceptability_score
+                )
+
+                # 2nd element is LONG_ISLAND, unacceptable sentence
+                # 4th element values are ignored, 3rd acceptable sentence
+                mock_get_sentence_acceptability_score.side_effect = [
+                    AcceptabilityScoreRes(lp_softmax=-1.0, lp_logistic=-1.0),
+                    AcceptabilityScoreRes(lp_softmax=-2.0, lp_logistic=-2.0),
+                    AcceptabilityScoreRes(lp_softmax=-3.0, lp_logistic=-1.0),
+                    AcceptabilityScoreRes(lp_softmax=-0.0, lp_logistic=-0.0),
+                ]
+                expected_correct_lps_1st_sentence = 1
+                expected_correct_pen_lps_1st_sentence = 1
+                expected_correct_lps_2nd_sentence = 0
+                expected_correct_pen_lps_2nd_sentence = 0
+                expected_correct_lls_1st_sentence = 1
+                expected_correct_pen_lls_1st_sentence = 1
+                expected_correct_lls_2nd_sentence = 1
+                expected_correct_pen_lls_2nd_sentence = 1
+
                 (
                     correct_lps_1st_sentence,
                     correct_pen_lps_1st_sentence,
@@ -353,14 +375,26 @@ class TestComputeModelScore(TestCase):
                     sentences_per_example,
                 )
 
-                assert 0 == correct_lps_1st_sentence
-                assert 0 == correct_pen_lps_1st_sentence
-                assert 0 == correct_lps_2nd_sentence
-                assert 0 == correct_pen_lps_2nd_sentence
-                assert 0 == correct_lls_1st_sentence
-                assert 0 == correct_pen_lls_1st_sentence
-                assert 0 == correct_lls_2nd_sentence
-                assert 0 == correct_pen_lls_2nd_sentence
+                assert expected_correct_lps_1st_sentence == correct_lps_1st_sentence
+                assert (
+                    expected_correct_pen_lps_1st_sentence
+                    == correct_pen_lps_1st_sentence
+                )
+                assert expected_correct_lps_2nd_sentence == correct_lps_2nd_sentence
+                assert (
+                    expected_correct_pen_lps_2nd_sentence
+                    == correct_pen_lps_2nd_sentence
+                )
+                assert expected_correct_lls_1st_sentence == correct_lls_1st_sentence
+                assert (
+                    expected_correct_pen_lls_1st_sentence
+                    == correct_pen_lls_1st_sentence
+                )
+                assert expected_correct_lls_2nd_sentence == correct_lls_2nd_sentence
+                assert (
+                    expected_correct_pen_lls_2nd_sentence
+                    == correct_pen_lls_2nd_sentence
+                )
 
     def test_get_unparsed_example_scores(self):
         example_data = get_basic_example_data_dict()

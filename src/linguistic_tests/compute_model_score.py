@@ -19,6 +19,11 @@ from scipy.special import softmax
 from transformers.modeling_outputs import MaskedLMOutput
 
 
+AcceptabilityScoreRes = namedtuple(
+    "AcceptabilityScoreRes", ["lp_softmax", "lp_logistic"]
+)
+
+
 def score_example(
     device,
     example: Example,
@@ -171,11 +176,12 @@ def get_sentence_acceptability_score(
     scores given by the model as a prediction for each of the tokens in the
     sentence when it is masked.
     """
+
     if len(sentence_tokens) == 0:
         logging.error(
             f"Warning, can't compute score of empty sentence: {sentence_tokens}"
         )
-        return ERROR_LP, None
+        return AcceptabilityScoreRes(lp_softmax=ERROR_LP, lp_logistic=None)
 
     if model_type in [ModelTypes.GPT, ModelTypes.GEPPETTO]:
 
@@ -204,7 +210,9 @@ def get_sentence_acceptability_score(
             labels=sentence_ids_in_batch_as_tensor,
         )
         loss = model_output.loss  # in this case equivalent to model_output[0]
-        return float(loss) * -1.0 * len(sentence_tokens), None
+        return AcceptabilityScoreRes(
+            lp_softmax=float(loss) * -1.0 * len(sentence_tokens), lp_logistic=None
+        )
 
     elif model_type in BERT_LIKE_MODEL_TYPES:  #
 
@@ -297,6 +305,8 @@ def get_sentence_acceptability_score(
                     f"{np.log(softmax_probabilities[masked_word_id])=}, "
                     f"({sentence_tokens_with_specials[masked_token_index]})"
                 )
-        return lp_softmax, lp_logistic
+
+        return AcceptabilityScoreRes(lp_softmax=lp_softmax, lp_logistic=lp_logistic)
+
     else:
         raise ValueError(f"Error: unrecognized model type {model_type}")
