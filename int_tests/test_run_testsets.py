@@ -3,7 +3,6 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import pytest
-from linguistic_tests.compute_model_score import get_unparsed_testset_scores
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
@@ -17,6 +16,7 @@ from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_factorial_test_design import get_testset_params
 from linguistic_tests.run_factorial_test_design import score_sprouse_testsets
+from linguistic_tests.run_minimal_pairs_test_design import get_unparsed_testset_scores
 from linguistic_tests.run_minimal_pairs_test_design import print_accuracies
 from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
 from linguistic_tests.testset import ERROR_LP

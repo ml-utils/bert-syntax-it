@@ -13,7 +13,6 @@ from linguistic_tests import lm_utils
 from linguistic_tests.compute_model_score import count_accurate_in_example
 from linguistic_tests.compute_model_score import get_sentence_acceptability_score
 from linguistic_tests.compute_model_score import get_unparsed_example_scores
-from linguistic_tests.compute_model_score import get_unparsed_testset_scores
 from linguistic_tests.compute_model_score import logistic2
 from linguistic_tests.compute_model_score import perc
 from linguistic_tests.compute_model_score import reduce_to_log_product
@@ -22,6 +21,7 @@ from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_penalty_term
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import ModelTypes
+from linguistic_tests.run_minimal_pairs_test_design import get_unparsed_testset_scores
 from linguistic_tests.testset import ERROR_LP
 from numpy import log
 from transformers import BertForMaskedLM

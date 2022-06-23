@@ -1,8 +1,10 @@
 import logging
 import os
 import time
+from typing import List
 
 from linguistic_tests.bert_utils import estimate_sentence_probability
+from linguistic_tests.compute_model_score import get_unparsed_example_scores
 from linguistic_tests.compute_model_score import perc
 from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import parse_testsets
@@ -13,6 +15,7 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import ScoringMeasures
+from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.testset import TestSet
 from tqdm import tqdm
 
@@ -226,3 +229,71 @@ def print_accuracies(
         print(
             f"acc. correct_pen_logweights_2nd_sentence: {perc(correct_pen_logweights_2nd_sentence, examples_count):.1f} %"
         )
+
+
+# todo: mark as deprecated, move to test section to use as comparison for outcome of new method
+def get_unparsed_testset_scores(
+    model_type: ModelTypes, model, tokenizer, device, testset, sentences_per_example
+):
+    """
+    Adapted from https://github.com/jhlau/acceptability-prediction-in-context/
+    blob/master/code/compute_model_score.py
+    :param model_type:
+    :param model:
+    :param tokenizer:
+    :param device:
+    :param testset:
+    :return:
+    """
+    # todo: parse testset and run score_testset
+
+    sent_ids: List[int] = []
+
+    correct_lps_1st_sentence = 0
+    correct_pen_lps_1st_sentence = 0
+    correct_lps_2nd_sentence = 0
+    correct_pen_lps_2nd_sentence = 0
+    correct_lls_1st_sentence = 0
+    correct_pen_lls_1st_sentence = 0
+    correct_lls_2nd_sentence = 0
+    correct_pen_lls_2nd_sentence = 0
+    for example_idx, example_data in enumerate(tqdm(testset["sentences"])):
+        (lps, pen_lps, lls, penlls, sentences,) = get_unparsed_example_scores(
+            device,
+            example_data,
+            model,
+            model_type,
+            sent_ids,
+            tokenizer,
+            sentences_per_example,
+        )
+        if lps[sent_idx.GOOD_1] > lps[sent_idx.BAD]:
+            correct_lps_1st_sentence += 1
+        if pen_lps[sent_idx.GOOD_1] > pen_lps[sent_idx.BAD]:
+            correct_pen_lps_1st_sentence += 1
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            if lls[sent_idx.GOOD_1] > lls[sent_idx.BAD]:
+                correct_lls_1st_sentence += 1
+            if penlls[sent_idx.GOOD_1] > penlls[sent_idx.BAD]:
+                correct_pen_lls_1st_sentence += 1
+        if len(sentences) > 2:
+            if lps[sent_idx.GOOD_2] > lps[sent_idx.BAD]:
+                correct_lps_2nd_sentence += 1
+            if pen_lps[sent_idx.GOOD_2] > pen_lps[sent_idx.BAD]:
+                correct_pen_lps_2nd_sentence += 1
+            if model_type in BERT_LIKE_MODEL_TYPES:
+                if lls[sent_idx.GOOD_2] > lls[sent_idx.BAD]:
+                    correct_lls_2nd_sentence += 1
+                if penlls[sent_idx.GOOD_2] > penlls[sent_idx.BAD]:
+                    correct_pen_lls_2nd_sentence += 1
+
+    return (
+        correct_lps_1st_sentence,
+        correct_pen_lps_1st_sentence,
+        correct_lps_2nd_sentence,
+        correct_pen_lps_2nd_sentence,
+        correct_lls_1st_sentence,
+        correct_pen_lls_1st_sentence,
+        correct_lls_2nd_sentence,
+        correct_pen_lls_2nd_sentence,
+    )
