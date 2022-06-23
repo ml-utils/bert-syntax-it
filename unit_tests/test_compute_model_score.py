@@ -1,7 +1,6 @@
 import logging
 from collections import namedtuple
 from random import random
-from typing import List
 from unittest import TestCase
 from unittest.mock import MagicMock
 from unittest.mock import Mock
@@ -452,7 +451,7 @@ def get_unparsed_example_scores_legacy_impl(
     example_data: dict,
     model,
     model_type,
-    sent_ids: List[int],
+    sent_ids: list[int],
     tokenizer,
     sentences_per_example,
     sprouse_format=False,

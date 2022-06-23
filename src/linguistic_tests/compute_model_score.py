@@ -1,8 +1,6 @@
 import logging
 from collections import namedtuple
 from functools import reduce
-from typing import Dict
-from typing import List
 
 import numpy as np
 import torch
@@ -59,10 +57,10 @@ def score_example(
 
 def get_unparsed_example_scores(
     device,
-    example_data: Dict,
+    example_data: dict,
     model,
     model_type,
-    sent_ids: List[int],
+    sent_ids: list[int],
     tokenizer,
     sentences_per_example,
     sprouse_format=False,

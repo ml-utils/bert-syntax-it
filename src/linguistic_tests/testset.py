@@ -6,7 +6,6 @@ from dataclasses import field
 from dataclasses import InitVar
 from typing import Dict
 from typing import KeysView
-from typing import List
 
 import numpy as np
 from linguistic_tests.lm_utils import assert_almost_equale
@@ -99,7 +98,7 @@ class Example:
     ) -> float:
         return self[stype1].get_score(score_descr) - self[stype2].get_score(score_descr)
 
-    def get_sentence_types(self) -> List[SentenceNames]:
+    def get_sentence_types(self) -> list[SentenceNames]:
         return [typed_sentence.stype for typed_sentence in self.sentences]
 
     def get_type_of_unacceptable_sentence(self) -> SentenceNames:
@@ -231,11 +230,11 @@ class TestSet:
         for stype in self.get_sentence_types():
 
             # convert all the scores to zscores
-            all_scores_this_measure_and_stype: List[float] = []
+            all_scores_this_measure_and_stype: list[float] = []
             for example in self.examples:
                 score = example[stype].get_score(scoring_measure)
                 all_scores_this_measure_and_stype.append(score)
-            all_zscores_this_measure_and_stype: List[float] = zmap(
+            all_zscores_this_measure_and_stype: list[float] = zmap(
                 all_scores_this_measure_and_stype, merged_scores
             )
 
@@ -451,7 +450,7 @@ def parse_testset(
 
 
 def get_merged_score_across_testsets(
-    scoring_measure: ScoringMeasures, testsets: List[TestSet]
+    scoring_measure: ScoringMeasures, testsets: list[TestSet]
 ):
     merged_scores = []
     for testset in testsets:

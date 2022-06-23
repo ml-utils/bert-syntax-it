@@ -2,7 +2,6 @@ import csv
 import dataclasses
 import json
 import os.path
-from typing import List
 
 import pandas
 from linguistic_tests.lm_utils import BlimpSentencesOrder
@@ -19,15 +18,15 @@ from tqdm import tqdm
 
 def parse_testsets(
     testset_dir_path: str,
-    testset_filenames: List[str],
+    testset_filenames: list[str],
     dataset_source: str,
     examples_format: str,
     sent_types_descr,
     model_name: str,
     model_type: ModelTypes,
-    scoring_measures: List[ScoringMeasures],
+    scoring_measures: list[ScoringMeasures],
     max_examples: int,
-) -> List[TestSet]:
+) -> list[TestSet]:
     # todo: add scorebase var in testset class
     parsed_testsets = []
     for testset_filename in testset_filenames:

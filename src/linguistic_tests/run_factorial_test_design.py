@@ -2,7 +2,6 @@ import logging
 import os.path
 import time
 from statistics import mean
-from typing import List
 
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import assert_almost_equale
@@ -69,7 +68,7 @@ def score_factorial_testsets(
     model,
     tokenizer,
     device,
-    parsed_testsets: List[TestSet],
+    parsed_testsets: list[TestSet],
 ) -> list[TestSet]:
     # todo: see activation levels in the model layers, try to identify several phenomena: clause segmentation,
     #  different constructs, long vs short dependencies, wh vs rc dependencies, islands vs non islands
@@ -101,7 +100,7 @@ def calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
     #  examples.
     scoring_measures = scored_testsets[0].get_scoring_measures()
     logging.debug(f"Calculating zscores for {scoring_measures=}")
-    merged_scores_by_scoring_measure: dict[ScoringMeasures, List[float]] = dict()
+    merged_scores_by_scoring_measure: dict[ScoringMeasures, list[float]] = dict()
     for scoring_measure in scoring_measures:
 
         merged_scores_by_scoring_measure[
@@ -469,7 +468,7 @@ def get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
 
 
 def save_scored_testsets(
-    scored_testsets: List[TestSet], model_name: str, dataset_source: str
+    scored_testsets: list[TestSet], model_name: str, dataset_source: str
 ):
     for scored_testset in scored_testsets:
         scored_testset.model_descr = model_name
@@ -526,7 +525,7 @@ def load_and_plot_pickle(
     plot_testsets(loaded_testsets, model_type)
 
 
-def plot_testsets(scored_testsets: List[TestSet], model_type: ModelTypes):
+def plot_testsets(scored_testsets: list[TestSet], model_type: ModelTypes):
 
     plot_results(scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True)
     plot_results(scored_testsets, ScoringMeasures.LP.name, use_zscore=True)
@@ -633,10 +632,10 @@ def print_examples_compare_diff(
 
 
 def print_testset_results(
-    scored_testsets: List[TestSet],
+    scored_testsets: list[TestSet],
     dataset_source: str,
     model_type: ModelTypes,
-    testsets_root_filenames: List[str],
+    testsets_root_filenames: list[str],
 ):
     logging.info("Printing accuracy scores..")
     for scored_testset in scored_testsets:

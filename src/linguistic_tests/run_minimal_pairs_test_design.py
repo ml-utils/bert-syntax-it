@@ -1,8 +1,6 @@
 import logging
 import os
 import time
-from typing import Dict
-from typing import List
 
 from linguistic_tests.bert_utils import estimate_sentence_probability
 from linguistic_tests.compute_model_score import get_unparsed_example_scores
@@ -170,7 +168,7 @@ def get_unparsed_testset_scores(
     model,
     tokenizer,
     device,
-    testset: Dict,
+    testset: dict,
     sentences_per_example,
 ):
     """
@@ -185,7 +183,7 @@ def get_unparsed_testset_scores(
     """
     # todo: parse testset and run score_testset
 
-    sent_ids: List[int] = []
+    sent_ids: list[int] = []
 
     correct_lps_1st_sentence = 0
     correct_pen_lps_1st_sentence = 0
