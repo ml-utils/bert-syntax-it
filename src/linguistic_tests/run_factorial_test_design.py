@@ -4,7 +4,6 @@ import time
 from statistics import mean
 from typing import List
 
-from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import assert_almost_equale
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
@@ -18,6 +17,7 @@ from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.run_minimal_pairs_test_design import print_accuracy_scores
+from linguistic_tests.run_minimal_pairs_test_design import score_minimal_pairs_testset
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import get_dd_score_parametric
 from linguistic_tests.testset import get_merged_score_across_testsets
@@ -26,7 +26,6 @@ from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from linguistic_tests.testset import TestSet
 from matplotlib import pyplot as plt
 from scipy.stats import chi2
-from tqdm import tqdm
 
 
 model_names_it = {
@@ -281,42 +280,19 @@ def get_pvalue_with_likelihood_ratio_test(full_model_ll, reduced_model_ll):
 
 
 def score_factorial_testset(
-    model_type, model, tokenizer, device, testset: TestSet
+    model_type: ModelTypes, model, tokenizer, device: DEVICES, testset: TestSet
 ) -> TestSet:
-    # todo set scorebase param
 
-    for example_idx, example in enumerate(tqdm(testset.examples)):
-        score_example(
-            device,
-            example,
-            model,
-            model_type,
-            tokenizer,
-        )
-
-    # scoring accuracy rates
-    for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
-        for (
-            stype_acceptable_sentence
-        ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
-            accurate_count = 0
-            for example_idx, example in enumerate(testset.examples):
-                if example.is_scored_accurately_for(
-                    scoring_measure, stype_acceptable_sentence
-                ):
-                    accurate_count += 1
-            accuracy = accurate_count / len(testset.examples)
-            testset.accuracy_per_score_type_per_sentence_type[scoring_measure][
-                stype_acceptable_sentence
-            ] = accuracy
+    # assigning sentence scores and testset accuracy rates
+    score_minimal_pairs_testset(model_type, model, tokenizer, device, testset)
 
     # doing factorial design scores
     for example_idx, example in enumerate(testset.examples):
         (
             example.DD_with_lp,
             example.DD_with_penlp,
-            example.dd_with_ll,
-            example.dd_with_pll,
+            example.DD_with_ll,
+            example.DD_with_penll,
         ) = get_dd_scores_wdataclasses(example, model_type)
         if example.DD_with_lp > 0:
             testset.accuracy_by_DD_lp += 1 / len(testset.examples)

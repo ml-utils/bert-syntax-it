@@ -135,8 +135,9 @@ def run_tests_for_model_type(model_type):
 
 
 def score_minimal_pairs_testset(
-    model_type: ModelTypes, model, tokenizer, device, testset: TestSet
+    model_type: ModelTypes, model, tokenizer, device: DEVICES, testset: TestSet
 ):
+    # assigning sentence scores
     for example_idx, example in enumerate(tqdm(testset.examples)):
         score_example(
             device,
@@ -146,9 +147,7 @@ def score_minimal_pairs_testset(
             tokenizer,
         )
 
-    # todo, fixme: some scoring measures are calculated only for Bert-like (bidirectional) models, where
-    #  the score is just an approximation of the acceptability
-    #  if model_type in [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]:
+    # scoring accuracy rates
     for scoring_measure in testset.get_scoring_measures():
         for stype_acceptable_sentence in testset.get_acceptable_sentence_types():
             accurate_count = 0
