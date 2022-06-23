@@ -99,11 +99,7 @@ class TestLMUtils(TestCase):
 
     def test_get_sentences_from_example_2(self):
 
-        example_data_str = """{"short_nonisland": "Chi dice che lo studio rilascerà la nuova versione?",
-         "long_nonisland": "Che cosa dici che lo studio rilascerà?",
-         "short_island": "Chi aumenterà le vendite se rilascerà la nuova versione?",
-         "long_island": "Che cosa lo studio aumenterà le vendite se rilascerà?"}"""
-        example_data = json.loads(example_data_str)
+        example_data = get_basic_example_data_dict()
 
         sentences1 = get_sentences_from_example(
             example_data, sentences_per_example=4, sprouse_format=None
@@ -230,3 +226,14 @@ class TestLMUtils(TestCase):
         mock_print.assert_called_with(bcolors.WARNING + txt + bcolors.ENDC)
         print_red(txt)
         mock_print.assert_called_with(bcolors.FAIL + txt + bcolors.ENDC)
+
+
+def get_basic_example_data_str():
+    return """{"short_nonisland": "Chi dice che lo studio rilascerà la nuova versione?",
+     "long_nonisland": "Che cosa dici che lo studio rilascerà?",
+     "short_island": "Chi aumenterà le vendite se rilascerà la nuova versione?",
+     "long_island": "Che cosa lo studio aumenterà le vendite se rilascerà?"}"""
+
+
+def get_basic_example_data_dict():
+    return json.loads(get_basic_example_data_str())

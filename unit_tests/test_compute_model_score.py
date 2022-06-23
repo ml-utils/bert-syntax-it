@@ -8,6 +8,7 @@ from unittest.mock import patch
 import pytest
 import torch
 from linguistic_tests import compute_model_score
+from linguistic_tests import lm_utils
 from linguistic_tests.compute_model_score import count_accurate_in_example
 from linguistic_tests.compute_model_score import get_sentence_acceptability_score
 from linguistic_tests.compute_model_score import get_unparsed_example_scores
@@ -32,6 +33,8 @@ from transformers import RobertaForMaskedLM
 from transformers import RobertaTokenizer
 from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
 from transformers.models.bert.modeling_bert import MaskedLMOutput
+
+from unit_tests.test_lm_utils import get_basic_example_data_dict
 
 
 class TestComputeModelScore(TestCase):
@@ -63,7 +66,7 @@ class TestComputeModelScore(TestCase):
         model = None
         sent_ids = []
 
-        example_data = None
+        example_data = get_basic_example_data_dict()
         sentences_per_example = None
         sentences = [
             "Chi è partito per Parigi dopo aver fatto le valigie?",
@@ -73,11 +76,11 @@ class TestComputeModelScore(TestCase):
         lp_softmax = -8.3
         lp_logistic = ERROR_LP  # todo: replace with actual value returned by a bert model for this sentence
         with patch.object(
-            compute_model_score, "get_sentences_from_example", return_value=sentences
+            lm_utils, "get_sentences_from_example", return_value=sentences
         ) as _:
             with patch.object(
                 compute_model_score,
-                "get_sentence_score_JHLau",
+                "get_sentence_acceptability_score",
                 return_value=(lp_softmax, lp_logistic),
             ) as _:
                 # don't mock: get_penalty_term
@@ -309,7 +312,9 @@ class TestComputeModelScore(TestCase):
         tokenizer = None
         sentences_per_example = len(testset["sentences"])
         with patch.object(
-            compute_model_score, "get_example_scores", return_value=mocked_model_score
+            compute_model_score,
+            "get_unparsed_example_scores",
+            return_value=mocked_model_score,
         ) as _:
             run_testset(
                 ModelTypes.BERT,
