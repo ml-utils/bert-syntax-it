@@ -4,6 +4,7 @@ import time
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
+from typing import Dict
 from typing import KeysView
 from typing import List
 
@@ -461,7 +462,7 @@ def get_merged_score_across_testsets(
     return merged_scores
 
 
-def parse_example(example: dict, sent_types: list):
+def parse_example(example: Dict, sent_types: list):
     typed_senteces = []
     # print(f"example: {example}")
 

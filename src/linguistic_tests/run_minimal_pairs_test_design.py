@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+from typing import Dict
 from typing import List
 
 from linguistic_tests.bert_utils import estimate_sentence_probability
@@ -166,7 +167,12 @@ def score_testset_minimal_pairs(
 
 # todo: mark as deprecated, move to test section to use as comparison for outcome of new method
 def get_unparsed_testset_scores(
-    model_type: ModelTypes, model, tokenizer, device, testset, sentences_per_example
+    model_type: ModelTypes,
+    model,
+    tokenizer,
+    device,
+    testset: Dict,
+    sentences_per_example,
 ):
     """
     Adapted from https://github.com/jhlau/acceptability-prediction-in-context/
@@ -190,7 +196,11 @@ def get_unparsed_testset_scores(
     correct_pen_lls_1st_sentence = 0
     correct_lls_2nd_sentence = 0
     correct_pen_lls_2nd_sentence = 0
+    logging.debug(f"\n{testset['sentences']=}")
+    print(f"\n{type(testset['sentences'])=}, {testset['sentences']=}")
     for example_idx, example_data in enumerate(tqdm(testset["sentences"])):
+        logging.debug(f"{example_idx=}, {example_data=}")
+        print(f"{example_idx=}, {example_data=}")
         (lps, pen_lps, lls, penlls, sentences,) = get_unparsed_example_scores(
             device,
             example_data,

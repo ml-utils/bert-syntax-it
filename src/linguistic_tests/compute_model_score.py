@@ -1,6 +1,7 @@
 import logging
 from collections import namedtuple
 from functools import reduce
+from typing import Dict
 from typing import List
 
 import numpy as np
@@ -53,7 +54,7 @@ def score_example(
 
 def get_unparsed_example_scores(
     device,
-    example_data: dict,
+    example_data: Dict,
     model,
     model_type,
     sent_ids: List[int],

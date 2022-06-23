@@ -1,3 +1,4 @@
+import logging
 from collections import namedtuple
 from random import random
 from typing import List
@@ -21,6 +22,7 @@ from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_penalty_term
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import ModelTypes
+from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_minimal_pairs_test_design import get_unparsed_testset_scores
 from linguistic_tests.testset import ERROR_LP
 from numpy import log
@@ -39,6 +41,10 @@ from unit_tests.test_lm_utils import get_basic_example_data_dict
 
 
 class TestComputeModelScore(TestCase):
+    def setUp(self):
+        logging.basicConfig(level=logging.DEBUG)
+        # logging.getLogger().setLevel(logging.DEBUG)
+
     @pytest.mark.skip("todo")
     def test_count_accurate_in_example(self):
         count_accurate_in_example()
@@ -291,42 +297,70 @@ class TestComputeModelScore(TestCase):
         self.assertEqual(actual, expected)
 
     def test_run_testset(self):
-
+        # logging.basicConfig(level=logging.DEBUG)
         example_sentences = [
             "Chi è partito per Parigi dopo aver fatto le valigie?",
             "Che cosa Gianni è partito per Parigi dopo aver fatto?",
             "Dopo aver fatto cosa, Gianni è partito per Parigi?",
+            "Dopo aver fatto cosa, Gianni è partito per Parigi?",
         ]
         testset = {
-            "sentences": {
-                0: example_sentences[0],
-                1: example_sentences[1],
-                2: example_sentences[2],
-            }
+            "sentences": [
+                {
+                    SentenceNames.SHORT_NONISLAND: example_sentences[0],
+                    SentenceNames.LONG_ISLAND: example_sentences[1],
+                    SentenceNames.LONG_NONISLAND: example_sentences[2],
+                    SentenceNames.SHORT_ISLAND: example_sentences[3],
+                }
+            ]
         }
         mocked_model_score = (
-            [0.1, 0.2, 0.3],
-            [0.1, 0.2, 0.3],
-            [0.1, 0.2, 0.3],
-            [0.1, 0.2, 0.3],
+            [0.1, 0.2, 0.3, 0.3],
+            [0.1, 0.2, 0.3, 0.3],
+            [0.1, 0.2, 0.3, 0.3],
+            [0.1, 0.2, 0.3, 0.3],
             example_sentences,
         )
         model = None
-        tokenizer = None
+        tokenizer = Mock()
+        tokenizer.tokenize = Mock(return_value=[0, 1, 2, 3, 4, 5])
         sentences_per_example = len(testset["sentences"])
         with patch.object(
             compute_model_score,
             get_unparsed_example_scores.__name__,  # "get_unparsed_example_scores"
             return_value=mocked_model_score,
         ) as _:
-            get_unparsed_testset_scores(
-                ModelTypes.BERT,
-                model,
-                tokenizer,
-                DEVICES.CPU,
-                testset,
-                sentences_per_example,
-            )
+            with patch.object(
+                compute_model_score,
+                get_sentence_acceptability_score.__name__,
+                return_value=(ERROR_LP, ERROR_LP),
+            ):
+                (
+                    correct_lps_1st_sentence,
+                    correct_pen_lps_1st_sentence,
+                    correct_lps_2nd_sentence,
+                    correct_pen_lps_2nd_sentence,
+                    correct_lls_1st_sentence,
+                    correct_pen_lls_1st_sentence,
+                    correct_lls_2nd_sentence,
+                    correct_pen_lls_2nd_sentence,
+                ) = get_unparsed_testset_scores(
+                    ModelTypes.BERT,
+                    model,
+                    tokenizer,
+                    DEVICES.CPU,
+                    testset,
+                    sentences_per_example,
+                )
+
+                assert 0 == correct_lps_1st_sentence
+                assert 0 == correct_pen_lps_1st_sentence
+                assert 0 == correct_lps_2nd_sentence
+                assert 0 == correct_pen_lps_2nd_sentence
+                assert 0 == correct_lls_1st_sentence
+                assert 0 == correct_pen_lls_1st_sentence
+                assert 0 == correct_lls_2nd_sentence
+                assert 0 == correct_pen_lls_2nd_sentence
 
     def test_get_unparsed_example_scores(self):
         example_data = get_basic_example_data_dict()
