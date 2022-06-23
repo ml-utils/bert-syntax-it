@@ -36,7 +36,7 @@ def score_testset_minimal_pairs(
     for scoring_measure in testset.get_scoring_measures():
         for stype_acceptable_sentence in testset.get_acceptable_sentence_types():
             accurate_count = 0
-            for example_idx, example in enumerate(tqdm(testset.examples)):
+            for example_idx, example in enumerate(testset.examples):
                 if example.is_scored_accurately(
                     scoring_measure, stype_acceptable_sentence
                 ):
