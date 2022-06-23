@@ -15,9 +15,9 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
+from linguistic_tests.run_factorial_test_design import get_testset_params
+from linguistic_tests.run_factorial_test_design import score_sprouse_testsets
 from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
-from linguistic_tests.run_sprouse_tests import get_testset_params
-from linguistic_tests.run_sprouse_tests import score_sprouse_testsets
 from linguistic_tests.testset import ERROR_LP
 from matplotlib import pyplot as plt
 

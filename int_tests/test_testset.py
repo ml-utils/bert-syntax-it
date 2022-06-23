@@ -8,8 +8,8 @@ from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.run_sprouse_tests import get_testset_params
-from linguistic_tests.run_sprouse_tests import score_sprouse_testsets
+from linguistic_tests.run_factorial_test_design import get_testset_params
+from linguistic_tests.run_factorial_test_design import score_sprouse_testsets
 from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
 

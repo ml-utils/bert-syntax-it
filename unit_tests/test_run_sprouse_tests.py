@@ -3,15 +3,15 @@ from unittest import TestCase
 import pytest
 from linguistic_tests.compute_model_score import get_example_scores
 from linguistic_tests.lm_utils import SprouseSentencesOrder
-from linguistic_tests.run_sprouse_tests import get_dd_score
-from linguistic_tests.run_sprouse_tests import get_pickle_filename
-from linguistic_tests.run_sprouse_tests import main
-from linguistic_tests.run_sprouse_tests import plot_results
-from linguistic_tests.run_sprouse_tests import print_example
-from linguistic_tests.run_sprouse_tests import print_testset_results
-from linguistic_tests.run_sprouse_tests import save_scored_testsets
-from linguistic_tests.run_sprouse_tests import score_sprouse_testset
-from linguistic_tests.run_sprouse_tests import score_sprouse_testsets
+from linguistic_tests.run_factorial_test_design import get_dd_score
+from linguistic_tests.run_factorial_test_design import get_pickle_filename
+from linguistic_tests.run_factorial_test_design import main
+from linguistic_tests.run_factorial_test_design import plot_results
+from linguistic_tests.run_factorial_test_design import print_example
+from linguistic_tests.run_factorial_test_design import print_testset_results
+from linguistic_tests.run_factorial_test_design import save_scored_testsets
+from linguistic_tests.run_factorial_test_design import score_sprouse_testset
+from linguistic_tests.run_factorial_test_design import score_sprouse_testsets
 from tqdm import tqdm
 
 

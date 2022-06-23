@@ -6,7 +6,7 @@ from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.run_sprouse_tests import get_testset_params
+from linguistic_tests.run_factorial_test_design import get_testset_params
 from linguistic_tests.testset import TypedSentence
 from matplotlib import pyplot as plt
 from scipy.special import softmax
