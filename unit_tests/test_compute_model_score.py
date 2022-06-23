@@ -76,11 +76,13 @@ class TestComputeModelScore(TestCase):
         lp_softmax = -8.3
         lp_logistic = ERROR_LP  # todo: replace with actual value returned by a bert model for this sentence
         with patch.object(
-            lm_utils, "get_sentences_from_example", return_value=sentences
+            lm_utils,
+            get_sentences_from_example.__name__,
+            return_value=sentences,  # "get_sentences_from_example"
         ) as _:
             with patch.object(
                 compute_model_score,
-                "get_sentence_acceptability_score",
+                get_sentence_acceptability_score.__name__,  # "get_sentence_acceptability_score"
                 return_value=(lp_softmax, lp_logistic),
             ) as _:
                 # don't mock: get_penalty_term
@@ -313,7 +315,7 @@ class TestComputeModelScore(TestCase):
         sentences_per_example = len(testset["sentences"])
         with patch.object(
             compute_model_score,
-            "get_unparsed_example_scores",
+            get_unparsed_example_scores.__name__,  # "get_unparsed_example_scores"
             return_value=mocked_model_score,
         ) as _:
             run_testset(
@@ -338,7 +340,7 @@ class TestComputeModelScore(TestCase):
 
         with patch.object(
             compute_model_score,
-            "get_sentence_acceptability_score",
+            get_sentence_acceptability_score.__name__,  # "get_sentence_acceptability_score",
             return_value=(ERROR_LP, ERROR_LP),  # (lp_softmax, lp_logistic)
         ) as _:
             # todo: also patch tokenizer.tokenize(sentence)

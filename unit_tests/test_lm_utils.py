@@ -1,3 +1,4 @@
+import builtins
 import json
 from unittest import TestCase
 from unittest.mock import Mock
@@ -113,14 +114,16 @@ class TestLMUtils(TestCase):
         for idx, tsent in enumerate(parsed_example.sentences):
             assert tsent.sent.txt == sentences1[idx]
 
-    @patch.object(CM_T, "from_pretrained", return_value=Mock(spec=CM_T))
-    @patch.object(CM_M, "from_pretrained", return_value=Mock(spec=CM_M))
-    @patch.object(RB_T, "from_pretrained", return_value=Mock(spec=RB_T))
-    @patch.object(RB_M, "from_pretrained", return_value=Mock(spec=RB_M))
-    @patch.object(GPT_M, "from_pretrained", return_value=Mock(spec=GPT_M))
-    @patch.object(GPT_T, "from_pretrained", return_value=Mock(spec=GPT_T))
-    @patch.object(BRT_M, "from_pretrained", return_value=Mock(spec=BRT_M))
-    @patch.object(BRT_T, "from_pretrained", return_value=Mock(spec=BRT_T))
+    @patch.object(
+        CM_T, CM_T.from_pretrained.__name__, return_value=Mock(spec=CM_T)
+    )  # "from_pretrained"
+    @patch.object(CM_M, CM_M.from_pretrained.__name__, return_value=Mock(spec=CM_M))
+    @patch.object(RB_T, RB_T.from_pretrained.__name__, return_value=Mock(spec=RB_T))
+    @patch.object(RB_M, RB_M.from_pretrained.__name__, return_value=Mock(spec=RB_M))
+    @patch.object(GPT_M, GPT_M.from_pretrained.__name__, return_value=Mock(spec=GPT_M))
+    @patch.object(GPT_T, GPT_T.from_pretrained.__name__, return_value=Mock(spec=GPT_T))
+    @patch.object(BRT_M, BRT_M.from_pretrained.__name__, return_value=Mock(spec=BRT_M))
+    @patch.object(BRT_T, BRT_T.from_pretrained.__name__, return_value=Mock(spec=BRT_T))
     def test_load_model(self, mock1, mock2, mock3, mock4, mock5, mock6, mock7, mock8):
 
         for mock in [mock1, mock2, mock3, mock4, mock5, mock6, mock7, mock8]:
@@ -155,14 +158,14 @@ class TestLMUtils(TestCase):
         assert isinstance(model, expected_model_class)
         assert isinstance(tokenizer, expected_tokenizer_class)
 
-    @patch.object(CM_T, "from_pretrained", return_value=Mock(spec=CM_T))
-    @patch.object(CM_M, "from_pretrained", return_value=Mock(spec=CM_M))
-    @patch.object(RB_T, "from_pretrained", return_value=Mock(spec=RB_T))
-    @patch.object(RB_M, "from_pretrained", return_value=Mock(spec=RB_M))
-    @patch.object(GPT_M, "from_pretrained", return_value=Mock(spec=GPT_M))
-    @patch.object(GPT_T, "from_pretrained", return_value=Mock(spec=GPT_T))
-    @patch.object(BRT_M, "from_pretrained", return_value=Mock(spec=BRT_M))
-    @patch.object(BRT_T, "from_pretrained", return_value=Mock(spec=BRT_T))
+    @patch.object(CM_T, CM_T.from_pretrained.__name__, return_value=Mock(spec=CM_T))
+    @patch.object(CM_M, CM_M.from_pretrained.__name__, return_value=Mock(spec=CM_M))
+    @patch.object(RB_T, RB_T.from_pretrained.__name__, return_value=Mock(spec=RB_T))
+    @patch.object(RB_M, RB_M.from_pretrained.__name__, return_value=Mock(spec=RB_M))
+    @patch.object(GPT_M, GPT_M.from_pretrained.__name__, return_value=Mock(spec=GPT_M))
+    @patch.object(GPT_T, GPT_T.from_pretrained.__name__, return_value=Mock(spec=GPT_T))
+    @patch.object(BRT_M, BRT_M.from_pretrained.__name__, return_value=Mock(spec=BRT_M))
+    @patch.object(BRT_T, BRT_T.from_pretrained.__name__, return_value=Mock(spec=BRT_T))
     def test_load_model_and_tokenizer(
         self, mock1, mock2, mock3, mock4, mock5, mock6, mock7, mock8
     ):
@@ -219,8 +222,10 @@ class TestLMUtils(TestCase):
         assert isinstance(result, str)
         assert len(result) > len(txt)
 
-    @patch("builtins.print")
+    @patch.object(builtins, builtins.print.__name__)  # @patch("builtins.print")
     def test_print_in_color(self, mock_print: Mock):
+        assert builtins.print is mock_print
+
         txt = "Lorem"
         print_orange(txt)
         mock_print.assert_called_with(bcolors.WARNING + txt + bcolors.ENDC)

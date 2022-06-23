@@ -20,6 +20,7 @@ from linguistic_tests.run_factorial_test_design import score_sprouse_testsets
 from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
 from linguistic_tests.testset import ERROR_LP
 from matplotlib import pyplot as plt
+from matplotlib.pyplot import show
 
 from int_tests.int_tests_utils import get_test_data_dir
 
@@ -49,7 +50,7 @@ class TestRunTestSets(TestCase):
         )
 
     @pytest.mark.enable_socket
-    @patch.object(plt, "show")
+    @patch.object(plt, show.__name__)  # "show"
     def test_run_sprouse_tests(self, mock1):
         assert plt.show is mock1
 
