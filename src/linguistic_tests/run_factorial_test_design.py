@@ -88,12 +88,12 @@ def score_factorial_testsets(
         )
         scored_testsets.append(scored_testset)
 
-    calculate_zscores_across_testsets(scored_testsets)
+    _calculate_zscores_across_testsets(scored_testsets)
 
     return scored_testsets
 
 
-def calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
+def _calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
     #  first get a reference for mean and sd:
     #  after the 4 testsets have been scored, merge the arrays of scores for
     #  the 4 phenomena in the testset, and for all 4 sentence types in the
