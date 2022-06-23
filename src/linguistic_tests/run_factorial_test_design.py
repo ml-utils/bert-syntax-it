@@ -89,7 +89,12 @@ def score_factorial_testsets(
         )
         scored_testsets.append(scored_testset)
 
-    # calculating the zscores
+    calculate_zscores_across_testsets(scored_testsets)
+
+    return scored_testsets
+
+
+def calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
     #  first get a reference for mean and sd:
     #  after the 4 testsets have been scored, merge the arrays of scores for
     #  the 4 phenomena in the testset, and for all 4 sentence types in the
@@ -122,8 +127,6 @@ def score_factorial_testsets(
         logging.debug(
             f"{scoring_measure} std errors: {testset.std_error_of_zscores_by_measure_and_by_stype=}"
         )
-
-    return scored_testsets
 
 
 def get_test_session_descr(dataset_source, model_descr, score_name=""):
