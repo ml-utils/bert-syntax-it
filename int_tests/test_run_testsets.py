@@ -17,6 +17,7 @@ from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_factorial_test_design import get_testset_params
 from linguistic_tests.run_factorial_test_design import score_sprouse_testsets
+from linguistic_tests.run_minimal_pairs_test_design import print_accuracies
 from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
 from linguistic_tests.testset import ERROR_LP
 from matplotlib import pyplot as plt
@@ -158,13 +159,36 @@ class TestRunTestSets(TestCase):
             ]:
                 # run_testset(testsets_dir, test_file, model, tokenizer,
                 # score_based_on=sentence_score_bases.SOFTMAX)
-                get_unparsed_testset_scores(
+                (
+                    correct_lps_1st_sentence,
+                    correct_pen_lps_1st_sentence,
+                    correct_lps_2nd_sentence,
+                    correct_pen_lps_2nd_sentence,
+                    correct_lls_1st_sentence,
+                    correct_pen_lls_1st_sentence,
+                    correct_lls_2nd_sentence,
+                    correct_pen_lls_2nd_sentence,
+                ) = get_unparsed_testset_scores(
                     model_type,
                     model,
                     tokenizer,
                     DEVICES.CPU,
                     testset_data,
                     sentences_per_example,
+                )
+
+                examples_count = len(testset_data["sentences"])
+                print_accuracies(
+                    examples_count,
+                    model_type,
+                    correct_lps_1st_sentence,
+                    correct_pen_lps_1st_sentence,
+                    correct_lps_2nd_sentence,
+                    correct_pen_lps_2nd_sentence,
+                    correct_lls_1st_sentence,
+                    correct_pen_lls_1st_sentence,
+                    correct_lls_2nd_sentence,
+                    correct_pen_lls_2nd_sentence,
                 )
 
     @staticmethod

@@ -13,7 +13,6 @@ from linguistic_tests.testset import ERROR_LP
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import parse_example
 from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
-from linguistic_tests.testset import TestSet
 from scipy.special import expit as logistic
 from scipy.special import softmax
 from tqdm import tqdm
@@ -75,20 +74,6 @@ def get_unparsed_testset_scores(
                     correct_lls_2nd_sentence += 1
                 if penlls[sent_idx.GOOD_2] > penlls[sent_idx.BAD]:
                     correct_pen_lls_2nd_sentence += 1
-
-    examples_count = len(testset["sentences"])
-    print_accuracies(
-        examples_count,
-        model_type,
-        correct_lps_1st_sentence,
-        correct_pen_lps_1st_sentence,
-        correct_lps_2nd_sentence,
-        correct_pen_lps_2nd_sentence,
-        correct_lls_1st_sentence,
-        correct_pen_lls_1st_sentence,
-        correct_lls_2nd_sentence,
-        correct_pen_lls_2nd_sentence,
-    )
 
     return (
         correct_lps_1st_sentence,
@@ -383,60 +368,3 @@ def get_sentence_acceptability_score(
         return lp_softmax, lp_logistic
     else:
         raise ValueError(f"Error: unrecognized model type {model_type}")
-
-
-def print_accuracy_scores(testset: TestSet):
-    logging.info(f"test results report, {testset.linguistic_phenomenon}:")
-    for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
-        logging.debug(f"scores with {scoring_measure}")
-        for (
-            stype_acceptable_sentence
-        ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
-            # fixme: 0 values for accuracy base on logistic scoring measure
-            accuracy = testset.accuracy_per_score_type_per_sentence_type[
-                scoring_measure
-            ][stype_acceptable_sentence]
-            print(
-                f"Accuracy with {scoring_measure.name} for {stype_acceptable_sentence.name}: {accuracy:%} "
-            )
-
-
-def print_accuracies(
-    examples_count,
-    model_type,
-    correct_lps_1st_sentence,
-    correct_pen_lps_1st_sentence,
-    correct_lps_2nd_sentence,
-    correct_pen_lps_2nd_sentence,
-    correct_logweights_1st_sentence=None,
-    correct_pen_logweights_1st_sentence=None,
-    correct_logweights_2nd_sentence=None,
-    correct_pen_logweights_2nd_sentence=None,
-):
-    logging.info("test results report:")
-    print(
-        f"acc. correct_lps_1st_sentence: {perc(correct_lps_1st_sentence, examples_count):.1f} %"
-    )
-    print(
-        f"acc. correct_pen_lps_1st_sentence: {perc(correct_pen_lps_1st_sentence, examples_count):.1f} %"
-    )
-    print(
-        f"acc. correct_lps_2nd_sentence: {perc(correct_lps_2nd_sentence, examples_count):.1f} %"
-    )
-    print(
-        f"acc. correct_pen_lps_2nd_sentence: {perc(correct_pen_lps_2nd_sentence, examples_count):.1f} %"
-    )
-
-    if model_type in BERT_LIKE_MODEL_TYPES:
-        print(
-            f"acc. correct_logweights_1st_sentence: {perc(correct_logweights_1st_sentence, examples_count):.1f} %"
-        )
-        print(
-            f"acc. correct_pen_logweights_1st_sentence: {perc(correct_pen_logweights_1st_sentence, examples_count):.1f} %"
-        )
-        print(
-            f"acc. correct_logweights_2nd_sentence: {perc(correct_logweights_2nd_sentence, examples_count):.1f} %"
-        )
-        print(
-            f"acc. correct_pen_logweights_2nd_sentence: {perc(correct_pen_logweights_2nd_sentence, examples_count):.1f} %"
-        )

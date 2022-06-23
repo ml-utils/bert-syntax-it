@@ -1,7 +1,6 @@
 import sys
 
 from linguistic_tests.bert_utils import analize_example
-from linguistic_tests.compute_model_score import print_accuracy_scores
 from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model_and_tokenizer
@@ -9,6 +8,7 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import red_txt
 from linguistic_tests.lm_utils import sentence_score_bases
+from linguistic_tests.run_minimal_pairs_test_design import print_accuracy_scores
 from linguistic_tests.run_minimal_pairs_test_design import print_detailed_sentence_info
 from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
 

@@ -1,7 +1,9 @@
+import logging
 import os
 import time
 
 from linguistic_tests.bert_utils import estimate_sentence_probability
+from linguistic_tests.compute_model_score import perc
 from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
@@ -167,3 +169,60 @@ def score_testset_minimal_pairs(
             ] = accuracy
 
     return testset
+
+
+def print_accuracy_scores(testset: TestSet):
+    logging.info(f"test results report, {testset.linguistic_phenomenon}:")
+    for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
+        logging.debug(f"scores with {scoring_measure}")
+        for (
+            stype_acceptable_sentence
+        ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
+            # fixme: 0 values for accuracy base on logistic scoring measure
+            accuracy = testset.accuracy_per_score_type_per_sentence_type[
+                scoring_measure
+            ][stype_acceptable_sentence]
+            print(
+                f"Accuracy with {scoring_measure.name} for {stype_acceptable_sentence.name}: {accuracy:%} "
+            )
+
+
+def print_accuracies(
+    examples_count,
+    model_type,
+    correct_lps_1st_sentence,
+    correct_pen_lps_1st_sentence,
+    correct_lps_2nd_sentence,
+    correct_pen_lps_2nd_sentence,
+    correct_logweights_1st_sentence=None,
+    correct_pen_logweights_1st_sentence=None,
+    correct_logweights_2nd_sentence=None,
+    correct_pen_logweights_2nd_sentence=None,
+):
+    logging.info("test results report:")
+    print(
+        f"acc. correct_lps_1st_sentence: {perc(correct_lps_1st_sentence, examples_count):.1f} %"
+    )
+    print(
+        f"acc. correct_pen_lps_1st_sentence: {perc(correct_pen_lps_1st_sentence, examples_count):.1f} %"
+    )
+    print(
+        f"acc. correct_lps_2nd_sentence: {perc(correct_lps_2nd_sentence, examples_count):.1f} %"
+    )
+    print(
+        f"acc. correct_pen_lps_2nd_sentence: {perc(correct_pen_lps_2nd_sentence, examples_count):.1f} %"
+    )
+
+    if model_type in BERT_LIKE_MODEL_TYPES:
+        print(
+            f"acc. correct_logweights_1st_sentence: {perc(correct_logweights_1st_sentence, examples_count):.1f} %"
+        )
+        print(
+            f"acc. correct_pen_logweights_1st_sentence: {perc(correct_pen_logweights_1st_sentence, examples_count):.1f} %"
+        )
+        print(
+            f"acc. correct_logweights_2nd_sentence: {perc(correct_logweights_2nd_sentence, examples_count):.1f} %"
+        )
+        print(
+            f"acc. correct_pen_logweights_2nd_sentence: {perc(correct_pen_logweights_2nd_sentence, examples_count):.1f} %"
+        )

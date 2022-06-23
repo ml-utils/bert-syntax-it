@@ -4,7 +4,6 @@ import time
 from statistics import mean
 from typing import List
 
-from linguistic_tests.compute_model_score import print_accuracy_scores
 from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import assert_almost_equale
@@ -18,6 +17,7 @@ from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.lm_utils import SprouseSentencesOrder
+from linguistic_tests.run_minimal_pairs_test_design import print_accuracy_scores
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import get_dd_score_parametric
 from linguistic_tests.testset import get_merged_score_across_testsets
