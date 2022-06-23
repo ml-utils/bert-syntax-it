@@ -3,7 +3,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import pytest
-from linguistic_tests.compute_model_score import run_testset
+from linguistic_tests.compute_model_score import get_unparsed_testset_scores
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
@@ -156,7 +156,7 @@ class TestRunTestSets(TestCase):
             ]:
                 # run_testset(testsets_dir, test_file, model, tokenizer,
                 # score_based_on=sentence_score_bases.SOFTMAX)
-                run_testset(
+                get_unparsed_testset_scores(
                     model_type,
                     model,
                     tokenizer,
@@ -165,7 +165,7 @@ class TestRunTestSets(TestCase):
                     sentences_per_example,
                 )
             elif model_type in [ModelTypes.GPT, ModelTypes.GEPPETTO]:
-                run_testset(
+                get_unparsed_testset_scores(
                     model_type,
                     model,
                     tokenizer,
@@ -215,7 +215,7 @@ class TestRunTestSets(TestCase):
         sentences_per_example = 2
 
         with cProfile.Profile() as pr:
-            run_testset(
+            get_unparsed_testset_scores(
                 model_type,
                 model,
                 tokenizer,

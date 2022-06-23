@@ -68,7 +68,7 @@ def print_accuracy_scores(testset: TestSet):
 
 
 # todo: mark as deprecated, move to test section to use as comparison for outcome of new method
-def run_testset(
+def get_unparsed_testset_scores(
     model_type: ModelTypes, model, tokenizer, device, testset, sentences_per_example
 ):
     """
@@ -81,6 +81,8 @@ def run_testset(
     :param testset:
     :return:
     """
+    # todo: parse testset and run score_testset
+
     sent_ids: List[int] = []
 
     correct_lps_1st_sentence = 0
