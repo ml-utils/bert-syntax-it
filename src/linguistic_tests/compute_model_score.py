@@ -325,7 +325,7 @@ def get_sentence_acceptability_score(
     model_type, model, tokenizer, sentence_tokens, device, verbose=False
 ):
     """
-    Calculate a sentence acceptability score from a Gpt-like or a Bert-like models.
+    Calculates a sentence acceptability score from a Gpt-like or a Bert-like model.
     For Bert-like system it's and estimate of the sentence acceptability as described in
     the paper Lau, J. H., Armendariz, C., Lappin, S., Purver, M., & Shu, C. (2020).
     How furiously can colorless green ideas sleep? sentence acceptability in context.
