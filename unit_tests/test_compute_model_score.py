@@ -1,4 +1,5 @@
 from random import random
+from typing import List
 from unittest import TestCase
 from unittest.mock import MagicMock
 from unittest.mock import Mock
@@ -14,7 +15,10 @@ from linguistic_tests.compute_model_score import logistic2
 from linguistic_tests.compute_model_score import perc
 from linguistic_tests.compute_model_score import reduce_to_log_product
 from linguistic_tests.compute_model_score import run_testset
+from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
+from linguistic_tests.lm_utils import get_penalty_term
+from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.testset import ERROR_LP
 from numpy import log
@@ -316,6 +320,88 @@ class TestComputeModelScore(TestCase):
                 sentences_per_example,
             )
 
+    @pytest.mark.skip("WIP")
+    def test_get_unparsed_example_scores(self):
+        example_data, model, model_type, sent_ids, tokenizer, sentences_per_example = (
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
+
+        with patch.object(
+            compute_model_score,
+            "get_sentence_acceptability_score",
+            return_value=(ERROR_LP, ERROR_LP),  # (lp_softmax, lp_logistic)
+        ) as _:
+            # todo: also patch tokenizer.tokenize(sentence)
+            return_values_1 = get_unparsed_example_scores_legacy_impl(
+                DEVICES.CPU,
+                example_data,
+                model,
+                model_type,
+                sent_ids,
+                tokenizer,
+                sentences_per_example,
+                sprouse_format=False,
+            )
+
+        # todo: assert that return_values_1 correspond to returns from the new
+        #  implementation get_unparsed_example_scores(), asserting that the
+        #  order of sentences is the same for both calls
+        assert return_values_1 is not None
+
     def test_logistic2(self):
         assert logistic2(20) > 0.99
         assert logistic2(-20) < 0.01
+
+
+def get_unparsed_example_scores_legacy_impl(
+    device,
+    example_data: dict,
+    model,
+    model_type,
+    sent_ids: List[int],
+    tokenizer,
+    sentences_per_example,
+    sprouse_format=False,
+):
+    sentences = get_sentences_from_example(
+        example_data, sentences_per_example, sprouse_format=sprouse_format
+    )
+
+    lps = []
+    pen_lps = []
+    lls = []
+    penlls = []
+
+    for sent_id, sentence in enumerate(sentences):
+        sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
+        # if len(sentence_tokens) == 0:
+        #     logging.warning(f"Warning: lenght 0 for {sentence=} from {example_data=}")
+        text_len = len(sentence_tokens)
+
+        # nb: this is patched to avoid any model/tokenizer calls
+        lp_softmax, lp_logistic = get_sentence_acceptability_score(
+            model_type, model, tokenizer, sentence_tokens, device
+        )
+
+        # acceptability measures by sentence idx
+        penalty = get_penalty_term(text_len)
+        lps.append(lp_softmax)
+        # mean_lps.append(lp / text_len)
+        pen_lps.append(lp_softmax / penalty)
+        sent_ids.append(sent_id)
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            lls.append(lp_logistic)
+            penlls.append(lp_logistic / penalty)
+
+    return (
+        lps,
+        pen_lps,
+        lls,
+        penlls,
+        sentences,
+    )

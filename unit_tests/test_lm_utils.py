@@ -18,6 +18,8 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import red_txt
+from linguistic_tests.testset import parse_example
+from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from torch.utils.hipify.hipify_python import bcolors
 from transformers import BertForMaskedLM as BRT_M
 from transformers import BertTokenizer as BRT_T
@@ -94,6 +96,26 @@ class TestLMUtils(TestCase):
         sentences = get_sentences_from_example(example_blimp_en_dict)
         assert isinstance(sentences, list)
         assert len(sentences) == 2
+
+    def test_get_sentences_from_example_2(self):
+
+        example_data_str = """{"short_nonisland": "Chi dice che lo studio rilascerà la nuova versione?",
+         "long_nonisland": "Che cosa dici che lo studio rilascerà?",
+         "short_island": "Chi aumenterà le vendite se rilascerà la nuova versione?",
+         "long_island": "Che cosa lo studio aumenterà le vendite se rilascerà?"}"""
+        example_data = json.loads(example_data_str)
+
+        sentences1 = get_sentences_from_example(
+            example_data, sentences_per_example=4, sprouse_format=None
+        )
+        expected_sent_types = SPROUSE_SENTENCE_TYPES
+        parsed_example = parse_example(example_data, expected_sent_types)
+
+        # zip loop and assert that the sentences are in the same order
+        # nb for get_sentences_from_example() implementation, it actually depends
+        # on the order in which the ditctionary items are declared
+        for idx, tsent in enumerate(parsed_example.sentences):
+            assert tsent.sent.txt == sentences1[idx]
 
     @patch.object(CM_T, "from_pretrained", return_value=Mock(spec=CM_T))
     @patch.object(CM_M, "from_pretrained", return_value=Mock(spec=CM_M))

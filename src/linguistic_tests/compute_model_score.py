@@ -6,11 +6,12 @@ import numpy as np
 import torch
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import get_penalty_term
-from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.testset import ERROR_LP
 from linguistic_tests.testset import Example
+from linguistic_tests.testset import parse_example
+from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from linguistic_tests.testset import TestSet
 from scipy.special import expit as logistic
 from scipy.special import softmax
@@ -228,43 +229,32 @@ def get_unparsed_example_scores(
     tokenizer,
     sentences_per_example,
     sprouse_format=False,
+    expected_sent_types=SPROUSE_SENTENCE_TYPES,
 ):
-    sentences = get_sentences_from_example(
-        example_data, sentences_per_example, sprouse_format=sprouse_format
+    parsed_example = parse_example(example_data, expected_sent_types)
+    scored_example = score_example(
+        device,
+        parsed_example,
+        model,
+        model_type,
+        tokenizer,
     )
+
     lps = []
-    # mean_lps = []
     pen_lps = []
     lls = []
     penlls = []
 
-    # normalized_weights = []
-    for sent_id, sentence in enumerate(sentences):
-        sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
-        if len(sentence_tokens) == 0:
-            logging.warning(f"Warning: lenght 0 for {sentence=} from {example_data=}")
-        text_len = len(sentence_tokens)
-        lp_softmax, lp_logistic = get_sentence_acceptability_score(
-            model_type, model, tokenizer, sentence_tokens, device
-        )
+    for stype in scored_example.sentences:
+        sent = stype.sent
+        lps.append(sent.lp_softmax)
+        pen_lps.append(sent.pen_lp_softmax)
+        lls.append(sent.lp_logistic)
+        penlls.append(sent.pen_lp_logistic)
 
-        # acceptability measures by sentence idx
-        penalty = get_penalty_term(text_len)
-        lps.append(lp_softmax)
-        # mean_lps.append(lp / text_len)
-        pen_lps.append(lp_softmax / penalty)
-        sent_ids.append(sent_id)
-        if model_type in BERT_LIKE_MODEL_TYPES:
-            lls.append(lp_logistic)
-            penlls.append(lp_logistic / penalty)
+    sentences_txts = ([stype.sent.txt for stype in scored_example.sentences],)
 
-    return (
-        lps,
-        pen_lps,
-        lls,
-        penlls,
-        sentences,
-    )
+    return (lps, pen_lps, lls, penlls, sentences_txts)
 
 
 def reduce_to_log_product(seq):
