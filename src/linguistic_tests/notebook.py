@@ -181,6 +181,7 @@ def main():
             )
             for scored_testset in scored_testsets:
                 print_accuracy_scores(scored_testset)
+
             # raise SystemExit
             # print('choosing model type ..')
             # 'dbmdz/bert-base-italian-xxl-cased' #

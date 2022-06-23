@@ -18,7 +18,7 @@ from tqdm import tqdm
 from transformers.modeling_outputs import MaskedLMOutput
 
 
-def score_dataclass_testset(
+def score_testset_minimal_pairs(
     model_type: ModelTypes, model, tokenizer, device, testset: TestSet
 ):
     for example_idx, example in enumerate(tqdm(testset.examples)):

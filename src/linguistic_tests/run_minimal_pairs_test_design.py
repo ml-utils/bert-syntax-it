@@ -2,7 +2,7 @@ import os
 import time
 
 from linguistic_tests.bert_utils import estimate_sentence_probability
-from linguistic_tests.compute_model_score import score_dataclass_testset
+from linguistic_tests.compute_model_score import score_testset_minimal_pairs
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
@@ -39,6 +39,12 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt, scorebase):
     )
 
 
+def run_blimp_it_island_effects():
+    # todo: use the batch implementation of get model output
+
+    pass
+
+
 def run_blimp_en(
     model_type,
     model_name,
@@ -73,7 +79,7 @@ def run_blimp_en(
         )
         parsed_testset.examples = parsed_testset.examples[0:max_examples]
 
-        scored_testset = score_dataclass_testset(
+        scored_testset = score_testset_minimal_pairs(
             model_type, model, tokenizer, DEVICES.CPU, parsed_testset
         )
 
