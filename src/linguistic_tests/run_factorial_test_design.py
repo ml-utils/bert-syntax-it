@@ -392,7 +392,7 @@ def score_sprouse_testset(
         ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
             accurate_count = 0
             for example_idx, example in enumerate(tqdm(testset.examples)):
-                if example.is_scored_accurately(
+                if example.is_scored_accurately_for(
                     scoring_measure, stype_acceptable_sentence
                 ):
                     accurate_count += 1

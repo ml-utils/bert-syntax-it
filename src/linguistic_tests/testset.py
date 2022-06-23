@@ -115,7 +115,7 @@ class Example:
             f"No unacceptable sentence type found in this example: {self.sentences}"
         )
 
-    def is_scored_accurately(
+    def is_scored_accurately_for(
         self, score_descr: ScoringMeasures, stype: SentenceNames
     ) -> bool:
         score_diff = self.get_score_diff(
