@@ -11,6 +11,7 @@ from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_factorial_test_design import get_testset_params
 from linguistic_tests.run_factorial_test_design import score_sprouse_testsets
+from linguistic_tests.testset import ERROR_LP
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
@@ -138,6 +139,11 @@ class TestTestset(TestCase):
         assert SentenceNames.LONG_ISLAND not in acc_stypes
         assert SentenceNames.SENTENCE_BAD not in acc_stypes
 
+    def test_example_get_type_of_unacceptable_sentence(self):
+        example = self.get_basic_example()
+        unacc_stype = example.get_type_of_unacceptable_sentence()
+        assert SentenceNames.LONG_ISLAND == unacc_stype
+
     def test_example_get_sentence_types(self):
         example = self.get_basic_example()
         stypes = example.get_sentence_types()
@@ -145,31 +151,58 @@ class TestTestset(TestCase):
         assert SentenceNames.SHORT_NONISLAND in stypes
         assert SentenceNames.LONG_ISLAND in stypes
 
-    @staticmethod
-    def get_basic_example():
-        typed_senteces = [
-            TypedSentence(
-                SentenceNames.SHORT_NONISLAND, Sentence("The pen is on the table")
-            ),
-            TypedSentence(
-                SentenceNames.LONG_ISLAND, Sentence("The is pen on the table")
-            ),
-        ]
-        example = Example(typed_senteces)
-        return example
+    def test_sentence_get_score(self):
+        sent = Sentence("The pen is on the table")
+        assert ERROR_LP == sent.get_score(ScoringMeasures.LP)
 
-    @staticmethod
-    def get_basic_testset():
-
-        testset = TestSet(
-            linguistic_phenomenon="wh",
-            model_descr="bert",
-            dataset_source="sprouse",
-            examples=[TestTestset.get_basic_example()],
-            scoring_measures=[ScoringMeasures.LP],
-            model_type=ModelTypes.BERT,
+    def test_example_get_score_diff(self):
+        example = self.get_basic_example()
+        scoring_measure = ScoringMeasures.LP
+        diff = example.get_score_diff(
+            scoring_measure, SentenceNames.SHORT_NONISLAND, SentenceNames.LONG_ISLAND
         )
-        return testset
+        assert 0 == diff
+
+    def test_example_is_scored_accurately_for(self):
+        example = self.get_basic_example()
+        scoring_measure = ScoringMeasures.LP
+        is_accurate = example.is_scored_accurately_for(
+            scoring_measure, SentenceNames.SHORT_NONISLAND
+        )
+        assert not is_accurate
+
+
+def get_basic_sentence(txt=""):
+    sent = Sentence(txt)
+    sent.lp_softmax = -5
+    return sent
+
+
+def get_basic_example():
+
+    typed_senteces = [
+        TypedSentence(
+            SentenceNames.SHORT_NONISLAND, get_basic_sentence("The pen is on the table")
+        ),
+        TypedSentence(
+            SentenceNames.LONG_ISLAND, get_basic_sentence("The is pen on the table")
+        ),
+    ]
+    example = Example(typed_senteces)
+    return example
+
+
+def get_basic_testset():
+
+    testset = TestSet(
+        linguistic_phenomenon="wh",
+        model_descr="bert",
+        dataset_source="sprouse",
+        examples=[get_basic_example()],
+        scoring_measures=[ScoringMeasures.LP],
+        model_type=ModelTypes.BERT,
+    )
+    return testset
 
 
 @pytest.mark.enable_socket
