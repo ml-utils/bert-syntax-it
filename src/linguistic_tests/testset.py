@@ -8,7 +8,7 @@ from typing import Dict
 from typing import KeysView
 
 import numpy as np
-from linguistic_tests.lm_utils import assert_almost_equale
+from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import get_results_dir
 from linguistic_tests.lm_utils import ModelTypes
@@ -494,7 +494,7 @@ def get_dd_score_parametric(
     )
 
     example_dd *= -1
-    assert_almost_equale(example_island_effect, example_dd)
+    assert_almost_equal(example_island_effect, example_dd)
     return example_dd
 
 

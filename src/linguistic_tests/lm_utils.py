@@ -467,7 +467,7 @@ def get_sentences_from_example(
     return sentences
 
 
-def assert_almost_equale(val1, val2, precision=13):
+def assert_almost_equal(val1, val2, precision=13):
     # todo: convert this to a warning
     assert abs(val1 - val2) < 10 ** (-1 * precision), (
         f"val1:{val1}, val2: {val2}, " f"diff: {val1 - val2}"

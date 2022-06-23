@@ -4,7 +4,7 @@ import time
 from statistics import mean
 
 from linguistic_tests.file_utils import parse_testsets
-from linguistic_tests.lm_utils import assert_almost_equale
+from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_results_dir
@@ -458,7 +458,7 @@ def get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
         sentences_scores[b_long_nonisland] - sentences_scores[d_long_island]
     )
     example_dd_with_lp *= -1
-    assert_almost_equale(example_island_effect_with_lp, example_dd_with_lp)
+    assert_almost_equal(example_island_effect_with_lp, example_dd_with_lp)
     return example_dd_with_lp
 
 
