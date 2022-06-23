@@ -294,6 +294,22 @@ def score_sprouse_testset(
             tokenizer,
         )
 
+    # scoring accuracy rates
+    for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
+        for (
+            stype_acceptable_sentence
+        ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
+            accurate_count = 0
+            for example_idx, example in enumerate(testset.examples):
+                if example.is_scored_accurately_for(
+                    scoring_measure, stype_acceptable_sentence
+                ):
+                    accurate_count += 1
+            accuracy = accurate_count / len(testset.examples)
+            testset.accuracy_per_score_type_per_sentence_type[scoring_measure][
+                stype_acceptable_sentence
+            ] = accuracy
+
     # doing factorial design scores
     for example_idx, example in enumerate(testset.examples):
         (
@@ -388,22 +404,6 @@ def score_sprouse_testset(
                 SentenceNames.LONG_ISLAND
             ],
         )
-
-    # scoring accuracy rates
-    for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
-        for (
-            stype_acceptable_sentence
-        ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
-            accurate_count = 0
-            for example_idx, example in enumerate(testset.examples):
-                if example.is_scored_accurately_for(
-                    scoring_measure, stype_acceptable_sentence
-                ):
-                    accurate_count += 1
-            accuracy = accurate_count / len(testset.examples)
-            testset.accuracy_per_score_type_per_sentence_type[scoring_measure][
-                stype_acceptable_sentence
-            ] = accuracy
 
     return testset
 
