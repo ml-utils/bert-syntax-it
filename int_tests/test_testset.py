@@ -136,6 +136,7 @@ class TestTestset(TestCase):
         assert 1 == len(acc_stypes)
         assert SentenceNames.SHORT_NONISLAND in acc_stypes
         assert SentenceNames.LONG_ISLAND not in acc_stypes
+        assert SentenceNames.SENTENCE_BAD not in acc_stypes
 
     def test_example_get_sentence_types(self):
         example = self.get_basic_example()
