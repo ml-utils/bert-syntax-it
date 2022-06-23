@@ -128,6 +128,7 @@ class TestSet:
     dataset_source: str
     examples: list[Example]
 
+    # todo: should derive this automatically from the examples list
     sent_types: InitVar[list[SentenceNames]]
     scoring_measures: InitVar[list[ScoringMeasures]]
     model_type: InitVar[ModelTypes]
@@ -171,6 +172,7 @@ class TestSet:
     max_token_weight: float = ERROR_LP
 
     def __post_init__(self, sent_types, scoring_measures, model_type: ModelTypes):
+
         for stype in sent_types:
             self.lp_average_by_sentence_type[stype] = 0
             self.penlp_average_by_sentence_type[stype] = 0

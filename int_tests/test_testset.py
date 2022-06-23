@@ -154,7 +154,7 @@ class TestTestset(TestCase):
             model_descr="bert",
             dataset_source="sprouse",
             examples=[example],
-            sent_types=[SentenceNames.SHORT_NONISLAND],
+            sent_types=[SentenceNames.SHORT_NONISLAND, SentenceNames.LONG_ISLAND],
             scoring_measures=[ScoringMeasures.LP],
             model_type=ModelTypes.BERT,
         )
