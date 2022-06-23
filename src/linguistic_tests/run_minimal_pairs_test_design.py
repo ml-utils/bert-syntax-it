@@ -2,14 +2,17 @@ import os
 import time
 
 from linguistic_tests.bert_utils import estimate_sentence_probability
-from linguistic_tests.compute_model_score import score_testset_minimal_pairs
+from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
+from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import ScoringMeasures
+from linguistic_tests.testset import TestSet
+from tqdm import tqdm
 
 
 def run_tests_goldberg():
@@ -133,3 +136,34 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def score_testset_minimal_pairs(
+    model_type: ModelTypes, model, tokenizer, device, testset: TestSet
+):
+    for example_idx, example in enumerate(tqdm(testset.examples)):
+        score_example(
+            device,
+            example,
+            model,
+            model_type,
+            tokenizer,
+        )
+
+    # todo, fixme: some scoring measures are calculated only for Bert-like (bidirectional) models, where
+    #  the score is just an approximation of the acceptability
+    #  if model_type in [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]:
+    for scoring_measure in testset.get_scoring_measures():
+        for stype_acceptable_sentence in testset.get_acceptable_sentence_types():
+            accurate_count = 0
+            for example_idx, example in enumerate(testset.examples):
+                if example.is_scored_accurately_for(
+                    scoring_measure, stype_acceptable_sentence
+                ):
+                    accurate_count += 1
+            accuracy = accurate_count / len(testset.examples)
+            testset.accuracy_per_score_type_per_sentence_type[scoring_measure][
+                stype_acceptable_sentence
+            ] = accuracy
+
+    return testset

@@ -20,37 +20,6 @@ from tqdm import tqdm
 from transformers.modeling_outputs import MaskedLMOutput
 
 
-def score_testset_minimal_pairs(
-    model_type: ModelTypes, model, tokenizer, device, testset: TestSet
-):
-    for example_idx, example in enumerate(tqdm(testset.examples)):
-        score_example(
-            device,
-            example,
-            model,
-            model_type,
-            tokenizer,
-        )
-
-    # todo, fixme: some scoring measures are calculated only for Bert-like (bidirectional) models, where
-    #  the score is just an approximation of the acceptability
-    #  if model_type in [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]:
-    for scoring_measure in testset.get_scoring_measures():
-        for stype_acceptable_sentence in testset.get_acceptable_sentence_types():
-            accurate_count = 0
-            for example_idx, example in enumerate(testset.examples):
-                if example.is_scored_accurately_for(
-                    scoring_measure, stype_acceptable_sentence
-                ):
-                    accurate_count += 1
-            accuracy = accurate_count / len(testset.examples)
-            testset.accuracy_per_score_type_per_sentence_type[scoring_measure][
-                stype_acceptable_sentence
-            ] = accuracy
-
-    return testset
-
-
 def print_accuracy_scores(testset: TestSet):
     logging.info(f"test results report, {testset.linguistic_phenomenon}:")
     for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
