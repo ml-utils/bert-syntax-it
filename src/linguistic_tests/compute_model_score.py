@@ -199,7 +199,7 @@ def score_example(
         if len(sentence.tokens) == 0:
             logging.warning(f"Warning: lenght 0 for {sentence=} from {example=}")
         text_len = len(sentence.tokens)
-        lp_softmax, lp_logistic = get_sentence_score_JHLau(
+        lp_softmax, lp_logistic = get_sentence_acceptability_score(
             model_type, model, tokenizer, sentence.tokens, device
         )
 
@@ -244,7 +244,7 @@ def get_example_scores(
         if len(sentence_tokens) == 0:
             logging.warning(f"Warning: lenght 0 for {sentence=} from {example_data=}")
         text_len = len(sentence_tokens)
-        lp_softmax, lp_logistic = get_sentence_score_JHLau(
+        lp_softmax, lp_logistic = get_sentence_acceptability_score(
             model_type, model, tokenizer, sentence_tokens, device
         )
 
@@ -321,12 +321,16 @@ def logistic4(x):
     return logistic2(x, k=4)
 
 
-# nb, for bert it uses softmax
-def get_sentence_score_JHLau(
+def get_sentence_acceptability_score(
     model_type, model, tokenizer, sentence_tokens, device, verbose=False
 ):
     """
-
+    Calculate a sentence acceptability score from a Gpt-like or a Bert-like models.
+    For Bert-like system it's and estimate of the sentence acceptability as described in
+    the paper Lau, J. H., Armendariz, C., Lappin, S., Purver, M., & Shu, C. (2020).
+    How furiously can colorless green ideas sleep? sentence acceptability in context.
+    Transactions of the Association for Computational Linguistics, 8, 296-310.
+    Modified from https://github.com/ml-utils/acceptability-prediction-in-context/blob/master/code/compute_model_score.py
     :param model_type:
     :param model:
     :param tokenizer:

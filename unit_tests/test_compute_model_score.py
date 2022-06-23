@@ -9,7 +9,7 @@ import torch
 from linguistic_tests import compute_model_score
 from linguistic_tests.compute_model_score import count_accurate_in_example
 from linguistic_tests.compute_model_score import get_example_scores
-from linguistic_tests.compute_model_score import get_sentence_score_JHLau
+from linguistic_tests.compute_model_score import get_sentence_acceptability_score
 from linguistic_tests.compute_model_score import logistic2
 from linguistic_tests.compute_model_score import perc
 from linguistic_tests.compute_model_score import reduce_to_log_product
@@ -111,7 +111,7 @@ class TestComputeModelScore(TestCase):
         print(sentences)
 
     def test_get_sentence_score_JHLau_empty(self):
-        actual_score = get_sentence_score_JHLau(None, None, None, [], None)
+        actual_score = get_sentence_acceptability_score(None, None, None, [], None)
         assert actual_score == (ERROR_LP, None)
 
     def test_get_sentence_score_JHLau_gpt(self):
@@ -157,7 +157,7 @@ class TestComputeModelScore(TestCase):
             spec=GPT2LMHeadModel, return_value=mock_gpt2_m_return_value
         )
 
-        actual_score = get_sentence_score_JHLau(
+        actual_score = get_sentence_acceptability_score(
             ModelTypes.GPT, mock_gpt2_m, mock_gpt2_t, sentence_tokens, DEVICES.CPU
         )
         assert len(actual_score) == 2
@@ -247,7 +247,7 @@ class TestComputeModelScore(TestCase):
         mock_bert_m_return_value = model_output_class(loss=loss, logits=lm_logits)
         mock_bert_m = MagicMock(spec=model_class, return_value=mock_bert_m_return_value)
 
-        actual_score = get_sentence_score_JHLau(
+        actual_score = get_sentence_acceptability_score(
             model_type, mock_bert_m, mock_bert_t, sentence_tokens, DEVICES.CPU
         )
 
@@ -263,7 +263,7 @@ class TestComputeModelScore(TestCase):
     def test_get_sentence_score_JHLau_unrecognized(self):
         unrecognizable_model_type = 10
         with self.assertRaises(ValueError):
-            _ = get_sentence_score_JHLau(
+            _ = get_sentence_acceptability_score(
                 unrecognizable_model_type, None, None, [""], None
             )
 

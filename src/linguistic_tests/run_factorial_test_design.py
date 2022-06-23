@@ -284,6 +284,7 @@ def score_sprouse_testset(
     model_type, model, tokenizer, device, testset: TestSet
 ) -> TestSet:
     # todo set scorebase param
+
     for example_idx, example in enumerate(tqdm(testset.examples)):
         score_example(
             device,
@@ -293,6 +294,7 @@ def score_sprouse_testset(
             tokenizer,
         )
 
+        # doing factorial design scores
         (
             example.DD_with_lp,
             example.DD_with_penlp,
@@ -386,6 +388,7 @@ def score_sprouse_testset(
             ],
         )
 
+    # scoring accuracy rates
     for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
         for (
             stype_acceptable_sentence

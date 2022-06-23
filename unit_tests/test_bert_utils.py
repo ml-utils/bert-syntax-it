@@ -25,7 +25,7 @@ from linguistic_tests.bert_utils import get_topk
 from linguistic_tests.bert_utils import get_topk_tokens_from_bert_output
 from linguistic_tests.bert_utils import print_orange
 from linguistic_tests.bert_utils import tokenize_sentence
-from linguistic_tests.compute_model_score import get_sentence_score_JHLau
+from linguistic_tests.compute_model_score import get_sentence_acceptability_score
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
@@ -324,7 +324,7 @@ class TestBertUtils(TestCase):
                 )
                 bert_tokenized_sentence = bert_tokenizer.tokenize(sentence)
                 # gpt_text_len = len(gpt_tokenized_sentence)
-                bert_sentence_lp_expected, _, _ = get_sentence_score_JHLau(
+                bert_sentence_lp_expected, _, _ = get_sentence_acceptability_score(
                     ModelTypes.BERT,
                     bert_model,
                     bert_tokenizer,
