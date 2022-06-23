@@ -117,29 +117,35 @@ class TestTestset(TestCase):
             for typed_sentence in example.sentences:
                 assert len(typed_sentence.sent.txt) > 0
 
-    def test_get_sentence_types(self):
+    def test_get_testset_sentence_types(self):
         testset = self.get_basic_testset()
         stypes = testset.get_sentence_types()
         assert 2 == len(stypes)
         assert SentenceNames.SHORT_NONISLAND in stypes
         assert SentenceNames.LONG_ISLAND in stypes
 
-    def get_scoring_measures(self):
+    def test_get_scoring_measures(self):
         testset = self.get_basic_testset()
-        scoring_measures = testset.get_sentence_types()
+        scoring_measures = testset.get_scoring_measures()
         assert 1 == len(scoring_measures)
         assert ScoringMeasures.LP in scoring_measures
 
-    def get_acceptable_sentence_types(self):
+    def test_get_acceptable_sentence_types(self):
         testset = self.get_basic_testset()
         acc_stypes = testset.get_acceptable_sentence_types()
         assert 1 == len(acc_stypes)
         assert SentenceNames.SHORT_NONISLAND in acc_stypes
         assert SentenceNames.LONG_ISLAND not in acc_stypes
 
-    @staticmethod
-    def get_basic_testset():
+    def test_example_get_sentence_types(self):
+        example = self.get_basic_example()
+        stypes = example.get_sentence_types()
+        assert 2 == len(stypes)
+        assert SentenceNames.SHORT_NONISLAND in stypes
+        assert SentenceNames.LONG_ISLAND in stypes
 
+    @staticmethod
+    def get_basic_example():
         typed_senteces = [
             TypedSentence(
                 SentenceNames.SHORT_NONISLAND, Sentence("The pen is on the table")
@@ -149,12 +155,16 @@ class TestTestset(TestCase):
             ),
         ]
         example = Example(typed_senteces)
+        return example
+
+    @staticmethod
+    def get_basic_testset():
+
         testset = TestSet(
             linguistic_phenomenon="wh",
             model_descr="bert",
             dataset_source="sprouse",
-            examples=[example],
-            sent_types=[SentenceNames.SHORT_NONISLAND, SentenceNames.LONG_ISLAND],
+            examples=[TestTestset.get_basic_example()],
             scoring_measures=[ScoringMeasures.LP],
             model_type=ModelTypes.BERT,
         )

@@ -98,6 +98,9 @@ class Example:
     ) -> float:
         return self[stype1].get_score(score_descr) - self[stype2].get_score(score_descr)
 
+    def get_sentence_types(self) -> List[SentenceNames]:
+        return [typed_sentence.stype for typed_sentence in self.sentences]
+
     def get_type_of_unacceptable_sentence(self) -> SentenceNames:
 
         unacceptable_sentences_types = [
@@ -128,8 +131,6 @@ class TestSet:
     dataset_source: str
     examples: list[Example]
 
-    # todo: should derive this automatically from the examples list
-    sent_types: InitVar[list[SentenceNames]]
     scoring_measures: InitVar[list[ScoringMeasures]]
     model_type: InitVar[ModelTypes]
 
@@ -171,7 +172,9 @@ class TestSet:
     min_token_weight: float = -1 * ERROR_LP
     max_token_weight: float = ERROR_LP
 
-    def __post_init__(self, sent_types, scoring_measures, model_type: ModelTypes):
+    def __post_init__(self, scoring_measures, model_type: ModelTypes):
+
+        sent_types = self.examples[0].get_sentence_types()
 
         for stype in sent_types:
             self.lp_average_by_sentence_type[stype] = 0
@@ -441,7 +444,6 @@ def parse_testset(
         model_descr,
         dataset_source,
         parsed_examples,
-        sent_types,
         scoring_measures,
         model_type,
     )
