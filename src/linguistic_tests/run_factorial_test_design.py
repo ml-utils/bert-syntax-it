@@ -294,7 +294,8 @@ def score_sprouse_testset(
             tokenizer,
         )
 
-        # doing factorial design scores
+    # doing factorial design scores
+    for example_idx, example in enumerate(testset.examples):
         (
             example.DD_with_lp,
             example.DD_with_penlp,
@@ -323,7 +324,7 @@ def score_sprouse_testset(
                     stype
                 ] += sentence.pen_lp_logistic
 
-    for stype in testset.lp_average_by_sentence_type.keys():
+    for stype in testset.get_sentence_types():
         testset.lp_average_by_sentence_type[stype] /= len(testset.examples)
         testset.penlp_average_by_sentence_type[stype] /= len(testset.examples)
         if model_type in BERT_LIKE_MODEL_TYPES:
