@@ -64,7 +64,7 @@ custom_it_island_testsets_root_filenames = [
 # one file for each phenomena (2x4), ..8x3 examples in each file
 
 
-def score_sprouse_testsets(
+def score_factorial_testsets(
     model_type,
     model,
     tokenizer,
@@ -738,7 +738,7 @@ def rescore_testsets_and_save_pickles(
     device = DEVICES.CPU
     model, tokenizer = load_model(model_type, model_name, device)
 
-    scored_testsets = score_sprouse_testsets(
+    scored_testsets = score_factorial_testsets(
         model_type,
         model,
         tokenizer,

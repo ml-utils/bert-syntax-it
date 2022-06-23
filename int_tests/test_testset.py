@@ -10,7 +10,7 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_factorial_test_design import get_testset_params
-from linguistic_tests.run_factorial_test_design import score_sprouse_testsets
+from linguistic_tests.run_factorial_test_design import score_factorial_testsets
 from linguistic_tests.testset import ERROR_LP
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import load_testset_from_pickle
@@ -245,7 +245,7 @@ def test_serialization(tmp_path):
         scoring_measures,
         max_examples=1000,
     )
-    scored_testsets = score_sprouse_testsets(
+    scored_testsets = score_factorial_testsets(
         model_type,
         model,
         tokenizer,

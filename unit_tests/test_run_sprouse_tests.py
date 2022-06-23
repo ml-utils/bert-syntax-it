@@ -11,7 +11,7 @@ from linguistic_tests.run_factorial_test_design import print_example
 from linguistic_tests.run_factorial_test_design import print_testset_results
 from linguistic_tests.run_factorial_test_design import save_scored_testsets
 from linguistic_tests.run_factorial_test_design import score_factorial_testset
-from linguistic_tests.run_factorial_test_design import score_sprouse_testsets
+from linguistic_tests.run_factorial_test_design import score_factorial_testsets
 from tqdm import tqdm
 
 
@@ -28,7 +28,7 @@ class TestRunSprouseTests(TestCase):
 
     @pytest.mark.skip("todo")
     def test_run_sprouse_tests(self):
-        score_sprouse_testsets()
+        score_factorial_testsets()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
