@@ -128,7 +128,7 @@ def _calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
         )
 
 
-def get_test_session_descr(dataset_source, model_descr, score_name=""):
+def _get_test_session_descr(dataset_source, model_descr, score_name=""):
     session_descr = f"{dataset_source[:7]}_{model_descr}_{score_name}"
     session_descr = session_descr.replace(" ", "_").replace("/", "_")
     return session_descr
@@ -137,7 +137,7 @@ def get_test_session_descr(dataset_source, model_descr, score_name=""):
 def plot_results(scored_testsets: list[TestSet], score_name, use_zscore=False):
     fig, axs = plt.subplots(2, 2, figsize=(12.8, 12.8))  # default figsize=(6.4, 4.8)
 
-    window_title = get_test_session_descr(
+    window_title = _get_test_session_descr(
         scored_testsets[0].dataset_source, scored_testsets[0].model_descr, score_name
     )
 
@@ -295,7 +295,7 @@ def score_factorial_testset(
             example.DD_with_penlp,
             example.DD_with_ll,
             example.DD_with_penll,
-        ) = get_dd_scores_wdataclasses(example, model_type)
+        ) = _get_example_dd_scores(example, model_type)
         if example.DD_with_lp > 0:
             testset.accuracy_by_DD_lp += 1 / len(testset.examples)
         if example.DD_with_penlp > 0:
@@ -386,7 +386,7 @@ def score_factorial_testset(
     return testset
 
 
-def print_example(example_data, sentence_ordering):
+def _print_example(example_data, sentence_ordering):
     logging.debug(f"sentence ordering is {type(sentence_ordering)}")
     print(
         f"\nSHORT_NONISLAND: {example_data[sentence_ordering.SHORT_NONISLAND]}"
@@ -396,15 +396,15 @@ def print_example(example_data, sentence_ordering):
     )
 
 
-def get_dd_scores_wdataclasses(example: Example, model_type: ModelTypes):
+def _get_example_dd_scores(example: Example, model_type: ModelTypes):
 
-    example_dd_with_lp = get_example_dd_score(example, ScoringMeasures.LP)
-    example_dd_with_penlp = get_example_dd_score(example, ScoringMeasures.PenLP)
+    example_dd_with_lp = _get_example_dd_score(example, ScoringMeasures.LP)
+    example_dd_with_penlp = _get_example_dd_score(example, ScoringMeasures.PenLP)
 
     example_dd_with_ll, example_dd_with_pll = None, None
     if model_type in BERT_LIKE_MODEL_TYPES:
-        example_dd_with_ll = get_example_dd_score(example, ScoringMeasures.LL)
-        example_dd_with_pll = get_example_dd_score(example, ScoringMeasures.PLL)
+        example_dd_with_ll = _get_example_dd_score(example, ScoringMeasures.LL)
+        example_dd_with_pll = _get_example_dd_score(example, ScoringMeasures.PLL)
 
     return (
         example_dd_with_lp,
@@ -414,7 +414,7 @@ def get_dd_scores_wdataclasses(example: Example, model_type: ModelTypes):
     )
 
 
-def get_example_dd_score(example: Example, score_name):
+def _get_example_dd_score(example: Example, score_name):
     for typed_sentence in example.sentences:
         stype = typed_sentence.stype
         sent = typed_sentence.sent
@@ -437,7 +437,7 @@ def get_example_dd_score(example: Example, score_name):
     )
 
 
-def get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
+def _get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
     a_short_nonisland_idx = sentences_ordering.SHORT_NONISLAND
     b_long_nonisland = sentences_ordering.LONG_NONISLAND
     c_short_island = sentences_ordering.SHORT_ISLAND
@@ -489,19 +489,14 @@ def get_pickle_filename(
     # todo: filenames as pyplot filenames
     #  rename as get_pickle_filepath, ad results dir (same as pyplot images)
 
-    filename_base = get_test_session_descr(dataset_source, model_descr)
+    filename_base = _get_test_session_descr(dataset_source, model_descr)
 
     filename = f"{filename_base}_{linguistic_phenomenon}_.testset.pickle"
     return filename
 
 
 def load_pickles(dataset_source, phenomena, model_name) -> list[TestSet]:
-    # phenomena = [
-    #     "custom-wh_whether_island",
-    #     "custom-wh_complex_np_islands",
-    #     "custom-wh_subject_islands",
-    #     "custom-wh_adjunct_islands",
-    # ]
+
     loaded_testsets = []
     for phenomenon in phenomena:
         filename = get_pickle_filename(dataset_source, phenomenon, model_name)
@@ -530,7 +525,7 @@ def plot_testsets(scored_testsets: list[TestSet], model_type: ModelTypes):
     plot_results(scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True)
     plot_results(scored_testsets, ScoringMeasures.LP.name, use_zscore=True)
 
-    # plot_results(scored_testsets, ScoringMeasures.LP.name)
+    # plot_results(scored_testsets, ScoringMeasures.LP.name)  # without zscores
     # plot_results(scored_testsets, ScoringMeasures.PenLP.name)
 
     if model_type in BERT_LIKE_MODEL_TYPES:
@@ -540,7 +535,7 @@ def plot_testsets(scored_testsets: list[TestSet], model_type: ModelTypes):
         plot_results(scored_testsets, ScoringMeasures.PLL.name, use_zscore=True)
 
 
-def print_sorted_sentences_to_check_spelling_errors2(
+def _print_sorted_sentences_to_check_spelling_errors2(
     score_descr, phenomena, model_name, dataset_source, loaded_testsets=None
 ):
 
@@ -564,7 +559,7 @@ def print_sorted_sentences_to_check_spelling_errors2(
             )
 
 
-def print_sorted_sentences_to_check_spelling_errors(
+def _print_sorted_sentences_to_check_spelling_errors(
     score_descr, phenomena, model_name, dataset_source, loaded_testsets=None
 ):
     logging.info("printing sorted_sentences_to_check_spelling_errors")
@@ -590,7 +585,7 @@ def print_sorted_sentences_to_check_spelling_errors(
                 )
 
 
-def print_examples_compare_diff(
+def _print_examples_compare_diff(
     score_descr,
     sent_type1,
     sent_type2,
@@ -631,7 +626,7 @@ def print_examples_compare_diff(
             )
 
 
-def print_testset_results(
+def _print_testset_results(
     scored_testsets: list[TestSet],
     dataset_source: str,
     model_type: ModelTypes,
@@ -666,14 +661,14 @@ def print_testset_results(
 
     score_descr = ScoringMeasures.PenLP.name
 
-    print_sorted_sentences_to_check_spelling_errors2(
+    _print_sorted_sentences_to_check_spelling_errors2(
         score_descr,
         testsets_root_filenames,
         model_names_it[model_type],
         dataset_source,
         scored_testsets,
     )
-    print_sorted_sentences_to_check_spelling_errors(
+    _print_sorted_sentences_to_check_spelling_errors(
         score_descr,
         testsets_root_filenames,
         model_names_it[model_type],
@@ -681,7 +676,7 @@ def print_testset_results(
         scored_testsets,
     )
 
-    print_examples_compare_diff(
+    _print_examples_compare_diff(
         score_descr,
         SentenceNames.SHORT_ISLAND,
         SentenceNames.LONG_ISLAND,
@@ -690,7 +685,7 @@ def print_testset_results(
         dataset_source,
         testsets=scored_testsets,
     )
-    print_examples_compare_diff(
+    _print_examples_compare_diff(
         score_descr,
         SentenceNames.LONG_NONISLAND,
         SentenceNames.LONG_ISLAND,
@@ -699,7 +694,7 @@ def print_testset_results(
         dataset_source,
         testsets=scored_testsets,
     )
-    print_examples_compare_diff(
+    _print_examples_compare_diff(
         score_descr,
         SentenceNames.SHORT_NONISLAND,
         SentenceNames.SHORT_ISLAND,
@@ -834,7 +829,7 @@ def main(
             model_names_it[model_type],
         )
 
-        print_testset_results(
+        _print_testset_results(
             loaded_testsets, broader_test_type, model_type, testsets_root_filenames
         )
 

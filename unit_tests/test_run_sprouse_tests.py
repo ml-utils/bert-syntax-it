@@ -3,12 +3,12 @@ from unittest import TestCase
 import pytest
 from linguistic_tests.compute_model_score import get_unparsed_example_scores
 from linguistic_tests.lm_utils import SprouseSentencesOrder
-from linguistic_tests.run_factorial_test_design import get_dd_score
+from linguistic_tests.run_factorial_test_design import _get_dd_score
+from linguistic_tests.run_factorial_test_design import _print_example
+from linguistic_tests.run_factorial_test_design import _print_testset_results
 from linguistic_tests.run_factorial_test_design import get_pickle_filename
 from linguistic_tests.run_factorial_test_design import main
 from linguistic_tests.run_factorial_test_design import plot_results
-from linguistic_tests.run_factorial_test_design import print_example
-from linguistic_tests.run_factorial_test_design import print_testset_results
 from linguistic_tests.run_factorial_test_design import save_scored_testsets
 from linguistic_tests.run_factorial_test_design import score_factorial_testset
 from linguistic_tests.run_factorial_test_design import score_factorial_testsets
@@ -43,7 +43,7 @@ class TestRunSprouseTests(TestCase):
 
     @pytest.mark.skip("todo")
     def test_print_testset_results(self):
-        print_testset_results()
+        _print_testset_results()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
@@ -53,19 +53,19 @@ class TestRunSprouseTests(TestCase):
 
     def test_get_dd_score(self):
         sentences_scores = [1.1, 0.9, 0.8, -0.5]
-        dd_score = get_dd_score(sentences_scores)
+        dd_score = _get_dd_score(sentences_scores)
         assert dd_score > 1
 
         sentences_scores = [1, 0.3, 1, -0.7]
-        dd_score = get_dd_score(sentences_scores)
+        dd_score = _get_dd_score(sentences_scores)
         assert dd_score >= 1
 
         sentences_scores = [0.6, 1, -0.6, -0.8]
-        dd_score = get_dd_score(sentences_scores)
+        dd_score = _get_dd_score(sentences_scores)
         assert dd_score > 0.5
 
         sentences_scores = [0.6, 0.3, 0.1, -1.1]
-        dd_score = get_dd_score(sentences_scores)
+        dd_score = _get_dd_score(sentences_scores)
         assert dd_score > 0.7
 
     def test_sentences_ordering(self):
@@ -123,10 +123,10 @@ class TestRunSprouseTests(TestCase):
                 sprouse_format=examples_in_sprouse_format,
             )
             if verbose:
-                print_example(sentences, sentence_ordering)
+                _print_example(sentences, sentence_ordering)
 
-            DDs_with_lp.append(get_dd_score(lps, sentence_ordering))
-            DDs_with_pen_lp.append(get_dd_score(pen_lps, sentence_ordering))
+            DDs_with_lp.append(_get_dd_score(lps, sentence_ordering))
+            DDs_with_pen_lp.append(_get_dd_score(pen_lps, sentence_ordering))
             lp_short_nonisland_average += lps[sentence_ordering.SHORT_NONISLAND]
             lp_long_nonisland_avg += lps[sentence_ordering.LONG_NONISLAND]
             lp_short_island_avg += lps[sentence_ordering.SHORT_ISLAND]
