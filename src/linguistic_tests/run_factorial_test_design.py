@@ -782,10 +782,15 @@ def _parse_arguments():
     arg_parser.add_argument(
         "--model_types",
         help=f"specify the models to run. { {i.name: i.value for i in ModelTypes} }",
-        nargs="+",  # 0 or more values expected => creates a list
+        nargs="+",  # 1 or more values expected => creates a list
         type=int,
         choices=[i.value for i in model_names_it.keys()],
         default=[i.value for i in model_names_it.keys()],
+    )
+    arg_parser.add_argument(
+        "--datasource",
+        nargs="?",
+        choices=["sprouse", "madeddu"],
     )
     # arg_parser.add_argument(
     #     "--rescore"
@@ -796,10 +801,10 @@ def _parse_arguments():
 
 def main(
     # todo: save accuracy results to csv file
-    tests_subdir="syntactic_tests_it/",
+    tests_subdir="syntactic_tests_it/",  # tests_subdir="sprouse/"
     rescore=False,
     log_level=logging.INFO,
-):  # tests_subdir="sprouse/"
+):
 
     _setup_logging(log_level)
     args = _parse_arguments()
@@ -807,7 +812,12 @@ def main(
     model_types_to_run = [
         ModelTypes(model_type_int) for model_type_int in args.model_types
     ]
+    if args.datasource == "sprouse":
+        tests_subdir = "sprouse/"
+    elif args.datasource == "madeddu":
+        tests_subdir = "syntactic_tests_it/"
     # rescore =
+
     logging.info(f"Will run tests with models: {model_types_to_run}")
 
     # todo: also add command line option for tests subdir path
@@ -859,8 +869,6 @@ def main(
     # plot with 7+1x7 subplots of a testset (one subplot for each example)
 
     # todo:
-    # normalize sentence/tokens scores for Bert models, to have scores comparables across a whole testset
-    #
     # normalize results to a likert scale, for comparison with Sprouse et al 2016
 
 
