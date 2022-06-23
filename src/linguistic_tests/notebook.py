@@ -137,42 +137,62 @@ def main():
     if len(sys.argv) > 1:
         interactive_mode()
     else:
-        model_type = ModelTypes.ROBERTA  # ModelTypes.GPT  #
-        # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
-        model_name = (
-            "roberta-large"  # "bert-base-uncased"  #  "roberta-base" #"gpt2-medium"
-        )
-        # "gpt2-large"  # 'gpt2'  #  "bert-large-uncased"
-        #    'dbmdz/bert-base-italian-xxl-cased' #
-        testset_filenames = [
-            "wh_island",  # .jsonl
-            "adjunct_island",
-            "complex_NP_island",
+        model_types_en = [
+            ModelTypes.GPT,
+            ModelTypes.GPT,
+            ModelTypes.GPT,
+            ModelTypes.BERT,
+            ModelTypes.BERT,
+            ModelTypes.BERT,
+            ModelTypes.BERT,
+            ModelTypes.ROBERTA,
+            ModelTypes.ROBERTA,
         ]
-        p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
-        testset_dir_path = str(p)
-        scored_testsets = run_blimp_en(
-            model_type=model_type,
-            model_name=model_name,
-            dataset_source="Blimp paper",
-            testset_filenames=testset_filenames,
-            testset_dir_path=testset_dir_path,
-            examples_format="json_lines",
-            max_examples=5,
-        )
-        for scored_testset in scored_testsets:
-            print_accuracy_scores(scored_testset)
-        # raise SystemExit
-        # print('choosing model type ..')
-        # models_to_run = [
-        #     ModelTypes.BERT,
-        #     ModelTypes.GEPPETTO,
-        #     ModelTypes.GPT,
-        #     ModelTypes.GILBERTO,
-        # ]
-        # from linguistic_tests.run_syntactic_tests import run_tests_for_model_type
-        # for model_type in models_to_run:
-        #     run_tests_for_model_type(model_type)
+        model_names_en = [
+            "gpt2-large",
+            "gpt2-medium",
+            "gpt2",
+            "bert-base-uncased",
+            "bert-base-cased",
+            "bert-large-uncased",
+            "bert-large-cased",
+            "roberta-base",
+            "roberta-large",
+        ]
+
+        for model_type, model_name in zip(model_types_en, model_names_en):
+
+            testset_filenames = [
+                "wh_island",  # .jsonl
+                "adjunct_island",
+                "complex_NP_island",
+            ]
+            # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
+            p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
+            testset_dir_path = str(p)
+            scored_testsets = run_blimp_en(
+                model_type=model_type,
+                model_name=model_name,
+                dataset_source="Blimp paper",
+                testset_filenames=testset_filenames,
+                testset_dir_path=testset_dir_path,
+                examples_format="json_lines",
+                max_examples=1000,
+            )
+            for scored_testset in scored_testsets:
+                print_accuracy_scores(scored_testset)
+            # raise SystemExit
+            # print('choosing model type ..')
+            # 'dbmdz/bert-base-italian-xxl-cased' #
+            # models_to_run = [
+            #     ModelTypes.BERT,
+            #     ModelTypes.GEPPETTO,
+            #     ModelTypes.GPT,
+            #     ModelTypes.GILBERTO,
+            # ]
+            # from linguistic_tests.run_syntactic_tests import run_tests_for_model_type
+            # for model_type in models_to_run:
+            #     run_tests_for_model_type(model_type)
 
 
 if __name__ == "__main__":

@@ -876,5 +876,5 @@ def main(
 
 if __name__ == "__main__":
     main(
-        tests_subdir="sprouse/", rescore=False, log_level=logging.DEBUG
+        tests_subdir="syntactic_tests_it/", rescore=True, log_level=logging.DEBUG
     )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
