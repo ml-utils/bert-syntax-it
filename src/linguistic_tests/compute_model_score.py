@@ -33,10 +33,8 @@ def score_testset_minimal_pairs(
     # todo, fixme: some scoring measures are calculated only for Bert-like (bidirectional) models, where
     #  the score is just an approximation of the acceptability
     #  if model_type in [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]:
-    for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
-        for (
-            stype_acceptable_sentence
-        ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
+    for scoring_measure in testset.get_scoring_measures():
+        for stype_acceptable_sentence in testset.get_acceptable_sentence_types():
             accurate_count = 0
             for example_idx, example in enumerate(tqdm(testset.examples)):
                 if example.is_scored_accurately(

@@ -4,6 +4,7 @@ import time
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
+from typing import KeysView
 from typing import List
 
 import numpy as np
@@ -205,11 +206,17 @@ class TestSet:
                         stype
                     ] = 0
 
-    def get_sentence_types(self):
+    def get_sentence_types(self) -> KeysView[SentenceNames]:
         return self.lp_average_by_sentence_type.keys()
 
-    def get_scoring_measures(self):
+    def get_scoring_measures(self) -> KeysView[ScoringMeasures]:
         return self.accuracy_per_score_type_per_sentence_type.keys()
+
+    def get_acceptable_sentence_types(self) -> KeysView[SentenceNames]:
+        some_scoring_measure = next(iter(self.get_scoring_measures()))
+        return self.accuracy_per_score_type_per_sentence_type[
+            some_scoring_measure
+        ].keys()
 
     def set_avg_zscores_by_measure_and_by_stype(
         self, scoring_measure: ScoringMeasures, merged_scores

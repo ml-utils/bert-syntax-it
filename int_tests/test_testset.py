@@ -8,15 +8,22 @@ from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
+from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_factorial_test_design import get_testset_params
 from linguistic_tests.run_factorial_test_design import score_sprouse_testsets
+from linguistic_tests.testset import Example
 from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
+from linguistic_tests.testset import Sentence
+from linguistic_tests.testset import TestSet
+from linguistic_tests.testset import TypedSentence
 
 from int_tests.int_tests_utils import get_test_data_dir
 
 
 class TestTestset(TestCase):
+
+    # todo: patch with mock so a unit test does not load files from disk
     def test_parse_testset_sprouse(self):
 
         p = get_test_data_dir() / "sprouse"
@@ -48,6 +55,7 @@ class TestTestset(TestCase):
             for typed_sentence in example.sentences:
                 assert len(typed_sentence.sent.txt) > 0
 
+    # todo: patch with mock so a unit test does not load files from disk
     def test_parse_testset_blimp(self):
         p = get_test_data_dir() / "blimp"
         testset_dir_path = str(p)
@@ -78,6 +86,7 @@ class TestTestset(TestCase):
             for typed_sentence in example.sentences:
                 assert len(typed_sentence.sent.txt) > 0
 
+    # todo: patch with mock so a unit test does not load files from disk
     def test_parse_testset_custom_it(self):
         p = get_test_data_dir() / "custom_it"
         testset_dir_path = str(p)
@@ -107,6 +116,49 @@ class TestTestset(TestCase):
             assert len(example.sentences) == 4
             for typed_sentence in example.sentences:
                 assert len(typed_sentence.sent.txt) > 0
+
+    def test_get_sentence_types(self):
+        testset = self.get_basic_testset()
+        stypes = testset.get_sentence_types()
+        assert 2 == len(stypes)
+        assert SentenceNames.SHORT_NONISLAND in stypes
+        assert SentenceNames.LONG_ISLAND in stypes
+
+    def get_scoring_measures(self):
+        testset = self.get_basic_testset()
+        scoring_measures = testset.get_sentence_types()
+        assert 1 == len(scoring_measures)
+        assert ScoringMeasures.LP in scoring_measures
+
+    def get_acceptable_sentence_types(self):
+        testset = self.get_basic_testset()
+        acc_stypes = testset.get_acceptable_sentence_types()
+        assert 1 == len(acc_stypes)
+        assert SentenceNames.SHORT_NONISLAND in acc_stypes
+        assert SentenceNames.LONG_ISLAND not in acc_stypes
+
+    @staticmethod
+    def get_basic_testset():
+
+        typed_senteces = [
+            TypedSentence(
+                SentenceNames.SHORT_NONISLAND, Sentence("The pen is on the table")
+            ),
+            TypedSentence(
+                SentenceNames.LONG_ISLAND, Sentence("The is pen on the table")
+            ),
+        ]
+        example = Example(typed_senteces)
+        testset = TestSet(
+            linguistic_phenomenon="wh",
+            model_descr="bert",
+            dataset_source="sprouse",
+            examples=[example],
+            sent_types=[SentenceNames.SHORT_NONISLAND],
+            scoring_measures=[ScoringMeasures.LP],
+            model_type=ModelTypes.BERT,
+        )
+        return testset
 
 
 @pytest.mark.enable_socket
