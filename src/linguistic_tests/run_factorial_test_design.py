@@ -27,26 +27,27 @@ from matplotlib import pyplot as plt
 from scipy.stats import chi2
 
 
-model_names_it = {
+MODEL_NAMES_IT = {
     ModelTypes.GEPPETTO: "LorenzoDeMattei/GePpeTto",
     ModelTypes.BERT: "dbmdz/bert-base-italian-xxl-cased",
     ModelTypes.GILBERTO: "idb-ita/gilberto-uncased-from-camembert",
 }  # ModelTypes.GPT # ModelTypes.ROBERTA  #
 
-model_names_en = {
+MODEL_NAMES_EN = {
     ModelTypes.BERT: "bert-base-uncased",  # "bert-large-uncased"  #
     ModelTypes.GPT: "gpt2-large",
     ModelTypes.ROBERTA: "roberta-large",
 }
 
-sprouse_testsets_root_filenames = [  # 'rc_adjunct_island',
+SPROUSE_TESTSETS_ROOT_FILENAMES = [  # 'rc_adjunct_island',
     # 'rc_complex_np', 'rc_subject_island', 'rc_wh_island', # fixme: rc_wh_island empty file
     "wh_adjunct_island",
     "wh_complex_np",
     "wh_subject_island",
     "wh_whether_island",
 ]
-custom_it_island_testsets_root_filenames = [
+
+CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES = [
     # "wh_adjunct_islands",
     # "wh_complex_np_islands",
     # "wh_whether_island",
@@ -664,14 +665,14 @@ def _print_testset_results(
     _print_sorted_sentences_to_check_spelling_errors2(
         score_descr,
         testsets_root_filenames,
-        model_names_it[model_type],
+        MODEL_NAMES_IT[model_type],
         dataset_source,
         scored_testsets,
     )
     _print_sorted_sentences_to_check_spelling_errors(
         score_descr,
         testsets_root_filenames,
-        model_names_it[model_type],
+        MODEL_NAMES_IT[model_type],
         dataset_source,
         scored_testsets,
     )
@@ -681,7 +682,7 @@ def _print_testset_results(
         SentenceNames.SHORT_ISLAND,
         SentenceNames.LONG_ISLAND,
         testsets_root_filenames,
-        model_names_it[model_type],
+        MODEL_NAMES_IT[model_type],
         dataset_source,
         testsets=scored_testsets,
     )
@@ -690,7 +691,7 @@ def _print_testset_results(
         SentenceNames.LONG_NONISLAND,
         SentenceNames.LONG_ISLAND,
         testsets_root_filenames,
-        model_names_it[model_type],
+        MODEL_NAMES_IT[model_type],
         dataset_source,
         testsets=scored_testsets,
     )
@@ -699,7 +700,7 @@ def _print_testset_results(
         SentenceNames.SHORT_NONISLAND,
         SentenceNames.SHORT_ISLAND,
         testsets_root_filenames,
-        model_names_it[model_type],
+        MODEL_NAMES_IT[model_type],
         dataset_source,
         testsets=scored_testsets,
     )
@@ -711,7 +712,7 @@ def rescore_testsets_and_save_pickles(
     testsets_root_filenames,
     dataset_source,
 ):
-    model_name = model_names_it[model_type]
+    model_name = MODEL_NAMES_IT[model_type]
     examples_format = "sprouse"  # "blimp", "json_lines", "sprouse"
     sent_types_descr = "sprouse"  # "blimp" or "sprouse"
     # sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
@@ -747,11 +748,11 @@ def rescore_testsets_and_save_pickles(
 
 def get_testset_params(tests_subdir):
     if tests_subdir == "syntactic_tests_it/":
-        testsets_root_filenames = custom_it_island_testsets_root_filenames
+        testsets_root_filenames = CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES
         broader_test_type = "it_tests"
         dataset_source = "Madeddu (50 items per phenomenon)"
     elif tests_subdir == "sprouse/":
-        testsets_root_filenames = sprouse_testsets_root_filenames
+        testsets_root_filenames = SPROUSE_TESTSETS_ROOT_FILENAMES
         broader_test_type = "sprouse"
         dataset_source = "Sprouse et al. 2016 (8 items per phenomenon)"
     else:
@@ -784,8 +785,8 @@ def _parse_arguments():
         help=f"specify the models to run. { {i.name: i.value for i in ModelTypes} }",
         nargs="+",  # 1 or more values expected => creates a list
         type=int,
-        choices=[i.value for i in model_names_it.keys()],
-        default=[i.value for i in model_names_it.keys()],
+        choices=[i.value for i in MODEL_NAMES_IT.keys()],
+        default=[i.value for i in MODEL_NAMES_IT.keys()],
     )
     arg_parser.add_argument(
         "--datasource",
@@ -801,6 +802,8 @@ def _parse_arguments():
 
 def main(
     # todo: save accuracy results to csv file
+    #  also another csv file with details on sentences scores
+    #  and an option to load the report csv and print them in the command line
     tests_subdir="syntactic_tests_it/",  # tests_subdir="sprouse/"
     rescore=False,
     log_level=logging.INFO,
@@ -849,7 +852,7 @@ def main(
         loaded_testsets = load_pickles(
             dataset_source,
             testsets_root_filenames,
-            model_names_it[model_type],
+            MODEL_NAMES_IT[model_type],
         )
 
         _print_testset_results(
@@ -858,7 +861,7 @@ def main(
 
         load_and_plot_pickle(
             testsets_root_filenames,
-            model_names_it[model_type],
+            MODEL_NAMES_IT[model_type],
             dataset_source,
             model_type,
             loaded_testsets=loaded_testsets,
@@ -874,5 +877,5 @@ def main(
 
 if __name__ == "__main__":
     main(
-        tests_subdir="syntactic_tests_it/", rescore=True, log_level=logging.DEBUG
+        tests_subdir="syntactic_tests_it/", rescore=True, log_level=logging.INFO
     )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
