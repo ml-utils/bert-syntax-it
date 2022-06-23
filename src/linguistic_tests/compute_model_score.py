@@ -1,4 +1,5 @@
 import logging
+from collections import namedtuple
 from functools import reduce
 from typing import List
 
@@ -249,12 +250,14 @@ def get_unparsed_example_scores(
         sent = stype.sent
         lps.append(sent.lp_softmax)
         pen_lps.append(sent.pen_lp_softmax)
-        lls.append(sent.lp_logistic)
-        penlls.append(sent.pen_lp_logistic)
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            lls.append(sent.lp_logistic)
+            penlls.append(sent.pen_lp_logistic)
 
-    sentences_txts = ([stype.sent.txt for stype in scored_example.sentences],)
+    sentences_txts = [stype.sent.txt for stype in scored_example.sentences]
 
-    return (lps, pen_lps, lls, penlls, sentences_txts)
+    ScoreResults = namedtuple("ScoreResults", "lps pen_lps lls penlls sentences_txts")
+    return ScoreResults(lps, pen_lps, lls, penlls, sentences_txts)
 
 
 def reduce_to_log_product(seq):

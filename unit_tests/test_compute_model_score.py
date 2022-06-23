@@ -1,3 +1,4 @@
+from collections import namedtuple
 from random import random
 from typing import List
 from unittest import TestCase
@@ -327,12 +328,12 @@ class TestComputeModelScore(TestCase):
                 sentences_per_example,
             )
 
-    @pytest.mark.skip("WIP")
     def test_get_unparsed_example_scores(self):
-        example_data, model, model_type, sent_ids, tokenizer, sentences_per_example = (
-            None,
-            None,
-            None,
+        example_data = get_basic_example_data_dict()
+        tokenizer = Mock()
+        tokenizer.tokenize = Mock(return_value=[])
+        sent_ids = []
+        model, model_type, sentences_per_example = (
             None,
             None,
             None,
@@ -355,10 +356,23 @@ class TestComputeModelScore(TestCase):
                 sprouse_format=False,
             )
 
-        # todo: assert that return_values_1 correspond to returns from the new
-        #  implementation get_unparsed_example_scores(), asserting that the
-        #  order of sentences is the same for both calls
-        assert return_values_1 is not None
+            return_values_2 = get_unparsed_example_scores(
+                DEVICES.CPU,
+                example_data,
+                model,
+                model_type,
+                sent_ids,
+                tokenizer,
+                sentences_per_example,
+            )
+
+        # todo: check that the equality comparison is recursive (elements of
+        #  the lists of the tuples)
+        assert return_values_1 == return_values_2, (
+            f"The two return values are different: "
+            f"\n{return_values_1=} "
+            f"\n{return_values_2=}"
+        )
 
     def test_logistic2(self):
         assert logistic2(20) > 0.99
@@ -405,10 +419,5 @@ def get_unparsed_example_scores_legacy_impl(
             lls.append(lp_logistic)
             penlls.append(lp_logistic / penalty)
 
-    return (
-        lps,
-        pen_lps,
-        lls,
-        penlls,
-        sentences,
-    )
+    ScoreResults = namedtuple("ScoreResults", "lps pen_lps lls penlls sentences_txts")
+    return ScoreResults(lps, pen_lps, lls, penlls, sentences)
