@@ -1,8 +1,8 @@
 from unittest import TestCase
 
 import pytest
-from linguistic_tests.run_syntactic_tests import run_blimp_en
-from linguistic_tests.run_syntactic_tests import run_tests_for_model_type
+from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
+from linguistic_tests.run_minimal_pairs_test_design import run_tests_for_model_type
 
 
 class TestRunSyntacticTests(TestCase):

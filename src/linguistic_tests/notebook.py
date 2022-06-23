@@ -9,8 +9,8 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import red_txt
 from linguistic_tests.lm_utils import sentence_score_bases
-from linguistic_tests.run_syntactic_tests import print_detailed_sentence_info
-from linguistic_tests.run_syntactic_tests import run_blimp_en
+from linguistic_tests.run_minimal_pairs_test_design import print_detailed_sentence_info
+from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
 
 
 def interactive_mode():
