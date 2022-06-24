@@ -1,6 +1,4 @@
 import logging
-import os.path
-import time
 from statistics import mean
 
 import numpy as np
@@ -9,37 +7,24 @@ from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
-from linguistic_tests.lm_utils import get_results_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model
+from linguistic_tests.lm_utils import MODEL_NAMES_IT
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.lm_utils import SprouseSentencesOrder
-from linguistic_tests.run_minimal_pairs_test_design import print_accuracy_scores
+from linguistic_tests.plots_and_prints import _get_test_session_descr
+from linguistic_tests.plots_and_prints import _print_testset_results
+from linguistic_tests.plots_and_prints import plot_testsets
 from linguistic_tests.run_minimal_pairs_test_design import score_minimal_pairs_testset
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import get_dd_score_parametric
 from linguistic_tests.testset import get_merged_score_across_testsets
 from linguistic_tests.testset import load_testset_from_pickle
-from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from linguistic_tests.testset import TestSet
-from matplotlib import pyplot as plt
 from scipy.stats import chi2
-
-
-MODEL_NAMES_IT = {
-    ModelTypes.GEPPETTO: "LorenzoDeMattei/GePpeTto",
-    ModelTypes.BERT: "dbmdz/bert-base-italian-xxl-cased",
-    ModelTypes.GILBERTO: "idb-ita/gilberto-uncased-from-camembert",
-}  # ModelTypes.GPT # ModelTypes.ROBERTA  #
-
-MODEL_NAMES_EN = {
-    ModelTypes.BERT: "bert-base-uncased",  # "bert-large-uncased"  #
-    ModelTypes.GPT: "gpt2-large",
-    ModelTypes.ROBERTA: "roberta-large",
-}
 
 SPROUSE_TESTSETS_ROOT_FILENAMES = [  # 'rc_adjunct_island',
     # 'rc_complex_np', 'rc_subject_island', 'rc_wh_island', # fixme: rc_wh_island empty file
@@ -155,153 +140,6 @@ def _calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
         )
 
 
-def _get_test_session_descr(dataset_source, model_descr, score_name=""):
-    session_descr = f"{dataset_source[:7]}_{model_descr}_{score_name}"
-    session_descr = session_descr.replace(" ", "_").replace("/", "_")
-    return session_descr
-
-
-def plot_results(scored_testsets: list[TestSet], score_name, use_zscore=False):
-    fig, axs = plt.subplots(2, 2, figsize=(12.8, 12.8))  # default figsize=(6.4, 4.8)
-
-    window_title = _get_test_session_descr(
-        scored_testsets[0].dataset_source, scored_testsets[0].model_descr, score_name
-    )
-
-    fig.canvas.manager.set_window_title(window_title)
-    axs_list = axs.reshape(-1)
-    logging.debug(f"type axs_list: {type(axs_list)}, {len(axs_list)=}, {axs_list=}")
-
-    preferred_axs_order = {"whether": 0, "complex": 1, "subject": 2, "adjunct": 3}
-    for phenomenon_short_name, preferred_index in preferred_axs_order.items():
-        if (
-            phenomenon_short_name
-            not in scored_testsets[preferred_index].linguistic_phenomenon
-        ):
-            for idx, testset in enumerate(scored_testsets):
-                if phenomenon_short_name in testset.linguistic_phenomenon:
-                    scored_testsets.remove(testset)
-                    scored_testsets.insert(preferred_index, testset)
-                    break
-
-    set_xlabels = [False, False, True, True]
-    for scored_testset, ax, set_xlabel in zip(scored_testsets, axs_list, set_xlabels):
-        lines, labels = _plot_results_subplot(
-            scored_testset,
-            score_name,
-            ax,
-            use_zscore=use_zscore,
-            set_xlabel=set_xlabel,
-        )
-
-    fig.suptitle(
-        f"Model: {scored_testsets[0].model_descr}, "
-        f"\n Dataset: {scored_testset.dataset_source}"
-    )
-
-    if use_zscore:
-        zscore_note = "-zscores"
-    else:
-        zscore_note = ""
-
-    saving_dir = str(get_results_dir())
-    timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
-    filename = f"{window_title}{zscore_note}-{timestamp}.png"
-    filepath = os.path.join(saving_dir, filename)
-
-    print_orange(f"Saving plot to file {filepath} ..")
-    plt.savefig(filepath)  # , dpi=300
-    plt.figlegend(lines, labels)
-    # fig.tight_layout()
-
-    # plt.show()
-
-
-def _plot_results_subplot(
-    scored_testset: TestSet,
-    scoring_measure,
-    ax,
-    use_zscore=False,
-    set_xlabel=True,
-):
-    if use_zscore:
-        DD_value = scored_testset.get_avg_DD_zscores(scoring_measure)
-
-        y_values_ni = [
-            scored_testset.get_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, SentenceNames.SHORT_NONISLAND
-            ),
-            scored_testset.get_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, SentenceNames.LONG_NONISLAND
-            ),
-        ]
-        y_values_is = [
-            scored_testset.get_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, SentenceNames.SHORT_ISLAND
-            ),
-            scored_testset.get_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, SentenceNames.LONG_ISLAND
-            ),
-        ]
-    else:
-        DD_value = scored_testset.get_avg_DD(scoring_measure)
-        score_averages = scored_testset.get_avg_scores(scoring_measure)
-        y_values_ni = [
-            score_averages[SentenceNames.SHORT_NONISLAND],
-            score_averages[SentenceNames.LONG_NONISLAND],
-        ]
-        y_values_is = [
-            score_averages[SentenceNames.SHORT_ISLAND],
-            score_averages[SentenceNames.LONG_ISLAND],
-        ]
-
-    logging.debug(f"{y_values_ni=}")
-    logging.debug(f"{y_values_is=}")
-
-    # todo: add p values
-    # todo: add accuracy %
-
-    x_values = ["SHORT", "LONG"]
-
-    std_errors_ni = (
-        scored_testset.get_std_errors_of_zscores_by_measure_and_sentence_structure(
-            scoring_measure, SentenceNames.SHORT_NONISLAND
-        )
-    )
-    std_errors_is = (
-        scored_testset.get_std_errors_of_zscores_by_measure_and_sentence_structure(
-            scoring_measure, SentenceNames.SHORT_ISLAND
-        )
-    )
-
-    (non_island_line, _, _) = ax.errorbar(
-        x_values, y_values_ni, yerr=std_errors_ni, capsize=5  # marker="o",
-    ).lines
-    (island_line, _, _) = ax.errorbar(
-        x_values,
-        y_values_is,
-        linestyle="--",
-        yerr=std_errors_is,
-        capsize=5,  # marker="o",
-    ).lines
-    lines = [non_island_line, island_line]
-    labels = ["Non-island structure", "Island structure"]
-
-    ax.legend(title=f"DD = {DD_value:.2f}")
-
-    if use_zscore:
-        ax.set_ylabel(f"z-scores ({scoring_measure})")
-        ax.set_ylim(ymin=-1.5, ymax=1.5)
-    else:
-        ax.set_ylabel(f"{scoring_measure} values")
-    if set_xlabel:
-        ax.set_xlabel("Dependency distance")
-    # ax.set_aspect('equal', 'box')  # , 'box'
-    ax.set_title(scored_testset.linguistic_phenomenon)
-
-    return lines, labels
-
-
 def get_pvalue_with_likelihood_ratio_test(full_model_ll, reduced_model_ll):
     likelihood_ratio = 2 * (reduced_model_ll - full_model_ll)
     p = chi2.sf(likelihood_ratio, 1)  # L2 has 1 DoF more than L1
@@ -411,16 +249,6 @@ def score_factorial_testset(
         )
 
     return testset
-
-
-def _print_example(example_data, sentence_ordering):
-    logging.debug(f"sentence ordering is {type(sentence_ordering)}")
-    print(
-        f"\nSHORT_NONISLAND: {example_data[sentence_ordering.SHORT_NONISLAND]}"
-        f"\nLONG_NONISLAND : {example_data[sentence_ordering.LONG_NONISLAND]}"
-        f"\nSHORT_ISLAND : {example_data[sentence_ordering.SHORT_ISLAND]}"
-        f"\nLONG_ISLAND : {example_data[sentence_ordering.LONG_ISLAND]}"
-    )
 
 
 def _get_example_dd_scores(example: Example, model_type: ModelTypes):
@@ -545,191 +373,6 @@ def load_and_plot_pickle(
         loaded_testsets = load_pickles(dataset_source, phenomena, model_name)
 
     plot_testsets(loaded_testsets, model_type)
-
-
-def plot_testsets(scored_testsets: list[TestSet], model_type: ModelTypes):
-
-    plot_results(scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True)
-    plot_results(scored_testsets, ScoringMeasures.LP.name, use_zscore=True)
-
-    # plot_results(scored_testsets, ScoringMeasures.LP.name)  # without zscores
-    # plot_results(scored_testsets, ScoringMeasures.PenLP.name)
-
-    if model_type in BERT_LIKE_MODEL_TYPES:
-        # plot_results(scored_testsets, ScoringMeasures.LL.name)
-        # plot_results(scored_testsets, ScoringMeasures.PLL.name)
-        plot_results(scored_testsets, ScoringMeasures.LL.name, use_zscore=True)
-        plot_results(scored_testsets, ScoringMeasures.PLL.name, use_zscore=True)
-
-
-def _print_sorted_sentences_to_check_spelling_errors2(
-    score_descr, phenomena, model_name, dataset_source, loaded_testsets=None
-):
-
-    if loaded_testsets is None:
-        loaded_testsets = load_pickles(dataset_source, phenomena, model_name)
-
-    for testset in loaded_testsets:
-        logging.info(
-            f"printing for testset {testset.linguistic_phenomenon} calculated from {testset.model_descr}"
-        )
-        typed_sentences = testset.get_all_sentences_sorted_by_score(
-            score_descr, reverse=False
-        )
-        print(f"{'idx':<5}" f"{score_descr:<10}" f"{'stype':<20}" f"{'txt':<85}")
-        for idx, tsent in enumerate(typed_sentences):
-            print(
-                f"{idx : <5}"
-                f"{tsent.sent.get_score(score_descr) : <10.2f}"
-                f"{tsent.stype : <20}"
-                f"{tsent.sent.txt : <85}"
-            )
-
-
-def _print_sorted_sentences_to_check_spelling_errors(
-    score_descr, phenomena, model_name, dataset_source, loaded_testsets=None
-):
-    logging.info("printing sorted_sentences_to_check_spelling_errors")
-
-    if loaded_testsets is None:
-        loaded_testsets = load_pickles(dataset_source, phenomena, model_name)
-
-    for testset in loaded_testsets:
-        logging.info(
-            f"printing {score_descr} for testset {testset.linguistic_phenomenon} calculated from {testset.model_descr}"
-        )
-        for stype in SPROUSE_SENTENCE_TYPES:
-            logging.info(f"printing for sentence type {stype}..")
-            examples = testset.get_examples_sorted_by_sentence_type_and_score(
-                stype, score_descr, reverse=False
-            )
-            print(f"{'idx':<5}" f"{score_descr:^10}" f"{'txt':<85}")
-            for idx, example in enumerate(examples):
-                print(
-                    f"{idx : <5}"
-                    f"{example[stype].get_score(score_descr) : <10.2f}"
-                    f"{example[stype].txt : <85}"
-                )
-
-
-def _print_examples_compare_diff(
-    score_descr,
-    sent_type1,
-    sent_type2,
-    phenomena,
-    model_name,
-    dataset_source,
-    testsets=None,
-):
-    if testsets is None:
-        testsets = load_pickles(dataset_source, phenomena, model_name)
-
-    max_testsets = 4
-    for testset in testsets[:max_testsets]:
-        logging.info(
-            f"printing testset for {testset.linguistic_phenomenon} from {testset.model_descr}"
-        )
-        print(
-            f"comparing {sent_type1} and {sent_type2} ({testset.linguistic_phenomenon} from {testset.model_descr})"
-        )
-        examples = testset.get_examples_sorted_by_score_diff(
-            score_descr, sent_type1, sent_type2, reverse=False
-        )
-        max_prints = 50
-        print(
-            f"{'diff':<8}"
-            f"{'s1 '+score_descr:^10}"
-            f"{'s1 txt (' + sent_type1 + ')':<95}"
-            f"{'s2 '+score_descr:^10}"
-            f"{'s2 txt (' + sent_type2 + ')':<5}"
-        )
-        for example in examples[0:max_prints]:
-            print(
-                f"{example.get_score_diff(score_descr, sent_type1, sent_type2) : <8.2f}"
-                f"{example[sent_type1].get_score(score_descr) : ^10.2f}"
-                f"{example[sent_type1].txt : <95}"
-                f"{example[sent_type2].get_score(score_descr) :^10.2f}"
-                f"{example[sent_type2].txt : <5}"
-            )
-
-
-def _print_testset_results(
-    scored_testsets: list[TestSet],
-    dataset_source: str,
-    model_type: ModelTypes,
-    testsets_root_filenames: list[str],
-):
-    logging.info("Printing accuracy scores..")
-    for scored_testset in scored_testsets:
-        # todo: also print results in table format or csv for excel export or word doc report
-        print_accuracy_scores(scored_testset)
-        print(
-            f"Testset accuracy with DDs_with_lp: {scored_testset.accuracy_by_DD_lp:%}"
-        )
-        print(
-            f"Testset accuracy with DDs_with_penlp: {scored_testset.accuracy_by_DD_penlp:%}"
-        )
-        lp_averages = scored_testset.lp_average_by_sentence_type
-        penlp_averages = scored_testset.penlp_average_by_sentence_type
-        print(f"{lp_averages=}")
-        print(f"{penlp_averages=}")
-
-        if model_type in BERT_LIKE_MODEL_TYPES:
-            print(
-                f"Testset accuracy with DDs_with_ll: {scored_testset.accuracy_by_DD_ll:%}"
-            )
-            print(
-                f"Testset accuracy with DDs_with_penll: {scored_testset.accuracy_by_DD_penll:%}"
-            )
-            ll_averages = scored_testset.ll_average_by_sentence_type
-            penll_averages = scored_testset.penll_average_by_sentence_type
-            print(f"{ll_averages=}")
-            print(f"{penll_averages=}")
-
-    score_descr = ScoringMeasures.PenLP.name
-
-    _print_sorted_sentences_to_check_spelling_errors2(
-        score_descr,
-        testsets_root_filenames,
-        MODEL_NAMES_IT[model_type],
-        dataset_source,
-        scored_testsets,
-    )
-    _print_sorted_sentences_to_check_spelling_errors(
-        score_descr,
-        testsets_root_filenames,
-        MODEL_NAMES_IT[model_type],
-        dataset_source,
-        scored_testsets,
-    )
-
-    _print_examples_compare_diff(
-        score_descr,
-        SentenceNames.SHORT_ISLAND,
-        SentenceNames.LONG_ISLAND,
-        testsets_root_filenames,
-        MODEL_NAMES_IT[model_type],
-        dataset_source,
-        testsets=scored_testsets,
-    )
-    _print_examples_compare_diff(
-        score_descr,
-        SentenceNames.LONG_NONISLAND,
-        SentenceNames.LONG_ISLAND,
-        testsets_root_filenames,
-        MODEL_NAMES_IT[model_type],
-        dataset_source,
-        testsets=scored_testsets,
-    )
-    _print_examples_compare_diff(
-        score_descr,
-        SentenceNames.SHORT_NONISLAND,
-        SentenceNames.SHORT_ISLAND,
-        testsets_root_filenames,
-        MODEL_NAMES_IT[model_type],
-        dataset_source,
-        testsets=scored_testsets,
-    )
 
 
 def rescore_testsets_and_save_pickles(

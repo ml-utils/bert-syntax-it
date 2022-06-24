@@ -472,3 +472,15 @@ def assert_almost_equal(val1, val2, precision=13):
     assert abs(val1 - val2) < 10 ** (-1 * precision), (
         f"val1:{val1}, val2: {val2}, " f"diff: {val1 - val2}"
     )
+
+
+MODEL_NAMES_IT = {
+    ModelTypes.GEPPETTO: "LorenzoDeMattei/GePpeTto",
+    ModelTypes.BERT: "dbmdz/bert-base-italian-xxl-cased",
+    ModelTypes.GILBERTO: "idb-ita/gilberto-uncased-from-camembert",
+}  # ModelTypes.GPT # ModelTypes.ROBERTA  #
+MODEL_NAMES_EN = {
+    ModelTypes.BERT: "bert-base-uncased",  # "bert-large-uncased"  #
+    ModelTypes.GPT: "gpt2-large",
+    ModelTypes.ROBERTA: "roberta-large",
+}

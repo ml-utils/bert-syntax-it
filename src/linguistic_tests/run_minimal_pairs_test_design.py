@@ -2,9 +2,7 @@ import logging
 import os
 import time
 
-from linguistic_tests.bert_utils import estimate_sentence_probability
 from linguistic_tests.compute_model_score import get_unparsed_example_scores
-from linguistic_tests.compute_model_score import perc
 from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
@@ -12,7 +10,6 @@ from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
-from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.testset import TestSet
@@ -35,15 +32,6 @@ def run_tests_blimp():
 def run_tests_lau_et_al():
     # todo: compare results with other models
     return 0
-
-
-def print_detailed_sentence_info(bert, tokenizer, sentence_txt, scorebase):
-    print_red(f"printing details for sentence {sentence_txt}")
-    tokens = tokenizer.tokenize(sentence_txt)
-    sentence_ids = tokenizer.convert_tokens_to_ids(tokens)
-    estimate_sentence_probability(
-        bert, tokenizer, sentence_ids, scorebase, verbose=True
-    )
 
 
 def run_blimp_it_island_effects():
@@ -237,67 +225,6 @@ def get_unparsed_testset_scores(
         correct_lls_2nd_sentence,
         correct_pen_lls_2nd_sentence,
     )
-
-
-def print_accuracy_scores(testset: TestSet):
-    logging.info(f"test results report, {testset.linguistic_phenomenon}:")
-    for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
-        logging.debug(f"scores with {scoring_measure}")
-        for (
-            stype_acceptable_sentence
-        ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
-            # fixme: 0 values for accuracy base on logistic scoring measure
-            accuracy = testset.accuracy_per_score_type_per_sentence_type[
-                scoring_measure
-            ][stype_acceptable_sentence]
-
-            print(
-                f"{testset.linguistic_phenomenon}: "
-                f"Accuracy with {scoring_measure.name} "
-                f"for {stype_acceptable_sentence.name}: {accuracy:%} "
-                f"({testset.model_descr})"
-            )
-
-
-def print_accuracies(
-    examples_count,
-    model_type,
-    correct_lps_1st_sentence,
-    correct_pen_lps_1st_sentence,
-    correct_lps_2nd_sentence,
-    correct_pen_lps_2nd_sentence,
-    correct_logweights_1st_sentence=None,
-    correct_pen_logweights_1st_sentence=None,
-    correct_logweights_2nd_sentence=None,
-    correct_pen_logweights_2nd_sentence=None,
-):
-    logging.info("test results report:")
-    print(
-        f"acc. correct_lps_1st_sentence: {perc(correct_lps_1st_sentence, examples_count):.1f} %"
-    )
-    print(
-        f"acc. correct_pen_lps_1st_sentence: {perc(correct_pen_lps_1st_sentence, examples_count):.1f} %"
-    )
-    print(
-        f"acc. correct_lps_2nd_sentence: {perc(correct_lps_2nd_sentence, examples_count):.1f} %"
-    )
-    print(
-        f"acc. correct_pen_lps_2nd_sentence: {perc(correct_pen_lps_2nd_sentence, examples_count):.1f} %"
-    )
-
-    if model_type in BERT_LIKE_MODEL_TYPES:
-        print(
-            f"acc. correct_logweights_1st_sentence: {perc(correct_logweights_1st_sentence, examples_count):.1f} %"
-        )
-        print(
-            f"acc. correct_pen_logweights_1st_sentence: {perc(correct_pen_logweights_1st_sentence, examples_count):.1f} %"
-        )
-        print(
-            f"acc. correct_logweights_2nd_sentence: {perc(correct_logweights_2nd_sentence, examples_count):.1f} %"
-        )
-        print(
-            f"acc. correct_pen_logweights_2nd_sentence: {perc(correct_pen_logweights_2nd_sentence, examples_count):.1f} %"
-        )
 
 
 def main():
