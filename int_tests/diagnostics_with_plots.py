@@ -1,12 +1,12 @@
 import numpy as np
 from linguistic_tests.compute_model_score import logistic2
-from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.run_factorial_test_design import get_testset_params
+from linguistic_tests.testset import parse_testsets
 from linguistic_tests.testset import TypedSentence
 from matplotlib import pyplot as plt
 from scipy.special import softmax

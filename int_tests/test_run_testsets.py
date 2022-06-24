@@ -3,7 +3,6 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import pytest
-from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_models_dir
@@ -20,6 +19,7 @@ from linguistic_tests.run_factorial_test_design import score_factorial_testsets
 from linguistic_tests.run_minimal_pairs_test_design import get_unparsed_testset_scores
 from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
 from linguistic_tests.testset import ERROR_LP
+from linguistic_tests.testset import parse_testsets
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import show
 

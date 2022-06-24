@@ -3,9 +3,6 @@ from statistics import mean
 
 import numpy as np
 import pandas as pd
-from linguistic_tests.file_utils import load_pickles
-from linguistic_tests.file_utils import parse_testsets
-from linguistic_tests.file_utils import save_scored_testsets
 from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
@@ -23,6 +20,9 @@ from linguistic_tests.run_minimal_pairs_test_design import score_minimal_pairs_t
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import get_dd_score_parametric
 from linguistic_tests.testset import get_merged_score_across_testsets
+from linguistic_tests.testset import load_testsets_from_pickles
+from linguistic_tests.testset import parse_testsets
+from linguistic_tests.testset import save_scored_testsets
 from linguistic_tests.testset import TestSet
 from scipy.stats import chi2
 
@@ -331,7 +331,9 @@ def load_and_plot_pickle(
 ):
 
     if loaded_testsets is None:
-        loaded_testsets = load_pickles(dataset_source, phenomena, model_name)
+        loaded_testsets = load_testsets_from_pickles(
+            dataset_source, phenomena, model_name
+        )
 
     plot_testsets(loaded_testsets, model_type)
 
@@ -479,7 +481,7 @@ def main(
                 dataset_source,
             )
 
-        loaded_testsets = load_pickles(
+        loaded_testsets = load_testsets_from_pickles(
             dataset_source,
             testsets_root_filenames,
             MODEL_NAMES_IT[model_type],

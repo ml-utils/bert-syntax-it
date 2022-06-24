@@ -1,6 +1,4 @@
 import os
-import pickle
-import time
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
@@ -8,23 +6,27 @@ from typing import Dict
 from typing import KeysView
 
 import numpy as np
+from linguistic_tests.file_utils import get_file_root
+from linguistic_tests.file_utils import get_pickle_filename
+from linguistic_tests.file_utils import load_object_from_pickle
+from linguistic_tests.file_utils import save_obj_to_pickle
 from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
-from linguistic_tests.lm_utils import get_results_dir
+from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from scipy.stats import zmap
 
-SPROUSE_SENTENCE_TYPES = [
+
+SPROUSE_SENTENCE_TYPES: list[SentenceNames] = [
     SentenceNames.SHORT_NONISLAND,
     SentenceNames.LONG_NONISLAND,
     SentenceNames.SHORT_ISLAND,
     SentenceNames.LONG_ISLAND,
 ]
 
-BLIMP_SENTENCE_TYPES = [
+BLIMP_SENTENCE_TYPES: list[SentenceNames] = [
     SentenceNames.SENTENCE_GOOD,
     SentenceNames.SENTENCE_BAD,
 ]
@@ -441,31 +443,7 @@ class TestSet:
                 assert ERROR_LP != typed_sent.sent.get_score(ScoringMeasures.LP)
                 assert ERROR_LP != typed_sent.sent.get_score(ScoringMeasures.PenLP)
 
-        saving_dir = str(get_results_dir())
-        filepath = os.path.join(saving_dir, filename)
-        if os.path.exists(filepath):
-            timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
-            filename = f"{filename}-{timestamp}.testset.pickle"
-            filepath = os.path.join(saving_dir, filename)
-        print_orange(f"Saving testset to {filepath}")
-        with open(filepath, "wb") as file:
-            pickle.dump(self, file)
-
-
-def load_object_from_pickle(filename):
-    saving_dir = str(get_results_dir())
-
-    # todo, fixme: should actually look for all the files in that dir that
-    #  start with {filename}, and pick the most recent one.
-    #  or the save method, when the file already exists, could rename the
-    #  existing one and move it to the prev_pickles subdir, before saving
-    #  the new one.
-    filepath = os.path.join(saving_dir, filename)
-    print(f"Loading testset from {filepath}..")
-    with open(filepath, "rb") as file:
-        obj = pickle.load(file)
-
-    return obj
+        save_obj_to_pickle(self, filename)
 
 
 def load_testset_from_pickle(filename) -> TestSet:
@@ -572,3 +550,66 @@ def get_dd_score_parametric(
 
 def get_std_error(arr):
     return np.std(arr, ddof=1) / np.sqrt(len(arr))
+
+
+def load_testsets_from_pickles(dataset_source, phenomena, model_name) -> list[TestSet]:
+
+    loaded_testsets = []
+    for phenomenon in phenomena:
+        filename = get_pickle_filename(dataset_source, phenomenon, model_name)
+        loaded_testset = load_testset_from_pickle(filename)
+        loaded_testsets.append(loaded_testset)
+
+    return loaded_testsets
+
+
+def parse_testsets(
+    testset_dir_path: str,
+    testset_filenames: list[str],
+    dataset_source: str,
+    examples_format: str,
+    sent_types_descr,
+    model_name: str,
+    model_type: ModelTypes,
+    scoring_measures: list[ScoringMeasures],
+    max_examples: int,
+) -> list[TestSet]:
+    # todo: add scorebase var in testset class
+    parsed_testsets = []
+    for testset_filename in testset_filenames:
+        testset_filepath = os.path.join(testset_dir_path, testset_filename + ".jsonl")
+        print(f"Parsing testset {testset_filepath}")
+        testset_dict = load_testset_data(
+            testset_filepath, examples_format=examples_format
+        )  # es.: "json_lines"
+        examples_list = testset_dict["sentences"]
+        phenomenon_name = get_file_root(testset_filename)
+
+        parsed_testset = parse_testset(
+            phenomenon_name,
+            model_type,
+            model_name,
+            dataset_source,
+            examples_list,
+            sent_types_descr,  # "blimp" or "sprouse"
+            scoring_measures,
+            max_examples=max_examples,
+        )
+
+        parsed_testsets.append(parsed_testset)
+
+    return parsed_testsets
+
+
+def save_scored_testsets(
+    scored_testsets: list[TestSet], model_name: str, dataset_source: str
+):
+    for scored_testset in scored_testsets:
+        scored_testset.model_descr = model_name
+        filename = get_pickle_filename(
+            dataset_source,
+            scored_testset.linguistic_phenomenon,
+            model_name,
+        )
+
+        scored_testset.save_to_pickle(filename)

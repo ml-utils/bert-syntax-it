@@ -3,7 +3,6 @@ from unittest import TestCase
 import pytest
 from linguistic_tests.compute_model_score import get_unparsed_example_scores
 from linguistic_tests.file_utils import get_pickle_filename
-from linguistic_tests.file_utils import save_scored_testsets
 from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.plots_and_prints import _print_example
 from linguistic_tests.plots_and_prints import _print_testset_results
@@ -12,6 +11,7 @@ from linguistic_tests.run_factorial_test_design import _get_dd_score
 from linguistic_tests.run_factorial_test_design import main
 from linguistic_tests.run_factorial_test_design import score_factorial_testset
 from linguistic_tests.run_factorial_test_design import score_factorial_testsets
+from linguistic_tests.testset import save_scored_testsets
 from tqdm import tqdm
 
 

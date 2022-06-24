@@ -4,7 +4,6 @@ import time
 
 from linguistic_tests.compute_model_score import get_unparsed_example_scores
 from linguistic_tests.compute_model_score import score_example
-from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
@@ -12,6 +11,7 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
+from linguistic_tests.testset import parse_testsets
 from linguistic_tests.testset import TestSet
 from tqdm import tqdm
 
