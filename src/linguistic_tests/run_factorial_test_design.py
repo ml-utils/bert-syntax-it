@@ -500,9 +500,8 @@ def main(
 
     # todo:
     # plot with 7+1x7 subplots of a testset (one subplot for each example)
-
-    # todo:
-    # normalize results to a likert scale, for comparison with Sprouse et al 2016
+    # nb: having the standard errors in the plots is already overcoming this,
+    # showing the variance
 
 
 if __name__ == "__main__":

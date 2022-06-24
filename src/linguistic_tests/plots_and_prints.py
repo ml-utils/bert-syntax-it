@@ -189,13 +189,13 @@ def plot_testsets(scored_testsets: list[TestSet], model_type: ModelTypes):
     plot_results(
         scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True, likert=True
     )
-    plot_results(
-        scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True, likert=False
-    )
     plot_results(scored_testsets, ScoringMeasures.LP.name, use_zscore=True, likert=True)
-    plot_results(
-        scored_testsets, ScoringMeasures.LP.name, use_zscore=True, likert=False
-    )
+    # plot_results(
+    #     scored_testsets, ScoringMeasures.LP.name, use_zscore=True, likert=False
+    # )
+    # plot_results(
+    #     scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True, likert=False
+    # )
 
     # plot_results(scored_testsets, ScoringMeasures.LP.name)  # without zscores
     # plot_results(scored_testsets, ScoringMeasures.PenLP.name)
