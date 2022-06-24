@@ -250,8 +250,12 @@ def print_accuracy_scores(testset: TestSet):
             accuracy = testset.accuracy_per_score_type_per_sentence_type[
                 scoring_measure
             ][stype_acceptable_sentence]
+
             print(
-                f"Accuracy with {scoring_measure.name} for {stype_acceptable_sentence.name}: {accuracy:%} "
+                f"{testset.linguistic_phenomenon}: "
+                f"Accuracy with {scoring_measure.name} "
+                f"for {stype_acceptable_sentence.name}: {accuracy:%} "
+                f"({testset.model_descr})"
             )
 
 

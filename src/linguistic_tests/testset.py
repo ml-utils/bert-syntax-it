@@ -151,7 +151,13 @@ class TestSet:
     avg_zscores_by_measure_and_by_stype: dict[
         ScoringMeasures, dict[SentenceNames, float]
     ] = field(default_factory=dict)
+    avg_zscores_of_likerts_by_measure_and_by_stype: dict[
+        ScoringMeasures, dict[SentenceNames, float]
+    ] = field(default_factory=dict)
     std_error_of_zscores_by_measure_and_by_stype: dict[
+        ScoringMeasures, dict[SentenceNames, float]
+    ] = field(default_factory=dict)
+    std_error_of_zscores_of_likerts_by_measure_and_by_stype: dict[
         ScoringMeasures, dict[SentenceNames, float]
     ] = field(default_factory=dict)
 
@@ -191,6 +197,12 @@ class TestSet:
             self.accuracy_per_score_type_per_sentence_type[scoring_measure] = dict()
             self.avg_zscores_by_measure_and_by_stype[scoring_measure] = dict()
             self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure] = dict()
+            self.avg_zscores_of_likerts_by_measure_and_by_stype[
+                scoring_measure
+            ] = dict()
+            self.std_error_of_zscores_of_likerts_by_measure_and_by_stype[
+                scoring_measure
+            ] = dict()
 
             for stype in sent_types:
 
@@ -198,6 +210,12 @@ class TestSet:
                 self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
                     stype
                 ] = 0
+                self.avg_zscores_of_likerts_by_measure_and_by_stype[scoring_measure][
+                    stype
+                ] = 0
+                self.std_error_of_zscores_of_likerts_by_measure_and_by_stype[
+                    scoring_measure
+                ][stype] = 0
 
                 # an example scores accurately a sentence type if it gives it an higher acceptability score
                 # than the ungrammatical/unacceptable sentence
@@ -224,8 +242,13 @@ class TestSet:
         ].keys()
 
     def set_avg_zscores_by_measure_and_by_stype(
-        self, scoring_measure: ScoringMeasures, merged_scores
+        self,
+        scoring_measure: ScoringMeasures,
+        merged_scores_for_this_measure,
+        merged_likert_scores_for_this_measure,
+        likert_bins_for_this_measure,
     ):
+        import pandas as pd
 
         for stype in self.get_sentence_types():
 
@@ -234,57 +257,93 @@ class TestSet:
             for example in self.examples:
                 score = example[stype].get_score(scoring_measure)
                 all_scores_this_measure_and_stype.append(score)
+            all_scores_to_likert_for_this_measure_and_stype = pd.cut(
+                all_scores_this_measure_and_stype,
+                bins=likert_bins_for_this_measure,
+                labels=np.arange(start=1, stop=8),
+            )
+
             all_zscores_this_measure_and_stype: list[float] = zmap(
-                all_scores_this_measure_and_stype, merged_scores
+                all_scores_this_measure_and_stype, merged_scores_for_this_measure
+            )
+            all_zscores_from_likert_for_this_measure_and_stype: list[float] = zmap(
+                all_scores_to_likert_for_this_measure_and_stype,
+                merged_likert_scores_for_this_measure,
             )
 
             # then calculate the averages
             self.avg_zscores_by_measure_and_by_stype[scoring_measure][
                 stype
             ] = np.average(all_zscores_this_measure_and_stype)
+            self.avg_zscores_of_likerts_by_measure_and_by_stype[scoring_measure][
+                stype
+            ] = np.average(all_zscores_from_likert_for_this_measure_and_stype)
 
             # also calculate the standard errors for the error bars:
             # std_error = np.std(data, ddof=1) / np.sqrt(len(data))
             self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
                 stype
             ] = get_std_error(all_zscores_this_measure_and_stype)
+            self.std_error_of_zscores_of_likerts_by_measure_and_by_stype[
+                scoring_measure
+            ][stype] = get_std_error(all_zscores_this_measure_and_stype)
 
     def get_avg_zscores_by_measure_and_by_stype(
-        self, scoring_measure: ScoringMeasures, stype: SentenceNames
+        self,
+        scoring_measure: ScoringMeasures,
+        stype: SentenceNames,
+        likert=False,
     ):
-        return self.avg_zscores_by_measure_and_by_stype[scoring_measure][stype]
+        if not likert:
+            return self.avg_zscores_by_measure_and_by_stype[scoring_measure][stype]
+        else:
+            return self.avg_zscores_of_likerts_by_measure_and_by_stype[scoring_measure][
+                stype
+            ]
 
     def get_std_error_of_zscores_by_measure_and_by_stype(
-        self, scoring_measure: ScoringMeasures, stype: SentenceNames
+        self,
+        scoring_measure: ScoringMeasures,
+        stype: SentenceNames,
+        likert=False,
     ):
-        return self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][stype]
+        if not likert:
+            return self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
+                stype
+            ]
+        else:
+            return self.std_error_of_zscores_of_likerts_by_measure_and_by_stype[
+                scoring_measure
+            ][stype]
 
     def get_std_errors_of_zscores_by_measure_and_sentence_structure(
-        self, scoring_measure: ScoringMeasures, sentence_structure: SentenceNames
+        self,
+        scoring_measure: ScoringMeasures,
+        sentence_structure: SentenceNames,
+        likert=False,
     ):
+        if not likert:
+            std_error_of_zscores = self.std_error_of_zscores_by_measure_and_by_stype
+        else:
+            std_error_of_zscores = (
+                self.std_error_of_zscores_of_likerts_by_measure_and_by_stype
+            )
+
         if sentence_structure in [
             SentenceNames.SHORT_NONISLAND,
             SentenceNames.LONG_NONISLAND,
         ]:
             return [
-                self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
-                    SentenceNames.SHORT_NONISLAND
-                ],
-                self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
-                    SentenceNames.LONG_NONISLAND
-                ],
+                std_error_of_zscores[scoring_measure][SentenceNames.SHORT_NONISLAND],
+                std_error_of_zscores[scoring_measure][SentenceNames.LONG_NONISLAND],
             ]
         if sentence_structure in [
             SentenceNames.SHORT_ISLAND,
             SentenceNames.LONG_ISLAND,
         ]:
             return [
-                self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
-                    SentenceNames.SHORT_ISLAND
-                ],
-                self.std_error_of_zscores_by_measure_and_by_stype[scoring_measure][
-                    SentenceNames.LONG_ISLAND
-                ],
+                std_error_of_zscores[scoring_measure][SentenceNames.SHORT_ISLAND],
+                std_error_of_zscores[scoring_measure][SentenceNames.LONG_ISLAND],
             ]
         raise ValueError(
             f"Unrecognized sentence type as sentenc structure type: {sentence_structure}"
@@ -302,20 +361,24 @@ class TestSet:
         else:
             raise ValueError(f"Unexpected scoring_measure: {scoring_measure}")
 
-    def get_avg_DD_zscores(self, scoring_measure: ScoringMeasures):
+    def get_avg_DD_zscores(self, scoring_measure: ScoringMeasures, likert=False):
+
+        if not likert:
+            avg_zscores = self.avg_zscores_by_measure_and_by_stype
+        else:
+            avg_zscores = self.avg_zscores_of_likerts_by_measure_and_by_stype
+
         return get_dd_score_parametric(
-            a_short_nonisland_score=self.avg_zscores_by_measure_and_by_stype[
-                scoring_measure
-            ][SentenceNames.SHORT_NONISLAND],
-            b_long_nonisland_score=self.avg_zscores_by_measure_and_by_stype[
-                scoring_measure
-            ][SentenceNames.LONG_NONISLAND],
-            c_short_island_score=self.avg_zscores_by_measure_and_by_stype[
-                scoring_measure
-            ][SentenceNames.SHORT_ISLAND],
-            d_long_island_score=self.avg_zscores_by_measure_and_by_stype[
-                scoring_measure
-            ][SentenceNames.LONG_ISLAND],
+            a_short_nonisland_score=avg_zscores[scoring_measure][
+                SentenceNames.SHORT_NONISLAND
+            ],
+            b_long_nonisland_score=avg_zscores[scoring_measure][
+                SentenceNames.LONG_NONISLAND
+            ],
+            c_short_island_score=avg_zscores[scoring_measure][
+                SentenceNames.SHORT_ISLAND
+            ],
+            d_long_island_score=avg_zscores[scoring_measure][SentenceNames.LONG_ISLAND],
         )
 
     def get_pvalues_of_avg_DD_zscores(self, scoring_measure: ScoringMeasures):

@@ -3,6 +3,8 @@ import os.path
 import time
 from statistics import mean
 
+import numpy as np
+import pandas as pd
 from linguistic_tests.file_utils import parse_testsets
 from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
@@ -115,10 +117,31 @@ def _calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
             f"and mean {mean(merged_scores_by_scoring_measure[scoring_measure])} "
         )
 
+    likert_bins_by_scoring_measure = dict()  # : dict[ScoringMeasures, ..bins_type]
+    merged_likert_scores_by_scoring_measure = dict()
+    for scoring_measure in merged_scores_by_scoring_measure.keys():
+
+        (
+            likert_scores_merged,
+            likert_bins,
+        ) = pd.cut(  # todo: use pd.qcut instead of pd.cut?
+            merged_scores_by_scoring_measure[scoring_measure],
+            bins=7,
+            labels=np.arange(start=1, stop=8),
+            retbins=True,
+            # right=False,
+        )
+        likert_bins_by_scoring_measure[scoring_measure] = likert_bins
+        merged_likert_scores_by_scoring_measure[scoring_measure] = likert_scores_merged
+        logging.debug(f"{likert_scores_merged=}")
+
     for scoring_measure in merged_scores_by_scoring_measure.keys():
         for testset in scored_testsets:
             testset.set_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, merged_scores_by_scoring_measure[scoring_measure]
+                scoring_measure,
+                merged_scores_by_scoring_measure[scoring_measure],
+                merged_likert_scores_by_scoring_measure[scoring_measure],
+                likert_bins_by_scoring_measure[scoring_measure],
             )
 
         logging.debug(
@@ -877,5 +900,5 @@ def main(
 
 if __name__ == "__main__":
     main(
-        tests_subdir="syntactic_tests_it/", rescore=True, log_level=logging.INFO
+        tests_subdir="syntactic_tests_it/", rescore=False, log_level=logging.INFO
     )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
