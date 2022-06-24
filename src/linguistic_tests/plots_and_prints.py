@@ -81,7 +81,7 @@ def plot_results(
     # fig.tight_layout()
 
     plt.savefig(filepath)  # , dpi=300
-    plt.show()
+    # plt.show()
 
 
 def _plot_results_subplot(

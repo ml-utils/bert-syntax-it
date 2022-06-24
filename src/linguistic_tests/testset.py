@@ -452,7 +452,7 @@ class TestSet:
             pickle.dump(self, file)
 
 
-def load_testset_from_pickle(filename) -> TestSet:
+def load_object_from_pickle(filename):
     saving_dir = str(get_results_dir())
 
     # todo, fixme: should actually look for all the files in that dir that
@@ -463,7 +463,13 @@ def load_testset_from_pickle(filename) -> TestSet:
     filepath = os.path.join(saving_dir, filename)
     print(f"Loading testset from {filepath}..")
     with open(filepath, "rb") as file:
-        testset = pickle.load(file)
+        obj = pickle.load(file)
+
+    return obj
+
+
+def load_testset_from_pickle(filename) -> TestSet:
+    testset = load_object_from_pickle(filename)
 
     for example in testset.examples:
 
