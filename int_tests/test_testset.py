@@ -8,23 +8,17 @@ from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.run_factorial_test_design import get_testset_params
 from linguistic_tests.run_factorial_test_design import score_factorial_testsets
-from linguistic_tests.testset import ERROR_LP
-from linguistic_tests.testset import Example
 from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
-from linguistic_tests.testset import Sentence
-from linguistic_tests.testset import TestSet
-from linguistic_tests.testset import TypedSentence
 
 from int_tests.int_tests_utils import get_test_data_dir
 
 
 class TestTestset(TestCase):
 
-    # todo: patch with mock so a unit test does not load files from disk
+    # todo: patch with mock to make a unit test that does not load files from disk
     def test_parse_testset_sprouse(self):
 
         p = get_test_data_dir() / "sprouse"
@@ -56,7 +50,7 @@ class TestTestset(TestCase):
             for typed_sentence in example.sentences:
                 assert len(typed_sentence.sent.txt) > 0
 
-    # todo: patch with mock so a unit test does not load files from disk
+    # todo: patch with mock to make a unit test that does not load files from disk
     def test_parse_testset_blimp(self):
         p = get_test_data_dir() / "blimp"
         testset_dir_path = str(p)
@@ -87,7 +81,7 @@ class TestTestset(TestCase):
             for typed_sentence in example.sentences:
                 assert len(typed_sentence.sent.txt) > 0
 
-    # todo: patch with mock so a unit test does not load files from disk
+    # todo: patch with mock to make a unit test that does not load files from disk
     def test_parse_testset_custom_it(self):
         p = get_test_data_dir() / "custom_it"
         testset_dir_path = str(p)
@@ -117,92 +111,6 @@ class TestTestset(TestCase):
             assert len(example.sentences) == 4
             for typed_sentence in example.sentences:
                 assert len(typed_sentence.sent.txt) > 0
-
-    def test_get_testset_sentence_types(self):
-        testset = get_basic_testset()
-        stypes = testset.get_sentence_types()
-        assert 2 == len(stypes)
-        assert SentenceNames.SHORT_NONISLAND in stypes
-        assert SentenceNames.LONG_ISLAND in stypes
-
-    def test_get_scoring_measures(self):
-        testset = get_basic_testset()
-        scoring_measures = testset.get_scoring_measures()
-        assert 1 == len(scoring_measures)
-        assert ScoringMeasures.LP in scoring_measures
-
-    def test_get_acceptable_sentence_types(self):
-        testset = get_basic_testset()
-        acc_stypes = testset.get_acceptable_sentence_types()
-        assert 1 == len(acc_stypes)
-        assert SentenceNames.SHORT_NONISLAND in acc_stypes
-        assert SentenceNames.LONG_ISLAND not in acc_stypes
-        assert SentenceNames.SENTENCE_BAD not in acc_stypes
-
-    def test_example_get_type_of_unacceptable_sentence(self):
-        example = get_basic_example()
-        unacc_stype = example.get_type_of_unacceptable_sentence()
-        assert SentenceNames.LONG_ISLAND == unacc_stype
-
-    def test_example_get_sentence_types(self):
-        example = get_basic_example()
-        stypes = example.get_sentence_types()
-        assert 2 == len(stypes)
-        assert SentenceNames.SHORT_NONISLAND in stypes
-        assert SentenceNames.LONG_ISLAND in stypes
-
-    def test_sentence_get_score(self):
-        sent = get_basic_sentence("The pen is on the table")
-        assert ERROR_LP != sent.get_score(ScoringMeasures.LP)
-
-    def test_example_get_score_diff(self):
-        example = get_basic_example()
-        scoring_measure = ScoringMeasures.LP
-        diff = example.get_score_diff(
-            scoring_measure, SentenceNames.SHORT_NONISLAND, SentenceNames.LONG_ISLAND
-        )
-        assert 0 == diff
-
-    def test_example_is_scored_accurately_for(self):
-        example = get_basic_example()
-        scoring_measure = ScoringMeasures.LP
-        is_accurate = example.is_scored_accurately_for(
-            scoring_measure, SentenceNames.SHORT_NONISLAND
-        )
-        assert not is_accurate
-
-
-def get_basic_sentence(txt=""):
-    sent = Sentence(txt)
-    sent.lp_softmax = -5
-    return sent
-
-
-def get_basic_example():
-
-    typed_senteces = [
-        TypedSentence(
-            SentenceNames.SHORT_NONISLAND, get_basic_sentence("The pen is on the table")
-        ),
-        TypedSentence(
-            SentenceNames.LONG_ISLAND, get_basic_sentence("The is pen on the table")
-        ),
-    ]
-    example = Example(typed_senteces)
-    return example
-
-
-def get_basic_testset():
-
-    testset = TestSet(
-        linguistic_phenomenon="wh",
-        model_descr="bert",
-        dataset_source="sprouse",
-        examples=[get_basic_example()],
-        scoring_measures=[ScoringMeasures.LP],
-        model_type=ModelTypes.BERT,
-    )
-    return testset
 
 
 @pytest.mark.enable_socket

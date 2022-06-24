@@ -2,7 +2,14 @@ from unittest import TestCase
 
 import numpy as np
 import pandas as pd
+from linguistic_tests.lm_utils import ModelTypes
+from linguistic_tests.lm_utils import SentenceNames
+from linguistic_tests.testset import ERROR_LP
+from linguistic_tests.testset import Example
 from linguistic_tests.testset import ScoringMeasures
+from linguistic_tests.testset import Sentence
+from linguistic_tests.testset import TestSet
+from linguistic_tests.testset import TypedSentence
 from scipy.stats import zmap
 
 
@@ -69,3 +76,89 @@ class TestTestset(TestCase):
         # zscores_likert2 = zscores_likert_categorical[['cc']].apply(lambda col: pd.Categorical(col).codes)
 
         print(f"{zscores_likert_categorical=}")
+
+    def test_get_testset_sentence_types(self):
+        testset = get_basic_testset()
+        stypes = testset.get_sentence_types()
+        assert 2 == len(stypes)
+        assert SentenceNames.SHORT_NONISLAND in stypes
+        assert SentenceNames.LONG_ISLAND in stypes
+
+    def test_get_scoring_measures(self):
+        testset = get_basic_testset()
+        scoring_measures = testset.get_scoring_measures()
+        assert 1 == len(scoring_measures)
+        assert ScoringMeasures.LP in scoring_measures
+
+    def test_get_acceptable_sentence_types(self):
+        testset = get_basic_testset()
+        acc_stypes = testset.get_acceptable_sentence_types()
+        assert 1 == len(acc_stypes)
+        assert SentenceNames.SHORT_NONISLAND in acc_stypes
+        assert SentenceNames.LONG_ISLAND not in acc_stypes
+        assert SentenceNames.SENTENCE_BAD not in acc_stypes
+
+    def test_example_get_type_of_unacceptable_sentence(self):
+        example = get_basic_example()
+        unacc_stype = example.get_type_of_unacceptable_sentence()
+        assert SentenceNames.LONG_ISLAND == unacc_stype
+
+    def test_example_get_sentence_types(self):
+        example = get_basic_example()
+        stypes = example.get_sentence_types()
+        assert 2 == len(stypes)
+        assert SentenceNames.SHORT_NONISLAND in stypes
+        assert SentenceNames.LONG_ISLAND in stypes
+
+    def test_sentence_get_score(self):
+        sent = get_basic_sentence("The pen is on the table")
+        assert ERROR_LP != sent.get_score(ScoringMeasures.LP)
+
+    def test_example_get_score_diff(self):
+        example = get_basic_example()
+        scoring_measure = ScoringMeasures.LP
+        diff = example.get_score_diff(
+            scoring_measure, SentenceNames.SHORT_NONISLAND, SentenceNames.LONG_ISLAND
+        )
+        assert 0 == diff
+
+    def test_example_is_scored_accurately_for(self):
+        example = get_basic_example()
+        scoring_measure = ScoringMeasures.LP
+        is_accurate = example.is_scored_accurately_for(
+            scoring_measure, SentenceNames.SHORT_NONISLAND
+        )
+        assert not is_accurate
+
+
+def get_basic_sentence(txt=""):
+    sent = Sentence(txt)
+    sent.lp_softmax = -5
+    return sent
+
+
+def get_basic_example():
+
+    typed_senteces = [
+        TypedSentence(
+            SentenceNames.SHORT_NONISLAND, get_basic_sentence("The pen is on the table")
+        ),
+        TypedSentence(
+            SentenceNames.LONG_ISLAND, get_basic_sentence("The is pen on the table")
+        ),
+    ]
+    example = Example(typed_senteces)
+    return example
+
+
+def get_basic_testset():
+
+    testset = TestSet(
+        linguistic_phenomenon="wh",
+        model_descr="bert",
+        dataset_source="sprouse",
+        examples=[get_basic_example()],
+        scoring_measures=[ScoringMeasures.LP],
+        model_type=ModelTypes.BERT,
+    )
+    return testset
