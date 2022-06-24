@@ -6,6 +6,7 @@ import pickle
 import time
 
 import pandas
+from linguistic_tests.lm_utils import _get_test_session_descr
 from linguistic_tests.lm_utils import BlimpSentencesOrder
 from linguistic_tests.lm_utils import get_results_dir
 from linguistic_tests.lm_utils import get_sentences_from_example
@@ -13,7 +14,6 @@ from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import SentenceNames
-from linguistic_tests.plots_and_prints import _get_test_session_descr
 from tqdm import tqdm
 
 

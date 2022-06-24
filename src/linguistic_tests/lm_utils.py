@@ -484,3 +484,9 @@ MODEL_NAMES_EN = {
     ModelTypes.GPT: "gpt2-large",
     ModelTypes.ROBERTA: "roberta-large",
 }
+
+
+def _get_test_session_descr(dataset_source, model_descr, score_name=""):
+    session_descr = f"{dataset_source[:7]}_{model_descr}_{score_name}"
+    session_descr = session_descr.replace(" ", "_").replace("/", "_")
+    return session_descr

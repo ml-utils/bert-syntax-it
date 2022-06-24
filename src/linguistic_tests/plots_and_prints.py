@@ -4,6 +4,7 @@ import time
 
 from linguistic_tests.bert_utils import estimate_sentence_probability
 from linguistic_tests.compute_model_score import perc
+from linguistic_tests.lm_utils import _get_test_session_descr
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import get_results_dir
 from linguistic_tests.lm_utils import MODEL_NAMES_IT
@@ -15,12 +16,6 @@ from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from linguistic_tests.testset import TestSet
 from matplotlib import pyplot as plt
-
-
-def _get_test_session_descr(dataset_source, model_descr, score_name=""):
-    session_descr = f"{dataset_source[:7]}_{model_descr}_{score_name}"
-    session_descr = session_descr.replace(" ", "_").replace("/", "_")
-    return session_descr
 
 
 def plot_results(
