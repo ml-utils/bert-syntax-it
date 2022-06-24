@@ -77,11 +77,11 @@ def plot_results(
     filepath = os.path.join(saving_dir, filename)
 
     print_orange(f"Saving plot to file {filepath} ..")
-    plt.savefig(filepath)  # , dpi=300
     plt.figlegend(lines, labels)
     # fig.tight_layout()
 
-    # plt.show()
+    plt.savefig(filepath)  # , dpi=300
+    plt.show()
 
 
 def _plot_results_subplot(
