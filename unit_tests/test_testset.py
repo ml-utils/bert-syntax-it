@@ -3,6 +3,7 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 from linguistic_tests.testset import ScoringMeasures
+from scipy.stats import zmap
 
 
 class TestTestset(TestCase):
@@ -42,3 +43,29 @@ class TestTestset(TestCase):
             labels=np.arange(start=1, stop=8),
         )
         print(f"{scores_stype1_to_likert=}")
+
+        # AttributeError: 'Categorical' object has no attribute 'values'
+        # scores_stype1_to_likert = scores_stype1_to_likert.values
+        # all_scores_to_likert = all_scores_to_likert.values
+
+        # nb a categorical is a series: pd.Series(["a", "b", "c", "a"], dtype="category")
+        # AttributeError: 'Categorical' object has no attribute 'apply'
+        # scores_stype1_to_likert[['cc']]
+        # scores_stype1_to_likert = scores_stype1_to_likert.apply(
+        #     lambda col: pd.Categorical(col).codes)
+        # all_scores_to_likert = all_scores_to_likert.apply(
+        #     lambda col: pd.Categorical(col).codes)
+
+        scores_stype1_to_likert = np.asarray(scores_stype1_to_likert)
+        all_scores_to_likert = np.asarray(all_scores_to_likert)
+        print(f"{scores_stype1_to_likert=}")
+        print(f"{all_scores_to_likert=}")
+
+        zscores_likert_categorical = zmap(
+            scores_stype1_to_likert,
+            all_scores_to_likert,
+        )
+        # zscores_likert: list[float] = zscores_likert_categorical.values
+        # zscores_likert2 = zscores_likert_categorical[['cc']].apply(lambda col: pd.Categorical(col).codes)
+
+        print(f"{zscores_likert_categorical=}")

@@ -262,6 +262,9 @@ class TestSet:
                 bins=likert_bins_for_this_measure,
                 labels=np.arange(start=1, stop=8),
             )
+            all_scores_to_likert_for_this_measure_and_stype = np.asarray(
+                all_scores_to_likert_for_this_measure_and_stype
+            )
 
             all_zscores_this_measure_and_stype: list[float] = zmap(
                 all_scores_this_measure_and_stype, merged_scores_for_this_measure

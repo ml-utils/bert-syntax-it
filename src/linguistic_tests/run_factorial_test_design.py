@@ -131,8 +131,11 @@ def _calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
             retbins=True,
             # right=False,
         )
+
+        merged_likert_scores_by_scoring_measure[scoring_measure] = np.asarray(
+            likert_scores_merged
+        )
         likert_bins_by_scoring_measure[scoring_measure] = likert_bins
-        merged_likert_scores_by_scoring_measure[scoring_measure] = likert_scores_merged
         logging.debug(f"{likert_scores_merged=}")
 
     for scoring_measure in merged_scores_by_scoring_measure.keys():
