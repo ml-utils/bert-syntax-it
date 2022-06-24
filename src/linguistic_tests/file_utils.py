@@ -11,6 +11,8 @@ from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
+from linguistic_tests.plots_and_prints import _get_test_session_descr
+from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
 from linguistic_tests.testset import TestSet
 from tqdm import tqdm
@@ -334,3 +336,42 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def save_scored_testsets(
+    scored_testsets: list[TestSet], model_name: str, dataset_source: str
+):
+    for scored_testset in scored_testsets:
+        scored_testset.model_descr = model_name
+        filename = get_pickle_filename(
+            dataset_source,
+            scored_testset.linguistic_phenomenon,
+            model_name,
+        )
+
+        scored_testset.save_to_pickle(filename)
+
+
+def get_pickle_filename(
+    dataset_source,
+    linguistic_phenomenon,
+    model_descr,
+):
+    # todo: filenames as pyplot filenames
+    #  rename as get_pickle_filepath, ad results dir (same as pyplot images)
+
+    filename_base = _get_test_session_descr(dataset_source, model_descr)
+
+    filename = f"{filename_base}_{linguistic_phenomenon}_.testset.pickle"
+    return filename
+
+
+def load_pickles(dataset_source, phenomena, model_name) -> list[TestSet]:
+
+    loaded_testsets = []
+    for phenomenon in phenomena:
+        filename = get_pickle_filename(dataset_source, phenomenon, model_name)
+        loaded_testset = load_testset_from_pickle(filename)
+        loaded_testsets.append(loaded_testset)
+
+    return loaded_testsets

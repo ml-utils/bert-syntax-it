@@ -3,7 +3,9 @@ from statistics import mean
 
 import numpy as np
 import pandas as pd
+from linguistic_tests.file_utils import load_pickles
 from linguistic_tests.file_utils import parse_testsets
+from linguistic_tests.file_utils import save_scored_testsets
 from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
@@ -15,14 +17,12 @@ from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.lm_utils import SprouseSentencesOrder
-from linguistic_tests.plots_and_prints import _get_test_session_descr
 from linguistic_tests.plots_and_prints import _print_testset_results
 from linguistic_tests.plots_and_prints import plot_testsets
 from linguistic_tests.run_minimal_pairs_test_design import score_minimal_pairs_testset
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import get_dd_score_parametric
 from linguistic_tests.testset import get_merged_score_across_testsets
-from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import TestSet
 from scipy.stats import chi2
 
@@ -320,45 +320,6 @@ def _get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
 # def plot_all_phenomena(phenomena_names, lp_avg_scores):
 #     for idx, phenomenon in enumerate(phenomena_names):
 #         plot_results(phenomenon, lp_avg_scores[idx], ScoringMeasures.LP.name)
-
-
-def save_scored_testsets(
-    scored_testsets: list[TestSet], model_name: str, dataset_source: str
-):
-    for scored_testset in scored_testsets:
-        scored_testset.model_descr = model_name
-        filename = get_pickle_filename(
-            dataset_source,
-            scored_testset.linguistic_phenomenon,
-            model_name,
-        )
-
-        scored_testset.save_to_pickle(filename)
-
-
-def get_pickle_filename(
-    dataset_source,
-    linguistic_phenomenon,
-    model_descr,
-):
-    # todo: filenames as pyplot filenames
-    #  rename as get_pickle_filepath, ad results dir (same as pyplot images)
-
-    filename_base = _get_test_session_descr(dataset_source, model_descr)
-
-    filename = f"{filename_base}_{linguistic_phenomenon}_.testset.pickle"
-    return filename
-
-
-def load_pickles(dataset_source, phenomena, model_name) -> list[TestSet]:
-
-    loaded_testsets = []
-    for phenomenon in phenomena:
-        filename = get_pickle_filename(dataset_source, phenomenon, model_name)
-        loaded_testset = load_testset_from_pickle(filename)
-        loaded_testsets.append(loaded_testset)
-
-    return loaded_testsets
 
 
 def load_and_plot_pickle(
