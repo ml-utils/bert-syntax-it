@@ -23,7 +23,9 @@ def _get_test_session_descr(dataset_source, model_descr, score_name=""):
     return session_descr
 
 
-def plot_results(scored_testsets: list[TestSet], score_name, use_zscore=False):
+def plot_results(
+    scored_testsets: list[TestSet], score_name, use_zscore=False, likert=False
+):
     fig, axs = plt.subplots(2, 2, figsize=(12.8, 12.8))  # default figsize=(6.4, 4.8)
 
     window_title = _get_test_session_descr(
@@ -53,6 +55,7 @@ def plot_results(scored_testsets: list[TestSet], score_name, use_zscore=False):
             score_name,
             ax,
             use_zscore=use_zscore,
+            likert=likert,
             set_xlabel=set_xlabel,
         )
 
@@ -61,14 +64,16 @@ def plot_results(scored_testsets: list[TestSet], score_name, use_zscore=False):
         f"\n Dataset: {scored_testset.dataset_source}"
     )
 
+    zscore_note = ""
     if use_zscore:
         zscore_note = "-zscores"
-    else:
-        zscore_note = ""
+    likert_note = ""
+    if likert:
+        likert_note = "-likert"
 
     saving_dir = str(get_results_dir())
     timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
-    filename = f"{window_title}{zscore_note}-{timestamp}.png"
+    filename = f"{window_title}{zscore_note}{likert_note}-{timestamp}.png"
     filepath = os.path.join(saving_dir, filename)
 
     print_orange(f"Saving plot to file {filepath} ..")
@@ -84,25 +89,26 @@ def _plot_results_subplot(
     scoring_measure,
     ax,
     use_zscore=False,
+    likert=False,  # only valid if also using z scores, on which the likerts are calculated
     set_xlabel=True,
 ):
     if use_zscore:
-        DD_value = scored_testset.get_avg_DD_zscores(scoring_measure)
+        DD_value = scored_testset.get_avg_DD_zscores(scoring_measure, likert=likert)
 
         y_values_ni = [
             scored_testset.get_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, SentenceNames.SHORT_NONISLAND
+                scoring_measure, SentenceNames.SHORT_NONISLAND, likert=likert
             ),
             scored_testset.get_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, SentenceNames.LONG_NONISLAND
+                scoring_measure, SentenceNames.LONG_NONISLAND, likert=likert
             ),
         ]
         y_values_is = [
             scored_testset.get_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, SentenceNames.SHORT_ISLAND
+                scoring_measure, SentenceNames.SHORT_ISLAND, likert=likert
             ),
             scored_testset.get_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, SentenceNames.LONG_ISLAND
+                scoring_measure, SentenceNames.LONG_ISLAND, likert=likert
             ),
         ]
     else:
@@ -151,11 +157,15 @@ def _plot_results_subplot(
 
     ax.legend(title=f"DD = {DD_value:.2f}")
 
-    if use_zscore:
-        ax.set_ylabel(f"z-scores ({scoring_measure})")
-        ax.set_ylim(ymin=-1.5, ymax=1.5)
-    else:
+    if not use_zscore:
         ax.set_ylabel(f"{scoring_measure} values")
+    else:
+        ax.set_ylim(ymin=-1.5, ymax=1.5)
+        if not likert:
+            ax.set_ylabel(f"z-scores ({scoring_measure})")
+        else:
+            ax.set_ylabel(f"z-scores ({scoring_measure}, from 7-likerts)")
+
     if set_xlabel:
         ax.set_xlabel("Dependency distance")
     # ax.set_aspect('equal', 'box')  # , 'box'
@@ -176,8 +186,16 @@ def _print_example(example_data, sentence_ordering):
 
 def plot_testsets(scored_testsets: list[TestSet], model_type: ModelTypes):
 
-    plot_results(scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True)
-    plot_results(scored_testsets, ScoringMeasures.LP.name, use_zscore=True)
+    plot_results(
+        scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True, likert=True
+    )
+    plot_results(
+        scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True, likert=False
+    )
+    plot_results(scored_testsets, ScoringMeasures.LP.name, use_zscore=True, likert=True)
+    plot_results(
+        scored_testsets, ScoringMeasures.LP.name, use_zscore=True, likert=False
+    )
 
     # plot_results(scored_testsets, ScoringMeasures.LP.name)  # without zscores
     # plot_results(scored_testsets, ScoringMeasures.PenLP.name)
@@ -185,8 +203,12 @@ def plot_testsets(scored_testsets: list[TestSet], model_type: ModelTypes):
     if model_type in BERT_LIKE_MODEL_TYPES:
         # plot_results(scored_testsets, ScoringMeasures.LL.name)
         # plot_results(scored_testsets, ScoringMeasures.PLL.name)
-        plot_results(scored_testsets, ScoringMeasures.LL.name, use_zscore=True)
-        plot_results(scored_testsets, ScoringMeasures.PLL.name, use_zscore=True)
+        plot_results(
+            scored_testsets, ScoringMeasures.LL.name, use_zscore=True, likert=True
+        )
+        plot_results(
+            scored_testsets, ScoringMeasures.PLL.name, use_zscore=True, likert=True
+        )
 
 
 def _print_sorted_sentences_to_check_spelling_errors2(
