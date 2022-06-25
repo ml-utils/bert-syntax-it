@@ -14,7 +14,10 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
+from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.plots_and_prints import print_accuracy_scores
+from linguistic_tests.run_factorial_test_design import _get_example_dd_scores
+from linguistic_tests.testset import get_dd_score_parametric
 from linguistic_tests.testset import load_testsets_from_pickles
 from linguistic_tests.testset import parse_testsets
 from linguistic_tests.testset import save_scored_testsets
@@ -80,6 +83,7 @@ def run_blimp_en(
         tokenizer,
         DEVICES.CPU,
         parsed_testsets,
+        ExperimentalDesigns.MINIMAL_PAIRS,
     )
 
     save_scored_testsets(scored_testsets, model_name, dataset_source)
@@ -93,6 +97,7 @@ def score_minimal_pairs_testsets(
     tokenizer,
     device: DEVICES,
     parsed_testsets: list[TestSet],
+    experimental_design: ExperimentalDesigns,
 ) -> list[TestSet]:
 
     scored_testsets = []
@@ -100,12 +105,8 @@ def score_minimal_pairs_testsets(
         logging.info(
             f"Scoring testset {parsed_testset.linguistic_phenomenon}, on {model_type=} {parsed_testset.model_descr}"
         )
-        scored_testset = score_minimal_pairs_testset(
-            model_type,
-            model,
-            tokenizer,
-            device,
-            parsed_testset,
+        scored_testset = score_factorial_testset(
+            model_type, model, tokenizer, device, parsed_testset, experimental_design
         )
         scored_testsets.append(scored_testset)
 
@@ -143,8 +144,13 @@ def run_tests_for_model_type(model_type):
 
 
 def score_minimal_pairs_testset(
-    model_type: ModelTypes, model, tokenizer, device: DEVICES, testset: TestSet
-):
+    model_type: ModelTypes,
+    model,
+    tokenizer,
+    device: DEVICES,
+    testset: TestSet,
+) -> TestSet:
+
     # assigning sentence scores
     for example_idx, example in enumerate(tqdm(testset.examples)):
         score_example(
@@ -295,3 +301,115 @@ def main(
         )
         for scored_testset in loaded_testsets:
             print_accuracy_scores(scored_testset)
+
+
+def score_factorial_testset(
+    model_type: ModelTypes,
+    model,
+    tokenizer,
+    device: DEVICES,
+    testset: TestSet,
+    experimental_design: ExperimentalDesigns,
+) -> TestSet:
+
+    # assigning sentence scores and testset accuracy rates
+    score_minimal_pairs_testset(model_type, model, tokenizer, device, testset)
+    if experimental_design == ExperimentalDesigns.MINIMAL_PAIRS:
+        return testset
+
+    # doing factorial design scores
+    for example_idx, example in enumerate(testset.examples):
+        (
+            example.DD_with_lp,
+            example.DD_with_penlp,
+            example.DD_with_ll,
+            example.DD_with_penll,
+        ) = _get_example_dd_scores(example, model_type)
+        if example.DD_with_lp > 0:
+            testset.accuracy_by_DD_lp += 1 / len(testset.examples)
+        if example.DD_with_penlp > 0:
+            testset.accuracy_by_DD_penlp += 1 / len(testset.examples)
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            if example.DD_with_ll > 0:
+                testset.accuracy_by_DD_ll += 1 / len(testset.examples)
+            if example.DD_with_penll > 0:
+                testset.accuracy_by_DD_penll += 1 / len(testset.examples)
+
+        for _idx, typed_sentence in enumerate(example.sentences):
+            stype = typed_sentence.stype
+            sentence = typed_sentence.sent
+
+            testset.lp_average_by_sentence_type[stype] += sentence.lp_softmax
+            testset.penlp_average_by_sentence_type[stype] += sentence.pen_lp_softmax
+            if model_type in BERT_LIKE_MODEL_TYPES:
+                testset.ll_average_by_sentence_type[stype] += sentence.lp_logistic
+                testset.penll_average_by_sentence_type[
+                    stype
+                ] += sentence.pen_lp_logistic
+
+    for stype in testset.get_sentence_types():
+        testset.lp_average_by_sentence_type[stype] /= len(testset.examples)
+        testset.penlp_average_by_sentence_type[stype] /= len(testset.examples)
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            testset.ll_average_by_sentence_type[stype] /= len(testset.examples)
+            testset.penll_average_by_sentence_type[stype] /= len(testset.examples)
+
+    testset.avg_DD_lp = get_dd_score_parametric(
+        a_short_nonisland_score=testset.lp_average_by_sentence_type[
+            SentenceNames.SHORT_NONISLAND
+        ],
+        b_long_nonisland_score=testset.lp_average_by_sentence_type[
+            SentenceNames.LONG_NONISLAND
+        ],
+        c_short_island_score=testset.lp_average_by_sentence_type[
+            SentenceNames.SHORT_ISLAND
+        ],
+        d_long_island_score=testset.lp_average_by_sentence_type[
+            SentenceNames.LONG_ISLAND
+        ],
+    )
+    testset.avg_DD_penlp = get_dd_score_parametric(
+        a_short_nonisland_score=testset.penlp_average_by_sentence_type[
+            SentenceNames.SHORT_NONISLAND
+        ],
+        b_long_nonisland_score=testset.penlp_average_by_sentence_type[
+            SentenceNames.LONG_NONISLAND
+        ],
+        c_short_island_score=testset.penlp_average_by_sentence_type[
+            SentenceNames.SHORT_ISLAND
+        ],
+        d_long_island_score=testset.penlp_average_by_sentence_type[
+            SentenceNames.LONG_ISLAND
+        ],
+    )
+    if model_type in BERT_LIKE_MODEL_TYPES:
+        testset.avg_DD_ll = get_dd_score_parametric(
+            a_short_nonisland_score=testset.ll_average_by_sentence_type[
+                SentenceNames.SHORT_NONISLAND
+            ],
+            b_long_nonisland_score=testset.ll_average_by_sentence_type[
+                SentenceNames.LONG_NONISLAND
+            ],
+            c_short_island_score=testset.ll_average_by_sentence_type[
+                SentenceNames.SHORT_ISLAND
+            ],
+            d_long_island_score=testset.ll_average_by_sentence_type[
+                SentenceNames.LONG_ISLAND
+            ],
+        )
+        testset.avg_DD_penll = get_dd_score_parametric(
+            a_short_nonisland_score=testset.penll_average_by_sentence_type[
+                SentenceNames.SHORT_NONISLAND
+            ],
+            b_long_nonisland_score=testset.penll_average_by_sentence_type[
+                SentenceNames.LONG_NONISLAND
+            ],
+            c_short_island_score=testset.penll_average_by_sentence_type[
+                SentenceNames.SHORT_ISLAND
+            ],
+            d_long_island_score=testset.penll_average_by_sentence_type[
+                SentenceNames.LONG_ISLAND
+            ],
+        )
+
+    return testset
