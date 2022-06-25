@@ -145,18 +145,18 @@ def main(
         from run_minimal_pairs_test_design import main as main_minimal_pairs
         from run_factorial_test_design import main as main_factorial
 
+        main_minimal_pairs(
+            tests_subdir="blimp/from_blim_en/islands/",  # tests_subdir="sprouse/",
+            rescore=rescore,
+            log_level=log_level,
+            max_examples=5,
+        )
         main_factorial(
             tests_subdir="sprouse/",
             rescore=rescore,
             log_level=log_level,
             max_examples=50,
         )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
-        main_minimal_pairs(
-            tests_subdir="syntactic_tests_it/",  # tests_subdir="sprouse/",
-            rescore=rescore,
-            log_level=log_level,
-            max_examples=5,
-        )
 
 
 if __name__ == "__main__":

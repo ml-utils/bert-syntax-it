@@ -44,6 +44,7 @@ class TestRunTestSets(TestCase):
         examples_format = "json_lines"
         run_blimp_en(
             model_type=ModelTypes.BERT,
+            model_name="bert-base-uncased",
             testset_dir_path=testset_dir_path,
             testset_filenames=testset_filenames,
             dataset_source=DataSources.BLIMP_EN,

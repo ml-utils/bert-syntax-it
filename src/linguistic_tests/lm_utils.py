@@ -417,7 +417,7 @@ def load_testset_data(file_path, examples_format="blimp"):
 
             # for i in data:
             #    print(i)
-        return testset_data
+
     elif examples_format in ["sprouse", "json_lines"]:
         print(f"loading testset file {file_path}..")
         with open(file_path, mode="r", encoding="utf-8") as json_file:
@@ -435,10 +435,19 @@ def load_testset_data(file_path, examples_format="blimp"):
             examples.append(
                 example
             )  # {'sentence_good': sentence_good, 'sentence_bad': sentence_bad, 'sentence_good_2nd': ""})
-        testset = {"sentences": examples}
-        return testset
+        testset_data = {"sentences": examples}
+
     else:
         raise ValueError(f"unrecognized testset file format arg: {examples_format}")
+
+    # integrity checks:
+    testset_examples: list[dict] = testset_data["sentences"]
+    assert (
+        SentenceNames.SENTENCE_GOOD in testset_examples[0].keys()
+        or SentenceNames.SHORT_NONISLAND in testset_examples[0].keys()
+    )
+
+    return testset_data
 
 
 def get_sentences_from_example(
@@ -572,7 +581,7 @@ def get_testset_params(
         broader_test_type = "sprouse"
         dataset_source = DataSources.SPROUSE
         experimental_design = ExperimentalDesigns.FACTORIAL
-    elif tests_subdir == "blimp/from_blim_en/islands":
+    elif tests_subdir == "blimp/from_blim_en/islands/":
         testsets_root_filenames = BLIMP_TESTSETS_ROOT_FILENAMES
         broader_test_type = "blimp"
         dataset_source = DataSources.BLIMP_EN

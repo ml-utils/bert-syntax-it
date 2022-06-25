@@ -339,13 +339,14 @@ def load_and_plot_pickle(
 
 def rescore_testsets_and_save_pickles(
     model_type: ModelTypes,
+    model_name: str,
     testset_dir_path: str,
     testsets_root_filenames: list[str],
     dataset_source: DataSources,
-    examples_format: str = "sprouse",  # "blimp", "json_lines", "sprouse"
+    examples_format: str = "sprouse",
     max_examples=1000,
 ):
-    model_name = MODEL_NAMES_IT[model_type]
+
     experimental_design = ExperimentalDesigns.FACTORIAL
 
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
@@ -446,6 +447,7 @@ def main(
         if rescore:
             rescore_testsets_and_save_pickles(
                 model_type,
+                model_name,
                 testset_dir_path,
                 testsets_root_filenames,
                 dataset_source,
@@ -455,7 +457,7 @@ def main(
         loaded_testsets = load_testsets_from_pickles(
             dataset_source,
             testsets_root_filenames,
-            MODEL_NAMES_IT[model_type],
+            model_name,
             expected_experimental_design=experimental_design,
         )
 
@@ -470,7 +472,7 @@ def main(
         if experimental_design == ExperimentalDesigns.FACTORIAL:
             load_and_plot_pickle(
                 testsets_root_filenames,
-                MODEL_NAMES_IT[model_type],
+                model_name,
                 dataset_source,
                 model_type,
                 expected_experimental_design=experimental_design,

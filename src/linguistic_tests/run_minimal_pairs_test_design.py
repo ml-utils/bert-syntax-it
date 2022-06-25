@@ -9,7 +9,6 @@ from linguistic_tests.lm_utils import ExperimentalDesigns
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import get_testset_params
 from linguistic_tests.lm_utils import load_model
-from linguistic_tests.lm_utils import MODEL_NAMES_EN
 from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
@@ -49,6 +48,7 @@ def run_blimp_it_island_effects():
 
 def run_blimp_en(
     model_type: ModelTypes,
+    model_name,
     testset_dir_path: str,
     testset_filenames: list[str],
     dataset_source: DataSources,
@@ -56,7 +56,6 @@ def run_blimp_en(
     max_examples=1000,
 ):
 
-    model_name = MODEL_NAMES_EN[model_type]
     experimental_design = ExperimentalDesigns.MINIMAL_PAIRS
 
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
@@ -252,6 +251,7 @@ def get_unparsed_testset_scores(
 
 
 def main(
+    tests_subdir="blimp/from_blim_en/islands/",
     rescore=False,
     log_level=logging.INFO,
     max_examples=50,
@@ -261,7 +261,7 @@ def main(
     #     args = _parse_arguments()
 
     # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
-    tests_subdir = "blimp/from_blim_en/islands"
+
     testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
     logging.info(f"Will run tests with models: {MODEL_TYPES_AND_NAMES_EN.values()}")
@@ -279,6 +279,7 @@ def main(
         if rescore:
             run_blimp_en(
                 model_type=model_type,
+                model_name=model_name,
                 testset_dir_path=testset_dir_path,
                 testset_filenames=testset_filenames,
                 dataset_source=dataset_source,
