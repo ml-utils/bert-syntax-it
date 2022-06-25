@@ -162,14 +162,13 @@ def main(
 
             if rescore:
                 # todo: switch to parse testset and run minimal pairs test design
-                run_blimp_en(  # scored_testsets =
+                run_blimp_en(
                     model_type=model_type,
-                    model_name=model_name,
-                    dataset_source=dataset_source,
-                    testset_filenames=testset_filenames,
                     testset_dir_path=testset_dir_path,
+                    testset_filenames=testset_filenames,
+                    dataset_source=dataset_source,
                     examples_format="json_lines",
-                    max_examples=1000,
+                    max_examples=5,
                 )
 
             loaded_testsets = load_testsets_from_pickles(

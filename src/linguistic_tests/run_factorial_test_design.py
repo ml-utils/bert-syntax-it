@@ -349,10 +349,12 @@ def rescore_testsets_and_save_pickles(
     testset_dir_path,
     testsets_root_filenames: list[str],
     dataset_source: DataSources,
+    examples_format: str = "sprouse",  # "blimp", "json_lines", "sprouse"
+    max_examples=1000,
 ):
     model_name = MODEL_NAMES_IT[model_type]
-    examples_format = "sprouse"  # "blimp", "json_lines", "sprouse"
     experimental_design = ExperimentalDesigns.FACTORIAL
+
     # sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
     logging.info(f"Running testsets from dir {testset_dir_path}")
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
@@ -368,7 +370,7 @@ def rescore_testsets_and_save_pickles(
         experimental_design,
         model_name,
         scoring_measures,
-        max_examples=1000,
+        max_examples=max_examples,
     )
 
     device = DEVICES.CPU

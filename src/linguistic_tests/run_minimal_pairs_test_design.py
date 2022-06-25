@@ -5,6 +5,7 @@ from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
+from linguistic_tests.lm_utils import MODEL_NAMES_EN
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
@@ -43,13 +44,14 @@ def run_blimp_it_island_effects():
 
 def run_blimp_en(
     model_type: ModelTypes,
-    model_name: str,
-    dataset_source: DataSources,
-    testset_filenames: list[str],
     testset_dir_path: str,
+    testset_filenames: list[str],
+    dataset_source: DataSources,
     examples_format: str = "blimp",
     max_examples=1000,
 ):
+
+    model_name = MODEL_NAMES_EN[model_type]
     experimental_design = ExperimentalDesigns.MINIMAL_PAIRS
 
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
