@@ -71,12 +71,13 @@ class TestRunTestSets(TestCase):
         if model_type in BERT_LIKE_MODEL_TYPES:
             scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
 
+        experimental_design = ExperimentalDesigns.FACTORIAL
         parsed_testsets = parse_testsets(
             testset_dir_path,
             phenomena,
             dataset_source,
             "sprouse",
-            ExperimentalDesigns.FACTORIAL,
+            experimental_design,
             model_name,
             scoring_measures,
             max_examples=1000,
@@ -88,6 +89,7 @@ class TestRunTestSets(TestCase):
             tokenizer,
             DEVICES.CPU,
             parsed_testsets,
+            experimental_design,
         )
 
         for testset in scored_testsets:

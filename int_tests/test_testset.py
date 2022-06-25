@@ -154,11 +154,7 @@ def test_serialization(tmp_path):
         max_examples=1000,
     )
     scored_testsets = score_factorial_testsets(
-        model_type,
-        model,
-        tokenizer,
-        DEVICES.CPU,
-        parsed_testsets,
+        model_type, model, tokenizer, DEVICES.CPU, parsed_testsets, experimental_design
     )
 
     # todo: workaround for known issue:

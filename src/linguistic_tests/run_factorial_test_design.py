@@ -59,6 +59,7 @@ def score_factorial_testsets(
     tokenizer,
     device: DEVICES,
     parsed_testsets: list[TestSet],
+    experimental_design: ExperimentalDesigns,
 ) -> list[TestSet]:
     # todo: see activation levels in the model layers, try to identify several phenomena: clause segmentation,
     #  different constructs, long vs short dependencies, wh vs rc dependencies, islands vs non islands
@@ -78,7 +79,8 @@ def score_factorial_testsets(
         )
         scored_testsets.append(scored_testset)
 
-    _calculate_zscores_across_testsets(scored_testsets)
+    if experimental_design is ExperimentalDesigns.FACTORIAL:
+        _calculate_zscores_across_testsets(scored_testsets)
 
     return scored_testsets
 
@@ -374,11 +376,7 @@ def rescore_testsets_and_save_pickles(
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
     scored_testsets = score_factorial_testsets(
-        model_type,
-        model,
-        tokenizer,
-        DEVICES.CPU,
-        parsed_testsets,
+        model_type, model, tokenizer, DEVICES.CPU, parsed_testsets, experimental_design
     )
     save_scored_testsets(scored_testsets, model_name, dataset_source)
 
