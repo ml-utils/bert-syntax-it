@@ -445,6 +445,7 @@ def main(
     tests_subdir="syntactic_tests_it/",  # tests_subdir="sprouse/"
     rescore=False,
     log_level=logging.INFO,
+    max_examples=50,
 ):
 
     _setup_logging(log_level)
@@ -486,6 +487,7 @@ def main(
                 testset_dir_path,
                 testsets_root_filenames,
                 dataset_source,
+                max_examples=max_examples,
             )
 
         loaded_testsets = load_testsets_from_pickles(
@@ -517,5 +519,8 @@ def main(
 
 if __name__ == "__main__":
     main(
-        tests_subdir="syntactic_tests_it/", rescore=False, log_level=logging.INFO
+        tests_subdir="syntactic_tests_it/",
+        rescore=False,
+        log_level=logging.INFO,
+        max_examples=5,
     )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"

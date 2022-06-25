@@ -142,6 +142,7 @@ def main(
     tests_subdir="syntactic_tests_it/",  # tests_subdir="sprouse/"
     rescore=False,
     log_level=logging.INFO,
+    max_examples=1000,
 ):
     if len(sys.argv) > 1:
         interactive_mode()
@@ -168,7 +169,7 @@ def main(
                     testset_filenames=testset_filenames,
                     dataset_source=dataset_source,
                     examples_format="json_lines",
-                    max_examples=5,
+                    max_examples=max_examples,
                 )
 
             loaded_testsets = load_testsets_from_pickles(
@@ -197,5 +198,5 @@ def main(
 
 if __name__ == "__main__":
     # print_list_of_cached_models()
-    main(rescore=True)
+    main(rescore=True, max_examples=5)
     # profile_slowdowns()
