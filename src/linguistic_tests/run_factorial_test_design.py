@@ -71,11 +71,7 @@ def score_factorial_testsets(
     for parsed_testset in parsed_testsets:
 
         scored_testset = score_factorial_testset(
-            model_type,
-            model,
-            tokenizer,
-            device,
-            parsed_testset,
+            model_type, model, tokenizer, device, parsed_testset, experimental_design
         )
         scored_testsets.append(scored_testset)
 
@@ -151,11 +147,18 @@ def get_pvalue_with_likelihood_ratio_test(full_model_ll, reduced_model_ll):
 
 
 def score_factorial_testset(
-    model_type: ModelTypes, model, tokenizer, device: DEVICES, testset: TestSet
+    model_type: ModelTypes,
+    model,
+    tokenizer,
+    device: DEVICES,
+    testset: TestSet,
+    experimental_design: ExperimentalDesigns,
 ) -> TestSet:
 
     # assigning sentence scores and testset accuracy rates
     score_minimal_pairs_testset(model_type, model, tokenizer, device, testset)
+    if experimental_design == ExperimentalDesigns.MINIMAL_PAIRS:
+        return testset
 
     # doing factorial design scores
     for example_idx, example in enumerate(testset.examples):
