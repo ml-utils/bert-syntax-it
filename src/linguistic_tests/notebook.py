@@ -4,6 +4,7 @@ from linguistic_tests.bert_utils import analize_example
 from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model_and_tokenizer
+from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import red_txt
@@ -137,30 +138,8 @@ def main():
     if len(sys.argv) > 1:
         interactive_mode()
     else:
-        model_types_en = [
-            ModelTypes.GPT,
-            ModelTypes.GPT,
-            ModelTypes.GPT,
-            ModelTypes.BERT,
-            ModelTypes.BERT,
-            ModelTypes.BERT,
-            ModelTypes.BERT,
-            ModelTypes.ROBERTA,
-            ModelTypes.ROBERTA,
-        ]
-        model_names_en = [
-            "gpt2-large",
-            "gpt2-medium",
-            "gpt2",
-            "bert-base-uncased",
-            "bert-base-cased",
-            "bert-large-uncased",
-            "bert-large-cased",
-            "roberta-base",
-            "roberta-large",
-        ]
 
-        for model_type, model_name in zip(model_types_en, model_names_en):
+        for model_name, model_type in MODEL_TYPES_AND_NAMES_EN.items():
 
             testset_filenames = [
                 "wh_island",  # .jsonl
@@ -170,6 +149,8 @@ def main():
             # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
             p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
             testset_dir_path = str(p)
+
+            # todo: switch to parse testset and run minimal pairs test design
             scored_testsets = run_blimp_en(
                 model_type=model_type,
                 model_name=model_name,
@@ -197,5 +178,6 @@ def main():
 
 
 if __name__ == "__main__":
+    # print_list_of_cached_models()
     main()
     # profile_slowdowns()

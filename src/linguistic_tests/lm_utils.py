@@ -490,3 +490,16 @@ def _get_test_session_descr(dataset_source, model_descr, score_name=""):
     session_descr = f"{dataset_source[:7]}_{model_descr}_{score_name}"
     session_descr = session_descr.replace(" ", "_").replace("/", "_")
     return session_descr
+
+
+MODEL_TYPES_AND_NAMES_EN = {
+    "gpt2": ModelTypes.GPT,
+    "gpt2-medium": ModelTypes.GPT,
+    "gpt2-large": ModelTypes.GPT,
+    "bert-base-uncased": ModelTypes.BERT,
+    "bert-base-cased": ModelTypes.BERT,
+    "bert-large-uncased": ModelTypes.BERT,
+    "bert-large-cased": ModelTypes.BERT,
+    "roberta-base": ModelTypes.ROBERTA,
+    "roberta-large": ModelTypes.ROBERTA,
+}

@@ -1,6 +1,4 @@
 import logging
-import os
-import time
 
 from linguistic_tests.compute_model_score import get_unparsed_example_scores
 from linguistic_tests.compute_model_score import score_example
@@ -12,6 +10,7 @@ from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.testset import parse_testsets
+from linguistic_tests.testset import save_scored_testsets
 from linguistic_tests.testset import TestSet
 from tqdm import tqdm
 
@@ -74,18 +73,10 @@ def run_blimp_en(
         )
         parsed_testset.examples = parsed_testset.examples[0:max_examples]
 
-        scored_testset = score_minimal_pairs_testset(
+        score_minimal_pairs_testset(  # scored_testset =
             model_type, model, tokenizer, DEVICES.CPU, parsed_testset
         )
-
-        scored_testset.model_descr = model_name
-        filename = f"{scored_testset.linguistic_phenomenon}.testset.pickle"
-        if os.path.exists(filename):
-            timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
-            filename = (
-                f"{scored_testset.linguistic_phenomenon}-{timestamp}.testset.pickle"
-            )
-        scored_testset.save_to_pickle(filename)
+    save_scored_testsets(parsed_testsets, model_name, dataset_source)
 
     return parsed_testsets
 

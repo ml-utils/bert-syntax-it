@@ -14,7 +14,6 @@ from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import SentenceNames
-from tqdm import tqdm
 
 
 def convert_testset_to_csv(
@@ -62,7 +61,7 @@ def convert_testset_to_csv(
         writer = csv.writer(f)
         writer.writerow(header_v1_horizontal)
 
-        for example_data in tqdm(testset_data):
+        for example_data in testset_data:
             sentences = get_sentences_from_example(
                 example_data, sentences_per_example=4
             )

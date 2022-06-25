@@ -8,6 +8,7 @@ from linguistic_tests.lm_utils import _get_test_session_descr
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import get_results_dir
 from linguistic_tests.lm_utils import MODEL_NAMES_IT
+from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
@@ -444,3 +445,60 @@ def print_accuracies(
         print(
             f"acc. correct_pen_logweights_2nd_sentence: {perc(correct_pen_logweights_2nd_sentence, examples_count):.1f} %"
         )
+
+
+def print_list_of_cached_models():
+    from transformers.file_utils import get_cached_models
+
+    print("getting list of cached models..")
+    cached_models = get_cached_models()
+
+    # print(f"{cached_models=}")
+    cached_models_names_urls = []
+    cached_models_names_nosize_urls = []
+    for model_info in cached_models:
+        print(f"{model_info}")
+        if model_info[2] != "no size":
+            cached_models_names_urls.append(model_info[0])
+        else:
+            cached_models_names_nosize_urls.append(model_info[0])
+
+    print(f"{len(cached_models_names_urls)=}, {len(cached_models_names_nosize_urls)=}")
+    print("cached_models_names_urls:")
+    for cached_models_name in cached_models_names_urls:
+        print(cached_models_name)
+    print("cached_models_names_nosize_urls:")
+    for cached_models_name_nosize in cached_models_names_nosize_urls:
+        print(cached_models_name_nosize)
+
+    cached_models_names = []
+    cached_models_names_nosize = []
+    model_names_not_cached = []
+    for model_name in MODEL_TYPES_AND_NAMES_EN.keys():
+        # print(f"checking if {model_name} is in {cached_models_names_urls} or {cached_models_names_nosize_urls}.. ")
+        found = False
+        for cached_model_name_url in cached_models_names_urls:
+            if model_name in cached_model_name_url:
+                cached_models_names.append(model_name)
+                found = True
+                break
+        if not found:
+            for cached_models_name_nosize_url in cached_models_names_nosize_urls:
+                if model_name in cached_models_name_nosize_url:
+                    cached_models_names_nosize.append(model_name)
+                    found = True
+                    break
+        if not found:
+            model_names_not_cached.append(model_name)
+
+    print("Cached model names en:")
+    for model_name in cached_models_names:
+        print(f"{model_name} cached")
+    print("Cached model names, no size, en:")
+    for model_name in cached_models_names_nosize:
+        print(f"{model_name} cached but NO SIZE")
+    print("Model names en NOT CACHED:")
+    for model_name in model_names_not_cached:
+        print(f"{model_name} NOT CACHED")
+
+    return

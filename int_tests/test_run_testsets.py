@@ -196,7 +196,8 @@ class TestRunTestSets(TestCase):
         import cProfile
         import pstats
         import os
-        import tqdm
+
+        # import tqdm
         import json
 
         model_type = ModelTypes.ROBERTA  # ModelTypes.GPT  #
@@ -216,7 +217,7 @@ class TestRunTestSets(TestCase):
         print("testset loaded.")
 
         examples = []
-        for json_str in tqdm(json_list):
+        for json_str in json_list:
             example = json.loads(json_str)
 
             sentence_good = example[SentenceNames.SENTENCE_GOOD]
