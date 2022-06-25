@@ -139,16 +139,16 @@ def main():
         interactive_mode()
     else:
 
-        for model_name, model_type in MODEL_TYPES_AND_NAMES_EN.items():
+        testset_filenames = [
+            "wh_island",  # .jsonl
+            "adjunct_island",
+            "complex_NP_island",
+        ]
+        # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
+        p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
+        testset_dir_path = str(p)
 
-            testset_filenames = [
-                "wh_island",  # .jsonl
-                "adjunct_island",
-                "complex_NP_island",
-            ]
-            # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
-            p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
-            testset_dir_path = str(p)
+        for model_name, model_type in MODEL_TYPES_AND_NAMES_EN.items():
 
             # todo: switch to parse testset and run minimal pairs test design
             scored_testsets = run_blimp_en(
