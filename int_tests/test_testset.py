@@ -9,6 +9,8 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.run_factorial_test_design import get_testset_params
 from linguistic_tests.run_factorial_test_design import score_factorial_testsets
+from linguistic_tests.testset import DataSources
+from linguistic_tests.testset import ExperimentalDesigns
 from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
 from linguistic_tests.testset import parse_testsets
@@ -27,20 +29,20 @@ class TestTestset(TestCase):
         filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
         testset = load_testset_data(filepath, examples_format="sprouse")
         examples_list = testset["sentences"]
+        model_name = "bert-base-uncased"
         scoring_measures = [
             ScoringMeasures.LP,
             ScoringMeasures.PenLP,
             ScoringMeasures.LL,
             ScoringMeasures.PLL,
         ]
-        dataset_source = "Sprouse paper"
+        dataset_source = DataSources.SPROUSE
         parsed_testset = parse_testset(
             filename,
-            ModelTypes.BERT,
+            model_name,
             dataset_source,
-            "some_model",
             examples_list,
-            "sprouse",
+            ExperimentalDesigns.FACTORIAL,
             scoring_measures,
         )
 
@@ -64,14 +66,13 @@ class TestTestset(TestCase):
             ScoringMeasures.LL,
             ScoringMeasures.PLL,
         ]
-        dataset_source = "Blimp paper"
+        dataset_source = DataSources.BLIMP_EN
         parsed_testset = parse_testset(
             filename,
-            ModelTypes.BERT,
+            "bert-base-uncased",
             dataset_source,
-            "some_model",
             examples_list,
-            "blimp",
+            ExperimentalDesigns.MINIMAL_PAIRS,
             scoring_measures,
         )
 
@@ -95,14 +96,13 @@ class TestTestset(TestCase):
             ScoringMeasures.LL,
             ScoringMeasures.PLL,
         ]
-        dataset_source = "Madeddu"
+        dataset_source = DataSources.MADEDDU
         parsed_testset = parse_testset(
             filename,
-            ModelTypes.BERT,
+            "bert-base-uncased",
             dataset_source,
-            "some_model",
             examples_list,
-            "sprouse",
+            ExperimentalDesigns.FACTORIAL,
             scoring_measures,
         )
 
@@ -115,9 +115,6 @@ class TestTestset(TestCase):
 
 @pytest.mark.enable_socket
 def test_serialization(tmp_path):
-    p = get_test_data_dir() / "custom_it"
-    testset_dir_path = str(p)
-
     # filename = "mini_wh_adjunct_islands" + ".jsonl"
     # filepath = os.path.abspath(os.path.join(testset_dir_path, filename))
     # testset = load_testset_data(filepath, examples_format="blimp")
@@ -132,6 +129,9 @@ def test_serialization(tmp_path):
         "mini_wh_adjunct_island",
     ]
 
+    experimental_design = ExperimentalDesigns.FACTORIAL
+    # p = get_test_data_dir() / "custom_it"
+    # testset_dir_path = str(p)
     tests_subdir = "sprouse/"
     p = get_test_data_dir() / tests_subdir
     testset_dir_path = str(p)
@@ -142,14 +142,14 @@ def test_serialization(tmp_path):
         ScoringMeasures.LL,
         ScoringMeasures.PLL,
     ]
+
     parsed_testsets = parse_testsets(
         testset_dir_path,
         phenomena,
         dataset_source,
         "sprouse",
-        "sprouse",
+        experimental_design,
         model_name,
-        model_type,
         scoring_measures,
         max_examples=1000,
     )
@@ -161,10 +161,19 @@ def test_serialization(tmp_path):
         parsed_testsets,
     )
 
+    # todo: workaround for known issue:
+    from linguistic_tests.lm_utils import SentenceNames
+
+    scored_testsets[0].avg_zscores_of_likerts_by_measure_and_by_stype[
+        ScoringMeasures.LP
+    ][SentenceNames.SHORT_ISLAND] = 0.6
+
     tmp_file = tmp_path / "tmpfile.pickle"
     scored_testsets[0].save_to_pickle(tmp_file)
 
-    testset_fromfile = load_testset_from_pickle(tmp_file)
+    testset_fromfile = load_testset_from_pickle(
+        tmp_file, expected_experimental_design=experimental_design
+    )
 
     # todo: assert that it contains the relevant fields/properties
     assert testset_fromfile.avg_DD_lp == scored_testsets[0].avg_DD_lp

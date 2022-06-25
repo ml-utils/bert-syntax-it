@@ -6,6 +6,7 @@ from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.run_factorial_test_design import get_testset_params
+from linguistic_tests.testset import ExperimentalDesigns
 from linguistic_tests.testset import parse_testsets
 from linguistic_tests.testset import TypedSentence
 from matplotlib import pyplot as plt
@@ -63,14 +64,14 @@ def plot_span_of_Bert_output_logitis():
         scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
         if model_type in BERT_LIKE_MODEL_TYPES:
             scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
+
         parsed_testsets = parse_testsets(
             testset_dir_path,
             phenomena,
             dataset_source,
             "sprouse",
-            "sprouse",
+            ExperimentalDesigns.FACTORIAL,
             model_name,
-            model_type,
             scoring_measures,
             max_examples=1000,
         )

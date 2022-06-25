@@ -57,7 +57,8 @@ def plot_results(
 
     fig.suptitle(
         f"Model: {scored_testsets[0].model_descr}, "
-        f"\n Dataset: {scored_testset.dataset_source}"
+        f"\n Dataset: {scored_testset.dataset_source} "
+        f"({scored_testset.get_item_count_per_phenomenon()} items per phenomenon)"
     )
 
     zscore_note = ""

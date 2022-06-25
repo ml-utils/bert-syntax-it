@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from linguistic_tests.bert_utils import analize_example
@@ -12,6 +13,9 @@ from linguistic_tests.lm_utils import sentence_score_bases
 from linguistic_tests.plots_and_prints import print_accuracy_scores
 from linguistic_tests.plots_and_prints import print_detailed_sentence_info
 from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
+from linguistic_tests.testset import DataSources
+from linguistic_tests.testset import ExperimentalDesigns
+from linguistic_tests.testset import load_testsets_from_pickles
 
 
 def interactive_mode():
@@ -134,7 +138,11 @@ def interactive_mode():
 # acc. correct_pen_lps_1st_sentence: 90.2 %
 
 
-def main():
+def main(
+    tests_subdir="syntactic_tests_it/",  # tests_subdir="sprouse/"
+    rescore=False,
+    log_level=logging.INFO,
+):
     if len(sys.argv) > 1:
         interactive_mode()
     else:
@@ -147,20 +155,31 @@ def main():
         # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
         p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
         testset_dir_path = str(p)
+        dataset_source = DataSources.BLIMP_EN
+        experimental_design = ExperimentalDesigns.MINIMAL_PAIRS
 
         for model_name, model_type in MODEL_TYPES_AND_NAMES_EN.items():
 
-            # todo: switch to parse testset and run minimal pairs test design
-            scored_testsets = run_blimp_en(
-                model_type=model_type,
-                model_name=model_name,
-                dataset_source="Blimp paper",
-                testset_filenames=testset_filenames,
-                testset_dir_path=testset_dir_path,
-                examples_format="json_lines",
-                max_examples=1000,
+            if rescore:
+                # todo: switch to parse testset and run minimal pairs test design
+                run_blimp_en(  # scored_testsets =
+                    model_type=model_type,
+                    model_name=model_name,
+                    dataset_source=dataset_source,
+                    testset_filenames=testset_filenames,
+                    testset_dir_path=testset_dir_path,
+                    examples_format="json_lines",
+                    max_examples=1000,
+                )
+
+            loaded_testsets = load_testsets_from_pickles(
+                dataset_source,
+                testset_filenames,
+                model_name,
+                expected_experimental_design=experimental_design,
             )
-            for scored_testset in scored_testsets:
+
+            for scored_testset in loaded_testsets:
                 print_accuracy_scores(scored_testset)
 
             # raise SystemExit
@@ -179,5 +198,5 @@ def main():
 
 if __name__ == "__main__":
     # print_list_of_cached_models()
-    main()
+    main(rescore=True)
     # profile_slowdowns()

@@ -102,7 +102,7 @@ class sentence_score_bases:
     LOGISTIC_FUN = 2
 
 
-class DEVICES:
+class DEVICES(StrEnum):
     CPU = "cpu"
     CUDA = "cuda:X"
 
@@ -474,6 +474,24 @@ def assert_almost_equal(val1, val2, precision=13):
     )
 
 
+MODEL_TYPES_AND_NAMES_EN: dict[str, ModelTypes] = {
+    "gpt2": ModelTypes.GPT,
+    "gpt2-medium": ModelTypes.GPT,
+    "gpt2-large": ModelTypes.GPT,
+    "bert-base-uncased": ModelTypes.BERT,
+    "bert-base-cased": ModelTypes.BERT,
+    "bert-large-uncased": ModelTypes.BERT,
+    "bert-large-cased": ModelTypes.BERT,
+    "roberta-base": ModelTypes.ROBERTA,
+    "roberta-large": ModelTypes.ROBERTA,
+}
+
+MODEL_TYPES_AND_NAMES_IT = {
+    "LorenzoDeMattei/GePpeTto": ModelTypes.GPT,
+    "dbmdz/bert-base-italian-xxl-cased": ModelTypes.BERT,
+    "idb-ita/gilberto-uncased-from-camembert": ModelTypes.GILBERTO,
+}
+
 MODEL_NAMES_IT = {
     ModelTypes.GEPPETTO: "LorenzoDeMattei/GePpeTto",
     ModelTypes.BERT: "dbmdz/bert-base-italian-xxl-cased",
@@ -490,16 +508,3 @@ def _get_test_session_descr(dataset_source, model_descr, score_name=""):
     session_descr = f"{dataset_source[:7]}_{model_descr}_{score_name}"
     session_descr = session_descr.replace(" ", "_").replace("/", "_")
     return session_descr
-
-
-MODEL_TYPES_AND_NAMES_EN = {
-    "gpt2": ModelTypes.GPT,
-    "gpt2-medium": ModelTypes.GPT,
-    "gpt2-large": ModelTypes.GPT,
-    "bert-base-uncased": ModelTypes.BERT,
-    "bert-base-cased": ModelTypes.BERT,
-    "bert-large-uncased": ModelTypes.BERT,
-    "bert-large-cased": ModelTypes.BERT,
-    "roberta-base": ModelTypes.ROBERTA,
-    "roberta-large": ModelTypes.ROBERTA,
-}

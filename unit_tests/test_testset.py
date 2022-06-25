@@ -2,10 +2,11 @@ from unittest import TestCase
 
 import numpy as np
 import pandas as pd
-from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import SentenceNames
+from linguistic_tests.testset import DataSources
 from linguistic_tests.testset import ERROR_LP
 from linguistic_tests.testset import Example
+from linguistic_tests.testset import ExperimentalDesigns
 from linguistic_tests.testset import ScoringMeasures
 from linguistic_tests.testset import Sentence
 from linguistic_tests.testset import TestSet
@@ -155,10 +156,10 @@ def get_basic_testset():
 
     testset = TestSet(
         linguistic_phenomenon="wh",
-        model_descr="bert",
-        dataset_source="sprouse",
+        model_descr="bert-base-uncased",
+        dataset_source=DataSources.SPROUSE,
+        experimental_design=ExperimentalDesigns.MINIMAL_PAIRS,
         examples=[get_basic_example()],
         scoring_measures=[ScoringMeasures.LP],
-        model_type=ModelTypes.BERT,
     )
     return testset

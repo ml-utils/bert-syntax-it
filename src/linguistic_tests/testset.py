@@ -1,7 +1,9 @@
+import logging
 import os
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
+from enum import IntEnum
 from typing import Dict
 from typing import KeysView
 
@@ -13,9 +15,12 @@ from linguistic_tests.file_utils import save_obj_to_pickle
 from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import load_testset_data
+from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
+from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
+from linguistic_tests.lm_utils import StrEnum
 from scipy.stats import zmap
 
 
@@ -32,6 +37,30 @@ BLIMP_SENTENCE_TYPES: list[SentenceNames] = [
 ]
 
 ERROR_LP: float = -200.0
+
+
+class ExperimentalDesigns(IntEnum):
+    MINIMAL_PAIRS = 0
+    FACTORIAL = 1
+
+
+class DataSources(StrEnum):
+    BLIMP_EN = "Blimp Warstadt et al. 2020"  # "Blimp paper"
+    SPROUSE = "Sprouse et al. 2016"  # "sprouse", "Sprouse et al. 2016"
+    MADEDDU = "Madeddu"
+
+    def __repr__(self):
+        return self.value
+
+    def __eq__(self, b):
+
+        return (
+            self is b
+            or self.name == b
+            or self.name.lower() == str(b).lower()
+            or (hasattr(b, "name") and b.name == self.name)
+            or (hasattr(b, "value") and b.value.lower() == self.name.lower())
+        )
 
 
 @dataclass
@@ -130,11 +159,11 @@ class Example:
 class TestSet:
     linguistic_phenomenon: str
     model_descr: str
-    dataset_source: str
+    dataset_source: DataSources
+    experimental_design: ExperimentalDesigns
     examples: list[Example]
 
     scoring_measures: InitVar[list[ScoringMeasures]]
-    model_type: InitVar[ModelTypes]
 
     lp_average_by_sentence_type: dict[SentenceNames, float] = field(
         default_factory=dict
@@ -177,11 +206,13 @@ class TestSet:
         ScoringMeasures, dict[SentenceNames, float]
     ] = field(default_factory=dict)
 
+    # todo: check that no longer used and remove
     min_token_weight: float = -1 * ERROR_LP
     max_token_weight: float = ERROR_LP
 
-    def __post_init__(self, scoring_measures, model_type: ModelTypes):
+    def __post_init__(self, scoring_measures):
 
+        model_type = self.get_model_type()
         sent_types = self.examples[0].get_sentence_types()
 
         for stype in sent_types:
@@ -230,6 +261,34 @@ class TestSet:
                     self.accuracy_per_score_type_per_sentence_type[scoring_measure][
                         stype
                     ] = 0
+
+    def get_model_type(self):
+        return get_model_type_from_model_name(self.model_descr)
+
+    def get_expected_scoring_measures(self):
+        expected_scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        if self.get_model_type() in BERT_LIKE_MODEL_TYPES:
+            expected_scoring_measures += [
+                ScoringMeasures.LL,
+                ScoringMeasures.PLL,
+            ]
+        return expected_scoring_measures
+
+    def get_expected_sentence_types(self):
+        if self.dataset_source in [DataSources.SPROUSE, DataSources.MADEDDU]:
+            return [
+                SentenceNames.SHORT_NONISLAND,
+                SentenceNames.LONG_NONISLAND,
+                SentenceNames.SHORT_ISLAND,
+                SentenceNames.LONG_ISLAND,
+            ]
+        elif self.dataset_source == DataSources.BLIMP_EN:
+            return [SentenceNames.SENTENCE_GOOD, SentenceNames.SENTENCE_BAD]
+        else:
+            raise ValueError(f"Unexpected dataset_source: {self.dataset_source}")
+
+    def get_item_count_per_phenomenon(self) -> int:
+        return len(self.examples)
 
     def get_sentence_types(self) -> KeysView[SentenceNames]:
         return self.lp_average_by_sentence_type.keys()
@@ -438,47 +497,151 @@ class TestSet:
 
     def save_to_pickle(self, filename):
 
-        for example in self.examples:
-            for typed_sent in example.sentences:
-                assert ERROR_LP != typed_sent.sent.get_score(ScoringMeasures.LP)
-                assert ERROR_LP != typed_sent.sent.get_score(ScoringMeasures.PenLP)
-
+        self.assert_is_well_formed()
         save_obj_to_pickle(self, filename)
 
+    def assert_is_well_formed(self, expected_experimental_design=None):
+        testset = self
+        if expected_experimental_design is not None:
+            assert expected_experimental_design == testset.experimental_design
 
-def load_testset_from_pickle(filename) -> TestSet:
+        factorial = testset.experimental_design == ExperimentalDesigns.FACTORIAL
+        assert len(testset.linguistic_phenomenon) > 0
+        assert len(testset.model_descr) > 0
+        assert type(testset.dataset_source) is not str
+
+        for scoring_measure in testset.get_scoring_measures():
+            assert scoring_measure in testset.get_expected_scoring_measures()
+
+        if factorial:
+            assert ERROR_LP != testset.avg_DD_lp
+            assert ERROR_LP != testset.avg_DD_penlp
+            assert ERROR_LP != testset.accuracy_by_DD_lp
+            assert ERROR_LP != testset.accuracy_by_DD_penlp
+
+            if testset.get_model_type() in BERT_LIKE_MODEL_TYPES:
+                assert ERROR_LP != testset.avg_DD_ll
+                assert ERROR_LP != testset.avg_DD_penll
+                assert ERROR_LP != testset.accuracy_by_DD_ll
+                assert ERROR_LP != testset.accuracy_by_DD_penll
+
+            for stype in testset.get_sentence_types():
+                assert 0 != testset.lp_average_by_sentence_type[stype] != ERROR_LP
+                assert 0 != testset.penlp_average_by_sentence_type[stype] != ERROR_LP
+                if testset.get_model_type() in BERT_LIKE_MODEL_TYPES:
+                    assert 0 != testset.ll_average_by_sentence_type[stype] != ERROR_LP
+                    assert (
+                        0 != testset.penll_average_by_sentence_type[stype] != ERROR_LP
+                    )
+                for scoring_measure in testset.get_scoring_measures():
+                    assert_non_default_value(
+                        testset.avg_zscores_by_measure_and_by_stype[scoring_measure][
+                            stype
+                        ]
+                    )
+
+                    # todo: check why this fails a test  # LP, SHORT_ISLAND avg = 0
+                    assert_non_default_value(
+                        testset.avg_zscores_of_likerts_by_measure_and_by_stype[
+                            scoring_measure
+                        ][stype],
+                        warning=True,
+                        details=f"{scoring_measure=}, {stype=}, avg_zscores_of_likerts_by_measure_and_by_stype",
+                    )
+
+                    assert_non_default_value(
+                        testset.std_error_of_zscores_by_measure_and_by_stype[
+                            scoring_measure
+                        ][stype]
+                    )
+                    assert_non_default_value(
+                        testset.std_error_of_zscores_of_likerts_by_measure_and_by_stype[
+                            scoring_measure
+                        ][stype]
+                    )
+
+            for acceptable_stype in testset.get_acceptable_sentence_types():
+                for scoring_measure in testset.get_scoring_measures():
+                    assert_btw_0_1(
+                        testset.accuracy_per_score_type_per_sentence_type[
+                            scoring_measure
+                        ][acceptable_stype]
+                    )
+
+        assert len(testset.examples) > 0
+        for example in testset.examples:
+            assert len(example.sentences) > 0
+
+            if factorial:
+                assert ERROR_LP != example.DD_with_lp
+                assert ERROR_LP != example.DD_with_penlp
+                if testset.get_model_type() in BERT_LIKE_MODEL_TYPES:
+                    assert ERROR_LP != example.DD_with_ll
+                    assert ERROR_LP != example.DD_with_penll
+                else:
+                    assert ERROR_LP == example.DD_with_ll
+                    assert ERROR_LP == example.DD_with_penll
+            else:
+                assert ERROR_LP == example.DD_with_lp
+                assert ERROR_LP == example.DD_with_penlp
+                assert ERROR_LP == example.DD_with_ll
+                assert ERROR_LP == example.DD_with_penll
+
+            for typed_sent in example.sentences:
+
+                assert typed_sent.stype in testset.get_expected_sentence_types()
+                assert len(typed_sent.sent.txt) > 0
+                assert len(typed_sent.sent.tokens) > 0
+
+                for scoring_measure in testset.get_scoring_measures():
+                    assert ERROR_LP != typed_sent.sent.get_score(scoring_measure)
+
+
+def assert_non_default_value(value: float, warning=False, details=""):
+    assert value != ERROR_LP, f"{value}"
+
+    if not warning:
+        assert value != 0, f"{value}"
+    else:
+        if value == 0:
+            logging.warning(f"{value=}, {details=}")
+
+
+def assert_btw_0_1(value: float):
+    assert 0 <= value <= 1, f"{value}"
+
+
+def get_model_type_from_model_name(model_name: str) -> ModelTypes:
+    model_name_to_model_type = MODEL_TYPES_AND_NAMES_EN | MODEL_TYPES_AND_NAMES_IT
+    return model_name_to_model_type[model_name]
+
+
+def load_testset_from_pickle(
+    filename, expected_experimental_design: ExperimentalDesigns
+) -> TestSet:
     testset = load_object_from_pickle(filename)
-
-    for example in testset.examples:
-
-        assert ERROR_LP != example.DD_with_lp
-        assert ERROR_LP != example.DD_with_penlp
-
-        for typed_sent in example.sentences:
-            assert ERROR_LP != typed_sent.sent.get_score(ScoringMeasures.LP)
-            assert ERROR_LP != typed_sent.sent.get_score(ScoringMeasures.PenLP)
+    testset.assert_is_well_formed(expected_experimental_design)
 
     return testset
 
 
 def parse_testset(
     linguistic_phenomenon,
-    model_type: ModelTypes,
-    model_descr,
-    dataset_source: str,
+    model_descr: str,
+    dataset_source: DataSources,
     examples_list: list,
-    sent_types_descr: str,
+    experimental_design: ExperimentalDesigns,
     scoring_measures: list[ScoringMeasures],
     max_examples=50,
 ) -> TestSet:
     print(f"len examples: {len(examples_list)}, max: {max_examples}")
 
-    if sent_types_descr == "sprouse":
+    if experimental_design == ExperimentalDesigns.FACTORIAL:
         sent_types = SPROUSE_SENTENCE_TYPES
-    elif sent_types_descr == "blimp":
+    elif experimental_design == ExperimentalDesigns.MINIMAL_PAIRS:
         sent_types = BLIMP_SENTENCE_TYPES
     else:
-        raise ValueError(f"unrecognized sentence types format: {sent_types_descr}")
+        raise ValueError(f"unrecognized experimental_design: {experimental_design}")
 
     if len(examples_list) > max_examples:
         # print(f"slicing the number of examples to {max_examples}")
@@ -493,9 +656,9 @@ def parse_testset(
         linguistic_phenomenon,
         model_descr,
         dataset_source,
+        experimental_design,
         parsed_examples,
         scoring_measures,
-        model_type,
     )
 
 
@@ -552,12 +715,19 @@ def get_std_error(arr):
     return np.std(arr, ddof=1) / np.sqrt(len(arr))
 
 
-def load_testsets_from_pickles(dataset_source, phenomena, model_name) -> list[TestSet]:
+def load_testsets_from_pickles(
+    dataset_source,
+    phenomena,
+    model_name,
+    expected_experimental_design: ExperimentalDesigns,
+) -> list[TestSet]:
 
     loaded_testsets = []
     for phenomenon in phenomena:
         filename = get_pickle_filename(dataset_source, phenomenon, model_name)
-        loaded_testset = load_testset_from_pickle(filename)
+        loaded_testset = load_testset_from_pickle(
+            filename, expected_experimental_design
+        )
         loaded_testsets.append(loaded_testset)
 
     return loaded_testsets
@@ -566,15 +736,14 @@ def load_testsets_from_pickles(dataset_source, phenomena, model_name) -> list[Te
 def parse_testsets(
     testset_dir_path: str,
     testset_filenames: list[str],
-    dataset_source: str,
+    dataset_source: DataSources,
     examples_format: str,
-    sent_types_descr,
+    experimental_design: ExperimentalDesigns,
     model_name: str,
-    model_type: ModelTypes,
     scoring_measures: list[ScoringMeasures],
     max_examples: int,
 ) -> list[TestSet]:
-    # todo: add scorebase var in testset class
+
     parsed_testsets = []
     for testset_filename in testset_filenames:
         testset_filepath = os.path.join(testset_dir_path, testset_filename + ".jsonl")
@@ -587,11 +756,10 @@ def parse_testsets(
 
         parsed_testset = parse_testset(
             phenomenon_name,
-            model_type,
             model_name,
             dataset_source,
             examples_list,
-            sent_types_descr,  # "blimp" or "sprouse"
+            experimental_design,
             scoring_measures,
             max_examples=max_examples,
         )

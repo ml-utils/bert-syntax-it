@@ -18,7 +18,9 @@ from linguistic_tests.run_factorial_test_design import get_testset_params
 from linguistic_tests.run_factorial_test_design import score_factorial_testsets
 from linguistic_tests.run_minimal_pairs_test_design import get_unparsed_testset_scores
 from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
+from linguistic_tests.testset import DataSources
 from linguistic_tests.testset import ERROR_LP
+from linguistic_tests.testset import ExperimentalDesigns
 from linguistic_tests.testset import parse_testsets
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import show
@@ -44,7 +46,7 @@ class TestRunTestSets(TestCase):
         run_blimp_en(
             model_type=ModelTypes.BERT,
             model_name="bert-base-uncased",
-            dataset_source="Blimp paper",
+            dataset_source=DataSources.BLIMP_EN,
             testset_filenames=testset_filenames,
             testset_dir_path=testset_dir_path,
             examples_format=examples_format,
@@ -69,14 +71,14 @@ class TestRunTestSets(TestCase):
         scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
         if model_type in BERT_LIKE_MODEL_TYPES:
             scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
+
         parsed_testsets = parse_testsets(
             testset_dir_path,
             phenomena,
             dataset_source,
             "sprouse",
-            "sprouse",
+            ExperimentalDesigns.FACTORIAL,
             model_name,
-            model_type,
             scoring_measures,
             max_examples=1000,
         )

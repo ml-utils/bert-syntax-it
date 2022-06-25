@@ -17,7 +17,9 @@ from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.plots_and_prints import _print_testset_results
 from linguistic_tests.plots_and_prints import plot_testsets
 from linguistic_tests.run_minimal_pairs_test_design import score_minimal_pairs_testset
+from linguistic_tests.testset import DataSources
 from linguistic_tests.testset import Example
+from linguistic_tests.testset import ExperimentalDesigns
 from linguistic_tests.testset import get_dd_score_parametric
 from linguistic_tests.testset import get_merged_score_across_testsets
 from linguistic_tests.testset import load_testsets_from_pickles
@@ -52,10 +54,10 @@ CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES = [
 
 
 def score_factorial_testsets(
-    model_type,
+    model_type: ModelTypes,
     model,
     tokenizer,
-    device,
+    device: DEVICES,
     parsed_testsets: list[TestSet],
 ) -> list[TestSet]:
     # todo: see activation levels in the model layers, try to identify several phenomena: clause segmentation,
@@ -327,40 +329,44 @@ def load_and_plot_pickle(
     model_name,
     dataset_source,
     model_type: ModelTypes,
+    expected_experimental_design: ExperimentalDesigns,
     loaded_testsets=None,
 ):
 
     if loaded_testsets is None:
         loaded_testsets = load_testsets_from_pickles(
-            dataset_source, phenomena, model_name
+            dataset_source,
+            phenomena,
+            model_name,
+            expected_experimental_design=expected_experimental_design,
         )
 
     plot_testsets(loaded_testsets, model_type)
 
 
 def rescore_testsets_and_save_pickles(
-    model_type,
+    model_type: ModelTypes,
     testset_dir_path,
-    testsets_root_filenames,
-    dataset_source,
+    testsets_root_filenames: list[str],
+    dataset_source: DataSources,
 ):
     model_name = MODEL_NAMES_IT[model_type]
     examples_format = "sprouse"  # "blimp", "json_lines", "sprouse"
-    sent_types_descr = "sprouse"  # "blimp" or "sprouse"
+    experimental_design = ExperimentalDesigns.FACTORIAL
     # sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
     logging.info(f"Running testsets from dir {testset_dir_path}")
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
     if model_type in BERT_LIKE_MODEL_TYPES:
         scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
+
     parsed_testsets = parse_testsets(
         # todo: add scorebase var in testset class
         testset_dir_path,
         testsets_root_filenames,
         dataset_source,
         examples_format,
-        sent_types_descr,
+        experimental_design,
         model_name,
-        model_type,
         scoring_measures,
         max_examples=1000,
     )
@@ -378,15 +384,15 @@ def rescore_testsets_and_save_pickles(
     save_scored_testsets(scored_testsets, model_name, dataset_source)
 
 
-def get_testset_params(tests_subdir):
+def get_testset_params(tests_subdir) -> tuple[list[str], str, DataSources]:
     if tests_subdir == "syntactic_tests_it/":
         testsets_root_filenames = CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES
         broader_test_type = "it_tests"
-        dataset_source = "Madeddu (50 items per phenomenon)"
+        dataset_source = DataSources.MADEDDU
     elif tests_subdir == "sprouse/":
         testsets_root_filenames = SPROUSE_TESTSETS_ROOT_FILENAMES
         broader_test_type = "sprouse"
-        dataset_source = "Sprouse et al. 2016 (8 items per phenomenon)"
+        dataset_source = DataSources.SPROUSE
     else:
         raise ValueError(f"Invalid tests_subdir specified: {tests_subdir}")
 
@@ -452,6 +458,7 @@ def main(
     elif args.datasource == "madeddu":
         tests_subdir = "syntactic_tests_it/"
     # rescore =
+    experimental_design = ExperimentalDesigns.FACTORIAL
 
     logging.info(f"Will run tests with models: {model_types_to_run}")
 
@@ -485,6 +492,7 @@ def main(
             dataset_source,
             testsets_root_filenames,
             MODEL_NAMES_IT[model_type],
+            expected_experimental_design=experimental_design,
         )
 
         _print_testset_results(
@@ -496,6 +504,7 @@ def main(
             MODEL_NAMES_IT[model_type],
             dataset_source,
             model_type,
+            expected_experimental_design=experimental_design,
             loaded_testsets=loaded_testsets,
         )
         print_orange(f"Finished test session for {model_type=}")

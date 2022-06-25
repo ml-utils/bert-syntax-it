@@ -9,6 +9,8 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
+from linguistic_tests.testset import DataSources
+from linguistic_tests.testset import ExperimentalDesigns
 from linguistic_tests.testset import parse_testsets
 from linguistic_tests.testset import save_scored_testsets
 from linguistic_tests.testset import TestSet
@@ -40,15 +42,15 @@ def run_blimp_it_island_effects():
 
 
 def run_blimp_en(
-    model_type,
-    model_name,
-    dataset_source,
-    testset_filenames,
-    testset_dir_path,
-    examples_format="blimp",
+    model_type: ModelTypes,
+    model_name: str,
+    dataset_source: DataSources,
+    testset_filenames: list[str],
+    testset_dir_path: str,
+    examples_format: str = "blimp",
     max_examples=1000,
 ):
-    sent_types_descr = "blimp"
+    experimental_design = ExperimentalDesigns.MINIMAL_PAIRS
 
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
     if model_type in BERT_LIKE_MODEL_TYPES:
@@ -59,9 +61,8 @@ def run_blimp_en(
         testset_filenames,
         dataset_source,
         examples_format,
-        sent_types_descr,
+        experimental_design,
         model_name,
-        model_type,
         scoring_measures,
         max_examples=1000,
     )
