@@ -1,8 +1,5 @@
 import logging
-from statistics import mean
 
-import numpy as np
-import pandas as pd
 from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DataSources
@@ -20,8 +17,7 @@ from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.plots_and_prints import _print_testset_results
 from linguistic_tests.plots_and_prints import plot_testsets
 from linguistic_tests.plots_and_prints import print_accuracy_scores
-from linguistic_tests.run_minimal_pairs_test_design import score_factorial_testset
-from linguistic_tests.testset import get_merged_score_across_testsets
+from linguistic_tests.run_minimal_pairs_test_design import score_factorial_testsets
 from linguistic_tests.testset import load_testsets_from_pickles
 from linguistic_tests.testset import parse_testsets
 from linguistic_tests.testset import save_scored_testsets
@@ -36,95 +32,6 @@ from scipy.stats import chi2
 # 4 sentences for each examples (long vs short, island vs non island)
 # turn into 3 examples: island long vs the other 3 sentences
 # one file for each phenomena (2x4), ..8x3 examples in each file
-
-
-def score_factorial_testsets(
-    model_type: ModelTypes,
-    model,
-    tokenizer,
-    device: DEVICES,
-    parsed_testsets: list[TestSet],
-    experimental_design: ExperimentalDesigns,
-) -> list[TestSet]:
-    # todo: see activation levels in the model layers, try to identify several phenomena: clause segmentation,
-    #  different constructs, long vs short dependencies, wh vs rc dependencies, islands vs non islands
-
-    # todo: see if the pretrained models by Bostrom et al. 2020 perform better (on Sprouse and Blimp english test data )
-    #  when they use more linguistically plausible subwords units for tokenization.
-
-    scored_testsets = []
-    for parsed_testset in parsed_testsets:
-        logging.info(
-            f"Scoring testset {parsed_testset.linguistic_phenomenon}, on {model_type=} {parsed_testset.model_descr}"
-        )
-        scored_testset = score_factorial_testset(
-            model_type, model, tokenizer, device, parsed_testset, experimental_design
-        )
-        scored_testsets.append(scored_testset)
-
-    if experimental_design is ExperimentalDesigns.FACTORIAL:
-        _calculate_zscores_across_testsets(scored_testsets)
-
-    return scored_testsets
-
-
-def _calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
-    #  first get a reference for mean and sd:
-    #  after the 4 testsets have been scored, merge the arrays of scores for
-    #  the 4 phenomena in the testset, and for all 4 sentence types in the
-    #  examples.
-    scoring_measures = scored_testsets[0].get_scoring_measures()
-    logging.debug(f"Calculating zscores for {scoring_measures=}")
-    merged_scores_by_scoring_measure: dict[ScoringMeasures, list[float]] = dict()
-    for scoring_measure in scoring_measures:
-
-        merged_scores_by_scoring_measure[
-            scoring_measure
-        ] = get_merged_score_across_testsets(scoring_measure, scored_testsets)
-
-        logging.debug(
-            f"For {scoring_measure.name} got {len(merged_scores_by_scoring_measure[scoring_measure])} scores, "
-            f"with min {min(merged_scores_by_scoring_measure[scoring_measure])}, "
-            f"max {max(merged_scores_by_scoring_measure[scoring_measure])}, "
-            f"and mean {mean(merged_scores_by_scoring_measure[scoring_measure])} "
-        )
-
-    likert_bins_by_scoring_measure = dict()  # : dict[ScoringMeasures, ..bins_type]
-    merged_likert_scores_by_scoring_measure = dict()
-    for scoring_measure in merged_scores_by_scoring_measure.keys():
-
-        (
-            likert_scores_merged,
-            likert_bins,
-        ) = pd.cut(  # todo: use pd.qcut instead of pd.cut?
-            merged_scores_by_scoring_measure[scoring_measure],
-            bins=7,
-            labels=np.arange(start=1, stop=8),
-            retbins=True,
-            # right=False,
-        )
-
-        merged_likert_scores_by_scoring_measure[scoring_measure] = np.asarray(
-            likert_scores_merged
-        )
-        likert_bins_by_scoring_measure[scoring_measure] = likert_bins
-        logging.debug(f"{likert_scores_merged=}")
-
-    for scoring_measure in merged_scores_by_scoring_measure.keys():
-        for testset in scored_testsets:
-            testset.set_avg_zscores_by_measure_and_by_stype(
-                scoring_measure,
-                merged_scores_by_scoring_measure[scoring_measure],
-                merged_likert_scores_by_scoring_measure[scoring_measure],
-                likert_bins_by_scoring_measure[scoring_measure],
-            )
-
-        logging.debug(
-            f"{scoring_measure}: {testset.avg_zscores_by_measure_and_by_stype=}"
-        )
-        logging.debug(
-            f"{scoring_measure} std errors: {testset.std_error_of_zscores_by_measure_and_by_stype=}"
-        )
 
 
 def get_pvalue_with_likelihood_ratio_test(full_model_ll, reduced_model_ll):
