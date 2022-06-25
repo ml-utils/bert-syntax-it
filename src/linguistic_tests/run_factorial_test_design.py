@@ -7,8 +7,10 @@ from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
+from linguistic_tests.lm_utils import get_testset_params
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import MODEL_NAMES_IT
+from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
@@ -28,24 +30,9 @@ from linguistic_tests.testset import save_scored_testsets
 from linguistic_tests.testset import TestSet
 from scipy.stats import chi2
 
-SPROUSE_TESTSETS_ROOT_FILENAMES = [  # 'rc_adjunct_island',
-    # 'rc_complex_np', 'rc_subject_island', 'rc_wh_island', # fixme: rc_wh_island empty file
-    "wh_adjunct_island",
-    "wh_complex_np",
-    "wh_subject_island",
-    "wh_whether_island",
-]
 
-CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES = [
-    # "wh_adjunct_islands",
-    # "wh_complex_np_islands",
-    # "wh_whether_island",
-    # "wh_subject_islands",
-    "wh_whether_island",
-    "wh_complex_np_islands",
-    "wh_subject_islands",
-    "wh_adjunct_islands",
-]
+# todo: move to lm_utils
+# todo: move to lm_utils
 
 # todo: parse the csv file
 # 4 sentences for each examples (long vs short, island vs non island)
@@ -384,21 +371,6 @@ def rescore_testsets_and_save_pickles(
     save_scored_testsets(scored_testsets, model_name, dataset_source)
 
 
-def get_testset_params(tests_subdir) -> tuple[list[str], str, DataSources]:
-    if tests_subdir == "syntactic_tests_it/":
-        testsets_root_filenames = CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES
-        broader_test_type = "it_tests"
-        dataset_source = DataSources.MADEDDU
-    elif tests_subdir == "sprouse/":
-        testsets_root_filenames = SPROUSE_TESTSETS_ROOT_FILENAMES
-        broader_test_type = "sprouse"
-        dataset_source = DataSources.SPROUSE
-    else:
-        raise ValueError(f"Invalid tests_subdir specified: {tests_subdir}")
-
-    return testsets_root_filenames, broader_test_type, dataset_source
-
-
 def _setup_logging(log_level):
     fmt = "[%(levelname)s] %(asctime)s - %(message)s"
 
@@ -451,26 +423,28 @@ def main(
     _setup_logging(log_level)
     args = _parse_arguments()
 
-    model_types_to_run = [
-        ModelTypes(model_type_int) for model_type_int in args.model_types
-    ]
+    # model_types_to_run = [
+    #     ModelTypes(model_type_int) for model_type_int in args.model_types
+    # ]
     if args.datasource == "sprouse":
         tests_subdir = "sprouse/"
     elif args.datasource == "madeddu":
         tests_subdir = "syntactic_tests_it/"
     # rescore =
-    experimental_design = ExperimentalDesigns.FACTORIAL
 
-    logging.info(f"Will run tests with models: {model_types_to_run}")
+    logging.info(f"Will run tests with models: {MODEL_TYPES_AND_NAMES_IT.values()}")
 
     # todo: also add command line option for tests subdir path
     testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
-    testsets_root_filenames, broader_test_type, dataset_source = get_testset_params(
-        tests_subdir
-    )
+    (
+        testsets_root_filenames,
+        broader_test_type,
+        dataset_source,
+        experimental_design,
+    ) = get_testset_params(tests_subdir)
 
-    for model_type in model_types_to_run:
+    for model_name, model_type in MODEL_TYPES_AND_NAMES_IT.items():
         print_orange(f"Starting test session for {model_type=}, and {dataset_source=}")
         # add score with logistic function (instead of softmax)
 
@@ -515,12 +489,3 @@ def main(
     # plot with 7+1x7 subplots of a testset (one subplot for each example)
     # nb: having the standard errors in the plots is already overcoming this,
     # showing the variance
-
-
-if __name__ == "__main__":
-    main(
-        tests_subdir="syntactic_tests_it/",
-        rescore=False,
-        log_level=logging.INFO,
-        max_examples=5,
-    )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"

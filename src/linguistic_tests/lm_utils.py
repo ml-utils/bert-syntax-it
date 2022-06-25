@@ -7,6 +7,8 @@ from typing import Union
 
 import sentencepiece as spm
 import torch
+from linguistic_tests.testset import DataSources
+from linguistic_tests.testset import ExperimentalDesigns
 from sentencepiece import SentencePieceProcessor
 from torch.utils.hipify.hipify_python import bcolors
 from tqdm import tqdm
@@ -486,25 +488,79 @@ MODEL_TYPES_AND_NAMES_EN: dict[str, ModelTypes] = {
     "roberta-large": ModelTypes.ROBERTA,
 }
 
-MODEL_TYPES_AND_NAMES_IT = {
+MODEL_TYPES_AND_NAMES_IT: dict[str, ModelTypes] = {
     "LorenzoDeMattei/GePpeTto": ModelTypes.GPT,
     "dbmdz/bert-base-italian-xxl-cased": ModelTypes.BERT,
     "idb-ita/gilberto-uncased-from-camembert": ModelTypes.GILBERTO,
 }
 
-MODEL_NAMES_IT = {
+MODEL_NAMES_IT: dict[ModelTypes, str] = {
     ModelTypes.GEPPETTO: "LorenzoDeMattei/GePpeTto",
     ModelTypes.BERT: "dbmdz/bert-base-italian-xxl-cased",
     ModelTypes.GILBERTO: "idb-ita/gilberto-uncased-from-camembert",
 }  # ModelTypes.GPT # ModelTypes.ROBERTA  #
-MODEL_NAMES_EN = {
+MODEL_NAMES_EN: dict[ModelTypes, str] = {
     ModelTypes.BERT: "bert-base-uncased",  # "bert-large-uncased"  #
     ModelTypes.GPT: "gpt2-large",
     ModelTypes.ROBERTA: "roberta-large",
 }
+
+BLIMP_TESTSETS_ROOT_FILENAMES = [
+    "wh_island",  # .jsonl
+    "adjunct_island",
+    "complex_NP_island",
+]
 
 
 def _get_test_session_descr(dataset_source, model_descr, score_name=""):
     session_descr = f"{dataset_source[:7]}_{model_descr}_{score_name}"
     session_descr = session_descr.replace(" ", "_").replace("/", "_")
     return session_descr
+
+
+SPROUSE_TESTSETS_ROOT_FILENAMES = [  # 'rc_adjunct_island',
+    # 'rc_complex_np', 'rc_subject_island', 'rc_wh_island', # fixme: rc_wh_island empty file
+    "wh_adjunct_island",
+    "wh_complex_np",
+    "wh_subject_island",
+    "wh_whether_island",
+]
+CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES = [
+    # "wh_adjunct_islands",
+    # "wh_complex_np_islands",
+    # "wh_whether_island",
+    # "wh_subject_islands",
+    "wh_whether_island",
+    "wh_complex_np_islands",
+    "wh_subject_islands",
+    "wh_adjunct_islands",
+]
+
+
+def get_testset_params(
+    tests_subdir,
+) -> tuple[list[str], str, DataSources, ExperimentalDesigns]:
+    if tests_subdir == "syntactic_tests_it/":
+        testsets_root_filenames = CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES
+        broader_test_type = "it_tests"
+        dataset_source = DataSources.MADEDDU
+        experimental_design = ExperimentalDesigns.FACTORIAL
+    elif tests_subdir == "sprouse/":
+        testsets_root_filenames = SPROUSE_TESTSETS_ROOT_FILENAMES
+        broader_test_type = "sprouse"
+        dataset_source = DataSources.SPROUSE
+        experimental_design = ExperimentalDesigns.FACTORIAL
+    elif tests_subdir == "blimp/from_blim_en/islands":
+        testsets_root_filenames = BLIMP_TESTSETS_ROOT_FILENAMES
+        broader_test_type = "blimp"
+        dataset_source = DataSources.BLIMP_EN
+        experimental_design = ExperimentalDesigns.MINIMAL_PAIRS
+    else:
+        raise ValueError(f"Invalid tests_subdir specified: {tests_subdir}")
+
+    return (
+        testsets_root_filenames,
+        broader_test_type,
+        dataset_source,
+        experimental_design,
+    )

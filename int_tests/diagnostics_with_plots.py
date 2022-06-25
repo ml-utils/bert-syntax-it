@@ -2,11 +2,10 @@ import numpy as np
 from linguistic_tests.compute_model_score import logistic2
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
+from linguistic_tests.lm_utils import get_testset_params
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.run_factorial_test_design import get_testset_params
-from linguistic_tests.testset import ExperimentalDesigns
 from linguistic_tests.testset import parse_testsets
 from linguistic_tests.testset import TypedSentence
 from matplotlib import pyplot as plt
@@ -60,7 +59,7 @@ def plot_span_of_Bert_output_logitis():
         tests_subdir = "sprouse/"
         p = get_test_data_dir() / tests_subdir
         testset_dir_path = str(p)
-        _, _, dataset_source = get_testset_params(tests_subdir)
+        _, _, dataset_source, experimental_design = get_testset_params(tests_subdir)
         scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
         if model_type in BERT_LIKE_MODEL_TYPES:
             scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
@@ -70,7 +69,7 @@ def plot_span_of_Bert_output_logitis():
             phenomena,
             dataset_source,
             "sprouse",
-            ExperimentalDesigns.FACTORIAL,
+            experimental_design,
             model_name,
             scoring_measures,
             max_examples=1000,

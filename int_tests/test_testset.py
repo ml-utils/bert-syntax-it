@@ -3,11 +3,11 @@ from unittest import TestCase
 
 import pytest
 from linguistic_tests.lm_utils import DEVICES
+from linguistic_tests.lm_utils import get_testset_params
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.run_factorial_test_design import get_testset_params
 from linguistic_tests.run_factorial_test_design import score_factorial_testsets
 from linguistic_tests.testset import DataSources
 from linguistic_tests.testset import ExperimentalDesigns
@@ -129,13 +129,12 @@ def test_serialization(tmp_path):
         "mini_wh_adjunct_island",
     ]
 
-    experimental_design = ExperimentalDesigns.FACTORIAL
     # p = get_test_data_dir() / "custom_it"
     # testset_dir_path = str(p)
     tests_subdir = "sprouse/"
     p = get_test_data_dir() / tests_subdir
     testset_dir_path = str(p)
-    _, _, dataset_source = get_testset_params(tests_subdir)
+    _, _, dataset_source, experimental_design = get_testset_params(tests_subdir)
     scoring_measures = [
         ScoringMeasures.LP,
         ScoringMeasures.PenLP,

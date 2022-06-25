@@ -7,6 +7,7 @@ from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
+from linguistic_tests.lm_utils import get_testset_params
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
@@ -14,13 +15,11 @@ from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.plots_and_prints import print_accuracies
-from linguistic_tests.run_factorial_test_design import get_testset_params
 from linguistic_tests.run_factorial_test_design import score_factorial_testsets
 from linguistic_tests.run_minimal_pairs_test_design import get_unparsed_testset_scores
 from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
 from linguistic_tests.testset import DataSources
 from linguistic_tests.testset import ERROR_LP
-from linguistic_tests.testset import ExperimentalDesigns
 from linguistic_tests.testset import parse_testsets
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import show
@@ -65,13 +64,12 @@ class TestRunTestSets(TestCase):
         tests_subdir = "sprouse/"
         p = get_test_data_dir() / tests_subdir
         testset_dir_path = str(p)
-        _, _, dataset_source = get_testset_params(tests_subdir)
+        _, _, dataset_source, experimental_design = get_testset_params(tests_subdir)
 
         scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
         if model_type in BERT_LIKE_MODEL_TYPES:
             scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
 
-        experimental_design = ExperimentalDesigns.FACTORIAL
         parsed_testsets = parse_testsets(
             testset_dir_path,
             phenomena,

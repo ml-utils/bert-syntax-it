@@ -3,19 +3,12 @@ import sys
 
 from linguistic_tests.bert_utils import analize_example
 from linguistic_tests.lm_utils import get_models_dir
-from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_model_and_tokenizer
-from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import red_txt
 from linguistic_tests.lm_utils import sentence_score_bases
-from linguistic_tests.plots_and_prints import print_accuracy_scores
 from linguistic_tests.plots_and_prints import print_detailed_sentence_info
-from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
-from linguistic_tests.testset import DataSources
-from linguistic_tests.testset import ExperimentalDesigns
-from linguistic_tests.testset import load_testsets_from_pickles
 
 
 def interactive_mode():
@@ -139,64 +132,32 @@ def interactive_mode():
 
 
 def main(
-    tests_subdir="syntactic_tests_it/",  # tests_subdir="sprouse/"
     rescore=False,
     log_level=logging.INFO,
-    max_examples=1000,
 ):
     if len(sys.argv) > 1:
         interactive_mode()
     else:
+        from run_minimal_pairs_test_design import main as main_minimal_pairs
+        from run_factorial_test_design import main as main_factorial
 
-        testset_filenames = [
-            "wh_island",  # .jsonl
-            "adjunct_island",
-            "complex_NP_island",
-        ]
-        # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
-        p = get_syntactic_tests_dir() / "blimp/from_blim_en/islands"
-        testset_dir_path = str(p)
-        dataset_source = DataSources.BLIMP_EN
-        experimental_design = ExperimentalDesigns.MINIMAL_PAIRS
-
-        for model_name, model_type in MODEL_TYPES_AND_NAMES_EN.items():
-
-            if rescore:
-                # todo: switch to parse testset and run minimal pairs test design
-                run_blimp_en(
-                    model_type=model_type,
-                    testset_dir_path=testset_dir_path,
-                    testset_filenames=testset_filenames,
-                    dataset_source=dataset_source,
-                    examples_format="json_lines",
-                    max_examples=max_examples,
-                )
-
-            loaded_testsets = load_testsets_from_pickles(
-                dataset_source,
-                testset_filenames,
-                model_name,
-                expected_experimental_design=experimental_design,
-            )
-
-            for scored_testset in loaded_testsets:
-                print_accuracy_scores(scored_testset)
-
-            # raise SystemExit
-            # print('choosing model type ..')
-            # 'dbmdz/bert-base-italian-xxl-cased' #
-            # models_to_run = [
-            #     ModelTypes.BERT,
-            #     ModelTypes.GEPPETTO,
-            #     ModelTypes.GPT,
-            #     ModelTypes.GILBERTO,
-            # ]
-            # from linguistic_tests.run_syntactic_tests import run_tests_for_model_type
-            # for model_type in models_to_run:
-            #     run_tests_for_model_type(model_type)
+        main_minimal_pairs(
+            tests_subdir="syntactic_tests_it/",  # tests_subdir="sprouse/",
+            rescore=rescore,
+            log_level=log_level,
+            max_examples=1000,
+        )
+        main_factorial(
+            tests_subdir="syntactic_tests_it/",
+            rescore=rescore,
+            log_level=log_level,
+            max_examples=5,
+        )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
 
 
 if __name__ == "__main__":
-    # print_list_of_cached_models()
-    main(rescore=True, max_examples=5)
-    # profile_slowdowns()
+
+    main(
+        rescore=True,
+        log_level=logging.INFO,
+    )
