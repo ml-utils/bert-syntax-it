@@ -16,7 +16,6 @@ from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.plots_and_prints import print_accuracy_scores
-from linguistic_tests.run_factorial_test_design import _get_example_dd_score
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import get_dd_score_parametric
 from linguistic_tests.testset import load_testsets_from_pickles
@@ -431,4 +430,27 @@ def _get_example_dd_scores(example: Example, model_type: ModelTypes):
         example_dd_with_penlp,
         example_dd_with_ll,
         example_dd_with_pll,
+    )
+
+
+def _get_example_dd_score(example: Example, score_name):
+    for typed_sentence in example.sentences:
+        stype = typed_sentence.stype
+        sent = typed_sentence.sent
+        if stype == SentenceNames.SHORT_NONISLAND:
+            a_short_nonisland = sent
+        elif stype == SentenceNames.LONG_NONISLAND:
+            b_long_nonisland = sent
+        elif stype == SentenceNames.SHORT_ISLAND:
+            c_short_island = sent
+        elif stype == SentenceNames.LONG_ISLAND:
+            d_long_island = sent
+        else:
+            raise ValueError(f"Unexpected sentence type: {stype}")
+
+    return get_dd_score_parametric(
+        a_short_nonisland.get_score(score_name),
+        b_long_nonisland.get_score(score_name),
+        c_short_island.get_score(score_name),
+        d_long_island.get_score(score_name),
     )

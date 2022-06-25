@@ -16,14 +16,11 @@ from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.plots_and_prints import _print_testset_results
 from linguistic_tests.plots_and_prints import plot_testsets
 from linguistic_tests.plots_and_prints import print_accuracy_scores
 from linguistic_tests.run_minimal_pairs_test_design import score_factorial_testset
-from linguistic_tests.testset import Example
-from linguistic_tests.testset import get_dd_score_parametric
 from linguistic_tests.testset import get_merged_score_across_testsets
 from linguistic_tests.testset import load_testsets_from_pickles
 from linguistic_tests.testset import parse_testsets
@@ -134,29 +131,6 @@ def get_pvalue_with_likelihood_ratio_test(full_model_ll, reduced_model_ll):
     likelihood_ratio = 2 * (reduced_model_ll - full_model_ll)
     p = chi2.sf(likelihood_ratio, 1)  # L2 has 1 DoF more than L1
     return p
-
-
-def _get_example_dd_score(example: Example, score_name):
-    for typed_sentence in example.sentences:
-        stype = typed_sentence.stype
-        sent = typed_sentence.sent
-        if stype == SentenceNames.SHORT_NONISLAND:
-            a_short_nonisland = sent
-        elif stype == SentenceNames.LONG_NONISLAND:
-            b_long_nonisland = sent
-        elif stype == SentenceNames.SHORT_ISLAND:
-            c_short_island = sent
-        elif stype == SentenceNames.LONG_ISLAND:
-            d_long_island = sent
-        else:
-            raise ValueError(f"Unexpected sentence type: {stype}")
-
-    return get_dd_score_parametric(
-        a_short_nonisland.get_score(score_name),
-        b_long_nonisland.get_score(score_name),
-        c_short_island.get_score(score_name),
-        d_long_island.get_score(score_name),
-    )
 
 
 def _get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
