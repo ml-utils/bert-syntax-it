@@ -343,11 +343,10 @@ def rescore_testsets_and_save_pickles(
     testset_dir_path: str,
     testsets_root_filenames: list[str],
     dataset_source: DataSources,
-    examples_format: str = "sprouse",
+    experimental_design: ExperimentalDesigns,
+    examples_format: str = "json_lines",
     max_examples=1000,
 ):
-
-    experimental_design = ExperimentalDesigns.FACTORIAL
 
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
     if model_type in BERT_LIKE_MODEL_TYPES:
@@ -446,11 +445,13 @@ def main(
 
         if rescore:
             rescore_testsets_and_save_pickles(
-                model_type,
-                model_name,
-                testset_dir_path,
-                testsets_root_filenames,
-                dataset_source,
+                model_type=model_type,
+                model_name=model_name,
+                testset_dir_path=testset_dir_path,
+                testsets_root_filenames=testsets_root_filenames,
+                dataset_source=dataset_source,
+                experimental_design=experimental_design,
+                examples_format="json_lines",
                 max_examples=max_examples,
             )
 
@@ -464,12 +465,13 @@ def main(
         for scored_testset in loaded_testsets:
             print_accuracy_scores(scored_testset)
 
-        # todo: add experimental_design param to work also with minimal pairs testsets
-        _print_testset_results(
-            loaded_testsets, broader_test_type, model_type, testsets_root_filenames
-        )
-
         if experimental_design == ExperimentalDesigns.FACTORIAL:
+
+            # todo: add experimental_design param to work also with minimal pairs testsets
+            _print_testset_results(
+                loaded_testsets, broader_test_type, model_type, testsets_root_filenames
+            )
+
             load_and_plot_pickle(
                 testsets_root_filenames,
                 model_name,

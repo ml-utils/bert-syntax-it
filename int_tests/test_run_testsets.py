@@ -6,6 +6,7 @@ import pytest
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DataSources
 from linguistic_tests.lm_utils import DEVICES
+from linguistic_tests.lm_utils import ExperimentalDesigns
 from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import get_testset_params
@@ -46,8 +47,9 @@ class TestRunTestSets(TestCase):
             model_type=ModelTypes.BERT,
             model_name="bert-base-uncased",
             testset_dir_path=testset_dir_path,
-            testset_filenames=testset_filenames,
+            testsets_root_filenames=testset_filenames,
             dataset_source=DataSources.BLIMP_EN,
+            experimental_design=ExperimentalDesigns.MINIMAL_PAIRS,
             examples_format=examples_format,
         )
 

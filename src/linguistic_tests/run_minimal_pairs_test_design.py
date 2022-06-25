@@ -48,15 +48,14 @@ def run_blimp_it_island_effects():
 
 def run_blimp_en(
     model_type: ModelTypes,
-    model_name,
+    model_name: str,
     testset_dir_path: str,
-    testset_filenames: list[str],
+    testsets_root_filenames: list[str],
     dataset_source: DataSources,
-    examples_format: str = "blimp",
+    experimental_design: ExperimentalDesigns,
+    examples_format: str = "json_lines",
     max_examples=1000,
 ):
-
-    experimental_design = ExperimentalDesigns.MINIMAL_PAIRS
 
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
     if model_type in BERT_LIKE_MODEL_TYPES:
@@ -65,7 +64,7 @@ def run_blimp_en(
 
     parsed_testsets = parse_testsets(
         testset_dir_path,
-        testset_filenames,
+        testsets_root_filenames,
         dataset_source,
         examples_format,
         experimental_design,
@@ -267,7 +266,7 @@ def main(
     logging.info(f"Will run tests with models: {MODEL_TYPES_AND_NAMES_EN.values()}")
 
     (
-        testset_filenames,
+        testsets_root_filenames,
         broader_test_type,
         dataset_source,
         experimental_design,
@@ -281,15 +280,16 @@ def main(
                 model_type=model_type,
                 model_name=model_name,
                 testset_dir_path=testset_dir_path,
-                testset_filenames=testset_filenames,
+                testsets_root_filenames=testsets_root_filenames,
                 dataset_source=dataset_source,
+                experimental_design=experimental_design,
                 examples_format="json_lines",
                 max_examples=max_examples,
             )
 
         loaded_testsets = load_testsets_from_pickles(
             dataset_source,
-            testset_filenames,
+            testsets_root_filenames,
             model_name,
             expected_experimental_design=experimental_design,
         )
