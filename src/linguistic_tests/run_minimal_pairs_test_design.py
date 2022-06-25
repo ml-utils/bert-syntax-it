@@ -16,7 +16,8 @@ from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.plots_and_prints import print_accuracy_scores
-from linguistic_tests.run_factorial_test_design import _get_example_dd_scores
+from linguistic_tests.run_factorial_test_design import _get_example_dd_score
+from linguistic_tests.testset import Example
 from linguistic_tests.testset import get_dd_score_parametric
 from linguistic_tests.testset import load_testsets_from_pickles
 from linguistic_tests.testset import parse_testsets
@@ -413,3 +414,21 @@ def score_factorial_testset(
         )
 
     return testset
+
+
+def _get_example_dd_scores(example: Example, model_type: ModelTypes):
+
+    example_dd_with_lp = _get_example_dd_score(example, ScoringMeasures.LP)
+    example_dd_with_penlp = _get_example_dd_score(example, ScoringMeasures.PenLP)
+
+    example_dd_with_ll, example_dd_with_pll = None, None
+    if model_type in BERT_LIKE_MODEL_TYPES:
+        example_dd_with_ll = _get_example_dd_score(example, ScoringMeasures.LL)
+        example_dd_with_pll = _get_example_dd_score(example, ScoringMeasures.PLL)
+
+    return (
+        example_dd_with_lp,
+        example_dd_with_penlp,
+        example_dd_with_ll,
+        example_dd_with_pll,
+    )

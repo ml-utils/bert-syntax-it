@@ -136,24 +136,6 @@ def get_pvalue_with_likelihood_ratio_test(full_model_ll, reduced_model_ll):
     return p
 
 
-def _get_example_dd_scores(example: Example, model_type: ModelTypes):
-
-    example_dd_with_lp = _get_example_dd_score(example, ScoringMeasures.LP)
-    example_dd_with_penlp = _get_example_dd_score(example, ScoringMeasures.PenLP)
-
-    example_dd_with_ll, example_dd_with_pll = None, None
-    if model_type in BERT_LIKE_MODEL_TYPES:
-        example_dd_with_ll = _get_example_dd_score(example, ScoringMeasures.LL)
-        example_dd_with_pll = _get_example_dd_score(example, ScoringMeasures.PLL)
-
-    return (
-        example_dd_with_lp,
-        example_dd_with_penlp,
-        example_dd_with_ll,
-        example_dd_with_pll,
-    )
-
-
 def _get_example_dd_score(example: Example, score_name):
     for typed_sentence in example.sentences:
         stype = typed_sentence.stype
