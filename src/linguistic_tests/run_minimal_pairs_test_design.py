@@ -55,7 +55,7 @@ def run_blimp_en(
     experimental_design: ExperimentalDesigns,
     examples_format: str = "json_lines",
     max_examples=1000,
-):
+) -> list[TestSet]:
 
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
     if model_type in BERT_LIKE_MODEL_TYPES:
@@ -84,7 +84,7 @@ def run_blimp_en(
 
     save_scored_testsets(scored_testsets, model_name, dataset_source)
 
-    return parsed_testsets
+    return scored_testsets
 
 
 def score_minimal_pairs_testsets(

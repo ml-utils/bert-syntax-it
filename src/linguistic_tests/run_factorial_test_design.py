@@ -346,7 +346,7 @@ def rescore_testsets_and_save_pickles(
     experimental_design: ExperimentalDesigns,
     examples_format: str = "json_lines",
     max_examples=1000,
-):
+) -> list[TestSet]:
 
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
     if model_type in BERT_LIKE_MODEL_TYPES:
@@ -367,9 +367,16 @@ def rescore_testsets_and_save_pickles(
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
     scored_testsets = score_factorial_testsets(
-        model_type, model, tokenizer, DEVICES.CPU, parsed_testsets, experimental_design
+        model_type,
+        model,
+        tokenizer,
+        DEVICES.CPU,
+        parsed_testsets,
+        experimental_design,
     )
     save_scored_testsets(scored_testsets, model_name, dataset_source)
+
+    return scored_testsets
 
 
 def _setup_logging(log_level):
