@@ -346,7 +346,7 @@ def load_and_plot_pickle(
 
 def rescore_testsets_and_save_pickles(
     model_type: ModelTypes,
-    testset_dir_path,
+    testset_dir_path: str,
     testsets_root_filenames: list[str],
     dataset_source: DataSources,
     examples_format: str = "sprouse",  # "blimp", "json_lines", "sprouse"
@@ -355,14 +355,12 @@ def rescore_testsets_and_save_pickles(
     model_name = MODEL_NAMES_IT[model_type]
     experimental_design = ExperimentalDesigns.FACTORIAL
 
-    # sentence_ordering = SprouseSentencesOrder  # BlimpSentencesOrder
-    logging.info(f"Running testsets from dir {testset_dir_path}")
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
     if model_type in BERT_LIKE_MODEL_TYPES:
         scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
+    logging.info(f"Running testsets from dir {testset_dir_path}")
 
     parsed_testsets = parse_testsets(
-        # todo: add scorebase var in testset class
         testset_dir_path,
         testsets_root_filenames,
         dataset_source,
@@ -373,14 +371,13 @@ def rescore_testsets_and_save_pickles(
         max_examples=max_examples,
     )
 
-    device = DEVICES.CPU
-    model, tokenizer = load_model(model_type, model_name, device)
+    model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
 
     scored_testsets = score_factorial_testsets(
         model_type,
         model,
         tokenizer,
-        device,
+        DEVICES.CPU,
         parsed_testsets,
     )
     save_scored_testsets(scored_testsets, model_name, dataset_source)

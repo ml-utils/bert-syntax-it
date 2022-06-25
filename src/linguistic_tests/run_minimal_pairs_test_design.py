@@ -7,7 +7,6 @@ from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import MODEL_NAMES_EN
 from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.testset import DataSources
@@ -57,6 +56,7 @@ def run_blimp_en(
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
     if model_type in BERT_LIKE_MODEL_TYPES:
         scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
+    logging.info(f"Running testsets from dir {testset_dir_path}")
 
     parsed_testsets = parse_testsets(
         testset_dir_path,
@@ -66,22 +66,46 @@ def run_blimp_en(
         experimental_design,
         model_name,
         scoring_measures,
-        max_examples=1000,
+        max_examples=max_examples,
     )
 
     model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
-    for parsed_testset in parsed_testsets:
-        print_orange(
-            f"Scoring testset {parsed_testset.linguistic_phenomenon}, on {model_type=} {model_name=}"
-        )
-        parsed_testset.examples = parsed_testset.examples[0:max_examples]
+    scored_testsets = score_minimal_pairs_testsets(
+        model_type,
+        model,
+        tokenizer,
+        DEVICES.CPU,
+        parsed_testsets,
+    )
 
-        score_minimal_pairs_testset(  # scored_testset =
-            model_type, model, tokenizer, DEVICES.CPU, parsed_testset
-        )
-    save_scored_testsets(parsed_testsets, model_name, dataset_source)
+    save_scored_testsets(scored_testsets, model_name, dataset_source)
 
     return parsed_testsets
+
+
+def score_minimal_pairs_testsets(
+    model_type: ModelTypes,
+    model,
+    tokenizer,
+    device: DEVICES,
+    parsed_testsets: list[TestSet],
+) -> list[TestSet]:
+
+    scored_testsets = []
+    for parsed_testset in parsed_testsets:
+        logging.info(
+            f"Scoring testset {parsed_testset.linguistic_phenomenon}, on {model_type=} {parsed_testset.model_descr}"
+        )
+        scored_testset = score_minimal_pairs_testset(
+            model_type,
+            model,
+            tokenizer,
+            device,
+            parsed_testset,
+        )
+        scored_testsets.append(scored_testset)
+
+    return scored_testsets
 
 
 def run_tests_for_model_type(model_type):

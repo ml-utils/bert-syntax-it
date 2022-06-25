@@ -744,6 +744,8 @@ def parse_testsets(
     max_examples: int,
 ) -> list[TestSet]:
 
+    # todo: add scorebase var in testset class
+
     parsed_testsets = []
     for testset_filename in testset_filenames:
         testset_filepath = os.path.join(testset_dir_path, testset_filename + ".jsonl")
