@@ -5,7 +5,9 @@ import numpy as np
 import pandas as pd
 from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from linguistic_tests.lm_utils import DataSources
 from linguistic_tests.lm_utils import DEVICES
+from linguistic_tests.lm_utils import ExperimentalDesigns
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import get_testset_params
 from linguistic_tests.lm_utils import load_model
@@ -19,9 +21,7 @@ from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.plots_and_prints import _print_testset_results
 from linguistic_tests.plots_and_prints import plot_testsets
 from linguistic_tests.run_minimal_pairs_test_design import score_minimal_pairs_testset
-from linguistic_tests.testset import DataSources
 from linguistic_tests.testset import Example
-from linguistic_tests.testset import ExperimentalDesigns
 from linguistic_tests.testset import get_dd_score_parametric
 from linguistic_tests.testset import get_merged_score_across_testsets
 from linguistic_tests.testset import load_testsets_from_pickles

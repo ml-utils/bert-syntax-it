@@ -2,11 +2,11 @@ from unittest import TestCase
 
 import numpy as np
 import pandas as pd
+from linguistic_tests.lm_utils import DataSources
+from linguistic_tests.lm_utils import ExperimentalDesigns
 from linguistic_tests.lm_utils import SentenceNames
-from linguistic_tests.testset import DataSources
 from linguistic_tests.testset import ERROR_LP
 from linguistic_tests.testset import Example
-from linguistic_tests.testset import ExperimentalDesigns
 from linguistic_tests.testset import ScoringMeasures
 from linguistic_tests.testset import Sentence
 from linguistic_tests.testset import TestSet

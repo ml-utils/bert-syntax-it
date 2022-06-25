@@ -3,7 +3,6 @@ import os
 from dataclasses import dataclass
 from dataclasses import field
 from dataclasses import InitVar
-from enum import IntEnum
 from typing import Dict
 from typing import KeysView
 
@@ -14,13 +13,14 @@ from linguistic_tests.file_utils import load_object_from_pickle
 from linguistic_tests.file_utils import save_obj_to_pickle
 from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from linguistic_tests.lm_utils import DataSources
+from linguistic_tests.lm_utils import ExperimentalDesigns
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
 from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
-from linguistic_tests.lm_utils import StrEnum
 from scipy.stats import zmap
 
 
@@ -37,30 +37,6 @@ BLIMP_SENTENCE_TYPES: list[SentenceNames] = [
 ]
 
 ERROR_LP: float = -200.0
-
-
-class ExperimentalDesigns(IntEnum):
-    MINIMAL_PAIRS = 0
-    FACTORIAL = 1
-
-
-class DataSources(StrEnum):
-    BLIMP_EN = "Blimp Warstadt et al. 2020"  # "Blimp paper"
-    SPROUSE = "Sprouse et al. 2016"  # "sprouse", "Sprouse et al. 2016"
-    MADEDDU = "Madeddu"
-
-    def __repr__(self):
-        return self.value
-
-    def __eq__(self, b):
-
-        return (
-            self is b
-            or self.name == b
-            or self.name.lower() == str(b).lower()
-            or (hasattr(b, "name") and b.name == self.name)
-            or (hasattr(b, "value") and b.value.lower() == self.name.lower())
-        )
 
 
 @dataclass

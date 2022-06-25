@@ -3,7 +3,9 @@ import logging
 from linguistic_tests.compute_model_score import get_unparsed_example_scores
 from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from linguistic_tests.lm_utils import DataSources
 from linguistic_tests.lm_utils import DEVICES
+from linguistic_tests.lm_utils import ExperimentalDesigns
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import get_testset_params
 from linguistic_tests.lm_utils import load_model
@@ -13,8 +15,6 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.plots_and_prints import print_accuracy_scores
-from linguistic_tests.testset import DataSources
-from linguistic_tests.testset import ExperimentalDesigns
 from linguistic_tests.testset import load_testsets_from_pickles
 from linguistic_tests.testset import parse_testsets
 from linguistic_tests.testset import save_scored_testsets

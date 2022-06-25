@@ -2,15 +2,15 @@ import os
 from unittest import TestCase
 
 import pytest
+from linguistic_tests.lm_utils import DataSources
 from linguistic_tests.lm_utils import DEVICES
+from linguistic_tests.lm_utils import ExperimentalDesigns
 from linguistic_tests.lm_utils import get_testset_params
 from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.run_factorial_test_design import score_factorial_testsets
-from linguistic_tests.testset import DataSources
-from linguistic_tests.testset import ExperimentalDesigns
 from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
 from linguistic_tests.testset import parse_testsets

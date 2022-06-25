@@ -7,8 +7,6 @@ from typing import Union
 
 import sentencepiece as spm
 import torch
-from linguistic_tests.testset import DataSources
-from linguistic_tests.testset import ExperimentalDesigns
 from sentencepiece import SentencePieceProcessor
 from torch.utils.hipify.hipify_python import bcolors
 from tqdm import tqdm
@@ -535,6 +533,30 @@ CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES = [
     "wh_subject_islands",
     "wh_adjunct_islands",
 ]
+
+
+class ExperimentalDesigns(IntEnum):
+    MINIMAL_PAIRS = 0
+    FACTORIAL = 1
+
+
+class DataSources(StrEnum):
+    BLIMP_EN = "Blimp Warstadt et al. 2020"  # "Blimp paper"
+    SPROUSE = "Sprouse et al. 2016"  # "sprouse", "Sprouse et al. 2016"
+    MADEDDU = "Madeddu"
+
+    def __repr__(self):
+        return self.value
+
+    def __eq__(self, b):
+
+        return (
+            self is b
+            or self.name == b
+            or self.name.lower() == str(b).lower()
+            or (hasattr(b, "name") and b.name == self.name)
+            or (hasattr(b, "value") and b.value.lower() == self.name.lower())
+        )
 
 
 def get_testset_params(
