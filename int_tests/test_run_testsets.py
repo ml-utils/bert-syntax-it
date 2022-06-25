@@ -18,7 +18,9 @@ from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.plots_and_prints import print_accuracies
 from linguistic_tests.run_minimal_pairs_test_design import get_unparsed_testset_scores
-from linguistic_tests.run_minimal_pairs_test_design import run_blimp_en
+from linguistic_tests.run_minimal_pairs_test_design import (
+    rescore_testsets_and_save_pickles,
+)
 from linguistic_tests.run_minimal_pairs_test_design import score_factorial_testsets
 from linguistic_tests.testset import ERROR_LP
 from linguistic_tests.testset import parse_testsets
@@ -38,12 +40,12 @@ class TestRunTestSets(TestCase):
     #  unit tests
 
     @pytest.mark.enable_socket
-    def test_run_blimp_en_tests(self):
+    def test_rescore_testsets_and_save_pickles(self):
         testset_filenames = ["mini_wh_island"]
         p = get_test_data_dir() / "blimp"
         testset_dir_path = str(p)
         examples_format = "json_lines"
-        run_blimp_en(
+        rescore_testsets_and_save_pickles(
             model_type=ModelTypes.BERT,
             model_name="bert-base-uncased",
             testset_dir_path=testset_dir_path,

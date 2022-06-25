@@ -53,48 +53,6 @@ def run_blimp_it_island_effects():
     pass
 
 
-def run_blimp_en(
-    model_type: ModelTypes,
-    model_name: str,
-    testset_dir_path: str,
-    testsets_root_filenames: list[str],
-    dataset_source: DataSources,
-    experimental_design: ExperimentalDesigns,
-    examples_format: str = "json_lines",
-    max_examples=1000,
-) -> list[TestSet]:
-
-    scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
-    if model_type in BERT_LIKE_MODEL_TYPES:
-        scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
-    logging.info(f"Running testsets from dir {testset_dir_path}")
-
-    parsed_testsets = parse_testsets(
-        testset_dir_path,
-        testsets_root_filenames,
-        dataset_source,
-        examples_format,
-        experimental_design,
-        model_name,
-        scoring_measures,
-        max_examples=max_examples,
-    )
-
-    model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
-    scored_testsets = score_factorial_testsets(  #
-        model_type,
-        model,
-        tokenizer,
-        DEVICES.CPU,
-        parsed_testsets,
-        ExperimentalDesigns.MINIMAL_PAIRS,
-    )
-
-    save_scored_testsets(scored_testsets, model_name, dataset_source)
-
-    return scored_testsets
-
-
 def run_tests_for_model_type(model_type):
     print(f"model_type: {model_type}")
     # model_name, eval_suite = arg_parse()
@@ -264,7 +222,7 @@ def main(
         print_orange(f"Starting test session for {model_type=}, and {dataset_source=}")
 
         if rescore:
-            run_blimp_en(
+            rescore_testsets_and_save_pickles(
                 model_type=model_type,
                 model_name=model_name,
                 testset_dir_path=testset_dir_path,
@@ -526,3 +484,45 @@ def _calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
         logging.debug(
             f"{scoring_measure} std errors: {testset.std_error_of_zscores_by_measure_and_by_stype=}"
         )
+
+
+def rescore_testsets_and_save_pickles(
+    model_type: ModelTypes,
+    model_name: str,
+    testset_dir_path: str,
+    testsets_root_filenames: list[str],
+    dataset_source: DataSources,
+    experimental_design: ExperimentalDesigns,
+    examples_format: str = "json_lines",
+    max_examples=1000,
+) -> list[TestSet]:
+
+    scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+    if model_type in BERT_LIKE_MODEL_TYPES:
+        scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
+    logging.info(f"Running testsets from dir {testset_dir_path}")
+
+    parsed_testsets = parse_testsets(
+        testset_dir_path,
+        testsets_root_filenames,
+        dataset_source,
+        examples_format,
+        experimental_design,
+        model_name,
+        scoring_measures,
+        max_examples=max_examples,
+    )
+
+    model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
+
+    scored_testsets = score_factorial_testsets(
+        model_type,
+        model,
+        tokenizer,
+        DEVICES.CPU,
+        parsed_testsets,
+        experimental_design,
+    )
+    save_scored_testsets(scored_testsets, model_name, dataset_source)
+
+    return scored_testsets

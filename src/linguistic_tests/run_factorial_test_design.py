@@ -1,27 +1,21 @@
 import logging
 
 from linguistic_tests.lm_utils import assert_almost_equal
-from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
-from linguistic_tests.lm_utils import DataSources
-from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import ExperimentalDesigns
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import get_testset_params
-from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import MODEL_NAMES_IT
 from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
-from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.plots_and_prints import _print_testset_results
 from linguistic_tests.plots_and_prints import plot_testsets
 from linguistic_tests.plots_and_prints import print_accuracy_scores
-from linguistic_tests.run_minimal_pairs_test_design import score_factorial_testsets
+from linguistic_tests.run_minimal_pairs_test_design import (
+    rescore_testsets_and_save_pickles,
+)
 from linguistic_tests.testset import load_testsets_from_pickles
-from linguistic_tests.testset import parse_testsets
-from linguistic_tests.testset import save_scored_testsets
-from linguistic_tests.testset import TestSet
 from scipy.stats import chi2
 
 
@@ -88,48 +82,6 @@ def load_and_plot_pickle(
         )
 
     plot_testsets(loaded_testsets, model_type)
-
-
-def rescore_testsets_and_save_pickles(
-    model_type: ModelTypes,
-    model_name: str,
-    testset_dir_path: str,
-    testsets_root_filenames: list[str],
-    dataset_source: DataSources,
-    experimental_design: ExperimentalDesigns,
-    examples_format: str = "json_lines",
-    max_examples=1000,
-) -> list[TestSet]:
-
-    scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
-    if model_type in BERT_LIKE_MODEL_TYPES:
-        scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
-    logging.info(f"Running testsets from dir {testset_dir_path}")
-
-    parsed_testsets = parse_testsets(
-        testset_dir_path,
-        testsets_root_filenames,
-        dataset_source,
-        examples_format,
-        experimental_design,
-        model_name,
-        scoring_measures,
-        max_examples=max_examples,
-    )
-
-    model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
-
-    scored_testsets = score_factorial_testsets(
-        model_type,
-        model,
-        tokenizer,
-        DEVICES.CPU,
-        parsed_testsets,
-        experimental_design,
-    )
-    save_scored_testsets(scored_testsets, model_name, dataset_source)
-
-    return scored_testsets
 
 
 def _setup_logging(log_level):
