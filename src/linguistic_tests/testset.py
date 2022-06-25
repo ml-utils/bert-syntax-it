@@ -555,13 +555,13 @@ class TestSet:
                     assert ERROR_LP != example.DD_with_ll
                     assert ERROR_LP != example.DD_with_penll
                 else:
-                    assert ERROR_LP == example.DD_with_ll
-                    assert ERROR_LP == example.DD_with_penll
+                    assert_is_default(example.DD_with_ll)
+                    assert_is_default(example.DD_with_penll)
             else:
-                assert ERROR_LP == example.DD_with_lp
-                assert ERROR_LP == example.DD_with_penlp
-                assert ERROR_LP == example.DD_with_ll
-                assert ERROR_LP == example.DD_with_penll
+                assert_is_default(example.DD_with_lp)
+                assert_is_default(example.DD_with_penlp)
+                assert_is_default(example.DD_with_ll)
+                assert_is_default(example.DD_with_penll)
 
             for typed_sent in example.sentences:
 
@@ -571,6 +571,10 @@ class TestSet:
 
                 for scoring_measure in testset.get_scoring_measures():
                     assert ERROR_LP != typed_sent.sent.get_score(scoring_measure)
+
+
+def assert_is_default(value):
+    assert value is None or value == ERROR_LP
 
 
 def assert_non_default_value(value: float, warning=False, details=""):

@@ -12,6 +12,7 @@ from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import MODEL_NAMES_EN
 from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
 from linguistic_tests.lm_utils import ModelTypes
+from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.plots_and_prints import print_accuracy_scores
@@ -256,10 +257,14 @@ def main(
     max_examples=50,
 ):
 
+    #     _setup_logging(log_level)
+    #     args = _parse_arguments()
+
     # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
     tests_subdir = "blimp/from_blim_en/islands"
-    p = get_syntactic_tests_dir() / tests_subdir
-    testset_dir_path = str(p)
+    testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
+
+    logging.info(f"Will run tests with models: {MODEL_TYPES_AND_NAMES_EN.values()}")
 
     (
         testset_filenames,
@@ -269,9 +274,9 @@ def main(
     ) = get_testset_params(tests_subdir)
 
     for model_name, model_type in MODEL_TYPES_AND_NAMES_EN.items():
+        print_orange(f"Starting test session for {model_type=}, and {dataset_source=}")
 
         if rescore:
-            # todo: switch to parse testset and run minimal pairs test design
             run_blimp_en(
                 model_type=model_type,
                 testset_dir_path=testset_dir_path,
@@ -287,23 +292,5 @@ def main(
             model_name,
             expected_experimental_design=experimental_design,
         )
-
         for scored_testset in loaded_testsets:
             print_accuracy_scores(scored_testset)
-
-        # raise SystemExit
-        # print('choosing model type ..')
-        # 'dbmdz/bert-base-italian-xxl-cased' #
-        # models_to_run = [
-        #     ModelTypes.BERT,
-        #     ModelTypes.GEPPETTO,
-        #     ModelTypes.GPT,
-        #     ModelTypes.GILBERTO,
-        # ]
-        # from linguistic_tests.run_syntactic_tests import run_tests_for_model_type
-        # for model_type in models_to_run:
-        #     run_tests_for_model_type(model_type)
-
-
-if __name__ == "__main__":
-    main()

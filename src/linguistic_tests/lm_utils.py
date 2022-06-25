@@ -487,7 +487,7 @@ MODEL_TYPES_AND_NAMES_EN: dict[str, ModelTypes] = {
 }
 
 MODEL_TYPES_AND_NAMES_IT: dict[str, ModelTypes] = {
-    "LorenzoDeMattei/GePpeTto": ModelTypes.GPT,
+    "LorenzoDeMattei/GePpeTto": ModelTypes.GEPPETTO,
     "dbmdz/bert-base-italian-xxl-cased": ModelTypes.BERT,
     "idb-ita/gilberto-uncased-from-camembert": ModelTypes.GILBERTO,
 }

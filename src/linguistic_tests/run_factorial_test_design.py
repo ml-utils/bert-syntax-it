@@ -20,6 +20,7 @@ from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.plots_and_prints import _print_testset_results
 from linguistic_tests.plots_and_prints import plot_testsets
+from linguistic_tests.plots_and_prints import print_accuracy_scores
 from linguistic_tests.run_minimal_pairs_test_design import score_minimal_pairs_testset
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import get_dd_score_parametric
@@ -411,9 +412,6 @@ def _parse_arguments():
 
 
 def main(
-    # todo: save accuracy results to csv file
-    #  also another csv file with details on sentences scores
-    #  and an option to load the report csv and print them in the command line
     tests_subdir="syntactic_tests_it/",  # tests_subdir="sprouse/"
     rescore=False,
     log_level=logging.INFO,
@@ -426,16 +424,14 @@ def main(
     # model_types_to_run = [
     #     ModelTypes(model_type_int) for model_type_int in args.model_types
     # ]
+    # todo: also add command line option for tests subdir path
     if args.datasource == "sprouse":
         tests_subdir = "sprouse/"
     elif args.datasource == "madeddu":
         tests_subdir = "syntactic_tests_it/"
-    # rescore =
+    testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
     logging.info(f"Will run tests with models: {MODEL_TYPES_AND_NAMES_IT.values()}")
-
-    # todo: also add command line option for tests subdir path
-    testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
     (
         testsets_root_filenames,
@@ -446,14 +442,6 @@ def main(
 
     for model_name, model_type in MODEL_TYPES_AND_NAMES_IT.items():
         print_orange(f"Starting test session for {model_type=}, and {dataset_source=}")
-        # add score with logistic function (instead of softmax)
-
-        # todo: check that accuracy values are scored and stored correctly
-        #  (it seems they are scored twice and not shown when loading pickles)
-        # save results to csv (for import in excel table)
-        # autosave plots as *.png
-
-        # create_test_jsonl_files_tests()
 
         if rescore:
             rescore_testsets_and_save_pickles(
@@ -471,21 +459,26 @@ def main(
             expected_experimental_design=experimental_design,
         )
 
+        for scored_testset in loaded_testsets:
+            print_accuracy_scores(scored_testset)
+
+        # todo: add experimental_design param to work also with minimal pairs testsets
         _print_testset_results(
             loaded_testsets, broader_test_type, model_type, testsets_root_filenames
         )
 
-        load_and_plot_pickle(
-            testsets_root_filenames,
-            MODEL_NAMES_IT[model_type],
-            dataset_source,
-            model_type,
-            expected_experimental_design=experimental_design,
-            loaded_testsets=loaded_testsets,
-        )
-        print_orange(f"Finished test session for {model_type=}")
+        if experimental_design == ExperimentalDesigns.FACTORIAL:
+            load_and_plot_pickle(
+                testsets_root_filenames,
+                MODEL_NAMES_IT[model_type],
+                dataset_source,
+                model_type,
+                expected_experimental_design=experimental_design,
+                loaded_testsets=loaded_testsets,
+            )
+            # todo:
+            # plot with 7+1x7 subplots of a testset (one subplot for each example)
+            # nb: having the standard errors in the plots is already overcoming this,
+            # showing the variance
 
-    # todo:
-    # plot with 7+1x7 subplots of a testset (one subplot for each example)
-    # nb: having the standard errors in the plots is already overcoming this,
-    # showing the variance
+        print_orange(f"Finished test session for {model_type=}")

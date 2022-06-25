@@ -138,21 +138,25 @@ def main(
     if len(sys.argv) > 1:
         interactive_mode()
     else:
+        # todo: save accuracy and other results to csv file (for import in excel table)
+        #  also another csv file with details on sentences scores
+        #  and an option to load the report csv and print them in the command line
+
         from run_minimal_pairs_test_design import main as main_minimal_pairs
         from run_factorial_test_design import main as main_factorial
 
+        main_factorial(
+            tests_subdir="sprouse/",
+            rescore=rescore,
+            log_level=log_level,
+            max_examples=50,
+        )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
         main_minimal_pairs(
             tests_subdir="syntactic_tests_it/",  # tests_subdir="sprouse/",
             rescore=rescore,
             log_level=log_level,
-            max_examples=1000,
-        )
-        main_factorial(
-            tests_subdir="syntactic_tests_it/",
-            rescore=rescore,
-            log_level=log_level,
             max_examples=5,
-        )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
+        )
 
 
 if __name__ == "__main__":
