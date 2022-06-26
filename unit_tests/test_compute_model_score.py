@@ -23,7 +23,7 @@ from linguistic_tests.lm_utils import get_penalty_term
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import SentenceNames
-from linguistic_tests.run_minimal_pairs_test_design import get_unparsed_testset_scores
+from linguistic_tests.run_test_design import get_unparsed_testset_scores
 from linguistic_tests.testset import ERROR_LP
 from numpy import log
 from transformers import BertForMaskedLM

@@ -10,7 +10,7 @@ from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import load_testset_data
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.run_minimal_pairs_test_design import score_factorial_testsets
+from linguistic_tests.run_test_design import score_factorial_testsets
 from linguistic_tests.testset import load_testset_from_pickle
 from linguistic_tests.testset import parse_testset
 from linguistic_tests.testset import parse_testsets

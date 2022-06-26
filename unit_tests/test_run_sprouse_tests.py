@@ -8,9 +8,9 @@ from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.plots_and_prints import _print_example
 from linguistic_tests.plots_and_prints import _print_testset_results
 from linguistic_tests.plots_and_prints import plot_results
-from linguistic_tests.run_minimal_pairs_test_design import main_factorial
-from linguistic_tests.run_minimal_pairs_test_design import score_factorial_testset
-from linguistic_tests.run_minimal_pairs_test_design import score_factorial_testsets
+from linguistic_tests.run_test_design import main_factorial
+from linguistic_tests.run_test_design import score_factorial_testset
+from linguistic_tests.run_test_design import score_factorial_testsets
 from linguistic_tests.testset import save_scored_testsets
 from tqdm import tqdm
 

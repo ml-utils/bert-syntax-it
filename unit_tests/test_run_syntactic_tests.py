@@ -1,10 +1,10 @@
 from unittest import TestCase
 
 import pytest
-from linguistic_tests.run_minimal_pairs_test_design import (
+from linguistic_tests.run_test_design import (
     rescore_testsets_and_save_pickles,
 )
-from linguistic_tests.run_minimal_pairs_test_design import run_tests_for_model_type
+from linguistic_tests.run_test_design import run_tests_for_model_type
 
 
 class TestRunSyntacticTests(TestCase):

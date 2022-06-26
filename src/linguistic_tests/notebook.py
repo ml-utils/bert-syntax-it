@@ -144,7 +144,7 @@ def main(
         #  also another csv file with details on sentences scores
         #  and an option to load the report csv and print them in the command line
 
-        from linguistic_tests.run_minimal_pairs_test_design import main_factorial
+        from linguistic_tests.run_test_design import main_factorial
 
         main_factorial(
             model_types_and_names=MODEL_TYPES_AND_NAMES_EN,

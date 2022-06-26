@@ -22,9 +22,9 @@ from linguistic_tests.run_legacy_tests import read_gulordava
 from linguistic_tests.run_legacy_tests import rnd
 from linguistic_tests.run_legacy_tests import run_eval
 from linguistic_tests.run_legacy_tests import run_testset_bert
-from linguistic_tests.run_minimal_pairs_test_design import run_tests_blimp
-from linguistic_tests.run_minimal_pairs_test_design import run_tests_goldberg
-from linguistic_tests.run_minimal_pairs_test_design import run_tests_lau_et_al
+from linguistic_tests.run_test_design import run_tests_blimp
+from linguistic_tests.run_test_design import run_tests_goldberg
+from linguistic_tests.run_test_design import run_tests_lau_et_al
 
 
 class TestNotebook(TestCase):
