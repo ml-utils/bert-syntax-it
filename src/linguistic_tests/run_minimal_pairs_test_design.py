@@ -195,7 +195,7 @@ def get_unparsed_testset_scores(
     )
 
 
-def main(
+def main_minimal_pairs(
     tests_subdir="blimp/from_blim_en/islands/",
     rescore=False,
     log_level=logging.INFO,

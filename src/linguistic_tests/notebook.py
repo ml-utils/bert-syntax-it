@@ -142,8 +142,8 @@ def main(
         #  also another csv file with details on sentences scores
         #  and an option to load the report csv and print them in the command line
 
-        from run_minimal_pairs_test_design import main as main_minimal_pairs
-        from run_factorial_test_design import main as main_factorial
+        from run_minimal_pairs_test_design import main_minimal_pairs
+        from run_factorial_test_design import main_factorial
 
         main_minimal_pairs(
             tests_subdir="blimp/from_blim_en/islands/",  # tests_subdir="sprouse/",

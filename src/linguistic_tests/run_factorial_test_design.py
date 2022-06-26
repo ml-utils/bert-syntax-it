@@ -1,10 +1,11 @@
 import logging
 
+from linguistic_tests.file_utils import _parse_arguments
+from linguistic_tests.file_utils import _setup_logging
 from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import ExperimentalDesigns
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import get_testset_params
-from linguistic_tests.lm_utils import MODEL_NAMES_IT
 from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
@@ -84,46 +85,7 @@ def load_and_plot_pickle(
     plot_testsets(loaded_testsets, model_type)
 
 
-def _setup_logging(log_level):
-    fmt = "[%(levelname)s] %(asctime)s - %(message)s"
-
-    logging.getLogger("matplotlib.font_manager").disabled = True
-    # stdout_handler = calcula.StreamHandler(sys.stdout)
-    # root_logger = logging.getLogger()
-    # root_logger.addFilter(NoFontMsgFilter())
-    # root_logger.addFilter(NoStreamMsgFilter())
-
-    logging.basicConfig(format=fmt, level=log_level)  #
-    this_module_logger = logging.getLogger(__name__)
-    this_module_logger.setLevel(log_level)
-
-
-def _parse_arguments():
-
-    import argparse
-
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument(
-        "--model_types",
-        help=f"specify the models to run. { {i.name: i.value for i in ModelTypes} }",
-        nargs="+",  # 1 or more values expected => creates a list
-        type=int,
-        choices=[i.value for i in MODEL_NAMES_IT.keys()],
-        default=[i.value for i in MODEL_NAMES_IT.keys()],
-    )
-    arg_parser.add_argument(
-        "--datasource",
-        nargs="?",
-        choices=["sprouse", "madeddu"],
-    )
-    # arg_parser.add_argument(
-    #     "--rescore"
-    # )
-    args = arg_parser.parse_args()
-    return args
-
-
-def main(
+def main_factorial(
     tests_subdir="syntactic_tests_it/",  # tests_subdir="sprouse/"
     rescore=False,
     log_level=logging.INFO,

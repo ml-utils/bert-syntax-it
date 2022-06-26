@@ -1,6 +1,7 @@
 import csv
 import dataclasses
 import json
+import logging
 import os.path
 import pickle
 import time
@@ -12,6 +13,8 @@ from linguistic_tests.lm_utils import get_results_dir
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import load_testset_data
+from linguistic_tests.lm_utils import MODEL_NAMES_IT
+from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import SentenceNames
 
@@ -338,3 +341,42 @@ def save_obj_to_pickle(obj, filename):
     print_orange(f"Saving {type(obj)} to {filepath}")
     with open(filepath, "wb") as file:
         pickle.dump(obj, file)
+
+
+def _setup_logging(log_level):
+    fmt = "[%(levelname)s] %(asctime)s - %(message)s"
+
+    logging.getLogger("matplotlib.font_manager").disabled = True
+    # stdout_handler = calcula.StreamHandler(sys.stdout)
+    # root_logger = logging.getLogger()
+    # root_logger.addFilter(NoFontMsgFilter())
+    # root_logger.addFilter(NoStreamMsgFilter())
+
+    logging.basicConfig(format=fmt, level=log_level)  #
+    this_module_logger = logging.getLogger(__name__)
+    this_module_logger.setLevel(log_level)
+
+
+def _parse_arguments():
+
+    import argparse
+
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument(
+        "--model_types",
+        help=f"specify the models to run. { {i.name: i.value for i in ModelTypes} }",
+        nargs="+",  # 1 or more values expected => creates a list
+        type=int,
+        choices=[i.value for i in MODEL_NAMES_IT.keys()],
+        default=[i.value for i in MODEL_NAMES_IT.keys()],
+    )
+    arg_parser.add_argument(
+        "--datasource",
+        nargs="?",
+        choices=["sprouse", "madeddu"],
+    )
+    # arg_parser.add_argument(
+    #     "--rescore"
+    # )
+    args = arg_parser.parse_args()
+    return args
