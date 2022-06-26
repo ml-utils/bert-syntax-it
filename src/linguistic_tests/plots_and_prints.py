@@ -20,7 +20,11 @@ from matplotlib import pyplot as plt
 
 
 def plot_results(
-    scored_testsets: list[TestSet], score_name, use_zscore=False, likert=False
+    scored_testsets: list[TestSet],
+    score_name,
+    use_zscore=False,
+    likert=False,
+    show_plot=False,
 ):
     fig, axs = plt.subplots(2, 2, figsize=(12.8, 12.8))  # default figsize=(6.4, 4.8)
 
@@ -78,7 +82,8 @@ def plot_results(
 
     print_orange(f"Saving plot to file {filepath} ..")
     plt.savefig(filepath)  # , dpi=300
-    # plt.show()
+    if show_plot:
+        plt.show()
 
 
 def _plot_results_subplot(
@@ -181,12 +186,24 @@ def _print_example(example_data, sentence_ordering):
     )
 
 
-def plot_testsets(scored_testsets: list[TestSet], model_type: ModelTypes):
+def plot_testsets(
+    scored_testsets: list[TestSet], model_type: ModelTypes, show_plot=False
+):
 
     plot_results(
-        scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True, likert=True
+        scored_testsets,
+        ScoringMeasures.PenLP.name,
+        use_zscore=True,
+        likert=True,
+        show_plot=show_plot,
     )
-    plot_results(scored_testsets, ScoringMeasures.LP.name, use_zscore=True, likert=True)
+    plot_results(
+        scored_testsets,
+        ScoringMeasures.LP.name,
+        use_zscore=True,
+        likert=True,
+        show_plot=show_plot,
+    )
     # plot_results(
     #     scored_testsets, ScoringMeasures.LP.name, use_zscore=True, likert=False
     # )
@@ -201,10 +218,18 @@ def plot_testsets(scored_testsets: list[TestSet], model_type: ModelTypes):
         # plot_results(scored_testsets, ScoringMeasures.LL.name)
         # plot_results(scored_testsets, ScoringMeasures.PLL.name)
         plot_results(
-            scored_testsets, ScoringMeasures.LL.name, use_zscore=True, likert=True
+            scored_testsets,
+            ScoringMeasures.LL.name,
+            use_zscore=True,
+            likert=True,
+            show_plot=show_plot,
         )
         plot_results(
-            scored_testsets, ScoringMeasures.PLL.name, use_zscore=True, likert=True
+            scored_testsets,
+            ScoringMeasures.PLL.name,
+            use_zscore=True,
+            likert=True,
+            show_plot=show_plot,
         )
 
 

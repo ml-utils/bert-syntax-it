@@ -330,6 +330,7 @@ def load_and_plot_pickles(
     model_type: ModelTypes,
     expected_experimental_design: ExperimentalDesigns,
     loaded_testsets=None,
+    show_plot=False,
 ):
 
     if loaded_testsets is None:
@@ -340,7 +341,7 @@ def load_and_plot_pickles(
             expected_experimental_design=expected_experimental_design,
         )
 
-    plot_testsets(loaded_testsets, model_type)
+    plot_testsets(loaded_testsets, model_type, show_plot=show_plot)
 
 
 def run_test_design(
@@ -350,6 +351,7 @@ def run_test_design(
     device: DEVICES,
     rescore=False,
     log_level=logging.INFO,
+    show_plot=False,
 ):
 
     _setup_logging(log_level)
@@ -417,6 +419,7 @@ def run_test_design(
                 model_type,
                 expected_experimental_design=experimental_design,
                 loaded_testsets=loaded_testsets,
+                show_plot=show_plot,
             )
             # todo:
             # plot with 7+1x7 subplots of a testset (one subplot for each example)

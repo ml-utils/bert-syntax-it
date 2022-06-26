@@ -137,6 +137,7 @@ def main(
     device: DEVICES,
     rescore=False,
     log_level=logging.INFO,
+    show_plot=False,
 ):
     if len(sys.argv) > 1:
         interactive_mode()
@@ -157,6 +158,7 @@ def main(
             device=device,
             rescore=rescore,
             log_level=log_level,
+            show_plot=show_plot,
         )
         # run_test_design(
         #     model_types_and_names=MODEL_TYPES_AND_NAMES_IT,
@@ -165,6 +167,7 @@ def main(
         #     device=device,
         #     rescore=rescore,
         #     log_level=log_level,
+        #     show_plot=show_plot,
         # )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
 
 
@@ -175,4 +178,5 @@ if __name__ == "__main__":
         device=DEVICES.CPU,
         rescore=True,
         log_level=logging.INFO,
+        show_plot=False,
     )
