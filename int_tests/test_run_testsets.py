@@ -154,6 +154,7 @@ class TestRunTestSets(TestCase):
                                     model_types_and_names=model_types_and_names,
                                     tests_subdir=tests_subdir,
                                     max_examples=max_examples,
+                                    device=DEVICES.CPU,
                                     rescore=rescore,
                                     log_level=logging.WARNING,
                                 )
@@ -171,6 +172,7 @@ class TestRunTestSets(TestCase):
             testsets_root_filenames=testset_filenames,
             dataset_source=DataSources.BLIMP_EN,
             experimental_design=ExperimentalDesigns.MINIMAL_PAIRS,
+            device=DEVICES.CPU,
             examples_format=examples_format,
         )
 

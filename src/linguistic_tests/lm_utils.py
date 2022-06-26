@@ -314,7 +314,7 @@ def print_orange(txt: str):
 def load_pretrained(
     model_type,
     model_name: str,
-    device=DEVICES.CPU,
+    device: DEVICES,
     dict_name=None,
     do_lower_case=False,
     force_automodel=False,
@@ -397,14 +397,18 @@ def load_pretrained(
 
 
 def load_model_and_tokenizer(
-    model_type, model_name, dict_name=None, do_lower_case=False
+    model_type, model_name, device, dict_name=None, do_lower_case=False
 ):
     return load_pretrained(
-        model_type, model_name, dict_name=dict_name, do_lower_case=do_lower_case
+        model_type,
+        model_name,
+        device=device,
+        dict_name=dict_name,
+        do_lower_case=do_lower_case,
     )
 
 
-def load_model(model_type, model_name, device):
+def load_model(model_type, model_name, device: DEVICES):
 
     return load_pretrained(model_type, model_name, device=device)
 

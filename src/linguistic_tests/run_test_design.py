@@ -287,6 +287,7 @@ def rescore_testsets_and_save_pickles(
     testsets_root_filenames: list[str],
     dataset_source: DataSources,
     experimental_design: ExperimentalDesigns,
+    device: DEVICES,
     examples_format: str = "json_lines",
     max_examples=1000,
 ) -> list[TestSet]:
@@ -307,13 +308,13 @@ def rescore_testsets_and_save_pickles(
         max_examples=max_examples,
     )
 
-    model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
+    model, tokenizer = load_model(model_type, model_name, device)
 
     scored_testsets = score_factorial_testsets(
         model_type,
         model,
         tokenizer,
-        DEVICES.CPU,
+        device,
         parsed_testsets,
         experimental_design,
     )
@@ -346,6 +347,7 @@ def run_test_design(
     model_types_and_names: dict[str, ModelTypes],
     tests_subdir,
     max_examples,
+    device: DEVICES,
     rescore=False,
     log_level=logging.INFO,
 ):
@@ -386,6 +388,7 @@ def run_test_design(
                 testsets_root_filenames=testsets_root_filenames,
                 dataset_source=dataset_source,
                 experimental_design=experimental_design,
+                device=device,
                 examples_format="json_lines",
                 max_examples=max_examples,
             )

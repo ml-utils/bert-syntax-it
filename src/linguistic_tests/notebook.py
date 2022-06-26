@@ -2,6 +2,7 @@ import logging
 import sys
 
 from linguistic_tests.bert_utils import analize_example
+from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import ModelTypes
@@ -33,7 +34,7 @@ def interactive_mode():
     model_type = ModelTypes.ROBERTA  # ModelTypes.BERT  #
     # eval_suite = 'it'
     model, tokenizer = load_model_and_tokenizer(
-        model_type, model_name, do_lower_case=False
+        model_type, model_name, DEVICES.CPU, do_lower_case=False
     )
 
     print("model loaded, waiting for sentences..")
@@ -133,6 +134,7 @@ def interactive_mode():
 
 
 def main(
+    device: DEVICES,
     rescore=False,
     log_level=logging.INFO,
 ):
@@ -149,9 +151,10 @@ def main(
         run_test_design(
             model_types_and_names={
                 "roberta-large": ModelTypes.ROBERTA,
-            },  # "gpt2": ModelTypes.GPT,  # MODEL_TYPES_AND_NAMES_EN,
-            tests_subdir="blimp/from_blim_en/islands/",  # tests_subdir="sprouse/",
-            max_examples=1000,  # 5
+            },
+            tests_subdir="blimp/from_blim_en/islands/",
+            max_examples=1000,
+            device=device,
             rescore=rescore,
             log_level=log_level,
         )
@@ -159,6 +162,7 @@ def main(
         #     model_types_and_names=MODEL_TYPES_AND_NAMES_IT,
         #     tests_subdir="syntactic_tests_it/",
         #     max_examples=50,
+        #     device=device,
         #     rescore=rescore,
         #     log_level=log_level,
         # )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
@@ -166,7 +170,9 @@ def main(
 
 if __name__ == "__main__":
 
+    # todo: add device as a command line option
     main(
+        device=DEVICES.CPU,
         rescore=True,
         log_level=logging.INFO,
     )

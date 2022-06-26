@@ -12,6 +12,7 @@ from linguistic_tests.bert_utils import get_score_descr
 from linguistic_tests.bert_utils import get_sentence_probs_from_word_ids
 from linguistic_tests.bert_utils import tokenize_sentence
 from linguistic_tests.compute_model_score import perc
+from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_sentences_from_example
 from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import load_testset_data
@@ -239,7 +240,9 @@ def arg_parse():
 
 
 def custom_eval(sentence, bert, tokenizer):
-    bert, tokenizer = load_model_and_tokenizer(ModelTypes.BERT, "bert-base-uncased")
+    bert, tokenizer = load_model_and_tokenizer(
+        ModelTypes.BERT, "bert-base-uncased", DEVICES.CPU
+    )
 
     compare_tokens, compare_target_idx = tokenize_sentence(
         tokenizer, "What is ***your*** name?"

@@ -183,33 +183,43 @@ class TestLMUtils(TestCase):
             ]
 
         bert_name = "bert-base-uncased"
-        bert, b_tokenizer = load_model_and_tokenizer(ModelTypes.BERT, bert_name)
+        bert, b_tokenizer = load_model_and_tokenizer(
+            ModelTypes.BERT, bert_name, DEVICES.CPU
+        )
         assert isinstance(bert, BRT_M)
         assert isinstance(b_tokenizer, BRT_T)
 
         gpt2_name = "gpt2"
-        gpt2, g_tokenizer = load_model_and_tokenizer(ModelTypes.GPT, gpt2_name)
+        gpt2, g_tokenizer = load_model_and_tokenizer(
+            ModelTypes.GPT, gpt2_name, DEVICES.CPU
+        )
         assert isinstance(gpt2, GPT_M)
         assert isinstance(g_tokenizer, GPT_T)
 
         gpt2_it_name = "LorenzoDeMattei/GePpeTto"
-        gpt2_it, g_it_tokenizer = load_model_and_tokenizer(ModelTypes.GPT, gpt2_it_name)
+        gpt2_it, g_it_tokenizer = load_model_and_tokenizer(
+            ModelTypes.GPT, gpt2_it_name, DEVICES.CPU
+        )
         assert isinstance(gpt2_it, GPT_M)
         assert isinstance(g_it_tokenizer, GPT_T)
 
         rob_name = "roberta-base"
-        roberta, rob_tokenizer = load_model_and_tokenizer(ModelTypes.ROBERTA, rob_name)
+        roberta, rob_tokenizer = load_model_and_tokenizer(
+            ModelTypes.ROBERTA, rob_name, DEVICES.CPU
+        )
         assert isinstance(roberta, RB_M)
         assert isinstance(rob_tokenizer, RB_T)
 
         gil_name = "idb-ita/gilberto-uncased-from-camembert"
-        roberta, rob_tokenizer = load_model_and_tokenizer(ModelTypes.GILBERTO, gil_name)
+        roberta, rob_tokenizer = load_model_and_tokenizer(
+            ModelTypes.GILBERTO, gil_name, DEVICES.CPU
+        )
         assert isinstance(roberta, CM_M)
         assert isinstance(rob_tokenizer, CM_T)
 
         unknown_model_type = 10
         with self.assertRaises(ValueError):
-            load_model_and_tokenizer(unknown_model_type, "")
+            load_model_and_tokenizer(unknown_model_type, "", DEVICES.CPU)
 
     @pytest.mark.skip("todo")
     def test_load_testset_data(self):
