@@ -597,3 +597,39 @@ def get_pvalue_with_likelihood_ratio_test(full_model_ll, reduced_model_ll):
     likelihood_ratio = 2 * (reduced_model_ll - full_model_ll)
     p = chi2.sf(likelihood_ratio, 1)  # L2 has 1 DoF more than L1
     return p
+
+
+def run_tests_for_model_type(model_type):
+    print(f"model_type: {model_type}")
+    # model_name, eval_suite = arg_parse()
+
+    # todo: run on the following testsets (minimal pairs):
+    # (use same pretrained models.. or comparable ones to those in the papers)
+    # blimp: ..
+    # golderg: ..
+    # Lau et al: https://github.com/ml-utils/
+    # acceptability-prediction-in-context/tree/
+    # 0a274d1d9f70f389ddc6b6d796bd8f815833056c/code
+
+    # run_syntactic_tests_it_legacy_impl(model_type)
+
+    # if model_type == ModelTypes.GPT:
+    #    print('importing gpt_tests..')
+    #     from gpt_tests import main as main2
+    #    print('imported.')
+    #    main2()
+
+    # run_eval(eval_suite, bert, tokenizer)
+    # prob1 = estimate_sentence_probability_from_text(bert, tokenizer,
+    # 'What is your name?')
+    # prob2 = estimate_sentence_probability_from_text(bert, tokenizer,
+    # 'What is name your?')
+    # print(f'prob1: {prob1}, prob2: {prob2}')
+    # eval_it(bert, tokenizer)
+    # custom_eval("What is your name?", bert, tokenizer)
+
+
+def run_blimp_it_island_effects():
+    # todo: use the batch implementation of get model output
+
+    raise NotImplementedError

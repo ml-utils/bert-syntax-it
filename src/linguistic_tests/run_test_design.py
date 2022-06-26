@@ -3,7 +3,6 @@ from statistics import mean
 
 import numpy as np
 import pandas as pd
-from linguistic_tests.compute_model_score import get_unparsed_example_scores
 from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import _parse_arguments
 from linguistic_tests.file_utils import _setup_logging
@@ -17,7 +16,6 @@ from linguistic_tests.lm_utils import load_model
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.plots_and_prints import _print_testset_results
 from linguistic_tests.plots_and_prints import plot_testsets
@@ -37,53 +35,12 @@ def run_tests_goldberg():
     #  results on goldberg testset
     # also for blimp testset with tests non intended for bert, compare with
     # the results on gpt and other models
-    return 0
-
-
-def run_tests_blimp():
-    # todo
-    return 0
+    raise NotImplementedError
 
 
 def run_tests_lau_et_al():
     # todo: compare results with other models
-    return 0
-
-
-def run_blimp_it_island_effects():
-    # todo: use the batch implementation of get model output
-
-    pass
-
-
-def run_tests_for_model_type(model_type):
-    print(f"model_type: {model_type}")
-    # model_name, eval_suite = arg_parse()
-
-    # todo: run on the following testsets (minimal pairs):
-    # (use same pretrained models.. or comparable ones to those in the papers)
-    # blimp: ..
-    # golderg: ..
-    # Lau et al: https://github.com/ml-utils/
-    # acceptability-prediction-in-context/tree/
-    # 0a274d1d9f70f389ddc6b6d796bd8f815833056c/code
-
-    # run_syntactic_tests_it_legacy_impl(model_type)
-
-    # if model_type == ModelTypes.GPT:
-    #    print('importing gpt_tests..')
-    #     from gpt_tests import main as main2
-    #    print('imported.')
-    #    main2()
-
-    # run_eval(eval_suite, bert, tokenizer)
-    # prob1 = estimate_sentence_probability_from_text(bert, tokenizer,
-    # 'What is your name?')
-    # prob2 = estimate_sentence_probability_from_text(bert, tokenizer,
-    # 'What is name your?')
-    # print(f'prob1: {prob1}, prob2: {prob2}')
-    # eval_it(bert, tokenizer)
-    # custom_eval("What is your name?", bert, tokenizer)
+    raise NotImplementedError
 
 
 def score_minimal_pairs_testset(
@@ -119,83 +76,6 @@ def score_minimal_pairs_testset(
             ] = accuracy
 
     return testset
-
-
-# todo: mark as deprecated, move to test section to use as comparison for outcome of new method
-def get_unparsed_testset_scores(
-    model_type: ModelTypes,
-    model,
-    tokenizer,
-    device,
-    testset: dict,
-    sentences_per_example,
-):
-    """
-    Adapted from https://github.com/jhlau/acceptability-prediction-in-context/
-    blob/master/code/compute_model_score.py
-    :param model_type:
-    :param model:
-    :param tokenizer:
-    :param device:
-    :param testset:
-    :return:
-    """
-    # todo: parse testset and run score_testset
-
-    sent_ids: list[int] = []
-
-    correct_lps_1st_sentence = 0
-    correct_pen_lps_1st_sentence = 0
-    correct_lps_2nd_sentence = 0
-    correct_pen_lps_2nd_sentence = 0
-    correct_lls_1st_sentence = 0
-    correct_pen_lls_1st_sentence = 0
-    correct_lls_2nd_sentence = 0
-    correct_pen_lls_2nd_sentence = 0
-    logging.debug(f"\n{testset['sentences']=}")
-    print(f"\n{type(testset['sentences'])=}, {testset['sentences']=}")
-    for example_idx, example_data in enumerate(tqdm(testset["sentences"])):
-        logging.debug(f"{example_idx=}, {example_data=}")
-        print(f"{example_idx=}, {example_data=}")
-        (lps, pen_lps, lls, penlls, sentences,) = get_unparsed_example_scores(
-            device,
-            example_data,
-            model,
-            model_type,
-            sent_ids,
-            tokenizer,
-            sentences_per_example,
-        )
-        if lps[sent_idx.GOOD_1] > lps[sent_idx.BAD]:
-            correct_lps_1st_sentence += 1
-        if pen_lps[sent_idx.GOOD_1] > pen_lps[sent_idx.BAD]:
-            correct_pen_lps_1st_sentence += 1
-        if model_type in BERT_LIKE_MODEL_TYPES:
-            if lls[sent_idx.GOOD_1] > lls[sent_idx.BAD]:
-                correct_lls_1st_sentence += 1
-            if penlls[sent_idx.GOOD_1] > penlls[sent_idx.BAD]:
-                correct_pen_lls_1st_sentence += 1
-        if len(sentences) > 2:
-            if lps[sent_idx.GOOD_2] > lps[sent_idx.BAD]:
-                correct_lps_2nd_sentence += 1
-            if pen_lps[sent_idx.GOOD_2] > pen_lps[sent_idx.BAD]:
-                correct_pen_lps_2nd_sentence += 1
-            if model_type in BERT_LIKE_MODEL_TYPES:
-                if lls[sent_idx.GOOD_2] > lls[sent_idx.BAD]:
-                    correct_lls_2nd_sentence += 1
-                if penlls[sent_idx.GOOD_2] > penlls[sent_idx.BAD]:
-                    correct_pen_lls_2nd_sentence += 1
-
-    return (
-        correct_lps_1st_sentence,
-        correct_pen_lps_1st_sentence,
-        correct_lps_2nd_sentence,
-        correct_pen_lps_2nd_sentence,
-        correct_lls_1st_sentence,
-        correct_pen_lls_1st_sentence,
-        correct_lls_2nd_sentence,
-        correct_pen_lls_2nd_sentence,
-    )
 
 
 def score_factorial_testset(

@@ -17,7 +17,6 @@ from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.plots_and_prints import print_accuracies
-from linguistic_tests.run_test_design import get_unparsed_testset_scores
 from linguistic_tests.run_test_design import (
     rescore_testsets_and_save_pickles,
 )
@@ -28,6 +27,7 @@ from matplotlib import pyplot as plt
 from matplotlib.pyplot import show
 
 from int_tests.int_tests_utils import get_test_data_dir
+from unit_tests.test_compute_model_score import get_unparsed_testset_scores
 
 
 class TestRunTestSets(TestCase):
