@@ -4,13 +4,12 @@ import sys
 from linguistic_tests.bert_utils import analize_example
 from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import load_model_and_tokenizer
-from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
-from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import red_txt
 from linguistic_tests.lm_utils import sentence_score_bases
 from linguistic_tests.plots_and_prints import print_detailed_sentence_info
+from linguistic_tests.run_test_design import run_test_design
 
 
 def interactive_mode():
@@ -144,22 +143,25 @@ def main(
         #  also another csv file with details on sentences scores
         #  and an option to load the report csv and print them in the command line
 
-        from linguistic_tests.run_test_design import run_test_design
+        # from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
+        # from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 
         run_test_design(
-            model_types_and_names=MODEL_TYPES_AND_NAMES_EN,
+            model_types_and_names={
+                "roberta-large": ModelTypes.ROBERTA,
+            },  # "gpt2": ModelTypes.GPT,  # MODEL_TYPES_AND_NAMES_EN,
             tests_subdir="blimp/from_blim_en/islands/",  # tests_subdir="sprouse/",
-            max_examples=5,  # 1000
+            max_examples=1000,  # 5
             rescore=rescore,
             log_level=log_level,
         )
-        run_test_design(
-            model_types_and_names=MODEL_TYPES_AND_NAMES_IT,
-            tests_subdir="sprouse/",
-            max_examples=50,
-            rescore=rescore,
-            log_level=log_level,
-        )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
+        # run_test_design(
+        #     model_types_and_names=MODEL_TYPES_AND_NAMES_IT,
+        #     tests_subdir="syntactic_tests_it/",
+        #     max_examples=50,
+        #     rescore=rescore,
+        #     log_level=log_level,
+        # )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
 
 
 if __name__ == "__main__":
