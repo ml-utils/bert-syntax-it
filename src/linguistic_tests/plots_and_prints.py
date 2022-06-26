@@ -73,10 +73,10 @@ def plot_results(
     filename = f"{window_title}{zscore_note}{likert_note}-{timestamp}.png"
     filepath = os.path.join(saving_dir, filename)
 
-    print_orange(f"Saving plot to file {filepath} ..")
     plt.figlegend(lines, labels)
     # fig.tight_layout()
 
+    print_orange(f"Saving plot to file {filepath} ..")
     plt.savefig(filepath)  # , dpi=300
     # plt.show()
 

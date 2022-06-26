@@ -321,7 +321,7 @@ def rescore_testsets_and_save_pickles(
     return scored_testsets
 
 
-def load_and_plot_pickle(
+def load_and_plot_pickles(
     phenomena,
     model_name,
     dataset_source,
@@ -406,7 +406,7 @@ def run_test_design(
                 loaded_testsets, broader_test_type, model_type, testsets_root_filenames
             )
 
-            load_and_plot_pickle(
+            load_and_plot_pickles(
                 testsets_root_filenames,
                 model_name,
                 dataset_source,

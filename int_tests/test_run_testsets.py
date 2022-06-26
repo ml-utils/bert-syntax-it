@@ -1,13 +1,21 @@
+import logging
 import os
+import tempfile
+from pathlib import Path
 from unittest import TestCase
+from unittest.mock import MagicMock
 from unittest.mock import patch
 
+import linguistic_tests
 import pytest
+from linguistic_tests import file_utils
+from linguistic_tests import plots_and_prints
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DataSources
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import ExperimentalDesigns
 from linguistic_tests.lm_utils import get_models_dir
+from linguistic_tests.lm_utils import get_results_dir
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import get_testset_params
 from linguistic_tests.lm_utils import load_model
@@ -17,9 +25,8 @@ from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.plots_and_prints import print_accuracies
-from linguistic_tests.run_test_design import (
-    rescore_testsets_and_save_pickles,
-)
+from linguistic_tests.run_test_design import rescore_testsets_and_save_pickles
+from linguistic_tests.run_test_design import run_test_design
 from linguistic_tests.run_test_design import score_factorial_testsets
 from linguistic_tests.testset import ERROR_LP
 from linguistic_tests.testset import parse_testsets
@@ -38,6 +45,118 @@ class TestRunTestSets(TestCase):
     #  to the integration tests folder
     #  make output and models folder as optional parameters, to use them in
     #  unit tests
+
+    @patch.object(linguistic_tests.run_test_design, get_testset_params.__name__)
+    @pytest.mark.enable_socket
+    def test_run_test_design_sprouse_bert(self, mock_get_testset_params):
+
+        mock_get_testset_params.return_value = (
+            [
+                "mini_wh_adjunct_island",
+                "mini_wh_complex_np",
+                "mini_wh_subject_island",
+                "mini_wh_whether_island",
+            ],
+            "sprouse",
+            DataSources.SPROUSE,
+            ExperimentalDesigns.FACTORIAL,
+        )
+
+        with patch.object(plots_and_prints.plt, show.__name__) as mock_plt_show:
+            assert plt.show is mock_plt_show
+
+            self._test_run_test_design_helper(
+                mock_get_testset_params,
+                tests_subdir="sprouse/",
+                model_types_and_names={
+                    "dbmdz/bert-base-italian-xxl-cased": ModelTypes.BERT,
+                },
+                max_examples=8,
+                rescore=True,
+            )
+
+    @patch.object(linguistic_tests.run_test_design, get_testset_params.__name__)
+    @pytest.mark.enable_socket
+    def test_run_test_design_blimp_gpt(self, mock_get_testset_params):
+
+        mock_get_testset_params.return_value = (
+            ["mini_wh_island"],
+            "blimp",
+            DataSources.BLIMP_EN,
+            ExperimentalDesigns.MINIMAL_PAIRS,
+        )
+
+        self._test_run_test_design_helper(
+            mock_get_testset_params,
+            tests_subdir="blimp/",
+            model_types_and_names={
+                "gpt2": ModelTypes.GPT,
+            },
+            max_examples=5,
+            rescore=True,
+        )
+
+    def _test_run_test_design_helper(
+        self,
+        mock_get_testset_params,
+        tests_subdir,
+        model_types_and_names,
+        max_examples,
+        rescore,
+    ):
+        assert (
+            linguistic_tests.run_test_design.get_testset_params
+            is mock_get_testset_params
+        )
+
+        with patch("argparse.ArgumentParser"):  # as mock:
+            with patch.object(
+                file_utils,
+                file_utils._parse_arguments.__name__,
+                return_value=MagicMock(),
+            ):  # as mock_method
+                with tempfile.TemporaryDirectory() as tmpdirname:
+                    print("created temporary directory", tmpdirname)
+
+                    with patch.object(
+                        linguistic_tests.file_utils, get_results_dir.__name__
+                    ) as mock_get_results_dir:
+
+                        assert (
+                            linguistic_tests.file_utils.get_results_dir
+                            is mock_get_results_dir
+                        )
+                        mock_get_results_dir.return_value = Path(tmpdirname)
+
+                        with patch.object(
+                            plots_and_prints, get_results_dir.__name__
+                        ) as mock_get_results_dir2:
+                            assert (
+                                plots_and_prints.get_results_dir
+                                is mock_get_results_dir2
+                            )
+                            mock_get_results_dir2.return_value = Path(tmpdirname)
+
+                            with patch.object(
+                                linguistic_tests.run_test_design,
+                                get_syntactic_tests_dir.__name__,
+                            ) as mock_get_syntactic_tests_dir:
+
+                                assert (
+                                    linguistic_tests.run_test_design.get_syntactic_tests_dir
+                                    is mock_get_syntactic_tests_dir
+                                )
+                                mock_get_syntactic_tests_dir.return_value = (
+                                    get_test_data_dir()
+                                )
+
+                                run_test_design(
+                                    model_types_and_names=model_types_and_names,
+                                    tests_subdir=tests_subdir,
+                                    max_examples=max_examples,
+                                    rescore=rescore,
+                                    log_level=logging.WARNING,
+                                )
 
     @pytest.mark.enable_socket
     def test_rescore_testsets_and_save_pickles(self):
@@ -148,7 +267,7 @@ class TestRunTestSets(TestCase):
                 "wh_adjunct_islands.jsonl",
                 "wh_complex_np_islands.jsonl",
                 "wh_subject_islands.jsonl",
-                "wh_whether_island.jsonl",
+                "mini_wh_whether_island.jsonl",
             ]
         sentences_per_example = 3
         for test_file in testset_filenames:
