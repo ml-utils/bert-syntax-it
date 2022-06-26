@@ -22,7 +22,6 @@ from linguistic_tests.run_legacy_tests import read_gulordava
 from linguistic_tests.run_legacy_tests import rnd
 from linguistic_tests.run_legacy_tests import run_eval
 from linguistic_tests.run_legacy_tests import run_testset_bert
-from linguistic_tests.run_test_design import run_tests_blimp
 from linguistic_tests.run_test_design import run_tests_goldberg
 from linguistic_tests.run_test_design import run_tests_lau_et_al
 
@@ -125,11 +124,6 @@ class TestNotebook(TestCase):
     @pytest.mark.skip("todo")
     def test_run_eval(self):
         run_eval()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_run_tests_blimp(self):
-        run_tests_blimp()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
