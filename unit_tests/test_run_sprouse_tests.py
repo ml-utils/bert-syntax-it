@@ -3,11 +3,11 @@ from unittest import TestCase
 import pytest
 from linguistic_tests.compute_model_score import get_unparsed_example_scores
 from linguistic_tests.file_utils import get_pickle_filename
+from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.plots_and_prints import _print_example
 from linguistic_tests.plots_and_prints import _print_testset_results
 from linguistic_tests.plots_and_prints import plot_results
-from linguistic_tests.run_minimal_pairs_test_design import _get_dd_score
 from linguistic_tests.run_minimal_pairs_test_design import main_factorial
 from linguistic_tests.run_minimal_pairs_test_design import score_factorial_testset
 from linguistic_tests.run_minimal_pairs_test_design import score_factorial_testsets
@@ -51,21 +51,21 @@ class TestRunSprouseTests(TestCase):
         get_pickle_filename()
         raise NotImplementedError
 
-    def test_get_dd_score(self):
+    def test_get_dd_score_legacy(self):
         sentences_scores = [1.1, 0.9, 0.8, -0.5]
-        dd_score = _get_dd_score(sentences_scores)
+        dd_score = _get_dd_score_legacy(sentences_scores)
         assert dd_score > 1
 
         sentences_scores = [1, 0.3, 1, -0.7]
-        dd_score = _get_dd_score(sentences_scores)
+        dd_score = _get_dd_score_legacy(sentences_scores)
         assert dd_score >= 1
 
         sentences_scores = [0.6, 1, -0.6, -0.8]
-        dd_score = _get_dd_score(sentences_scores)
+        dd_score = _get_dd_score_legacy(sentences_scores)
         assert dd_score > 0.5
 
         sentences_scores = [0.6, 0.3, 0.1, -1.1]
-        dd_score = _get_dd_score(sentences_scores)
+        dd_score = _get_dd_score_legacy(sentences_scores)
         assert dd_score > 0.7
 
     def test_sentences_ordering(self):
@@ -125,8 +125,8 @@ class TestRunSprouseTests(TestCase):
             if verbose:
                 _print_example(sentences, sentence_ordering)
 
-            DDs_with_lp.append(_get_dd_score(lps, sentence_ordering))
-            DDs_with_pen_lp.append(_get_dd_score(pen_lps, sentence_ordering))
+            DDs_with_lp.append(_get_dd_score_legacy(lps, sentence_ordering))
+            DDs_with_pen_lp.append(_get_dd_score_legacy(pen_lps, sentence_ordering))
             lp_short_nonisland_average += lps[sentence_ordering.SHORT_NONISLAND]
             lp_long_nonisland_avg += lps[sentence_ordering.LONG_NONISLAND]
             lp_short_island_avg += lps[sentence_ordering.SHORT_ISLAND]
@@ -157,3 +157,28 @@ class TestRunSprouseTests(TestCase):
 
         # todo: also return penlp, ll, penll
         return lp_averages
+
+
+def _get_dd_score_legacy(sentences_scores, sentences_ordering=SprouseSentencesOrder):
+    a_short_nonisland_idx = sentences_ordering.SHORT_NONISLAND
+    b_long_nonisland = sentences_ordering.LONG_NONISLAND
+    c_short_island = sentences_ordering.SHORT_ISLAND
+    d_long_island = sentences_ordering.LONG_ISLAND
+    example_lenght_effect_with_lp = (
+        sentences_scores[a_short_nonisland_idx] - sentences_scores[b_long_nonisland]
+    )
+    example_structure_effect_with_lp = (
+        sentences_scores[a_short_nonisland_idx] - sentences_scores[c_short_island]
+    )
+    example_total_effect_with_lp = (
+        sentences_scores[a_short_nonisland_idx] - sentences_scores[d_long_island]
+    )
+    example_island_effect_with_lp = example_total_effect_with_lp - (
+        example_lenght_effect_with_lp + example_structure_effect_with_lp
+    )
+    example_dd_with_lp = example_structure_effect_with_lp - (
+        sentences_scores[b_long_nonisland] - sentences_scores[d_long_island]
+    )
+    example_dd_with_lp *= -1
+    assert_almost_equal(example_island_effect_with_lp, example_dd_with_lp)
+    return example_dd_with_lp

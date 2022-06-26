@@ -7,7 +7,6 @@ from linguistic_tests.compute_model_score import get_unparsed_example_scores
 from linguistic_tests.compute_model_score import score_example
 from linguistic_tests.file_utils import _parse_arguments
 from linguistic_tests.file_utils import _setup_logging
-from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DataSources
 from linguistic_tests.lm_utils import DEVICES
@@ -20,7 +19,6 @@ from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.lm_utils import SentenceNames
-from linguistic_tests.lm_utils import SprouseSentencesOrder
 from linguistic_tests.plots_and_prints import _print_testset_results
 from linguistic_tests.plots_and_prints import plot_testsets
 from linguistic_tests.plots_and_prints import print_accuracy_scores
@@ -31,7 +29,6 @@ from linguistic_tests.testset import load_testsets_from_pickles
 from linguistic_tests.testset import parse_testsets
 from linguistic_tests.testset import save_scored_testsets
 from linguistic_tests.testset import TestSet
-from scipy.stats import chi2
 from tqdm import tqdm
 
 
@@ -585,34 +582,3 @@ def main_factorial(
             # showing the variance
 
         print_orange(f"Finished test session for {model_type=}")
-
-
-def get_pvalue_with_likelihood_ratio_test(full_model_ll, reduced_model_ll):
-    likelihood_ratio = 2 * (reduced_model_ll - full_model_ll)
-    p = chi2.sf(likelihood_ratio, 1)  # L2 has 1 DoF more than L1
-    return p
-
-
-def _get_dd_score(sentences_scores, sentences_ordering=SprouseSentencesOrder):
-    a_short_nonisland_idx = sentences_ordering.SHORT_NONISLAND
-    b_long_nonisland = sentences_ordering.LONG_NONISLAND
-    c_short_island = sentences_ordering.SHORT_ISLAND
-    d_long_island = sentences_ordering.LONG_ISLAND
-    example_lenght_effect_with_lp = (
-        sentences_scores[a_short_nonisland_idx] - sentences_scores[b_long_nonisland]
-    )
-    example_structure_effect_with_lp = (
-        sentences_scores[a_short_nonisland_idx] - sentences_scores[c_short_island]
-    )
-    example_total_effect_with_lp = (
-        sentences_scores[a_short_nonisland_idx] - sentences_scores[d_long_island]
-    )
-    example_island_effect_with_lp = example_total_effect_with_lp - (
-        example_lenght_effect_with_lp + example_structure_effect_with_lp
-    )
-    example_dd_with_lp = example_structure_effect_with_lp - (
-        sentences_scores[b_long_nonisland] - sentences_scores[d_long_island]
-    )
-    example_dd_with_lp *= -1
-    assert_almost_equal(example_island_effect_with_lp, example_dd_with_lp)
-    return example_dd_with_lp

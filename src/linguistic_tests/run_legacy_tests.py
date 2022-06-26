@@ -19,6 +19,7 @@ from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.utils import vocab_it
+from scipy.stats import chi2
 from torch.utils.hipify.hipify_python import bcolors
 from transformers import BertPreTrainedModel
 from transformers import BertTokenizer
@@ -590,3 +591,9 @@ def get_probs_for_words(
         masked_word_idx,
     )
     return probs_for_words
+
+
+def get_pvalue_with_likelihood_ratio_test(full_model_ll, reduced_model_ll):
+    likelihood_ratio = 2 * (reduced_model_ll - full_model_ll)
+    p = chi2.sf(likelihood_ratio, 1)  # L2 has 1 DoF more than L1
+    return p

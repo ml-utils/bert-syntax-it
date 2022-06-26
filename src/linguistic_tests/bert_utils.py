@@ -146,6 +146,7 @@ def preprocessing_checks_to_example(example_idx, sentences, tokens_by_sentence):
     __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence)
 
 
+# todo: move to plots and prints
 def __check_unk_and_num_tokens(example_idx, sentences, tokens_by_sentence):
     for sentence_idx, sentence_tokens in enumerate(tokens_by_sentence):
         if special_tokens.UNK in sentence_tokens:
