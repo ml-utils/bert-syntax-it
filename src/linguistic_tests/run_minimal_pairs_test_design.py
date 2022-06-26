@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from linguistic_tests.compute_model_score import get_unparsed_example_scores
 from linguistic_tests.compute_model_score import score_example
+from linguistic_tests.file_utils import _parse_arguments
+from linguistic_tests.file_utils import _setup_logging
 from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from linguistic_tests.lm_utils import DataSources
 from linguistic_tests.lm_utils import DEVICES
@@ -12,7 +14,6 @@ from linguistic_tests.lm_utils import ExperimentalDesigns
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import get_testset_params
 from linguistic_tests.lm_utils import load_model
-from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
@@ -196,20 +197,21 @@ def get_unparsed_testset_scores(
 
 
 def main_minimal_pairs(
-    tests_subdir="blimp/from_blim_en/islands/",
+    model_types_and_names: dict[str, ModelTypes],
+    tests_subdir,
+    max_examples,
     rescore=False,
     log_level=logging.INFO,
-    max_examples=50,
 ):
 
-    #     _setup_logging(log_level)
-    #     args = _parse_arguments()
+    _setup_logging(log_level)
+    _ = _parse_arguments()  # args =
 
     # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
 
     testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
-    logging.info(f"Will run tests with models: {MODEL_TYPES_AND_NAMES_EN.values()}")
+    logging.info(f"Will run tests with models: {model_types_and_names.values()}")
 
     (
         testsets_root_filenames,
@@ -218,7 +220,7 @@ def main_minimal_pairs(
         experimental_design,
     ) = get_testset_params(tests_subdir)
 
-    for model_name, model_type in MODEL_TYPES_AND_NAMES_EN.items():
+    for model_name, model_type in model_types_and_names.items():
         print_orange(f"Starting test session for {model_type=}, and {dataset_source=}")
 
         if rescore:

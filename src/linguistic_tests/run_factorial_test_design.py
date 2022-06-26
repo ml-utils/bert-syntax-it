@@ -6,7 +6,6 @@ from linguistic_tests.lm_utils import assert_almost_equal
 from linguistic_tests.lm_utils import ExperimentalDesigns
 from linguistic_tests.lm_utils import get_syntactic_tests_dir
 from linguistic_tests.lm_utils import get_testset_params
-from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import SprouseSentencesOrder
@@ -86,10 +85,11 @@ def load_and_plot_pickle(
 
 
 def main_factorial(
-    tests_subdir="syntactic_tests_it/",  # tests_subdir="sprouse/"
+    model_types_and_names: dict[str, ModelTypes],
+    tests_subdir,
+    max_examples,
     rescore=False,
     log_level=logging.INFO,
-    max_examples=50,
 ):
 
     _setup_logging(log_level)
@@ -103,9 +103,11 @@ def main_factorial(
         tests_subdir = "sprouse/"
     elif args.datasource == "madeddu":
         tests_subdir = "syntactic_tests_it/"
+    elif args.datasource == "blimp":
+        tests_subdir = "blimp/from_blim_en/islands/"
     testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
-    logging.info(f"Will run tests with models: {MODEL_TYPES_AND_NAMES_IT.values()}")
+    logging.info(f"Will run tests with models: {model_types_and_names.values()}")
 
     (
         testsets_root_filenames,
@@ -114,7 +116,7 @@ def main_factorial(
         experimental_design,
     ) = get_testset_params(tests_subdir)
 
-    for model_name, model_type in MODEL_TYPES_AND_NAMES_IT.items():
+    for model_name, model_type in model_types_and_names.items():
         print_orange(f"Starting test session for {model_type=}, and {dataset_source=}")
 
         if rescore:

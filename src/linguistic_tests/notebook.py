@@ -4,6 +4,8 @@ import sys
 from linguistic_tests.bert_utils import analize_example
 from linguistic_tests.lm_utils import get_models_dir
 from linguistic_tests.lm_utils import load_model_and_tokenizer
+from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
+from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_red
 from linguistic_tests.lm_utils import red_txt
@@ -146,16 +148,18 @@ def main(
         from run_factorial_test_design import main_factorial
 
         main_minimal_pairs(
+            model_types_and_names=MODEL_TYPES_AND_NAMES_EN,
             tests_subdir="blimp/from_blim_en/islands/",  # tests_subdir="sprouse/",
+            max_examples=5,  # 1000
             rescore=rescore,
             log_level=log_level,
-            max_examples=5,
         )
         main_factorial(
+            model_types_and_names=MODEL_TYPES_AND_NAMES_IT,
             tests_subdir="sprouse/",
+            max_examples=50,
             rescore=rescore,
             log_level=log_level,
-            max_examples=50,
         )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
 
 
