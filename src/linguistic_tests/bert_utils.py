@@ -1,14 +1,7 @@
+from typing import List
+
 import numpy as np
 import torch
-from linguistic_tests.compute_model_score import logistic3
-from linguistic_tests.lm_utils import get_pen_score
-from linguistic_tests.lm_utils import get_sentences_from_example
-from linguistic_tests.lm_utils import print_orange
-from linguistic_tests.lm_utils import print_red
-from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.lm_utils import sent_idx
-from linguistic_tests.lm_utils import sentence_score_bases
-from linguistic_tests.lm_utils import special_tokens
 from scipy.special import softmax
 from transformers import BertForMaskedLM
 from transformers import BertForMaskedLM as BertPreTrainedModel
@@ -17,6 +10,16 @@ from transformers import GPT2LMHeadModel
 from transformers import RobertaForMaskedLM
 from transformers import RobertaModel
 from transformers.modeling_outputs import MaskedLMOutput
+
+from .compute_model_score import logistic3
+from .lm_utils import get_pen_score
+from .lm_utils import get_sentences_from_example
+from .lm_utils import print_orange
+from .lm_utils import print_red
+from .lm_utils import ScoringMeasures
+from .lm_utils import sent_idx
+from .lm_utils import sentence_score_bases
+from .lm_utils import special_tokens
 
 
 def analize_sentence(
@@ -417,7 +420,7 @@ def get_bert_output_single_masking(
     else:
         logits_whole_batch = bert_out
 
-    # print(f'masked_word_idx: {masked_word_idx}, {type(res_unsliced)=}')
+    # print(f'masked_word_idx: {masked_word_idx}, {type(res_unsliced)}')
     # masked_word_idx: 1, type(res_unsliced):
     # masked_word_idx: 5, type(res_unsliced): <class 'torch.Tensor'>
 
@@ -486,7 +489,7 @@ def convert_ids_to_tokens(tokenizer: BertTokenizer, ids):
 def estimate_sentence_probability(
     bert: BertPreTrainedModel,
     tokenizer: BertTokenizer,
-    sentence_ids: list[int],
+    sentence_ids: List[int],
     scorebase,  # =sentence_score_bases.SOFTMAX,
     verbose: bool = False,
 ):

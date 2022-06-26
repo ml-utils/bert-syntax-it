@@ -1,15 +1,6 @@
 from utils import vocab_it
 
 
-def check_oov_words():
-    from generation_projects.blimp import determiner_noun_agreement_1
-
-    generator = determiner_noun_agreement_1.DetNGenerator()
-    generator.generate_paradigm(
-        rel_output_path="outputs/blimp/%s.jsonl" % generator.uid
-    )
-
-
 # def test_sentences():
 #     testset_data = load_testset_data("./outputs/syntactic_tests_it/wh_island.jsonl")
 #
@@ -55,7 +46,6 @@ def print_profession_nouns():
 
 
 def main():
-    # t_determiner_noun_agreement_1()
     print("main")
 
 

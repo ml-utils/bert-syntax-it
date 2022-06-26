@@ -1,32 +1,35 @@
 import logging
 from statistics import mean
+from typing import Dict
+from typing import List
 
 import numpy as np
 import pandas as pd
-from linguistic_tests.compute_model_score import score_example
-from linguistic_tests.file_utils import _parse_arguments
-from linguistic_tests.file_utils import _setup_logging
-from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
-from linguistic_tests.lm_utils import DataSources
-from linguistic_tests.lm_utils import DEVICES
-from linguistic_tests.lm_utils import ExperimentalDesigns
-from linguistic_tests.lm_utils import get_syntactic_tests_dir
-from linguistic_tests.lm_utils import get_testset_params
-from linguistic_tests.lm_utils import load_model
-from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import print_orange
-from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.lm_utils import SentenceNames
-from linguistic_tests.plots_and_prints import _print_testset_results
-from linguistic_tests.plots_and_prints import plot_testsets
-from linguistic_tests.plots_and_prints import print_accuracy_scores
-from linguistic_tests.testset import get_dd_score_parametric
-from linguistic_tests.testset import get_merged_score_across_testsets
-from linguistic_tests.testset import load_testsets_from_pickles
-from linguistic_tests.testset import parse_testsets
-from linguistic_tests.testset import save_scored_testsets
-from linguistic_tests.testset import TestSet
 from tqdm import tqdm
+
+from src.linguistic_tests.compute_model_score import score_example
+from src.linguistic_tests.file_utils import _parse_arguments
+from src.linguistic_tests.file_utils import _setup_logging
+from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import DataSources
+from src.linguistic_tests.lm_utils import DEVICES
+from src.linguistic_tests.lm_utils import ExperimentalDesigns
+from src.linguistic_tests.lm_utils import get_syntactic_tests_dir
+from src.linguistic_tests.lm_utils import get_testset_params
+from src.linguistic_tests.lm_utils import load_model
+from src.linguistic_tests.lm_utils import ModelTypes
+from src.linguistic_tests.lm_utils import print_orange
+from src.linguistic_tests.lm_utils import ScoringMeasures
+from src.linguistic_tests.lm_utils import SentenceNames
+from src.linguistic_tests.plots_and_prints import _print_testset_results
+from src.linguistic_tests.plots_and_prints import plot_testsets
+from src.linguistic_tests.plots_and_prints import print_accuracy_scores
+from src.linguistic_tests.testset import get_dd_score_parametric
+from src.linguistic_tests.testset import get_merged_score_across_testsets
+from src.linguistic_tests.testset import load_testsets_from_pickles
+from src.linguistic_tests.testset import parse_testsets
+from src.linguistic_tests.testset import save_scored_testsets
+from src.linguistic_tests.testset import TestSet
 
 
 def run_tests_goldberg():
@@ -69,7 +72,7 @@ def score_minimal_pairs_testset(
                     scoring_measure, stype_acceptable_sentence
                 ):
                     accurate_count += 1
-            logging.debug(f"{accurate_count=} out of {len(testset.examples)=}")
+            logging.debug(f"{accurate_count} out of {len(testset.examples)}")
             accuracy = accurate_count / len(testset.examples)
             testset.accuracy_per_score_type_per_sentence_type[scoring_measure][
                 stype_acceptable_sentence
@@ -195,9 +198,9 @@ def score_factorial_testsets(
     model,
     tokenizer,
     device: DEVICES,
-    parsed_testsets: list[TestSet],
+    parsed_testsets: List[TestSet],
     experimental_design: ExperimentalDesigns,
-) -> list[TestSet]:
+) -> List[TestSet]:
 
     # todo: see activation levels in the model layers, try to identify several phenomena: clause segmentation,
     #  different constructs, long vs short dependencies, wh vs rc dependencies, islands vs non islands
@@ -208,7 +211,7 @@ def score_factorial_testsets(
     scored_testsets = []
     for parsed_testset in parsed_testsets:
         logging.info(
-            f"Scoring testset {parsed_testset.linguistic_phenomenon}, on {model_type=} {parsed_testset.model_descr}"
+            f"Scoring testset {parsed_testset.linguistic_phenomenon}, on {model_type} {parsed_testset.model_descr}"
         )
         scored_testset = score_factorial_testset(
             model_type, model, tokenizer, device, parsed_testset, experimental_design
@@ -221,14 +224,14 @@ def score_factorial_testsets(
     return scored_testsets
 
 
-def _calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
+def _calculate_zscores_across_testsets(scored_testsets: List[TestSet]):
     #  first get a reference for mean and sd:
     #  after the 4 testsets have been scored, merge the arrays of scores for
     #  the 4 phenomena in the testset, and for all 4 sentence types in the
     #  examples.
     scoring_measures = scored_testsets[0].get_scoring_measures()
-    logging.debug(f"Calculating zscores for {scoring_measures=}")
-    merged_scores_by_scoring_measure: dict[ScoringMeasures, list[float]] = dict()
+    logging.debug(f"Calculating zscores for {scoring_measures}")
+    merged_scores_by_scoring_measure: Dict[ScoringMeasures, List[float]] = dict()
     for scoring_measure in scoring_measures:
 
         merged_scores_by_scoring_measure[
@@ -242,7 +245,7 @@ def _calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
             f"and mean {mean(merged_scores_by_scoring_measure[scoring_measure])} "
         )
 
-    likert_bins_by_scoring_measure = dict()  # : dict[ScoringMeasures, ..bins_type]
+    likert_bins_by_scoring_measure = dict()  # : Dict[ScoringMeasures, ..bins_type]
     merged_likert_scores_by_scoring_measure = dict()
     for scoring_measure in merged_scores_by_scoring_measure.keys():
 
@@ -261,7 +264,7 @@ def _calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
             likert_scores_merged
         )
         likert_bins_by_scoring_measure[scoring_measure] = likert_bins
-        logging.debug(f"{likert_scores_merged=}")
+        logging.debug(f"{likert_scores_merged}")
 
     for scoring_measure in merged_scores_by_scoring_measure.keys():
         for testset in scored_testsets:
@@ -273,10 +276,10 @@ def _calculate_zscores_across_testsets(scored_testsets: list[TestSet]):
             )
 
         logging.debug(
-            f"{scoring_measure}: {testset.avg_zscores_by_measure_and_by_stype=}"
+            f"{scoring_measure}: {testset.avg_zscores_by_measure_and_by_stype}"
         )
         logging.debug(
-            f"{scoring_measure} std errors: {testset.std_error_of_zscores_by_measure_and_by_stype=}"
+            f"{scoring_measure} std errors: {testset.std_error_of_zscores_by_measure_and_by_stype}"
         )
 
 
@@ -284,13 +287,13 @@ def rescore_testsets_and_save_pickles(
     model_type: ModelTypes,
     model_name: str,
     testset_dir_path: str,
-    testsets_root_filenames: list[str],
+    testsets_root_filenames: List[str],
     dataset_source: DataSources,
     experimental_design: ExperimentalDesigns,
     device: DEVICES,
     examples_format: str = "json_lines",
     max_examples=1000,
-) -> list[TestSet]:
+) -> List[TestSet]:
 
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
     if model_type in BERT_LIKE_MODEL_TYPES:
@@ -345,7 +348,7 @@ def load_and_plot_pickles(
 
 
 def run_test_design(
-    model_types_and_names: dict[str, ModelTypes],
+    model_types_and_names: Dict[str, ModelTypes],
     tests_subdir,
     max_examples,
     device: DEVICES,
@@ -380,7 +383,7 @@ def run_test_design(
     ) = get_testset_params(tests_subdir)
 
     for model_name, model_type in model_types_and_names.items():
-        print_orange(f"Starting test session for {model_type=}, and {dataset_source=}")
+        print_orange(f"Starting test session for {model_type}, and {dataset_source}")
 
         if rescore:
             rescore_testsets_and_save_pickles(
@@ -426,4 +429,4 @@ def run_test_design(
             # nb: having the standard errors in the plots is already overcoming this,
             # showing the variance
 
-        print_orange(f"Finished test session for {model_type=}")
+        print_orange(f"Finished test session for {model_type}")

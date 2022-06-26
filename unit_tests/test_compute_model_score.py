@@ -1,6 +1,7 @@
 import logging
 from collections import namedtuple
 from random import random
+from typing import List
 from unittest import TestCase
 from unittest.mock import MagicMock
 from unittest.mock import Mock
@@ -8,23 +9,6 @@ from unittest.mock import patch
 
 import pytest
 import torch
-from linguistic_tests import compute_model_score
-from linguistic_tests import lm_utils
-from linguistic_tests.compute_model_score import AcceptabilityScoreRes
-from linguistic_tests.compute_model_score import count_accurate_in_example
-from linguistic_tests.compute_model_score import get_sentence_acceptability_score
-from linguistic_tests.compute_model_score import get_unparsed_example_scores
-from linguistic_tests.compute_model_score import logistic2
-from linguistic_tests.compute_model_score import perc
-from linguistic_tests.compute_model_score import reduce_to_log_product
-from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
-from linguistic_tests.lm_utils import DEVICES
-from linguistic_tests.lm_utils import get_penalty_term
-from linguistic_tests.lm_utils import get_sentences_from_example
-from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import sent_idx
-from linguistic_tests.lm_utils import SentenceNames
-from linguistic_tests.testset import ERROR_LP
 from numpy import log
 from tqdm import tqdm
 from transformers import BertForMaskedLM
@@ -38,6 +22,23 @@ from transformers import RobertaTokenizer
 from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
 from transformers.models.bert.modeling_bert import MaskedLMOutput
 
+from src.linguistic_tests import compute_model_score
+from src.linguistic_tests import lm_utils
+from src.linguistic_tests.compute_model_score import AcceptabilityScoreRes
+from src.linguistic_tests.compute_model_score import count_accurate_in_example
+from src.linguistic_tests.compute_model_score import get_sentence_acceptability_score
+from src.linguistic_tests.compute_model_score import get_unparsed_example_scores
+from src.linguistic_tests.compute_model_score import logistic2
+from src.linguistic_tests.compute_model_score import perc
+from src.linguistic_tests.compute_model_score import reduce_to_log_product
+from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import DEVICES
+from src.linguistic_tests.lm_utils import get_penalty_term
+from src.linguistic_tests.lm_utils import get_sentences_from_example
+from src.linguistic_tests.lm_utils import ModelTypes
+from src.linguistic_tests.lm_utils import sent_idx
+from src.linguistic_tests.lm_utils import SentenceNames
+from src.linguistic_tests.testset import ERROR_LP
 from unit_tests.test_lm_utils import get_basic_example_data_dict
 
 
@@ -438,8 +439,8 @@ class TestComputeModelScore(TestCase):
         #  the lists of the tuples)
         assert return_values_1 == return_values_2, (
             f"The two return values are different: "
-            f"\n{return_values_1=} "
-            f"\n{return_values_2=}"
+            f"\n{return_values_1} "
+            f"\n{return_values_2}"
         )
 
     def test_logistic2(self):
@@ -452,7 +453,7 @@ def get_unparsed_example_scores_legacy_impl(
     example_data: dict,
     model,
     model_type,
-    sent_ids: list[int],
+    sent_ids: List[int],
     tokenizer,
     sentences_per_example,
     sprouse_format=False,
@@ -469,7 +470,7 @@ def get_unparsed_example_scores_legacy_impl(
     for sent_id, sentence in enumerate(sentences):
         sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
         # if len(sentence_tokens) == 0:
-        #     logging.warning(f"Warning: lenght 0 for {sentence=} from {example_data=}")
+        #     logging.warning(f"Warning: lenght 0 for {sentence} from {example_data}")
         text_len = len(sentence_tokens)
 
         # nb: this is patched to avoid any model/tokenizer calls
@@ -512,7 +513,7 @@ def get_unparsed_testset_scores(
     """
     # todo: parse testset and run score_testset
 
-    sent_ids: list[int] = []
+    sent_ids: List[int] = []
 
     correct_lps_1st_sentence = 0
     correct_pen_lps_1st_sentence = 0
@@ -522,11 +523,11 @@ def get_unparsed_testset_scores(
     correct_pen_lls_1st_sentence = 0
     correct_lls_2nd_sentence = 0
     correct_pen_lls_2nd_sentence = 0
-    logging.debug(f"\n{testset['sentences']=}")
-    print(f"\n{type(testset['sentences'])=}, {testset['sentences']=}")
+    logging.debug(f"\n{testset['sentences']}")
+    print(f"\n{type(testset['sentences'])}, {testset['sentences']}")
     for example_idx, example_data in enumerate(tqdm(testset["sentences"])):
-        logging.debug(f"{example_idx=}, {example_data=}")
-        print(f"{example_idx=}, {example_data=}")
+        logging.debug(f"{example_idx}, {example_data}")
+        print(f"{example_idx}, {example_data}")
         (lps, pen_lps, lls, penlls, sentences,) = get_unparsed_example_scores(
             device,
             example_data,

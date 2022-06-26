@@ -1,19 +1,19 @@
 import numpy as np
-from linguistic_tests.compute_model_score import logistic2
-from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
-from linguistic_tests.lm_utils import DEVICES
-from linguistic_tests.lm_utils import get_testset_params
-from linguistic_tests.lm_utils import load_model
-from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.testset import parse_testsets
-from linguistic_tests.testset import TypedSentence
 from matplotlib import pyplot as plt
 from scipy.special import softmax
 from torch import no_grad
 from torch import tensor
 
 from int_tests.int_tests_utils import get_test_data_dir
+from src.linguistic_tests.compute_model_score import logistic2
+from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import DEVICES
+from src.linguistic_tests.lm_utils import get_testset_params
+from src.linguistic_tests.lm_utils import load_model
+from src.linguistic_tests.lm_utils import ModelTypes
+from src.linguistic_tests.lm_utils import ScoringMeasures
+from src.linguistic_tests.testset import parse_testsets
+from src.linguistic_tests.testset import TypedSentence
 
 
 class DiagnosticsWithPlots:
@@ -27,7 +27,7 @@ class DiagnosticsWithPlots:
         k_values = [4, 2, 1, 0.5, 0.25, 0.1]
         for k in k_values:
             y_values = logistic2(x_range, k=k)
-            plt.plot(x_range, y_values, label=f"{k=}")
+            plt.plot(x_range, y_values, label=f"{k}")
 
         # show the plot
         plt.legend()
@@ -95,7 +95,7 @@ def plot_span_of_Bert_output_logitis():
 def plot_span_of_Bert_output_logitis_helper(
     plotting_fun, examples_to_plot, tokenizer, model, model_name
 ):
-    print(f"there are {len(examples_to_plot)=}")
+    print(f"there are {len(examples_to_plot)}")
     for example in examples_to_plot:
         fig, axs = plt.subplots(2, 2)
         axs_list = axs.reshape(-1)
@@ -235,18 +235,18 @@ def _plot_bert_sentence_scores(
                 [tokenize_combined[masked_token_index]]
             )[0]
             token_score = np.asscalar(predictions_scores_this_masking[masked_token_id])
-            print(f"{type(token_score)=}, {token_score=}")
+            print(f"{type(token_score)}, {token_score}")
             np_where_result = np.where(sorted_output == token_score)
 
             if verbose:
                 np_where_aq_result = np.where(np.isclose(sorted_output, token_score))
                 # np_where_gt_result = np.where(sorted_output > token_score)
                 # np_where_lt_result = np.where(sorted_output < token_score)
-                print(f"{np_where_result=}, {len(np_where_result[0])=}, {token_score=}")
-                print(f"{len(np_where_aq_result[0])=}")
-                # print(f"{len(np_where_gt_result[0])=}")
-                # print(f"{len(np_where_lt_result[0])=}")
-                # print(f"{np_where_gt_result[0][0]=}")
+                print(f"{np_where_result}, {len(np_where_result[0])}, {token_score}")
+                print(f"{len(np_where_aq_result[0])}")
+                # print(f"{len(np_where_gt_result[0])}")
+                # print(f"{len(np_where_lt_result[0])}")
+                # print(f"{np_where_gt_result[0][0]}")
             # nb: Tuple of arrays returned from np.where:  (array([..found_indexes], dtype=..),)
             if len(np_where_result[0]) > 1:
                 masked_token_new_id = np.asscalar(np_where_result[0][0])
@@ -260,12 +260,12 @@ def _plot_bert_sentence_scores(
 
             # todo:
             # count how many, in the bert output array (sorted_output), are above certain tresholds:
-            print(f"{vocab_size=}, {len(sorted_output)=}, {sorted_output.shape=}")
+            print(f"{vocab_size}, {len(sorted_output)}, {sorted_output.shape}")
             thresholds = [0, 5, 10, 15, 20]
             for threshold in thresholds:
                 argwhere_result = np.argwhere(sorted_output > threshold)
                 if verbose:
-                    print(f"{argwhere_result.shape=}, {argwhere_result.size=}")
+                    print(f"{argwhere_result.shape}, {argwhere_result.size}")
                 if argwhere_result.size > 0:
                     idx = argwhere_result[0]
                     if verbose:
@@ -283,9 +283,9 @@ def _plot_bert_sentence_scores(
             for k in k_values:
                 topk_idx = len(sorted_output) - k
                 if verbose:
-                    print(f"top {k=} min value {sorted_output[topk_idx]} ({topk_idx=})")
+                    print(f"top {k} min value {sorted_output[topk_idx]} ({topk_idx})")
     # ax.legend(title=f"{typed_sentence.stype.name}")
-    ax.set_title(f"{sentence_type_descr} ({min_masking_rank=})")
+    ax.set_title(f"{sentence_type_descr} ({min_masking_rank})")
     # ax.set_ylabel("logitis")
     if zoom:
         ax.set_xlim(xmin=min_masking_rank - 5, xmax=vocab_size + 1)

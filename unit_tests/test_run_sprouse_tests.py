@@ -1,18 +1,19 @@
 from unittest import TestCase
 
 import pytest
-from linguistic_tests.compute_model_score import get_unparsed_example_scores
-from linguistic_tests.file_utils import get_pickle_filename
-from linguistic_tests.lm_utils import assert_almost_equal
-from linguistic_tests.lm_utils import SprouseSentencesOrder
-from linguistic_tests.plots_and_prints import _print_example
-from linguistic_tests.plots_and_prints import _print_testset_results
-from linguistic_tests.plots_and_prints import plot_results
-from linguistic_tests.run_test_design import run_test_design
-from linguistic_tests.run_test_design import score_factorial_testset
-from linguistic_tests.run_test_design import score_factorial_testsets
-from linguistic_tests.testset import save_scored_testsets
 from tqdm import tqdm
+
+from src.linguistic_tests.compute_model_score import get_unparsed_example_scores
+from src.linguistic_tests.file_utils import get_pickle_filename
+from src.linguistic_tests.lm_utils import assert_almost_equal
+from src.linguistic_tests.lm_utils import SprouseSentencesOrder
+from src.linguistic_tests.plots_and_prints import _print_example
+from src.linguistic_tests.plots_and_prints import _print_testset_results
+from src.linguistic_tests.plots_and_prints import plot_results
+from src.linguistic_tests.run_test_design import run_test_design
+from src.linguistic_tests.run_test_design import score_factorial_testset
+from src.linguistic_tests.run_test_design import score_factorial_testsets
+from src.linguistic_tests.testset import save_scored_testsets
 
 
 class TestRunSprouseTests(TestCase):

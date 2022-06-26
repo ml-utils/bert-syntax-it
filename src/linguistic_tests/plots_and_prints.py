@@ -1,26 +1,28 @@
 import logging
 import os
 import time
+from typing import List
 
-from linguistic_tests.bert_utils import estimate_sentence_probability
-from linguistic_tests.compute_model_score import perc
-from linguistic_tests.lm_utils import _get_test_session_descr
-from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
-from linguistic_tests.lm_utils import get_results_dir
-from linguistic_tests.lm_utils import MODEL_NAMES_IT
-from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
-from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import print_orange
-from linguistic_tests.lm_utils import print_red
-from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.lm_utils import SentenceNames
-from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
-from linguistic_tests.testset import TestSet
 from matplotlib import pyplot as plt
+
+from src.linguistic_tests.bert_utils import estimate_sentence_probability
+from src.linguistic_tests.compute_model_score import perc
+from src.linguistic_tests.lm_utils import _get_test_session_descr
+from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import get_results_dir
+from src.linguistic_tests.lm_utils import MODEL_NAMES_IT
+from src.linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
+from src.linguistic_tests.lm_utils import ModelTypes
+from src.linguistic_tests.lm_utils import print_orange
+from src.linguistic_tests.lm_utils import print_red
+from src.linguistic_tests.lm_utils import ScoringMeasures
+from src.linguistic_tests.lm_utils import SentenceNames
+from src.linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
+from src.linguistic_tests.testset import TestSet
 
 
 def plot_results(
-    scored_testsets: list[TestSet],
+    scored_testsets: List[TestSet],
     score_name,
     use_zscore=False,
     likert=False,
@@ -34,7 +36,7 @@ def plot_results(
 
     fig.canvas.manager.set_window_title(window_title)
     axs_list = axs.reshape(-1)
-    logging.debug(f"type axs_list: {type(axs_list)}, {len(axs_list)=}, {axs_list=}")
+    logging.debug(f"type axs_list: {type(axs_list)}, {len(axs_list)}, {axs_list}")
 
     preferred_axs_order = {"whether": 0, "complex": 1, "subject": 2, "adjunct": 3}
     for phenomenon_short_name, preferred_index in preferred_axs_order.items():
@@ -125,8 +127,8 @@ def _plot_results_subplot(
             score_averages[SentenceNames.LONG_ISLAND],
         ]
 
-    logging.debug(f"{y_values_ni=}")
-    logging.debug(f"{y_values_is=}")
+    logging.debug(f"{y_values_ni}")
+    logging.debug(f"{y_values_is}")
 
     # todo: add p values
     # todo: add accuracy %
@@ -187,7 +189,7 @@ def _print_example(example_data, sentence_ordering):
 
 
 def plot_testsets(
-    scored_testsets: list[TestSet], model_type: ModelTypes, show_plot=False
+    scored_testsets: List[TestSet], model_type: ModelTypes, show_plot=False
 ):
 
     plot_results(
@@ -325,10 +327,10 @@ def _print_examples_compare_diff(
 
 
 def _print_testset_results(
-    scored_testsets: list[TestSet],
+    scored_testsets: List[TestSet],
     dataset_source: str,
     model_type: ModelTypes,
-    testsets_root_filenames: list[str],
+    testsets_root_filenames: List[str],
 ):
     logging.info("Printing accuracy scores..")
     for scored_testset in scored_testsets:
@@ -342,8 +344,8 @@ def _print_testset_results(
         )
         lp_averages = scored_testset.lp_average_by_sentence_type
         penlp_averages = scored_testset.penlp_average_by_sentence_type
-        print(f"{lp_averages=}")
-        print(f"{penlp_averages=}")
+        print(f"{lp_averages}")
+        print(f"{penlp_averages}")
 
         if model_type in BERT_LIKE_MODEL_TYPES:
             print(
@@ -354,8 +356,8 @@ def _print_testset_results(
             )
             ll_averages = scored_testset.ll_average_by_sentence_type
             penll_averages = scored_testset.penll_average_by_sentence_type
-            print(f"{ll_averages=}")
-            print(f"{penll_averages=}")
+            print(f"{ll_averages}")
+            print(f"{penll_averages}")
 
     score_descr = ScoringMeasures.PenLP.name
 
@@ -479,7 +481,7 @@ def print_list_of_cached_models():
     print("getting list of cached models..")
     cached_models = get_cached_models()
 
-    # print(f"{cached_models=}")
+    # print(f"{cached_models}")
     cached_models_names_urls = []
     cached_models_names_nosize_urls = []
     for model_info in cached_models:
@@ -489,7 +491,7 @@ def print_list_of_cached_models():
         else:
             cached_models_names_nosize_urls.append(model_info[0])
 
-    print(f"{len(cached_models_names_urls)=}, {len(cached_models_names_nosize_urls)=}")
+    print(f"{len(cached_models_names_urls)}, {len(cached_models_names_nosize_urls)}")
     print("cached_models_names_urls:")
     for cached_models_name in cached_models_names_urls:
         print(cached_models_name)

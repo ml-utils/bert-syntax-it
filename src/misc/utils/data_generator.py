@@ -74,7 +74,7 @@ class Generator:
         if rel_output_path is not None:
             # project_root = "/".join(os.path.join(os.path.dirname(os.path.abspath(__file__))).split("/")[:-1])
             project_root = pathlib.Path(__file__).parent.parent.parent.parent
-            print(f"{project_root=}, {rel_output_path=}")
+            print(f"{project_root}, {rel_output_path}")
             output = open(os.path.join(project_root, rel_output_path), "w")
         elif absolute_path is not None:
             output = open(absolute_path, "w")

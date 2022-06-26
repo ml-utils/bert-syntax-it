@@ -4,31 +4,9 @@ from unittest import TestCase
 from unittest.mock import Mock
 from unittest.mock import patch
 
-import linguistic_tests
 import pandas as pd
 import pytest
 import torch
-from linguistic_tests import bert_utils
-from linguistic_tests.bert_utils import analize_example
-from linguistic_tests.bert_utils import analize_sentence
-from linguistic_tests.bert_utils import bert_get_logprobs_softmax
-from linguistic_tests.bert_utils import check_unknown_words
-from linguistic_tests.bert_utils import convert_ids_to_tokens
-from linguistic_tests.bert_utils import count_split_words_in_sentence
-from linguistic_tests.bert_utils import estimate_sentence_probability
-from linguistic_tests.bert_utils import estimate_sentence_probability_from_text
-from linguistic_tests.bert_utils import get_bert_output_single_masking
-from linguistic_tests.bert_utils import get_score_descr
-from linguistic_tests.bert_utils import get_sentence_probs_from_word_ids
-from linguistic_tests.bert_utils import get_sentence_scores
-from linguistic_tests.bert_utils import get_topk
-from linguistic_tests.bert_utils import get_topk_tokens_from_bert_output
-from linguistic_tests.bert_utils import print_orange
-from linguistic_tests.bert_utils import tokenize_sentence
-from linguistic_tests.compute_model_score import get_sentence_acceptability_score
-from linguistic_tests.lm_utils import get_sentences_from_example
-from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import ModelTypes
 from scipy.special import softmax
 from tqdm import tqdm
 from transformers import BertForMaskedLM as BRT_M
@@ -36,7 +14,30 @@ from transformers import BertTokenizer as BRT_T
 from transformers import BertTokenizerFast
 from transformers.modeling_outputs import MaskedLMOutput
 
-# from linguistic_tests.bert_utils import get_topk
+import src.linguistic_tests
+from src.linguistic_tests import bert_utils
+from src.linguistic_tests.bert_utils import analize_example
+from src.linguistic_tests.bert_utils import analize_sentence
+from src.linguistic_tests.bert_utils import bert_get_logprobs_softmax
+from src.linguistic_tests.bert_utils import check_unknown_words
+from src.linguistic_tests.bert_utils import convert_ids_to_tokens
+from src.linguistic_tests.bert_utils import count_split_words_in_sentence
+from src.linguistic_tests.bert_utils import estimate_sentence_probability
+from src.linguistic_tests.bert_utils import estimate_sentence_probability_from_text
+from src.linguistic_tests.bert_utils import get_bert_output_single_masking
+from src.linguistic_tests.bert_utils import get_score_descr
+from src.linguistic_tests.bert_utils import get_sentence_probs_from_word_ids
+from src.linguistic_tests.bert_utils import get_sentence_scores
+from src.linguistic_tests.bert_utils import get_topk
+from src.linguistic_tests.bert_utils import get_topk_tokens_from_bert_output
+from src.linguistic_tests.bert_utils import print_orange
+from src.linguistic_tests.bert_utils import tokenize_sentence
+from src.linguistic_tests.compute_model_score import get_sentence_acceptability_score
+from src.linguistic_tests.lm_utils import get_sentences_from_example
+from src.linguistic_tests.lm_utils import load_testset_data
+from src.linguistic_tests.lm_utils import ModelTypes
+
+# from src.linguistic_tests.bert_utils import get_topk
 
 
 CLS_ID = 101
@@ -223,7 +224,7 @@ class TestBertUtils(TestCase):
             torch.rand(vocab_size),
         )
         mock_get_bert_output = self.create_patch(
-            "linguistic_tests.bert_utils.get_bert_output_single_masking"
+            "src.linguistic_tests.bert_utils.get_bert_output_single_masking"
         )
         mock_get_bert_output.return_value = (
             logits_word_predictions,
@@ -231,14 +232,14 @@ class TestBertUtils(TestCase):
             logistic_probabilities_word_predictions,
         )
         assert (
-            linguistic_tests.bert_utils.get_bert_output_single_masking
+            src.linguistic_tests.bert_utils.get_bert_output_single_masking
             is mock_get_bert_output
         )
 
         topk_tokens_m = random.sample(range(0, vocab_size - 1), k)
         topk_probs_m = torch.rand(k)
         mock_get_topk_tokens_from_bert_output = self.create_patch(
-            "linguistic_tests.bert_utils.get_topk_tokens_from_bert_output"
+            "src.linguistic_tests.bert_utils.get_topk_tokens_from_bert_output"
         )
         mock_get_topk_tokens_from_bert_output.return_value = (
             topk_tokens_m,

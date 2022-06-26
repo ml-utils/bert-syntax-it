@@ -20,11 +20,11 @@ print("starting to generate vocabulary..")
 vocab_filename = "vocabulary_it.csv"
 vocab_dir = "vocabulary"
 # current_dir = os.path.dirname(os.path.abspath(__file__))
-# print(f'{current_dir=}')
+# print(f'{current_dir}')
 # vocab_csv_dir_traverse_path = os.path.join(current_dir, '/../../../vocabulary/')
-# print(f'{vocab_csv_dir_traverse_path=}')
+# print(f'{vocab_csv_dir_traverse_path}')
 # vocab_csv_dir = "/".join(os.path.join(vocab_csv_dir_traverse_path).split("/")[:-1])
-# print(f'{vocab_csv_dir=}')
+# print(f'{vocab_csv_dir}')
 # vocab_it_path = os.path.join(
 #     vocab_csv_dir,
 #     vocab_filename,

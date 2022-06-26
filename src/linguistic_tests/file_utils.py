@@ -7,16 +7,17 @@ import pickle
 import time
 
 import pandas
-from linguistic_tests.lm_utils import _get_test_session_descr
-from linguistic_tests.lm_utils import BlimpSentencesOrder
-from linguistic_tests.lm_utils import get_results_dir
-from linguistic_tests.lm_utils import get_sentences_from_example
-from linguistic_tests.lm_utils import get_syntactic_tests_dir
-from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import MODEL_NAMES_IT
-from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import print_orange
-from linguistic_tests.lm_utils import SentenceNames
+
+from src.linguistic_tests.lm_utils import _get_test_session_descr
+from src.linguistic_tests.lm_utils import BlimpSentencesOrder
+from src.linguistic_tests.lm_utils import get_results_dir
+from src.linguistic_tests.lm_utils import get_sentences_from_example
+from src.linguistic_tests.lm_utils import get_syntactic_tests_dir
+from src.linguistic_tests.lm_utils import load_testset_data
+from src.linguistic_tests.lm_utils import MODEL_NAMES_IT
+from src.linguistic_tests.lm_utils import ModelTypes
+from src.linguistic_tests.lm_utils import print_orange
+from src.linguistic_tests.lm_utils import SentenceNames
 
 
 def convert_testset_to_csv(
@@ -291,16 +292,6 @@ def get_file_root(path_str):
     return filenameroot_no_extension
 
 
-def main():
-    print("converting files..")
-    change_files_sentence_order()
-    # convert_sprouse_csv_to_jsonl()
-
-
-if __name__ == "__main__":
-    main()
-
-
 def get_pickle_filename(
     dataset_source,
     linguistic_phenomenon,
@@ -315,7 +306,7 @@ def get_pickle_filename(
     return filename
 
 
-def load_object_from_pickle(filename):
+def load_object_from_pickle(filename, use_renamed_old_version_module=False):
     saving_dir = str(get_results_dir())
 
     # todo, fixme: should actually look for all the files in that dir that
@@ -326,9 +317,27 @@ def load_object_from_pickle(filename):
     filepath = os.path.join(saving_dir, filename)
     print(f"Loading testset from {filepath}..")
     with open(filepath, "rb") as file:
-        obj = pickle.load(file)
+        if not use_renamed_old_version_module:
+            obj = pickle.load(file)
+        else:
+            obj = renamed_load(file)
 
     return obj
+
+
+class RenameUnpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        renamed_module = module
+        if module == "linguistic_tests.testset":
+            renamed_module = "src.linguistic_tests.testset"
+        if module == "linguistic_tests":
+            renamed_module = "src.linguistic_tests"
+
+        return super(RenameUnpickler, self).find_class(renamed_module, name)
+
+
+def renamed_load(file_obj):
+    return RenameUnpickler(file_obj).load()
 
 
 def save_obj_to_pickle(obj, filename):
@@ -381,3 +390,40 @@ def _parse_arguments():
     # )
     args = arg_parser.parse_args()
     return args
+
+
+def convert_prev_version_pickles(input_dir_path, output_dir_path):
+    # import sys
+    # from src import linguistic_tests
+    import os
+
+    # sys.modules["linguistic_tests"] = linguistic_tests
+    filenames_to_objs = dict()
+    for input_filename in os.listdir(input_dir_path):
+        if input_filename.endswith(".pickle"):
+            input_file_path = os.path.join(input_dir_path, input_filename)
+            testset = load_object_from_pickle(
+                input_file_path, use_renamed_old_version_module=True
+            )
+            filenames_to_objs[input_filename] = testset
+
+    # del sys.modules["linguistic_tests"]
+
+    for input_filename, testset in filenames_to_objs.items():
+        # dump to new file
+        output_file_path = os.path.join(output_dir_path, input_filename)
+        save_obj_to_pickle(testset, output_file_path)
+
+
+def main2():
+    pass
+    # print("converting files..")
+    # change_files_sentence_order()
+    # convert_sprouse_csv_to_jsonl()
+
+
+if __name__ == "__main__":
+    convert_prev_version_pickles(
+        input_dir_path="E:\\dev\\code\\bert-syntax-it\\results\\py39pickles\\",
+        output_dir_path="E:\\dev\\code\\bert-syntax-it\\results\\\\py36pickles\\",
+    )

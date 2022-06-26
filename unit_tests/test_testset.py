@@ -2,16 +2,17 @@ from unittest import TestCase
 
 import numpy as np
 import pandas as pd
-from linguistic_tests.lm_utils import DataSources
-from linguistic_tests.lm_utils import ExperimentalDesigns
-from linguistic_tests.lm_utils import SentenceNames
-from linguistic_tests.testset import ERROR_LP
-from linguistic_tests.testset import Example
-from linguistic_tests.testset import ScoringMeasures
-from linguistic_tests.testset import Sentence
-from linguistic_tests.testset import TestSet
-from linguistic_tests.testset import TypedSentence
 from scipy.stats import zmap
+
+from src.linguistic_tests.lm_utils import DataSources
+from src.linguistic_tests.lm_utils import ExperimentalDesigns
+from src.linguistic_tests.lm_utils import SentenceNames
+from src.linguistic_tests.testset import ERROR_LP
+from src.linguistic_tests.testset import Example
+from src.linguistic_tests.testset import ScoringMeasures
+from src.linguistic_tests.testset import Sentence
+from src.linguistic_tests.testset import TestSet
+from src.linguistic_tests.testset import TypedSentence
 
 
 class TestTestset(TestCase):
@@ -38,19 +39,19 @@ class TestTestset(TestCase):
             retbins=True,
         )
         print("\n")
-        print(f"{sorted(all_scores)=}")
-        print(f"{sorted(all_scores_to_likert.to_numpy())=}")
-        print(  # f"{type(all_scores_to_likert.get_values())=},"
-            f"{type(all_scores_to_likert)=}, {type(likert_bins)=}"
+        print(f"{sorted(all_scores)}")
+        print(f"{sorted(all_scores_to_likert.to_numpy())}")
+        print(  # f"{type(all_scores_to_likert.get_values())},"
+            f"{type(all_scores_to_likert)}, {type(likert_bins)}"
         )
-        print(f"{sorted(all_scores_to_likert)=}")
-        print(f"{likert_bins=}")
+        print(f"{sorted(all_scores_to_likert)}")
+        print(f"{likert_bins}")
         scores_stype1_to_likert = pd.cut(
             scores_stype1,
             bins=likert_bins,
             labels=np.arange(start=1, stop=8),
         )
-        print(f"{scores_stype1_to_likert=}")
+        print(f"{scores_stype1_to_likert}")
 
         # AttributeError: 'Categorical' object has no attribute 'values'
         # scores_stype1_to_likert = scores_stype1_to_likert.values
@@ -66,17 +67,17 @@ class TestTestset(TestCase):
 
         scores_stype1_to_likert = np.asarray(scores_stype1_to_likert)
         all_scores_to_likert = np.asarray(all_scores_to_likert)
-        print(f"{scores_stype1_to_likert=}")
-        print(f"{all_scores_to_likert=}")
+        print(f"{scores_stype1_to_likert}")
+        print(f"{all_scores_to_likert}")
 
         zscores_likert_categorical = zmap(
             scores_stype1_to_likert,
             all_scores_to_likert,
         )
-        # zscores_likert: list[float] = zscores_likert_categorical.values
+        # zscores_likert: List[float] = zscores_likert_categorical.values
         # zscores_likert2 = zscores_likert_categorical[['cc']].apply(lambda col: pd.Categorical(col).codes)
 
-        print(f"{zscores_likert_categorical=}")
+        print(f"{zscores_likert_categorical}")
 
     def test_get_testset_sentence_types(self):
         testset = get_basic_testset()

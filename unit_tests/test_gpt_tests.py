@@ -1,13 +1,14 @@
 from unittest import TestCase
 
 import pytest
-from linguistic_tests import gpt_tests
-from linguistic_tests.gpt_tests import get_gpt_sentence_score
-from linguistic_tests.gpt_tests import get_model
-from linguistic_tests.gpt_tests import get_model2
-from linguistic_tests.gpt_tests import get_model3
-from linguistic_tests.gpt_tests import get_model4
-from linguistic_tests.gpt_tests import main
+
+from src.linguistic_tests import gpt_tests
+from src.linguistic_tests.gpt_tests import get_gpt_sentence_score
+from src.linguistic_tests.gpt_tests import get_model
+from src.linguistic_tests.gpt_tests import get_model2
+from src.linguistic_tests.gpt_tests import get_model3
+from src.linguistic_tests.gpt_tests import get_model4
+from src.linguistic_tests.gpt_tests import main
 
 
 class TestGptTests(TestCase):

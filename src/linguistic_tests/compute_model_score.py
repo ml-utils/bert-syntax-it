@@ -4,17 +4,18 @@ from functools import reduce
 
 import numpy as np
 import torch
-from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
-from linguistic_tests.lm_utils import get_penalty_term
-from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import sent_idx
-from linguistic_tests.testset import ERROR_LP
-from linguistic_tests.testset import Example
-from linguistic_tests.testset import parse_example
-from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from scipy.special import expit as logistic
 from scipy.special import softmax
 from transformers.modeling_outputs import MaskedLMOutput
+
+from .lm_utils import BERT_LIKE_MODEL_TYPES
+from .lm_utils import get_penalty_term
+from .lm_utils import ModelTypes
+from .lm_utils import sent_idx
+from .testset import ERROR_LP
+from .testset import Example
+from .testset import parse_example
+from .testset import SPROUSE_SENTENCE_TYPES
 
 
 AcceptabilityScoreRes = namedtuple(
@@ -33,7 +34,7 @@ def score_example(
         sentence = typed_sentence.sent
         sentence.tokens = tokenizer.tokenize(sentence.txt)  # , return_tensors='pt'
         if len(sentence.tokens) == 0:
-            logging.warning(f"Warning: lenght 0 for {sentence=} from {example=}")
+            logging.warning(f"Warning: lenght 0 for {sentence} from {example}")
         text_len = len(sentence.tokens)
         lp_softmax, lp_logistic = get_sentence_acceptability_score(
             model_type, model, tokenizer, sentence.tokens, device
@@ -44,10 +45,10 @@ def score_example(
         sentence.lp_softmax = lp_softmax
         logging.log(
             logging.NOTSET,
-            f"Assigning field {sentence.pen_lp_softmax=} with value {lp_softmax / penalty}: {sentence.txt}",
+            f"Assigning field {sentence.pen_lp_softmax} with value {lp_softmax / penalty}: {sentence.txt}",
         )
         sentence.pen_lp_softmax = lp_softmax / penalty
-        logging.log(logging.NOTSET, f"{sentence.pen_lp_softmax=}")
+        logging.log(logging.NOTSET, f"{sentence.pen_lp_softmax}")
         if model_type in BERT_LIKE_MODEL_TYPES:
             sentence.lp_logistic = lp_logistic
             sentence.pen_lp_logistic = lp_logistic / penalty
@@ -60,7 +61,7 @@ def get_unparsed_example_scores(
     example_data: dict,
     model,
     model_type,
-    sent_ids: list[int],
+    sent_ids,  # : List[int]
     tokenizer,
     sentences_per_example,
     sprouse_format=False,
@@ -135,7 +136,7 @@ def logistic2(x, L=1, x0=0, k=1):
         exponent = -k * (x - x0)  # this gets overflows
         logistic_values = L / (1 + np.exp(exponent))
     #    except FloatingPointError as fl_err:
-    # logging.warning(f"Warning for params: {k=}, {x0=}, {L=}: {fl_err}")
+    # logging.warning(f"Warning for params: {k}, {x0}, {L}: {fl_err}")
 
     return logistic_values
 
@@ -296,11 +297,11 @@ def get_sentence_acceptability_score(
             if verbose:
                 print(
                     f"masked word  scores: "
-                    f"{logits[masked_word_id]=}, "
-                    f"{logistic_probabilities[masked_word_id]=}, "
-                    f"{softmax_probabilities[masked_word_id]=}, "
-                    f"{np.log(logistic_probabilities[masked_word_id])=}, "
-                    f"{np.log(softmax_probabilities[masked_word_id])=}, "
+                    f"{logits[masked_word_id]}, "
+                    f"{logistic_probabilities[masked_word_id]}, "
+                    f"{softmax_probabilities[masked_word_id]}, "
+                    f"{np.log(logistic_probabilities[masked_word_id])}, "
+                    f"{np.log(softmax_probabilities[masked_word_id])}, "
                     f"({sentence_tokens_with_specials[masked_token_index]})"
                 )
 

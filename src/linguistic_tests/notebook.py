@@ -1,17 +1,17 @@
 import logging
 import sys
 
-from linguistic_tests.bert_utils import analize_example
-from linguistic_tests.lm_utils import DEVICES
-from linguistic_tests.lm_utils import get_models_dir
-from linguistic_tests.lm_utils import get_num_of_available_cuda_gpus
-from linguistic_tests.lm_utils import load_model_and_tokenizer
-from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import print_red
-from linguistic_tests.lm_utils import red_txt
-from linguistic_tests.lm_utils import sentence_score_bases
-from linguistic_tests.plots_and_prints import print_detailed_sentence_info
-from linguistic_tests.run_test_design import run_test_design
+from src.linguistic_tests.bert_utils import analize_example
+from src.linguistic_tests.lm_utils import DEVICES
+from src.linguistic_tests.lm_utils import get_models_dir
+from src.linguistic_tests.lm_utils import get_num_of_available_cuda_gpus
+from src.linguistic_tests.lm_utils import load_model_and_tokenizer
+from src.linguistic_tests.lm_utils import ModelTypes
+from src.linguistic_tests.lm_utils import print_red
+from src.linguistic_tests.lm_utils import red_txt
+from src.linguistic_tests.lm_utils import sentence_score_bases
+from src.linguistic_tests.plots_and_prints import print_detailed_sentence_info
+from src.linguistic_tests.run_test_design import run_test_design
 
 
 def interactive_mode():
@@ -23,7 +23,7 @@ def interactive_mode():
 
     # load model than wait for input sentences
     scorebase = sentence_score_bases.LOGISTIC_FUN
-    print(f"Scores are based on {scorebase=}")
+    print(f"Scores are based on scorebase={scorebase}")
     model_dir = str(
         # get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch"
         get_models_dir()
@@ -76,7 +76,9 @@ def interactive_mode():
             # logits_normalized_base_sentence,
             # logits_normalized_2nd_good_sentence,
             oov_counts,
-        ) = analize_example(model, tokenizer, -1, example, sentences_per_example)
+        ) = analize_example(
+            model, tokenizer, -1, example, sentences_per_example, score_based_on=None
+        )
 
         diff_penLP = round(penLP_base_sentence - penLP_bad_sentence, 3)
 
@@ -153,26 +155,28 @@ def main(
         # from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
         # from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 
-        run_test_design(
-            model_types_and_names={
-                "roberta-large": ModelTypes.ROBERTA,
-            },
-            tests_subdir="blimp/from_blim_en/islands/",
-            max_examples=1000,
-            device=device,
-            rescore=rescore,
-            log_level=log_level,
-            show_plot=show_plot,
-        )
         # run_test_design(
-        #     model_types_and_names=MODEL_TYPES_AND_NAMES_IT,
-        #     tests_subdir="syntactic_tests_it/",
-        #     max_examples=50,
+        #     model_types_and_names={
+        #         "roberta-large": ModelTypes.ROBERTA,
+        #     },
+        #     tests_subdir="blimp/from_blim_en/islands/",
+        #     max_examples=1000,
         #     device=device,
         #     rescore=rescore,
         #     log_level=log_level,
         #     show_plot=show_plot,
-        # )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
+        # )
+        run_test_design(
+            model_types_and_names={
+                "LorenzoDeMattei/GePpeTto": ModelTypes.GEPPETTO,
+            },  # MODEL_TYPES_AND_NAMES_IT
+            tests_subdir="sprouse/",
+            max_examples=50,
+            device=device,
+            rescore=rescore,
+            log_level=log_level,
+            show_plot=show_plot,
+        )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
 
 
 if __name__ == "__main__":

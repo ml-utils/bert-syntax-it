@@ -1,9 +1,10 @@
 from unittest import TestCase
 
 import pytest
-from linguistic_tests.file_utils import __get_sentence_from_row
-from linguistic_tests.file_utils import __write_sentence_item
-from linguistic_tests.file_utils import convert_sprouse_csv_to_jsonl
+
+from src.linguistic_tests.file_utils import __get_sentence_from_row
+from src.linguistic_tests.file_utils import __write_sentence_item
+from src.linguistic_tests.file_utils import convert_sprouse_csv_to_jsonl
 
 
 class TestFileUtils(TestCase):

@@ -6,34 +6,34 @@ from unittest import TestCase
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-import linguistic_tests
 import pytest
-from linguistic_tests import file_utils
-from linguistic_tests import plots_and_prints
-from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
-from linguistic_tests.lm_utils import DataSources
-from linguistic_tests.lm_utils import DEVICES
-from linguistic_tests.lm_utils import ExperimentalDesigns
-from linguistic_tests.lm_utils import get_models_dir
-from linguistic_tests.lm_utils import get_results_dir
-from linguistic_tests.lm_utils import get_syntactic_tests_dir
-from linguistic_tests.lm_utils import get_testset_params
-from linguistic_tests.lm_utils import load_model
-from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import print_orange
-from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.lm_utils import SentenceNames
-from linguistic_tests.plots_and_prints import print_accuracies
-from linguistic_tests.run_test_design import rescore_testsets_and_save_pickles
-from linguistic_tests.run_test_design import run_test_design
-from linguistic_tests.run_test_design import score_factorial_testsets
-from linguistic_tests.testset import ERROR_LP
-from linguistic_tests.testset import parse_testsets
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import show
 
+import src.linguistic_tests
 from int_tests.int_tests_utils import get_test_data_dir
+from src.linguistic_tests import file_utils
+from src.linguistic_tests import plots_and_prints
+from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import DataSources
+from src.linguistic_tests.lm_utils import DEVICES
+from src.linguistic_tests.lm_utils import ExperimentalDesigns
+from src.linguistic_tests.lm_utils import get_models_dir
+from src.linguistic_tests.lm_utils import get_results_dir
+from src.linguistic_tests.lm_utils import get_syntactic_tests_dir
+from src.linguistic_tests.lm_utils import get_testset_params
+from src.linguistic_tests.lm_utils import load_model
+from src.linguistic_tests.lm_utils import load_testset_data
+from src.linguistic_tests.lm_utils import ModelTypes
+from src.linguistic_tests.lm_utils import print_orange
+from src.linguistic_tests.lm_utils import ScoringMeasures
+from src.linguistic_tests.lm_utils import SentenceNames
+from src.linguistic_tests.plots_and_prints import print_accuracies
+from src.linguistic_tests.run_test_design import rescore_testsets_and_save_pickles
+from src.linguistic_tests.run_test_design import run_test_design
+from src.linguistic_tests.run_test_design import score_factorial_testsets
+from src.linguistic_tests.testset import ERROR_LP
+from src.linguistic_tests.testset import parse_testsets
 from unit_tests.test_compute_model_score import get_unparsed_testset_scores
 
 
@@ -46,7 +46,7 @@ class TestRunTestSets(TestCase):
     #  make output and models folder as optional parameters, to use them in
     #  unit tests
 
-    @patch.object(linguistic_tests.run_test_design, get_testset_params.__name__)
+    @patch.object(src.linguistic_tests.run_test_design, get_testset_params.__name__)
     @pytest.mark.enable_socket
     def test_run_test_design_sprouse_bert(self, mock_get_testset_params):
 
@@ -75,7 +75,7 @@ class TestRunTestSets(TestCase):
                 rescore=True,
             )
 
-    @patch.object(linguistic_tests.run_test_design, get_testset_params.__name__)
+    @patch.object(src.linguistic_tests.run_test_design, get_testset_params.__name__)
     @pytest.mark.enable_socket
     def test_run_test_design_blimp_gpt(self, mock_get_testset_params):
 
@@ -105,7 +105,7 @@ class TestRunTestSets(TestCase):
         rescore,
     ):
         assert (
-            linguistic_tests.run_test_design.get_testset_params
+            src.linguistic_tests.run_test_design.get_testset_params
             is mock_get_testset_params
         )
 
@@ -119,11 +119,11 @@ class TestRunTestSets(TestCase):
                     print("created temporary directory", tmpdirname)
 
                     with patch.object(
-                        linguistic_tests.file_utils, get_results_dir.__name__
+                        src.linguistic_tests.file_utils, get_results_dir.__name__
                     ) as mock_get_results_dir:
 
                         assert (
-                            linguistic_tests.file_utils.get_results_dir
+                            src.linguistic_tests.file_utils.get_results_dir
                             is mock_get_results_dir
                         )
                         mock_get_results_dir.return_value = Path(tmpdirname)
@@ -138,12 +138,12 @@ class TestRunTestSets(TestCase):
                             mock_get_results_dir2.return_value = Path(tmpdirname)
 
                             with patch.object(
-                                linguistic_tests.run_test_design,
+                                src.linguistic_tests.run_test_design,
                                 get_syntactic_tests_dir.__name__,
                             ) as mock_get_syntactic_tests_dir:
 
                                 assert (
-                                    linguistic_tests.run_test_design.get_syntactic_tests_dir
+                                    src.linguistic_tests.run_test_design.get_syntactic_tests_dir
                                     is mock_get_syntactic_tests_dir
                                 )
                                 mock_get_syntactic_tests_dir.return_value = (

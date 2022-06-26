@@ -18,7 +18,7 @@ repos:
     rev: 3.9.2
     hooks:
     -   id: flake8
-        exclude: ^src/linguistic_tests/(generation_projects/blimp|utils)/
+        exclude: ^src/(alexwarstadt|misc)/
         args: [
                 '--ignore=E501,W503'
         ]

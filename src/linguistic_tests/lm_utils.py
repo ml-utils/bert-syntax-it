@@ -3,6 +3,9 @@ import os.path
 from enum import Enum
 from enum import IntEnum
 from pathlib import Path
+from typing import Dict
+from typing import List
+from typing import Tuple
 from typing import Union
 
 import sentencepiece as spm
@@ -126,7 +129,7 @@ class CustomTokenizerWrapper:
             model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch/")
         _tokenizer_filename = "tokenizer.model"
         _tokenizer_filepath = os.path.join(model_dir, _tokenizer_filename)
-        print(f"{_tokenizer_filepath=}")
+        print(f"_tokenizer_filepath={_tokenizer_filepath}")
         self.sp_tokenizer: SentencePieceProcessor = spm.SentencePieceProcessor(
             model_file=_tokenizer_filepath
         )
@@ -165,7 +168,9 @@ class CustomTokenizerWrapper:
 
     def _change_custom_tokens(self, custom_tokens):
         self._custom_tokens = custom_tokens
-        print(f"the new custom tokens mapping is {self._custom_tokens=}")
+        print(
+            f"the new custom tokens mapping is self._custom_tokens: {self._custom_tokens}"
+        )
 
     @property
     def bos_token(self):
@@ -218,18 +223,18 @@ class CustomTokenizerWrapper:
     def get_piece_size(self):
         return self.sp_tokenizer.get_piece_size()
 
-    def tokenize(self, text: str) -> list[str]:
+    def tokenize(self, text: str) -> List[str]:
         return self.sp_tokenizer.encode_as_pieces(text)
 
-    def encode_as_pieces(self, text: str) -> list[str]:
+    def encode_as_pieces(self, text: str) -> List[str]:
         return self.sp_tokenizer.encode_as_pieces(text)
 
-    def convert_tokens_to_ids(self, tokens: list[str]) -> list[int]:
+    def convert_tokens_to_ids(self, tokens: List[str]) -> List[int]:
 
         ids = [self.piece_to_id(token) for token in tokens]
         return ids
 
-    def convert_ids_to_tokens(self, ids: list[int]):
+    def convert_ids_to_tokens(self, ids: List[int]):
 
         tokens = [self.id_to_piece(id) for id in ids]
         return tokens
@@ -253,11 +258,11 @@ class CustomTokenizerWrapper:
     def encode_as_ids(self, text: str):
         return self.sp_tokenizer.encode_as_ids(text)
 
-    def decode_pieces(self, tokens: list[str]):
+    def decode_pieces(self, tokens: List[str]):
         # decode: id => text
         return self.sp_tokenizer.decode_pieces(tokens)
 
-    def decode_ids(self, ids: list[int]):
+    def decode_ids(self, ids: List[int]):
         # decode: id => text
         return self.sp_tokenizer.decode_ids(ids)
 
@@ -370,7 +375,7 @@ def load_pretrained(
 
         if "bostromkaj" in model_name:
             tokenizer_model_path = os.path.join(model_name, "tokenizer.model")
-            print(f"{tokenizer_model_path=}")
+            print(f"tokenizer_model_path={tokenizer_model_path}")
             tokenizer = AlbertTokenizer.from_pretrained(tokenizer_model_path)
         else:
             tokenizer = RobertaTokenizer.from_pretrained(model_name, do_lower_case=True)
@@ -446,7 +451,7 @@ def load_testset_data(file_path, examples_format="blimp"):
         raise ValueError(f"unrecognized testset file format arg: {examples_format}")
 
     # integrity checks:
-    testset_examples: list[dict] = testset_data["sentences"]
+    testset_examples: List[dict] = testset_data["sentences"]
     assert (
         SentenceNames.SENTENCE_GOOD in testset_examples[0].keys()
         or SentenceNames.SHORT_NONISLAND in testset_examples[0].keys()
@@ -488,7 +493,7 @@ def assert_almost_equal(val1, val2, precision=13):
     )
 
 
-MODEL_TYPES_AND_NAMES_EN: dict[str, ModelTypes] = {
+MODEL_TYPES_AND_NAMES_EN: Dict[str, ModelTypes] = {
     "gpt2": ModelTypes.GPT,
     "gpt2-medium": ModelTypes.GPT,
     "gpt2-large": ModelTypes.GPT,
@@ -500,18 +505,18 @@ MODEL_TYPES_AND_NAMES_EN: dict[str, ModelTypes] = {
     "roberta-large": ModelTypes.ROBERTA,
 }
 
-MODEL_TYPES_AND_NAMES_IT: dict[str, ModelTypes] = {
+MODEL_TYPES_AND_NAMES_IT: Dict[str, ModelTypes] = {
     "LorenzoDeMattei/GePpeTto": ModelTypes.GEPPETTO,
     "dbmdz/bert-base-italian-xxl-cased": ModelTypes.BERT,
     "idb-ita/gilberto-uncased-from-camembert": ModelTypes.GILBERTO,
 }
 
-MODEL_NAMES_IT: dict[ModelTypes, str] = {
+MODEL_NAMES_IT: Dict[ModelTypes, str] = {
     ModelTypes.GEPPETTO: "LorenzoDeMattei/GePpeTto",
     ModelTypes.BERT: "dbmdz/bert-base-italian-xxl-cased",
     ModelTypes.GILBERTO: "idb-ita/gilberto-uncased-from-camembert",
 }  # ModelTypes.GPT # ModelTypes.ROBERTA  #
-MODEL_NAMES_EN: dict[ModelTypes, str] = {
+MODEL_NAMES_EN: Dict[ModelTypes, str] = {
     ModelTypes.BERT: "bert-base-uncased",  # "bert-large-uncased"  #
     ModelTypes.GPT: "gpt2-large",
     ModelTypes.ROBERTA: "roberta-large",
@@ -575,7 +580,7 @@ class DataSources(StrEnum):
 
 def get_testset_params(
     tests_subdir,
-) -> tuple[list[str], str, DataSources, ExperimentalDesigns]:
+) -> Tuple[List[str], str, DataSources, ExperimentalDesigns]:
     if tests_subdir == "syntactic_tests_it/":
         testsets_root_filenames = CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES
         broader_test_type = "it_tests"
@@ -605,4 +610,7 @@ def get_testset_params(
 def get_num_of_available_cuda_gpus():
     import torch
 
-    return torch.cuda.device_count()
+    if torch.cuda.is_available():
+        return torch.cuda.device_count()
+    else:
+        return 0

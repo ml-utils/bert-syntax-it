@@ -4,26 +4,26 @@ import os
 import sys
 from collections import Counter
 
-from linguistic_tests.bert_utils import analize_example
-from linguistic_tests.bert_utils import analize_sentence
-from linguistic_tests.bert_utils import check_unknown_words
-from linguistic_tests.bert_utils import estimate_sentence_probability_from_text
-from linguistic_tests.bert_utils import get_score_descr
-from linguistic_tests.bert_utils import get_sentence_probs_from_word_ids
-from linguistic_tests.bert_utils import tokenize_sentence
-from linguistic_tests.compute_model_score import perc
-from linguistic_tests.lm_utils import DEVICES
-from linguistic_tests.lm_utils import get_sentences_from_example
-from linguistic_tests.lm_utils import load_model_and_tokenizer
-from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import print_orange
-from linguistic_tests.lm_utils import print_red
-from linguistic_tests.utils import vocab_it
 from scipy.stats import chi2
 from torch.utils.hipify.hipify_python import bcolors
 from transformers import BertPreTrainedModel
 from transformers import BertTokenizer
+
+from src.linguistic_tests.bert_utils import analize_example
+from src.linguistic_tests.bert_utils import analize_sentence
+from src.linguistic_tests.bert_utils import check_unknown_words
+from src.linguistic_tests.bert_utils import estimate_sentence_probability_from_text
+from src.linguistic_tests.bert_utils import get_score_descr
+from src.linguistic_tests.bert_utils import get_sentence_probs_from_word_ids
+from src.linguistic_tests.bert_utils import tokenize_sentence
+from src.linguistic_tests.compute_model_score import perc
+from src.linguistic_tests.lm_utils import DEVICES
+from src.linguistic_tests.lm_utils import get_sentences_from_example
+from src.linguistic_tests.lm_utils import load_model_and_tokenizer
+from src.linguistic_tests.lm_utils import load_testset_data
+from src.linguistic_tests.lm_utils import ModelTypes
+from src.linguistic_tests.lm_utils import print_orange
+from src.linguistic_tests.lm_utils import print_red
 
 
 def load_it():
@@ -219,7 +219,7 @@ def arg_parse():
             elif currentArgument in ("-b", "--bert_model"):
 
                 argValue = argumentList[arg_idx + 1]
-                print(f"{currentArgument=}, {argValue=}")
+                print(f"{currentArgument}, {argValue}")
                 if argValue == "base":
                     model_name = "bert-base-uncased"
                 else:
@@ -228,7 +228,7 @@ def arg_parse():
 
             elif currentArgument in ("-e", "--eval_suite"):
                 argValue = argumentList[arg_idx + 1]
-                print(f"{currentArgument=}, {argValue=}")
+                print(f"{currentArgument}, {argValue}")
                 eval_suite = argValue
 
     except getopt.error as err:
@@ -302,8 +302,8 @@ def print_sentence_pairs_probabilities(bert, tokenizer, sentence_data):
     ]
     print(f"sentence_good_no_extraction: {sentence_good_no_extraction}")
     print(f"sentence_bad_extraction: {sentence_bad_extraction}")
-    print(f"{sentence_good_extraction_resumption=}")
-    print(f"{sentence_good_extraction_as_subject=}")
+    print(f"{sentence_good_extraction_resumption}")
+    print(f"{sentence_good_extraction_as_subject}")
 
     prob_sentence_good_no_extraction = estimate_sentence_probability_from_text(
         bert, tokenizer, sentence_good_no_extraction
@@ -318,10 +318,10 @@ def print_sentence_pairs_probabilities(bert, tokenizer, sentence_data):
         bert, tokenizer, sentence_good_extraction_as_subject
     )
 
-    print(f"{prob_sentence_good_no_extraction=}")
+    print(f"{prob_sentence_good_no_extraction}")
     print(f"prob_sentence_bad_extraction: {prob_sentence_bad_extraction}")
     print(f"{prob_sentence_good_extraction_resumption}")
-    print(f"{prob_sentence_good_extraction_as_subject=}")
+    print(f"{prob_sentence_good_extraction_as_subject}")
 
 
 # ..
@@ -434,7 +434,7 @@ def run_testset_bert(
         f"second sentence: {error_count_second_sentence} "
         f"({get_perc(error_count_second_sentence, examples_count)}), "
         f"either: {error_count_either} "
-        f"({get_perc(error_count_either, examples_count)}), {filename=}"
+        f"({get_perc(error_count_either, examples_count)}), {filename}"
     )
 
     # print examples getting no errors:
@@ -552,21 +552,7 @@ def basic_sentence_test(model, tokenizer):
         model, tokenizer, sentence_to_analizse
     )
     print(f"sentence: {sentence_to_analizse}")
-    print(f" {topk_tokens=}, {topk_probs=}, {topk_probs_nonsoftmax=}")
-
-
-def t_determiner_noun_agreement_1():
-    from generation_projects.blimp import determiner_noun_agreement_1
-
-    generator = determiner_noun_agreement_1.DetNGenerator()
-    generator.generate_paradigm(
-        rel_output_path="outputs/blimp/%s.jsonl" % generator.uid
-    )
-
-
-def print_profession_nouns():
-    for noun in vocab_it.nouns_professions:
-        print(noun + " ")
+    print(f" {topk_tokens}, {topk_probs}, {topk_probs_nonsoftmax}")
 
 
 def get_probs_for_words(

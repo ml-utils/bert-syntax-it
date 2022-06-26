@@ -5,22 +5,6 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import pytest
-from linguistic_tests.lm_utils import DEVICES
-from linguistic_tests.lm_utils import get_models_dir
-from linguistic_tests.lm_utils import get_pen_score
-from linguistic_tests.lm_utils import get_penalty_term
-from linguistic_tests.lm_utils import get_project_root
-from linguistic_tests.lm_utils import get_sentences_from_example
-from linguistic_tests.lm_utils import get_syntactic_tests_dir
-from linguistic_tests.lm_utils import load_model
-from linguistic_tests.lm_utils import load_model_and_tokenizer
-from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import print_orange
-from linguistic_tests.lm_utils import print_red
-from linguistic_tests.lm_utils import red_txt
-from linguistic_tests.testset import parse_example
-from linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from torch.utils.hipify.hipify_python import bcolors
 from transformers import BertForMaskedLM as BRT_M
 from transformers import BertTokenizer as BRT_T
@@ -30,6 +14,23 @@ from transformers import GPT2LMHeadModel as GPT_M
 from transformers import GPT2Tokenizer as GPT_T
 from transformers import RobertaForMaskedLM as RB_M
 from transformers import RobertaTokenizer as RB_T
+
+from src.linguistic_tests.lm_utils import DEVICES
+from src.linguistic_tests.lm_utils import get_models_dir
+from src.linguistic_tests.lm_utils import get_pen_score
+from src.linguistic_tests.lm_utils import get_penalty_term
+from src.linguistic_tests.lm_utils import get_project_root
+from src.linguistic_tests.lm_utils import get_sentences_from_example
+from src.linguistic_tests.lm_utils import get_syntactic_tests_dir
+from src.linguistic_tests.lm_utils import load_model
+from src.linguistic_tests.lm_utils import load_model_and_tokenizer
+from src.linguistic_tests.lm_utils import load_testset_data
+from src.linguistic_tests.lm_utils import ModelTypes
+from src.linguistic_tests.lm_utils import print_orange
+from src.linguistic_tests.lm_utils import print_red
+from src.linguistic_tests.lm_utils import red_txt
+from src.linguistic_tests.testset import parse_example
+from src.linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 
 
 class TestLMUtils(TestCase):

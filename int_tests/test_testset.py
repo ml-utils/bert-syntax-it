@@ -2,20 +2,20 @@ import os
 from unittest import TestCase
 
 import pytest
-from linguistic_tests.lm_utils import DataSources
-from linguistic_tests.lm_utils import DEVICES
-from linguistic_tests.lm_utils import ExperimentalDesigns
-from linguistic_tests.lm_utils import get_testset_params
-from linguistic_tests.lm_utils import load_model
-from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.run_test_design import score_factorial_testsets
-from linguistic_tests.testset import load_testset_from_pickle
-from linguistic_tests.testset import parse_testset
-from linguistic_tests.testset import parse_testsets
 
 from int_tests.int_tests_utils import get_test_data_dir
+from src.linguistic_tests.lm_utils import DataSources
+from src.linguistic_tests.lm_utils import DEVICES
+from src.linguistic_tests.lm_utils import ExperimentalDesigns
+from src.linguistic_tests.lm_utils import get_testset_params
+from src.linguistic_tests.lm_utils import load_model
+from src.linguistic_tests.lm_utils import load_testset_data
+from src.linguistic_tests.lm_utils import ModelTypes
+from src.linguistic_tests.lm_utils import ScoringMeasures
+from src.linguistic_tests.run_test_design import score_factorial_testsets
+from src.linguistic_tests.testset import load_testset_from_pickle
+from src.linguistic_tests.testset import parse_testset
+from src.linguistic_tests.testset import parse_testsets
 
 
 class TestTestset(TestCase):
@@ -157,7 +157,7 @@ def test_serialization(tmp_path):
     )
 
     # todo: workaround for known issue:
-    from linguistic_tests.lm_utils import SentenceNames
+    from src.linguistic_tests.lm_utils import SentenceNames
 
     scored_testsets[0].avg_zscores_of_likerts_by_measure_and_by_stype[
         ScoringMeasures.LP

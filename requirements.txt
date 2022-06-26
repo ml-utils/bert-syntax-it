@@ -1,7 +1,9 @@
 transformers==4.18.0
-torch==1.11.0
-scipy==1.8.1
-pandas==1.4.2
+torch==1.10
+scipy==1.5
+pandas==1.1
 cython==0.29.30
 sentencepiece==0.1.96
-matplotlib==3.5.1
+matplotlib==3.3
+tqdm
+types-dataclasses

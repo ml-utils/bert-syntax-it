@@ -1,10 +1,10 @@
-from linguistic_tests.lm_utils import CustomTokenizerWrapper
-from linguistic_tests.lm_utils import get_models_dir
-from linguistic_tests.lm_utils import print_orange
 from transformers import RobertaForMaskedLM
 from transformers import RobertaTokenizer
 
 from int_tests.test_load_models import TestLoadModels
+from src.linguistic_tests.lm_utils import CustomTokenizerWrapper
+from src.linguistic_tests.lm_utils import get_models_dir
+from src.linguistic_tests.lm_utils import print_orange
 
 
 class LegacyTests:
@@ -23,8 +23,8 @@ class LegacyTests:
         # roberta = RobertaModel.from_pretrained(model_dir_path)
         roberta2 = RobertaForMaskedLM.from_pretrained(model_dir_path)
         print(
-            # f"{type(roberta)=}, "
-            f"{type(roberta2)=}, "
+            # f"{type(roberta)}, "
+            f"{type(roberta2)}, "
         )
 
         # generate all 5x4x3 combinations of custom tokens ids
@@ -104,19 +104,19 @@ class LegacyTests:
             if verbose:
                 if topk_prediction_includes_expected:
                     print(
-                        f"This custom_tokens configuration predicts correctly: {custom_tokens_config=}"
+                        f"This custom_tokens configuration predicts correctly: {custom_tokens_config}"
                     )
-                    print(f"{topk_ids=}")
-                    print(f"{topk_tokens=}")
+                    print(f"{topk_ids}")
+                    print(f"{topk_tokens}")
                     working_config_count += 1
                 else:
                     print(
-                        f"This custom_tokens configuration does NOT predict correctly: {custom_tokens_config=}"
+                        f"This custom_tokens configuration does NOT predict correctly: {custom_tokens_config}"
                     )
-                    print(f"{topk_ids=}")
-                    print_orange(f"{topk_tokens=}")
+                    print(f"{topk_ids}")
+                    print_orange(f"{topk_tokens}")
 
-        print(f"{working_config_count=}")
+        print(f"{working_config_count}")
         # assert working_config_count > 0
 
         _ = "The coffee is on the [MASK]"  # sentence =
@@ -150,14 +150,14 @@ class LegacyTests:
         )
 
         print(
-            f"\n{roberta_tokenizer.vocab_size=}, "
-            f"\n{roberta_tokenizer.sep_token=}, "
-            f"\n{roberta_tokenizer.mask_token=}, "
-            f"\n{roberta_tokenizer.eos_token=}, "
-            f"\n{roberta_tokenizer.cls_token=}, "
-            f"\n{roberta_tokenizer.bos_token=}, "
-            f"\n{roberta_tokenizer.all_special_tokens=}, "
-            f"\n{roberta_tokenizer.convert_tokens_to_ids(roberta_tokenizer.all_special_tokens)=}"
+            f"\n{roberta_tokenizer.vocab_size}, "
+            f"\n{roberta_tokenizer.sep_token}, "
+            f"\n{roberta_tokenizer.mask_token}, "
+            f"\n{roberta_tokenizer.eos_token}, "
+            f"\n{roberta_tokenizer.cls_token}, "
+            f"\n{roberta_tokenizer.bos_token}, "
+            f"\n{roberta_tokenizer.all_special_tokens}, "
+            f"\n{roberta_tokenizer.convert_tokens_to_ids(roberta_tokenizer.all_special_tokens)}"
         )
         # tokenizer.vocab_size=20000,
         # tokenizer.sep_token='</s>',
@@ -176,9 +176,9 @@ class LegacyTests:
         ) = self._test_sentencepiece_robertatokenizer_helper(
             roberta_tokenizer, roberta2
         )
-        print(f"{topk_prediction_includes_expected=}")
-        print(f"{topk_ids=}")
-        print_orange(f"{topk_tokens=}")
+        print(f"{topk_prediction_includes_expected}")
+        print(f"{topk_ids}")
+        print_orange(f"{topk_tokens}")
 
     def _test_load_with_sentencepiece_helper(self, model_subdir: str):
         # filename = "tokenizer.model"

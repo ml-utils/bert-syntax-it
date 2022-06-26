@@ -5,33 +5,35 @@ from dataclasses import field
 from dataclasses import InitVar
 from typing import Dict
 from typing import KeysView
+from typing import List
 
 import numpy as np
-from linguistic_tests.file_utils import get_file_root
-from linguistic_tests.file_utils import get_pickle_filename
-from linguistic_tests.file_utils import load_object_from_pickle
-from linguistic_tests.file_utils import save_obj_to_pickle
-from linguistic_tests.lm_utils import assert_almost_equal
-from linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
-from linguistic_tests.lm_utils import DataSources
-from linguistic_tests.lm_utils import ExperimentalDesigns
-from linguistic_tests.lm_utils import load_testset_data
-from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
-from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
-from linguistic_tests.lm_utils import ModelTypes
-from linguistic_tests.lm_utils import ScoringMeasures
-from linguistic_tests.lm_utils import SentenceNames
 from scipy.stats import zmap
 
+from src.linguistic_tests.file_utils import get_file_root
+from src.linguistic_tests.file_utils import get_pickle_filename
+from src.linguistic_tests.file_utils import load_object_from_pickle
+from src.linguistic_tests.file_utils import save_obj_to_pickle
+from src.linguistic_tests.lm_utils import assert_almost_equal
+from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import DataSources
+from src.linguistic_tests.lm_utils import ExperimentalDesigns
+from src.linguistic_tests.lm_utils import load_testset_data
+from src.linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
+from src.linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
+from src.linguistic_tests.lm_utils import ModelTypes
+from src.linguistic_tests.lm_utils import ScoringMeasures
+from src.linguistic_tests.lm_utils import SentenceNames
 
-SPROUSE_SENTENCE_TYPES: list[SentenceNames] = [
+
+SPROUSE_SENTENCE_TYPES: List[SentenceNames] = [
     SentenceNames.SHORT_NONISLAND,
     SentenceNames.LONG_NONISLAND,
     SentenceNames.SHORT_ISLAND,
     SentenceNames.LONG_ISLAND,
 ]
 
-BLIMP_SENTENCE_TYPES: list[SentenceNames] = [
+BLIMP_SENTENCE_TYPES: List[SentenceNames] = [
     SentenceNames.SENTENCE_GOOD,
     SentenceNames.SENTENCE_BAD,
 ]
@@ -49,7 +51,7 @@ class Sentence:
     pen_lp_logistic: float = ERROR_LP
 
     # todo? add sentence ids
-    tokens: list[str] = field(default_factory=list)
+    tokens: List[str] = field(default_factory=list)
 
     def get_score(self, scoring_measure: ScoringMeasures):
         if scoring_measure == ScoringMeasures.LP:
@@ -80,8 +82,8 @@ class TypedSentence:
 
 @dataclass
 class Example:
-    # todo: convert to dict[]
-    sentences: list[TypedSentence]
+    # todo: convert to Dict[]
+    sentences: List[TypedSentence]
 
     DD_with_lp: float = ERROR_LP
     DD_with_penlp: float = ERROR_LP
@@ -145,7 +147,7 @@ class Example:
     ) -> float:
         return self[stype1].get_score(score_descr) - self[stype2].get_score(score_descr)
 
-    def get_sentence_types(self) -> list[SentenceNames]:
+    def get_sentence_types(self) -> List[SentenceNames]:
         return [typed_sentence.stype for typed_sentence in self.sentences]
 
     def get_type_of_unacceptable_sentence(self) -> SentenceNames:
@@ -177,35 +179,35 @@ class TestSet:
     model_descr: str
     dataset_source: DataSources
     experimental_design: ExperimentalDesigns
-    examples: list[Example]
+    examples: List[Example]
 
-    scoring_measures: InitVar[list[ScoringMeasures]]
+    scoring_measures: InitVar[List[ScoringMeasures]]
 
-    lp_average_by_sentence_type: dict[SentenceNames, float] = field(
+    lp_average_by_sentence_type: Dict[SentenceNames, float] = field(
         default_factory=dict
     )
-    penlp_average_by_sentence_type: dict[SentenceNames, float] = field(
+    penlp_average_by_sentence_type: Dict[SentenceNames, float] = field(
         default_factory=dict
     )
-    ll_average_by_sentence_type: dict[SentenceNames, float] = field(
+    ll_average_by_sentence_type: Dict[SentenceNames, float] = field(
         default_factory=dict
     )
-    penll_average_by_sentence_type: dict[SentenceNames, float] = field(
+    penll_average_by_sentence_type: Dict[SentenceNames, float] = field(
         default_factory=dict
     )
 
     # z scores for a testset, to be used in the sprouse-like plots, so just for the DD caclulations
-    avg_zscores_by_measure_and_by_stype: dict[
-        ScoringMeasures, dict[SentenceNames, float]
+    avg_zscores_by_measure_and_by_stype: Dict[
+        ScoringMeasures, Dict[SentenceNames, float]
     ] = field(default_factory=dict)
-    avg_zscores_of_likerts_by_measure_and_by_stype: dict[
-        ScoringMeasures, dict[SentenceNames, float]
+    avg_zscores_of_likerts_by_measure_and_by_stype: Dict[
+        ScoringMeasures, Dict[SentenceNames, float]
     ] = field(default_factory=dict)
-    std_error_of_zscores_by_measure_and_by_stype: dict[
-        ScoringMeasures, dict[SentenceNames, float]
+    std_error_of_zscores_by_measure_and_by_stype: Dict[
+        ScoringMeasures, Dict[SentenceNames, float]
     ] = field(default_factory=dict)
-    std_error_of_zscores_of_likerts_by_measure_and_by_stype: dict[
-        ScoringMeasures, dict[SentenceNames, float]
+    std_error_of_zscores_of_likerts_by_measure_and_by_stype: Dict[
+        ScoringMeasures, Dict[SentenceNames, float]
     ] = field(default_factory=dict)
 
     avg_DD_lp: float = ERROR_LP
@@ -218,8 +220,8 @@ class TestSet:
     accuracy_by_DD_ll: float = 0
     accuracy_by_DD_penll: float = 0
 
-    accuracy_per_score_type_per_sentence_type: dict[
-        ScoringMeasures, dict[SentenceNames, float]
+    accuracy_per_score_type_per_sentence_type: Dict[
+        ScoringMeasures, Dict[SentenceNames, float]
     ] = field(default_factory=dict)
 
     # todo: check that no longer used and remove
@@ -330,7 +332,7 @@ class TestSet:
         for stype in self.get_sentence_types():
 
             # convert all the scores to zscores
-            all_scores_this_measure_and_stype: list[float] = []
+            all_scores_this_measure_and_stype: List[float] = []
             for example in self.examples:
                 score = example[stype].get_score(scoring_measure)
                 all_scores_this_measure_and_stype.append(score)
@@ -343,10 +345,10 @@ class TestSet:
                 all_scores_to_likert_for_this_measure_and_stype
             )
 
-            all_zscores_this_measure_and_stype: list[float] = zmap(
+            all_zscores_this_measure_and_stype: List[float] = zmap(
                 all_scores_this_measure_and_stype, merged_scores_for_this_measure
             )
-            all_zscores_from_likert_for_this_measure_and_stype: list[float] = zmap(
+            all_zscores_from_likert_for_this_measure_and_stype: List[float] = zmap(
                 all_scores_to_likert_for_this_measure_and_stype,
                 merged_likert_scores_for_this_measure,
             )
@@ -482,7 +484,7 @@ class TestSet:
         sent_type1: SentenceNames,
         sent_type2: SentenceNames,
         reverse=True,
-    ) -> list[Example]:
+    ) -> List[Example]:
         return sorted(
             self.examples,
             key=lambda x: x.get_score_diff(score_descr, sent_type1, sent_type2),
@@ -491,7 +493,7 @@ class TestSet:
 
     def get_all_sentences_sorted_by_score(
         self, score_descr: ScoringMeasures, reverse=True
-    ) -> list[TypedSentence]:
+    ) -> List[TypedSentence]:
         all_sentences = []
         for example in self.examples:
             for typed_sent in example.sentences:
@@ -504,7 +506,7 @@ class TestSet:
 
     def get_examples_sorted_by_sentence_type_and_score(
         self, stype: SentenceNames, score_descr: ScoringMeasures, reverse=True
-    ) -> list[Example]:
+    ) -> List[Example]:
         return sorted(
             self.examples,
             key=lambda x: x[stype].get_score(score_descr),
@@ -562,7 +564,7 @@ class TestSet:
                             scoring_measure
                         ][stype],
                         warning=True,
-                        details=f"{scoring_measure=}, {stype=}, avg_zscores_of_likerts_by_measure_and_by_stype",
+                        details=f"{scoring_measure}, {stype}, avg_zscores_of_likerts_by_measure_and_by_stype",
                     )
 
                     assert_non_default_value(
@@ -624,7 +626,7 @@ def assert_non_default_value(value: float, warning=False, details=""):
         assert value != 0, f"{value}"
     else:
         if value == 0:
-            logging.warning(f"{value=}, {details=}")
+            logging.warning(f"{value}, {details}")
 
 
 def assert_btw_0_1(value: float):
@@ -632,7 +634,7 @@ def assert_btw_0_1(value: float):
 
 
 def get_model_type_from_model_name(model_name: str) -> ModelTypes:
-    model_name_to_model_type = MODEL_TYPES_AND_NAMES_EN | MODEL_TYPES_AND_NAMES_IT
+    model_name_to_model_type = {**MODEL_TYPES_AND_NAMES_EN, **MODEL_TYPES_AND_NAMES_IT}
     return model_name_to_model_type[model_name]
 
 
@@ -651,7 +653,7 @@ def parse_testset(
     dataset_source: DataSources,
     examples_list: list,
     experimental_design: ExperimentalDesigns,
-    scoring_measures: list[ScoringMeasures],
+    scoring_measures: List[ScoringMeasures],
     max_examples=50,
 ) -> TestSet:
     print(f"len examples: {len(examples_list)}, max: {max_examples}")
@@ -683,7 +685,7 @@ def parse_testset(
 
 
 def get_merged_score_across_testsets(
-    scoring_measure: ScoringMeasures, testsets: list[TestSet]
+    scoring_measure: ScoringMeasures, testsets: List[TestSet]
 ):
     merged_scores = []
     for testset in testsets:
@@ -740,7 +742,7 @@ def load_testsets_from_pickles(
     phenomena,
     model_name,
     expected_experimental_design: ExperimentalDesigns,
-) -> list[TestSet]:
+) -> List[TestSet]:
 
     loaded_testsets = []
     for phenomenon in phenomena:
@@ -755,14 +757,14 @@ def load_testsets_from_pickles(
 
 def parse_testsets(
     testset_dir_path: str,
-    testset_filenames: list[str],
+    testset_filenames: List[str],
     dataset_source: DataSources,
     examples_format: str,
     experimental_design: ExperimentalDesigns,
     model_name: str,
-    scoring_measures: list[ScoringMeasures],
+    scoring_measures: List[ScoringMeasures],
     max_examples: int,
-) -> list[TestSet]:
+) -> List[TestSet]:
 
     # todo: add scorebase var in testset class
 
@@ -792,7 +794,7 @@ def parse_testsets(
 
 
 def save_scored_testsets(
-    scored_testsets: list[TestSet], model_name: str, dataset_source: str
+    scored_testsets: List[TestSet], model_name: str, dataset_source: str
 ):
     for scored_testset in scored_testsets:
         scored_testset.model_descr = model_name
