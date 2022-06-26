@@ -335,6 +335,7 @@ def save_obj_to_pickle(obj, filename):
     saving_dir = str(get_results_dir())
     filepath = os.path.join(saving_dir, filename)
     if os.path.exists(filepath):
+        logging.warning(f"File already exists: {filepath}, creating a new one..")
         timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
         filename = f"{filename}-{timestamp}.testset.pickle"
         filepath = os.path.join(saving_dir, filename)

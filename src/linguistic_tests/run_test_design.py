@@ -69,6 +69,7 @@ def score_minimal_pairs_testset(
                     scoring_measure, stype_acceptable_sentence
                 ):
                     accurate_count += 1
+            logging.debug(f"{accurate_count=} out of {len(testset.examples)=}")
             accuracy = accurate_count / len(testset.examples)
             testset.accuracy_per_score_type_per_sentence_type[scoring_measure][
                 stype_acceptable_sentence
