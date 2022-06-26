@@ -140,7 +140,8 @@ def main(
     log_level=logging.INFO,
     show_plot=False,
 ):
-    print(f"Number of available cuda gpus: {get_num_of_available_cuda_gpus()}")
+
+    logging.info(f"Using cuda device {device}")
 
     if len(sys.argv) > 1:
         interactive_mode()
@@ -176,10 +177,19 @@ def main(
 
 if __name__ == "__main__":
 
-    # todo: add device as a command line option
-    main(
-        device=DEVICES.CPU,
-        rescore=True,
-        log_level=logging.INFO,
-        show_plot=False,
-    )
+    print(f"Number of available cuda gpus: {get_num_of_available_cuda_gpus()}")
+
+    if get_num_of_available_cuda_gpus() > 0:
+        main(
+            device=DEVICES.CUDA_0,
+            rescore=True,
+            log_level=logging.INFO,
+            show_plot=False,
+        )
+    else:
+        main(
+            device=DEVICES.CPU,
+            rescore=True,
+            log_level=logging.INFO,
+            show_plot=False,
+        )
