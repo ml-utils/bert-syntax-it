@@ -144,10 +144,9 @@ def main(
         #  also another csv file with details on sentences scores
         #  and an option to load the report csv and print them in the command line
 
-        from run_minimal_pairs_test_design import main_minimal_pairs
-        from run_factorial_test_design import main_factorial
+        from linguistic_tests.run_minimal_pairs_test_design import main_factorial
 
-        main_minimal_pairs(
+        main_factorial(
             model_types_and_names=MODEL_TYPES_AND_NAMES_EN,
             tests_subdir="blimp/from_blim_en/islands/",  # tests_subdir="sprouse/",
             max_examples=5,  # 1000

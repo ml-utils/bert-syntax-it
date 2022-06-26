@@ -19,6 +19,8 @@ from linguistic_tests.lm_utils import print_orange
 from linguistic_tests.lm_utils import ScoringMeasures
 from linguistic_tests.lm_utils import sent_idx
 from linguistic_tests.lm_utils import SentenceNames
+from linguistic_tests.plots_and_prints import _print_testset_results
+from linguistic_tests.plots_and_prints import plot_testsets
 from linguistic_tests.plots_and_prints import print_accuracy_scores
 from linguistic_tests.testset import Example
 from linguistic_tests.testset import get_dd_score_parametric
@@ -194,55 +196,6 @@ def get_unparsed_testset_scores(
         correct_lls_2nd_sentence,
         correct_pen_lls_2nd_sentence,
     )
-
-
-def main_minimal_pairs(
-    model_types_and_names: dict[str, ModelTypes],
-    tests_subdir,
-    max_examples,
-    rescore=False,
-    log_level=logging.INFO,
-):
-
-    _setup_logging(log_level)
-    _ = _parse_arguments()  # args =
-
-    # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
-
-    testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
-
-    logging.info(f"Will run tests with models: {model_types_and_names.values()}")
-
-    (
-        testsets_root_filenames,
-        broader_test_type,
-        dataset_source,
-        experimental_design,
-    ) = get_testset_params(tests_subdir)
-
-    for model_name, model_type in model_types_and_names.items():
-        print_orange(f"Starting test session for {model_type=}, and {dataset_source=}")
-
-        if rescore:
-            rescore_testsets_and_save_pickles(
-                model_type=model_type,
-                model_name=model_name,
-                testset_dir_path=testset_dir_path,
-                testsets_root_filenames=testsets_root_filenames,
-                dataset_source=dataset_source,
-                experimental_design=experimental_design,
-                examples_format="json_lines",
-                max_examples=max_examples,
-            )
-
-        loaded_testsets = load_testsets_from_pickles(
-            dataset_source,
-            testsets_root_filenames,
-            model_name,
-            expected_experimental_design=experimental_design,
-        )
-        for scored_testset in loaded_testsets:
-            print_accuracy_scores(scored_testset)
 
 
 def score_factorial_testset(
@@ -528,3 +481,104 @@ def rescore_testsets_and_save_pickles(
     save_scored_testsets(scored_testsets, model_name, dataset_source)
 
     return scored_testsets
+
+
+def load_and_plot_pickle(
+    phenomena,
+    model_name,
+    dataset_source,
+    model_type: ModelTypes,
+    expected_experimental_design: ExperimentalDesigns,
+    loaded_testsets=None,
+):
+
+    if loaded_testsets is None:
+        loaded_testsets = load_testsets_from_pickles(
+            dataset_source,
+            phenomena,
+            model_name,
+            expected_experimental_design=expected_experimental_design,
+        )
+
+    plot_testsets(loaded_testsets, model_type)
+
+
+def main_factorial(
+    model_types_and_names: dict[str, ModelTypes],
+    tests_subdir,
+    max_examples,
+    rescore=False,
+    log_level=logging.INFO,
+):
+
+    _setup_logging(log_level)
+    args = _parse_arguments()
+
+    # model_types_to_run = [
+    #     ModelTypes(model_type_int) for model_type_int in args.model_types
+    # ]
+    # todo: also add command line option for tests subdir path
+    if args.datasource == "sprouse":
+        tests_subdir = "sprouse/"
+    elif args.datasource == "madeddu":
+        tests_subdir = "syntactic_tests_it/"
+    elif args.datasource == "blimp":
+        tests_subdir = "blimp/from_blim_en/islands/"
+    # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
+    testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
+
+    logging.info(f"Will run tests with models: {model_types_and_names.values()}")
+
+    (
+        testsets_root_filenames,
+        broader_test_type,
+        dataset_source,
+        experimental_design,
+    ) = get_testset_params(tests_subdir)
+
+    for model_name, model_type in model_types_and_names.items():
+        print_orange(f"Starting test session for {model_type=}, and {dataset_source=}")
+
+        if rescore:
+            rescore_testsets_and_save_pickles(
+                model_type=model_type,
+                model_name=model_name,
+                testset_dir_path=testset_dir_path,
+                testsets_root_filenames=testsets_root_filenames,
+                dataset_source=dataset_source,
+                experimental_design=experimental_design,
+                examples_format="json_lines",
+                max_examples=max_examples,
+            )
+
+        loaded_testsets = load_testsets_from_pickles(
+            dataset_source,
+            testsets_root_filenames,
+            model_name,
+            expected_experimental_design=experimental_design,
+        )
+
+        for scored_testset in loaded_testsets:
+            print_accuracy_scores(scored_testset)
+
+        if experimental_design == ExperimentalDesigns.FACTORIAL:
+
+            # todo: add experimental_design param to work also with minimal pairs testsets
+            _print_testset_results(
+                loaded_testsets, broader_test_type, model_type, testsets_root_filenames
+            )
+
+            load_and_plot_pickle(
+                testsets_root_filenames,
+                model_name,
+                dataset_source,
+                model_type,
+                expected_experimental_design=experimental_design,
+                loaded_testsets=loaded_testsets,
+            )
+            # todo:
+            # plot with 7+1x7 subplots of a testset (one subplot for each example)
+            # nb: having the standard errors in the plots is already overcoming this,
+            # showing the variance
+
+        print_orange(f"Finished test session for {model_type=}")
