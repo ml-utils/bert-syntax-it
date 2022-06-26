@@ -144,16 +144,16 @@ def main(
         #  also another csv file with details on sentences scores
         #  and an option to load the report csv and print them in the command line
 
-        from linguistic_tests.run_test_design import main_factorial
+        from linguistic_tests.run_test_design import run_test_design
 
-        main_factorial(
+        run_test_design(
             model_types_and_names=MODEL_TYPES_AND_NAMES_EN,
             tests_subdir="blimp/from_blim_en/islands/",  # tests_subdir="sprouse/",
             max_examples=5,  # 1000
             rescore=rescore,
             log_level=log_level,
         )
-        main_factorial(
+        run_test_design(
             model_types_and_names=MODEL_TYPES_AND_NAMES_IT,
             tests_subdir="sprouse/",
             max_examples=50,

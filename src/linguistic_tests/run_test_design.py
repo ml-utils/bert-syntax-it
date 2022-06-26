@@ -341,7 +341,7 @@ def load_and_plot_pickle(
     plot_testsets(loaded_testsets, model_type)
 
 
-def main_factorial(
+def run_test_design(
     model_types_and_names: dict[str, ModelTypes],
     tests_subdir,
     max_examples,
