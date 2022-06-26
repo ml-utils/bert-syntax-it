@@ -105,6 +105,7 @@ class sentence_score_bases:
 class DEVICES(StrEnum):
     CPU = "cpu"
     CUDA = "cuda:X"
+    CUDA_0 = "cuda:0"
 
 
 BERT_LIKE_MODEL_TYPES = [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]
@@ -599,3 +600,9 @@ def get_testset_params(
         dataset_source,
         experimental_design,
     )
+
+
+def get_num_of_available_cuda_gpus():
+    import torch
+
+    return torch.cuda.device_count()

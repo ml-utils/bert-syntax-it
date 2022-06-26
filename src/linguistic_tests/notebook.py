@@ -4,6 +4,7 @@ import sys
 from linguistic_tests.bert_utils import analize_example
 from linguistic_tests.lm_utils import DEVICES
 from linguistic_tests.lm_utils import get_models_dir
+from linguistic_tests.lm_utils import get_num_of_available_cuda_gpus
 from linguistic_tests.lm_utils import load_model_and_tokenizer
 from linguistic_tests.lm_utils import ModelTypes
 from linguistic_tests.lm_utils import print_red
@@ -139,6 +140,8 @@ def main(
     log_level=logging.INFO,
     show_plot=False,
 ):
+    print(f"Number of available cuda gpus: {get_num_of_available_cuda_gpus()}")
+
     if len(sys.argv) > 1:
         interactive_mode()
     else:
