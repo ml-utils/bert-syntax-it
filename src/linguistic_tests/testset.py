@@ -97,6 +97,46 @@ class Example:
     def get_score(self, scoring_measure: ScoringMeasures, sent_type: SentenceNames):
         self[sent_type].get_score(scoring_measure)
 
+    def get_dd_score(self, scoring_measure: ScoringMeasures):
+
+        for typed_sentence in self.sentences:
+            stype = typed_sentence.stype
+            sent = typed_sentence.sent
+            if stype == SentenceNames.SHORT_NONISLAND:
+                a_short_nonisland = sent
+            elif stype == SentenceNames.LONG_NONISLAND:
+                b_long_nonisland = sent
+            elif stype == SentenceNames.SHORT_ISLAND:
+                c_short_island = sent
+            elif stype == SentenceNames.LONG_ISLAND:
+                d_long_island = sent
+            else:
+                raise ValueError(f"Unexpected sentence type: {stype}")
+
+        return get_dd_score_parametric(
+            a_short_nonisland.get_score(scoring_measure),
+            b_long_nonisland.get_score(scoring_measure),
+            c_short_island.get_score(scoring_measure),
+            d_long_island.get_score(scoring_measure),
+        )
+
+    def get_dd_scores(self, model_type: ModelTypes):
+
+        example_dd_with_lp = self.get_dd_score(ScoringMeasures.LP)
+        example_dd_with_penlp = self.get_dd_score(ScoringMeasures.PenLP)
+
+        example_dd_with_ll, example_dd_with_pll = None, None
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            example_dd_with_ll = self.get_dd_score(ScoringMeasures.LL)
+            example_dd_with_pll = self.get_dd_score(ScoringMeasures.PLL)
+
+        return (
+            example_dd_with_lp,
+            example_dd_with_penlp,
+            example_dd_with_ll,
+            example_dd_with_pll,
+        )
+
     def get_structure_effect(self, score_descr) -> float:
         raise NotImplementedError
 

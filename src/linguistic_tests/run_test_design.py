@@ -20,7 +20,6 @@ from linguistic_tests.lm_utils import SentenceNames
 from linguistic_tests.plots_and_prints import _print_testset_results
 from linguistic_tests.plots_and_prints import plot_testsets
 from linguistic_tests.plots_and_prints import print_accuracy_scores
-from linguistic_tests.testset import Example
 from linguistic_tests.testset import get_dd_score_parametric
 from linguistic_tests.testset import get_merged_score_across_testsets
 from linguistic_tests.testset import load_testsets_from_pickles
@@ -99,7 +98,7 @@ def score_factorial_testset(
             example.DD_with_penlp,
             example.DD_with_ll,
             example.DD_with_penll,
-        ) = _get_example_dd_scores(example, model_type)
+        ) = example.get_dd_scores(model_type)
         if example.DD_with_lp > 0:
             testset.accuracy_by_DD_lp += 1 / len(testset.examples)
         if example.DD_with_penlp > 0:
@@ -188,47 +187,6 @@ def score_factorial_testset(
         )
 
     return testset
-
-
-def _get_example_dd_scores(example: Example, model_type: ModelTypes):
-
-    example_dd_with_lp = _get_example_dd_score(example, ScoringMeasures.LP)
-    example_dd_with_penlp = _get_example_dd_score(example, ScoringMeasures.PenLP)
-
-    example_dd_with_ll, example_dd_with_pll = None, None
-    if model_type in BERT_LIKE_MODEL_TYPES:
-        example_dd_with_ll = _get_example_dd_score(example, ScoringMeasures.LL)
-        example_dd_with_pll = _get_example_dd_score(example, ScoringMeasures.PLL)
-
-    return (
-        example_dd_with_lp,
-        example_dd_with_penlp,
-        example_dd_with_ll,
-        example_dd_with_pll,
-    )
-
-
-def _get_example_dd_score(example: Example, score_name):
-    for typed_sentence in example.sentences:
-        stype = typed_sentence.stype
-        sent = typed_sentence.sent
-        if stype == SentenceNames.SHORT_NONISLAND:
-            a_short_nonisland = sent
-        elif stype == SentenceNames.LONG_NONISLAND:
-            b_long_nonisland = sent
-        elif stype == SentenceNames.SHORT_ISLAND:
-            c_short_island = sent
-        elif stype == SentenceNames.LONG_ISLAND:
-            d_long_island = sent
-        else:
-            raise ValueError(f"Unexpected sentence type: {stype}")
-
-    return get_dd_score_parametric(
-        a_short_nonisland.get_score(score_name),
-        b_long_nonisland.get_score(score_name),
-        c_short_island.get_score(score_name),
-        d_long_island.get_score(score_name),
-    )
 
 
 def score_factorial_testsets(
