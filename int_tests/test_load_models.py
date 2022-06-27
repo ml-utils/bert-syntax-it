@@ -23,7 +23,33 @@ from src.linguistic_tests.lm_utils import CustomTokenizerWrapper
 from src.linguistic_tests.lm_utils import get_models_dir
 
 
+def _is_fairseq_installed_helper() -> bool:
+    is_installed = False
+
+    name = "fairseq"
+    import sys
+    from importlib.util import find_spec
+    from importlib.util import module_from_spec
+
+    if name in sys.modules:
+        is_installed = True
+        print(f"{name!r} is installed, already in sys.modules")
+    elif (spec := find_spec(name)) is not None:
+        # performing the actual import ...
+        _ = module_from_spec(spec)  # module =
+        # sys.modules[name] = module
+        # spec.loader.exec_module(module)
+        is_installed = True
+        print(f"{name!r} is installed.")
+    else:
+        print(f"can't find the {name!r} module")
+
+    return is_installed
+
+
 class TestLoadModels(TestCase):
+
+    is_fairseq_installed = _is_fairseq_installed_helper()
 
     model_bpe_subdirs = "bostromkaj/bpe_20k_ep20_pytorch"
     model_uni_subdirs = "bostromkaj/uni_20k_ep20_pytorch"
@@ -553,7 +579,12 @@ class TestLoadModels(TestCase):
             print(type(tokenizer))
         self.assertInErrorMsg("stream did not contain valid UTF-8", stream_exception)
 
+    @pytest.mark.skipif(not is_fairseq_installed, reason="Fairseq is not installed")
     def test_load_with_fairseq_RobertaModel(self):
+
+        if not self.is_fairseq_installed():
+            return
+
         from fairseq.models.roberta import RobertaModel as RobertaModel_FS
 
         with pytest.raises(OSError) as os_err:
