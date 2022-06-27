@@ -4,7 +4,6 @@ from typing import Dict
 from typing import List
 
 import numpy as np
-import pandas as pd
 from tqdm import tqdm
 
 from src.linguistic_tests.compute_model_score import score_example
@@ -13,9 +12,11 @@ from src.linguistic_tests.file_utils import _setup_logging
 from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import DEVICES
+from src.linguistic_tests.lm_utils import discretize
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
 from src.linguistic_tests.lm_utils import get_syntactic_tests_dir
 from src.linguistic_tests.lm_utils import get_testset_params
+from src.linguistic_tests.lm_utils import LIKERT_SCALE_POINTS
 from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import print_orange
@@ -247,17 +248,17 @@ def _calculate_zscores_across_testsets(scored_testsets: List[TestSet]):
 
     likert_bins_by_scoring_measure = dict()  # : Dict[ScoringMeasures, ..bins_type]
     merged_likert_scores_by_scoring_measure = dict()
+    # todo, fixme: with quantiles nan values get produced in some cases.
+    use_quantiles_for_likert_discretization = False
+    likert_labels = np.arange(start=1, stop=LIKERT_SCALE_POINTS + 1)
     for scoring_measure in merged_scores_by_scoring_measure.keys():
 
-        (
-            likert_scores_merged,
-            likert_bins,
-        ) = pd.cut(  # todo: use pd.qcut instead of pd.cut?
+        (likert_scores_merged, likert_bins,) = discretize(
             merged_scores_by_scoring_measure[scoring_measure],
-            bins=7,
-            labels=np.arange(start=1, stop=8),
+            groups=LIKERT_SCALE_POINTS,
+            labels=likert_labels,
             retbins=True,
-            # right=False,
+            use_quantiles=use_quantiles_for_likert_discretization,
         )
 
         merged_likert_scores_by_scoring_measure[scoring_measure] = np.asarray(
@@ -273,6 +274,7 @@ def _calculate_zscores_across_testsets(scored_testsets: List[TestSet]):
                 merged_scores_by_scoring_measure[scoring_measure],
                 merged_likert_scores_by_scoring_measure[scoring_measure],
                 likert_bins_by_scoring_measure[scoring_measure],
+                likert_labels=likert_labels,
             )
 
         logging.debug(
@@ -383,7 +385,9 @@ def run_test_design(
     ) = get_testset_params(tests_subdir)
 
     for model_name, model_type in model_types_and_names.items():
-        print_orange(f"Starting test session for {model_name}, and {dataset_source}")
+        print_orange(
+            f"Starting test session for model {model_name}, and dataset_source={dataset_source}"
+        )
 
         if rescore:
             rescore_testsets_and_save_pickles(

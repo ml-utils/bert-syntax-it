@@ -17,6 +17,7 @@ from src.linguistic_tests.file_utils import save_obj_to_pickle
 from src.linguistic_tests.lm_utils import assert_almost_equal
 from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from src.linguistic_tests.lm_utils import DataSources
+from src.linguistic_tests.lm_utils import discretize
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
 from src.linguistic_tests.lm_utils import load_testset_data
 from src.linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
@@ -326,8 +327,8 @@ class TestSet:
         merged_scores_for_this_measure,
         merged_likert_scores_for_this_measure,
         likert_bins_for_this_measure,
+        likert_labels,
     ):
-        import pandas as pd
 
         for stype in self.get_sentence_types():
 
@@ -336,10 +337,10 @@ class TestSet:
             for example in self.examples:
                 score = example[stype].get_score(scoring_measure)
                 all_scores_this_measure_and_stype.append(score)
-            all_scores_to_likert_for_this_measure_and_stype = pd.cut(
+            all_scores_to_likert_for_this_measure_and_stype = discretize(
                 all_scores_this_measure_and_stype,
-                bins=likert_bins_for_this_measure,
-                labels=np.arange(start=1, stop=8),
+                groups=likert_bins_for_this_measure,
+                labels=likert_labels,
             )
             all_scores_to_likert_for_this_measure_and_stype = np.asarray(
                 all_scores_to_likert_for_this_measure_and_stype

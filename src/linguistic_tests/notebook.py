@@ -155,28 +155,31 @@ def main(
         # from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
         # from linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 
-        run_test_design(
-            model_types_and_names={
-                "roberta-large": ModelTypes.ROBERTA,
-            },
-            tests_subdir="blimp/from_blim_en/islands/",
-            max_examples=1000,
-            device=device,
-            rescore=rescore,
-            log_level=log_level,
-            show_plot=show_plot,
-        )
         # run_test_design(
         #     model_types_and_names={
-        #         "LorenzoDeMattei/GePpeTto": ModelTypes.GEPPETTO,
-        #     },  # MODEL_TYPES_AND_NAMES_IT
-        #     tests_subdir="sprouse/",
-        #     max_examples=50,
+        #         "roberta-large": ModelTypes.ROBERTA,
+        #     },
+        #     tests_subdir="blimp/from_blim_en/islands/",
+        #     max_examples=1000,
         #     device=device,
         #     rescore=rescore,
         #     log_level=log_level,
         #     show_plot=show_plot,
-        # )  # tests_subdir="syntactic_tests_it/"  # tests_subdir="sprouse/"
+        # )
+
+        tests_subdirs = ["sprouse/", "syntactic_tests_it/"]
+        for tests_subdir in tests_subdirs:
+            run_test_design(
+                model_types_and_names={
+                    "LorenzoDeMattei/GePpeTto": ModelTypes.GEPPETTO,
+                },  # MODEL_TYPES_AND_NAMES_IT
+                tests_subdir=tests_subdir,
+                max_examples=50,
+                device=device,
+                rescore=rescore,
+                log_level=log_level,
+                show_plot=show_plot,
+            )
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 import json
+import logging
 import os.path
 from enum import Enum
 from enum import IntEnum
@@ -8,6 +9,7 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
+import pandas as pd
 import sentencepiece as spm
 import torch
 from sentencepiece import SentencePieceProcessor
@@ -25,6 +27,9 @@ from transformers import GPT2Tokenizer
 from transformers import RobertaForMaskedLM
 from transformers import RobertaModel
 from transformers import RobertaTokenizer
+
+
+LIKERT_SCALE_POINTS = 7
 
 
 class StrEnum(str, Enum):
@@ -491,9 +496,15 @@ def get_sentences_from_example(
 
 def assert_almost_equal(val1, val2, precision=13):
     # todo: convert this to a warning
-    assert abs(val1 - val2) < 10 ** (-1 * precision), (
-        f"val1:{val1}, val2: {val2}, " f"diff: {val1 - val2}"
+    almost_equal = abs(val1 - val2) < 10 ** (-1 * precision)
+    msg = (
+        f"These values are not almost equal: val1:{val1}, val2: {val2}, "
+        f"diff: {val1 - val2}, precision={precision}"
     )
+    # assert almost_equal, msg
+    if not almost_equal:
+        print_orange(msg)
+        logging.warning(msg)
 
 
 MODEL_TYPES_AND_NAMES_EN: Dict[str, ModelTypes] = {
@@ -619,3 +630,20 @@ def get_num_of_available_cuda_gpus():
     else:
         print_red("Cuda is NOT available")
         return 0
+
+
+def discretize(
+    x,
+    groups,
+    labels=None,
+    retbins: bool = False,
+    use_quantiles=False,
+):
+    print(
+        f"discretize: {len(x)}, groups={groups}, labels={labels}, retbins={retbins}, use_quantiles={use_quantiles}"
+    )
+    if use_quantiles:
+        return pd.qcut(x, q=groups, labels=labels, retbins=retbins)
+    else:
+        # use bins
+        return pd.cut(x, bins=groups, labels=labels, retbins=retbins)
