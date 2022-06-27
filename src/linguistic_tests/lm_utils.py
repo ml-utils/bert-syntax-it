@@ -616,4 +616,5 @@ def get_num_of_available_cuda_gpus():
     if torch.cuda.is_available():
         return torch.cuda.device_count()
     else:
+        print_red("Cuda is not available")
         return 0
