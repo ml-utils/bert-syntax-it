@@ -373,7 +373,7 @@ def run_test_design(
     # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
     testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
-    logging.info(f"Will run tests with models: {model_types_and_names.values()}")
+    logging.info(f"Will run tests with models: {model_types_and_names.keys()}")
 
     (
         testsets_root_filenames,
@@ -383,7 +383,7 @@ def run_test_design(
     ) = get_testset_params(tests_subdir)
 
     for model_name, model_type in model_types_and_names.items():
-        print_orange(f"Starting test session for {model_type}, and {dataset_source}")
+        print_orange(f"Starting test session for {model_name}, and {dataset_source}")
 
         if rescore:
             rescore_testsets_and_save_pickles(
@@ -429,4 +429,4 @@ def run_test_design(
             # nb: having the standard errors in the plots is already overcoming this,
             # showing the variance
 
-        print_orange(f"Finished test session for {model_type}")
+        print_orange(f"Finished test session for {model_name}")

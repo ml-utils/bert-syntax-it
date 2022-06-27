@@ -337,22 +337,22 @@ def _print_testset_results(
         # todo: also print results in table format or csv for excel export or word doc report
         print_accuracy_scores(scored_testset)
         print(
-            f"Testset accuracy with DDs_with_lp: {scored_testset.accuracy_by_DD_lp:%}"
+            f"Testset accuracy with DDs_with_lp: {scored_testset.accuracy_by_DD_lp:.2%}"
         )
         print(
-            f"Testset accuracy with DDs_with_penlp: {scored_testset.accuracy_by_DD_penlp:%}"
+            f"Testset accuracy with DDs_with_penlp: {scored_testset.accuracy_by_DD_penlp:.2%}"
         )
         lp_averages = scored_testset.lp_average_by_sentence_type
         penlp_averages = scored_testset.penlp_average_by_sentence_type
-        print(f"{lp_averages}")
-        print(f"{penlp_averages}")
+        print(f"lp_averages: {lp_averages}")
+        print(f"penlp_averages: {penlp_averages}")
 
         if model_type in BERT_LIKE_MODEL_TYPES:
             print(
-                f"Testset accuracy with DDs_with_ll: {scored_testset.accuracy_by_DD_ll:%}"
+                f"Testset accuracy with DDs_with_ll: {scored_testset.accuracy_by_DD_ll:.2%}"
             )
             print(
-                f"Testset accuracy with DDs_with_penll: {scored_testset.accuracy_by_DD_penll:%}"
+                f"Testset accuracy with DDs_with_penll: {scored_testset.accuracy_by_DD_penll:.2%}"
             )
             ll_averages = scored_testset.ll_average_by_sentence_type
             penll_averages = scored_testset.penll_average_by_sentence_type
@@ -429,7 +429,7 @@ def print_accuracy_scores(testset: TestSet):
             print(
                 f"{testset.linguistic_phenomenon}: "
                 f"Accuracy with {scoring_measure.name} "
-                f"for {stype_acceptable_sentence.name}: {accuracy:%} "
+                f"for {stype_acceptable_sentence.name}: {accuracy:.2%} "
                 f"({testset.model_descr})"
             )
 

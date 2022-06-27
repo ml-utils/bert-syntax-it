@@ -99,6 +99,9 @@ class ModelTypes(IntEnum):
     GILBERTO = 3
     GEPPETTO = 4
 
+    def __str__(self):
+        return f"ModelType({self.name})"
+
 
 class sentence_score_bases:
     SOFTMAX = 0
