@@ -530,3 +530,7 @@ def print_list_of_cached_models():
         print(f"{model_name} NOT CACHED")
 
     return
+
+
+def get_perc(value, total):
+    return f"{perc(value, total):.1f} %"

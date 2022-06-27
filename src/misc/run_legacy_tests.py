@@ -24,6 +24,7 @@ from src.linguistic_tests.lm_utils import load_testset_data
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import print_orange
 from src.linguistic_tests.lm_utils import print_red
+from src.linguistic_tests.plots_and_prints import get_perc
 
 
 def load_it():
@@ -537,10 +538,6 @@ def rnd(num, decimal_places):
         return round(num, decimal_places)
     else:
         return None
-
-
-def get_perc(value, total):
-    return f"{perc(value, total):.1f} %"
 
 
 def basic_sentence_test(model, tokenizer):

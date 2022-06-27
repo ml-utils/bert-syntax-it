@@ -4,68 +4,22 @@ import pytest
 
 from src.linguistic_tests.notebook import interactive_mode
 from src.linguistic_tests.notebook import main
+from src.linguistic_tests.plots_and_prints import _print_example
+from src.linguistic_tests.plots_and_prints import get_perc
 from src.linguistic_tests.plots_and_prints import print_detailed_sentence_info
-from src.linguistic_tests.run_legacy_tests import arg_parse
-from src.linguistic_tests.run_legacy_tests import basic_sentence_test
-from src.linguistic_tests.run_legacy_tests import custom_eval
-from src.linguistic_tests.run_legacy_tests import eval_gulordava
-from src.linguistic_tests.run_legacy_tests import eval_it
-from src.linguistic_tests.run_legacy_tests import eval_lgd
-from src.linguistic_tests.run_legacy_tests import eval_marvin
-from src.linguistic_tests.run_legacy_tests import get_example_analysis_as_tuple
-from src.linguistic_tests.run_legacy_tests import get_perc
-from src.linguistic_tests.run_legacy_tests import load_it
-from src.linguistic_tests.run_legacy_tests import load_marvin
-from src.linguistic_tests.run_legacy_tests import print_example
-from src.linguistic_tests.run_legacy_tests import print_sentence_pairs_probabilities
-from src.linguistic_tests.run_legacy_tests import print_sentences_sorted_by_score
-from src.linguistic_tests.run_legacy_tests import read_gulordava
-from src.linguistic_tests.run_legacy_tests import rnd
-from src.linguistic_tests.run_legacy_tests import run_eval
-from src.linguistic_tests.run_legacy_tests import run_testset_bert
 from src.linguistic_tests.run_test_design import run_tests_goldberg
 from src.linguistic_tests.run_test_design import run_tests_lau_et_al
 
 
 class TestNotebook(TestCase):
     @pytest.mark.skip("todo")
-    def test_arg_parse(self):
-        arg_parse()
+    def test_run_tests_goldberg(self):
+        run_tests_goldberg()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
-    def test_basic_sentence_test(self):
-        basic_sentence_test()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_custom_eval(self):
-        custom_eval()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_eval_gulordava(self):
-        eval_gulordava()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_eval_it(self):
-        eval_it()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_eval_lgd(self):
-        eval_lgd()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_eval_marvin(self):
-        eval_marvin()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_get_example_analysis_as_tuple(self):
-        get_example_analysis_as_tuple()
+    def test_run_tests_lau_et_al(self):
+        run_tests_lau_et_al()
         raise NotImplementedError
 
     def test_get_perc(self):
@@ -75,16 +29,6 @@ class TestNotebook(TestCase):
     @pytest.mark.skip("todo")
     def test_interactive_mode(self):
         interactive_mode()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_load_it(self):
-        load_it()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_load_marvin(self):
-        load_marvin()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")
@@ -99,45 +43,5 @@ class TestNotebook(TestCase):
 
     @pytest.mark.skip("todo")
     def test_print_example(self):
-        print_example()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_print_sentence_pairs_probabilities(self):
-        print_sentence_pairs_probabilities()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_print_sentences_sorted_by_score(self):
-        print_sentences_sorted_by_score()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_read_gulordava(self):
-        read_gulordava()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_rnd(self):
-        rnd()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_run_eval(self):
-        run_eval()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_run_tests_goldberg(self):
-        run_tests_goldberg()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_run_tests_lau_et_al(self):
-        run_tests_lau_et_al()
-        raise NotImplementedError
-
-    @pytest.mark.skip("todo")
-    def test_run_testset_bert(self):
-        run_testset_bert()
+        _print_example()
         raise NotImplementedError
