@@ -34,15 +34,17 @@ def _is_fairseq_installed_helper() -> bool:
     if name in sys.modules:
         is_installed = True
         print(f"{name!r} is installed, already in sys.modules")
-    elif (spec := find_spec(name)) is not None:
-        # performing the actual import ...
-        _ = module_from_spec(spec)  # module =
-        # sys.modules[name] = module
-        # spec.loader.exec_module(module)
-        is_installed = True
-        print(f"{name!r} is installed.")
     else:
-        print(f"can't find the {name!r} module")
+        spec = find_spec(name)
+        if spec is not None:
+            # performing the actual import ...
+            _ = module_from_spec(spec)  # module =
+            # sys.modules[name] = module
+            # spec.loader.exec_module(module)
+            is_installed = True
+            print(f"{name!r} is installed.")
+        else:
+            print(f"can't find the {name!r} module")
 
     return is_installed
 
