@@ -4,4 +4,3 @@ pytest==7
 pytest-cov==3.0.0
 mypy==0.950
 pytest-socket==0.4
-protobuf
