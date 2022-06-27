@@ -7,3 +7,4 @@ sentencepiece==0.1.96
 matplotlib>=3.3
 tqdm
 types-dataclasses
+numpy
