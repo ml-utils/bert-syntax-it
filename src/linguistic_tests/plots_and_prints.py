@@ -40,7 +40,7 @@ def plot_results(
 
     fig.canvas.manager.set_window_title(window_title)
     axs_list = axs.reshape(-1)
-    logging.debug(f"type axs_list: {type(axs_list)}, {len(axs_list)}, {axs_list}")
+    logging_debug(f"type axs_list: {type(axs_list)}, {len(axs_list)}, {axs_list}")
 
     preferred_axs_order = {"whether": 0, "complex": 1, "subject": 2, "adjunct": 3}
     for phenomenon_short_name, preferred_index in preferred_axs_order.items():
@@ -131,8 +131,8 @@ def _plot_results_subplot(
             score_averages[SentenceNames.LONG_ISLAND],
         ]
 
-    logging.debug(f"{y_values_ni}")
-    logging.debug(f"{y_values_is}")
+    logging_debug(f"{y_values_ni}")
+    logging_debug(f"{y_values_is}")
 
     # todo: add p values
     # todo: add accuracy %
@@ -183,7 +183,7 @@ def _plot_results_subplot(
 
 
 def _print_example(example_data, sentence_ordering):
-    logging.debug(f"sentence ordering is {type(sentence_ordering)}")
+    logging_debug(f"sentence ordering is {type(sentence_ordering)}")
     print(
         f"\nSHORT_NONISLAND: {example_data[sentence_ordering.SHORT_NONISLAND]}"
         f"\nLONG_NONISLAND : {example_data[sentence_ordering.LONG_NONISLAND]}"
@@ -198,41 +198,37 @@ def plot_testsets(
     show_plot=False,
     save_plot=False,
 ):
-    plot_results(
-        scored_testsets,
-        ScoringMeasures.PenLP.name,
-        use_zscore=True,
-        likert=True,
-        show_plot=show_plot,
-        save_plot=save_plot,
-    )
-    plot_results(
-        scored_testsets,
-        ScoringMeasures.LP.name,
-        use_zscore=True,
-        likert=True,
-        show_plot=show_plot,
-        save_plot=save_plot,
-    )
-
+    scoring_measures_to_plot = [ScoringMeasures.PenLP.name, ScoringMeasures.LP.name]
     if model_type in BERT_LIKE_MODEL_TYPES:
+        scoring_measures_to_plot += [ScoringMeasures.LL.name, ScoringMeasures.PLL.name]
 
+    for scoring_measure in scoring_measures_to_plot:
         plot_results(
             scored_testsets,
-            ScoringMeasures.LL.name,
+            scoring_measure,
             use_zscore=True,
             likert=True,
             show_plot=show_plot,
             save_plot=save_plot,
         )
-        plot_results(
-            scored_testsets,
-            ScoringMeasures.PLL.name,
-            use_zscore=True,
-            likert=True,
-            show_plot=show_plot,
-            save_plot=save_plot,
-        )
+
+
+def log_and_print(logging_level: int, msg, also_print=True):
+
+    logging.log(logging_level, msg)
+
+    if also_print:
+        # because logging actually is delayed/buffered, and gets out of synch with
+        # regular prints. Both logging and printing both until a fix is found.
+        print(msg)
+
+
+def logging_info(msg, also_print=True):
+    log_and_print(logging.INFO, msg, also_print=also_print)
+
+
+def logging_debug(msg, also_print=True):
+    log_and_print(logging.DEBUG, msg, also_print=also_print)
 
 
 def _print_sorted_sentences_to_check_spelling_errors2(
@@ -244,8 +240,10 @@ def _print_sorted_sentences_to_check_spelling_errors2(
 ):
 
     for testset in loaded_testsets:
-        logging.info(
-            f"printing for testset {testset.linguistic_phenomenon} calculated from {testset.model_descr}"
+        logging_info(
+            f"printing for testset {testset.linguistic_phenomenon} "
+            f"calculated from {testset.model_descr} "
+            f"(dataset_source={dataset_source})"
         )
         typed_sentences = testset.get_all_sentences_sorted_by_score(
             score_descr, reverse=False
@@ -267,14 +265,14 @@ def _print_sorted_sentences_to_check_spelling_errors(
     dataset_source,
     loaded_testsets,
 ):
-    logging.info("printing sorted_sentences_to_check_spelling_errors")
+    logging_info("printing sorted_sentences_to_check_spelling_errors")
 
     for testset in loaded_testsets:
-        logging.info(
+        logging_info(
             f"printing {score_descr} for testset {testset.linguistic_phenomenon} calculated from {testset.model_descr}"
         )
         for stype in SPROUSE_SENTENCE_TYPES:
-            logging.info(f"printing for sentence type {stype}..")
+            logging_info(f"printing for sentence type {stype}..")
             examples = testset.get_examples_sorted_by_sentence_type_and_score(
                 stype, score_descr, reverse=False
             )
@@ -299,7 +297,7 @@ def _print_examples_compare_diff(
 
     max_testsets = 4
     for testset in testsets[:max_testsets]:
-        logging.info(
+        logging_info(
             f"printing testset for {testset.linguistic_phenomenon} from {testset.model_descr}"
         )
         print(
@@ -312,7 +310,7 @@ def _print_examples_compare_diff(
         print(
             f"{'diff':<8}"
             f"{'s1 '+score_descr:^10}"
-            f"{'s1 txt (' + sent_type1 + ')':<95}"
+            f"{'s1 txt (' + sent_type1 + ')':<70}"
             f"{'s2 '+score_descr:^10}"
             f"{'s2 txt (' + sent_type2 + ')':<5}"
         )
@@ -320,7 +318,7 @@ def _print_examples_compare_diff(
             print(
                 f"{example.get_score_diff(score_descr, sent_type1, sent_type2) : <8.2f}"
                 f"{example[sent_type1].get_score(score_descr) : ^10.2f}"
-                f"{example[sent_type1].txt : <95}"
+                f"{example[sent_type1].txt : <70}"
                 f"{example[sent_type2].get_score(score_descr) :^10.2f}"
                 f"{example[sent_type2].txt : <5}"
             )
@@ -332,7 +330,7 @@ def _print_testset_results(
     model_type: ModelTypes,
     testsets_root_filenames: List[str],
 ):
-    logging.info("Printing accuracy scores..")
+    logging_info("Printing accuracy scores..")
     for scored_testset in scored_testsets:
         # todo: also print results in table format or csv for excel export or word doc report
         print_accuracy_scores(scored_testset)
@@ -415,9 +413,9 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt, scorebase):
 
 
 def print_accuracy_scores(testset: TestSet):
-    logging.info(f"test results report, {testset.linguistic_phenomenon}:")
+    logging_info(f"test results report, {testset.linguistic_phenomenon}:")
     for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
-        logging.debug(f"scores with {scoring_measure}")
+        logging_debug(f"scores with {scoring_measure}")
         for (
             stype_acceptable_sentence
         ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
@@ -446,7 +444,7 @@ def print_accuracies(
     correct_logweights_2nd_sentence=None,
     correct_pen_logweights_2nd_sentence=None,
 ):
-    logging.info("test results report:")
+    logging_info("test results report:")
     print(
         f"acc. correct_lps_1st_sentence: {perc(correct_lps_1st_sentence, examples_count):.1f} %"
     )
