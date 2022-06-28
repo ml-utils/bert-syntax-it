@@ -27,6 +27,7 @@ def plot_results(
     use_zscore=False,
     likert=False,
     show_plot=False,
+    save_plot=False,
 ):
     fig, axs = plt.subplots(2, 2, figsize=(12.8, 12.8))  # default figsize=(6.4, 4.8)
 
@@ -67,23 +68,23 @@ def plot_results(
         f"({scored_testset.get_item_count_per_phenomenon()} items per phenomenon)"
     )
 
-    zscore_note = ""
-    if use_zscore:
-        zscore_note = "-zscores"
-    likert_note = ""
-    if likert:
-        likert_note = "-likert"
-
-    saving_dir = str(get_results_dir())
-    timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
-    filename = f"{window_title}{zscore_note}{likert_note}-{timestamp}.png"
-    filepath = os.path.join(saving_dir, filename)
-
     plt.figlegend(lines, labels)
     # fig.tight_layout()
 
-    print_orange(f"Saving plot to file {filepath} ..")
-    plt.savefig(filepath)  # , dpi=300
+    if save_plot:
+        zscore_note = ""
+        if use_zscore:
+            zscore_note = "-zscores"
+        likert_note = ""
+        if likert:
+            likert_note = "-likert"
+
+        saving_dir = str(get_results_dir())
+        timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
+        filename = f"{window_title}{zscore_note}{likert_note}-{timestamp}.png"
+        filepath = os.path.join(saving_dir, filename)
+        print_orange(f"Saving plot to file {filepath} ..")
+        plt.savefig(filepath)  # , dpi=300
     if show_plot:
         plt.show()
 
@@ -189,15 +190,18 @@ def _print_example(example_data, sentence_ordering):
 
 
 def plot_testsets(
-    scored_testsets: List[TestSet], model_type: ModelTypes, show_plot=False
+    scored_testsets: List[TestSet],
+    model_type: ModelTypes,
+    show_plot=False,
+    save_plot=False,
 ):
-
     plot_results(
         scored_testsets,
         ScoringMeasures.PenLP.name,
         use_zscore=True,
         likert=True,
         show_plot=show_plot,
+        save_plot=save_plot,
     )
     plot_results(
         scored_testsets,
@@ -205,26 +209,18 @@ def plot_testsets(
         use_zscore=True,
         likert=True,
         show_plot=show_plot,
+        save_plot=save_plot,
     )
-    # plot_results(
-    #     scored_testsets, ScoringMeasures.LP.name, use_zscore=True, likert=False
-    # )
-    # plot_results(
-    #     scored_testsets, ScoringMeasures.PenLP.name, use_zscore=True, likert=False
-    # )
-
-    # plot_results(scored_testsets, ScoringMeasures.LP.name)  # without zscores
-    # plot_results(scored_testsets, ScoringMeasures.PenLP.name)
 
     if model_type in BERT_LIKE_MODEL_TYPES:
-        # plot_results(scored_testsets, ScoringMeasures.LL.name)
-        # plot_results(scored_testsets, ScoringMeasures.PLL.name)
+
         plot_results(
             scored_testsets,
             ScoringMeasures.LL.name,
             use_zscore=True,
             likert=True,
             show_plot=show_plot,
+            save_plot=save_plot,
         )
         plot_results(
             scored_testsets,
@@ -232,6 +228,7 @@ def plot_testsets(
             use_zscore=True,
             likert=True,
             show_plot=show_plot,
+            save_plot=save_plot,
         )
 
 

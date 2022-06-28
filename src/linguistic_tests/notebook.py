@@ -141,6 +141,7 @@ def main(
     rescore=False,
     log_level=logging.INFO,
     show_plot=False,
+    save_plot=False,
 ):
 
     print_red(f"Using cuda device {device}")  # logging.info
@@ -179,6 +180,7 @@ def main(
                 rescore=rescore,
                 log_level=log_level,
                 show_plot=show_plot,
+                save_plot=save_plot,
             )
 
 
@@ -190,8 +192,9 @@ if __name__ == "__main__":
     else:
         main_setting_device = DEVICES.CPU
 
-    main_setting_rescore = True
+    main_setting_rescore = False
     main_setting_show_plot = False
+    main_settings_save_plot = False
     main_setting_log_level = logging.INFO
 
     main(
@@ -199,4 +202,5 @@ if __name__ == "__main__":
         rescore=main_setting_rescore,
         log_level=main_setting_log_level,
         show_plot=main_setting_show_plot,
+        save_plot=main_settings_save_plot,
     )
