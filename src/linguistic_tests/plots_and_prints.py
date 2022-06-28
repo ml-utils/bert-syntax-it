@@ -29,6 +29,9 @@ def plot_results(
     show_plot=False,
     save_plot=False,
 ):
+    if not show_plot and not save_plot:
+        return
+
     fig, axs = plt.subplots(2, 2, figsize=(12.8, 12.8))  # default figsize=(6.4, 4.8)
 
     window_title = _get_test_session_descr(
