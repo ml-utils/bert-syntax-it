@@ -6,6 +6,8 @@ from dataclasses import InitVar
 from typing import Dict
 from typing import KeysView
 from typing import List
+from typing import Optional
+from typing import Tuple
 
 import numpy as np
 from scipy.stats import zmap
@@ -39,6 +41,13 @@ BLIMP_SENTENCE_TYPES: List[SentenceNames] = [
     SentenceNames.SENTENCE_BAD,
 ]
 
+MINIMAL_PAIRS_VARIATIONS_SENTENCE_TYPES: List[SentenceNames] = [
+    SentenceNames.SHORT_NONISLAND,
+    SentenceNames.LONG_NONISLAND,
+    SentenceNames.SHORT_ISLAND,
+    SentenceNames.LONG_ISLAND,
+]
+
 ERROR_LP: float = -200.0
 
 
@@ -54,7 +63,13 @@ class Sentence:
     # todo? add sentence ids
     tokens: List[str] = field(default_factory=list)
 
-    def get_score(self, scoring_measure: ScoringMeasures):
+    def __str__(self):
+        return (
+            f"Sent(lp_s={self.lp_softmax}, plp_s={self.pen_lp_softmax}, "
+            f"lp_l={self.lp_logistic}, plp_l={self.pen_lp_logistic})"
+        )
+
+    def get_score(self, scoring_measure: ScoringMeasures) -> float:
         if scoring_measure == ScoringMeasures.LP:
             score = self.lp_softmax
         elif scoring_measure == ScoringMeasures.PenLP:
@@ -66,7 +81,7 @@ class Sentence:
         else:
             raise ValueError(f"Unexpected scoring_measure: {scoring_measure}")
 
-        if score == ERROR_LP:
+        if score is None or score == ERROR_LP:
             raise ValueError(
                 f"Score {scoring_measure} "
                 f"for this sentence not set {score},"
@@ -80,6 +95,9 @@ class TypedSentence:
     stype: SentenceNames
     sent: Sentence
 
+    def __str__(self):
+        return f"TSent({self.stype}: {self.sent})"
+
 
 @dataclass
 class Example:
@@ -91,16 +109,29 @@ class Example:
     DD_with_ll: float = ERROR_LP
     DD_with_penll: float = ERROR_LP
 
+    def __str__(self, scoring_measure: ScoringMeasures = None):
+        if scoring_measure is None:
+            return f"Example({self.sentences})"
+        else:
+            # Sent(lp_s={self.lp_softmax}, plp_s={self.pen_lp_softmax}, " \
+            #                f"lp_l={self.lp_logistic}, plp_l={self.pen_lp_logistic})
+            descr = ""
+            for stype in self.get_sentence_types():
+                descr += f"{stype}={self.get_score(scoring_measure, stype)}, "
+            return f"Example({scoring_measure.name}: {descr})"
+
     def __getitem__(self, key: SentenceNames) -> Sentence:
         for typed_sentence in self.sentences:
             if typed_sentence.stype == key:
                 return typed_sentence.sent
         raise ValueError(f"Invalid key, it's not a SentenceName: {key}")
 
-    def get_score(self, scoring_measure: ScoringMeasures, sent_type: SentenceNames):
-        self[sent_type].get_score(scoring_measure)
+    def get_score(
+        self, scoring_measure: ScoringMeasures, sent_type: SentenceNames
+    ) -> float:
+        return self[sent_type].get_score(scoring_measure)
 
-    def get_dd_score(self, scoring_measure: ScoringMeasures):
+    def get_dd_score(self, scoring_measure: ScoringMeasures) -> float:
 
         for typed_sentence in self.sentences:
             stype = typed_sentence.stype
@@ -123,7 +154,9 @@ class Example:
             d_long_island.get_score(scoring_measure),
         )
 
-    def get_dd_scores(self, model_type: ModelTypes):
+    def get_dd_scores(
+        self, model_type: ModelTypes
+    ) -> Tuple[float, float, Optional[float], Optional[float]]:
 
         example_dd_with_lp = self.get_dd_score(ScoringMeasures.LP)
         example_dd_with_penlp = self.get_dd_score(ScoringMeasures.PenLP)
@@ -294,7 +327,11 @@ class TestSet:
         return expected_scoring_measures
 
     def get_expected_sentence_types(self):
-        if self.dataset_source in [DataSources.SPROUSE, DataSources.MADEDDU]:
+        if self.dataset_source in [
+            DataSources.SPROUSE,
+            DataSources.MADEDDU,
+            DataSources.VARIATIONS,
+        ]:
             return [
                 SentenceNames.SHORT_NONISLAND,
                 SentenceNames.LONG_NONISLAND,
@@ -522,6 +559,9 @@ class TestSet:
     def assert_is_well_formed(self, expected_experimental_design=None):
         testset = self
         if expected_experimental_design is not None:
+            logging.debug(
+                f"expected_experimental_design={expected_experimental_design}, testset.experimental_design={testset.experimental_design}"
+            )
             assert expected_experimental_design == testset.experimental_design
 
         factorial = testset.experimental_design == ExperimentalDesigns.FACTORIAL
@@ -579,17 +619,28 @@ class TestSet:
                         ][stype]
                     )
 
-            for acceptable_stype in testset.get_acceptable_sentence_types():
-                for scoring_measure in testset.get_scoring_measures():
-                    assert_btw_0_1(
-                        testset.accuracy_per_score_type_per_sentence_type[
-                            scoring_measure
-                        ][acceptable_stype]
-                    )
+        for acceptable_stype in testset.get_acceptable_sentence_types():
+            for scoring_measure in testset.get_scoring_measures():
+                assert_btw_0_1(
+                    testset.accuracy_per_score_type_per_sentence_type[scoring_measure][
+                        acceptable_stype
+                    ]
+                )
 
         assert len(testset.examples) > 0
         for example in testset.examples:
             assert len(example.sentences) > 0
+
+            for typed_sent in example.sentences:
+
+                assert typed_sent.stype in testset.get_expected_sentence_types()
+                assert len(typed_sent.sent.txt) > 0
+                assert len(typed_sent.sent.tokens) > 0
+
+                for scoring_measure in testset.get_scoring_measures():
+                    assert ERROR_LP != typed_sent.sent.get_score(scoring_measure)
+                    assert typed_sent.sent.get_score(scoring_measure) is not None
+                    # print(f"score: {typed_sent.stype} {scoring_measure.name} = {typed_sent.sent.get_score(scoring_measure)}")
 
             if factorial:
                 assert ERROR_LP != example.DD_with_lp
@@ -605,15 +656,6 @@ class TestSet:
                 assert_is_default(example.DD_with_penlp)
                 assert_is_default(example.DD_with_ll)
                 assert_is_default(example.DD_with_penll)
-
-            for typed_sent in example.sentences:
-
-                assert typed_sent.stype in testset.get_expected_sentence_types()
-                assert len(typed_sent.sent.txt) > 0
-                assert len(typed_sent.sent.tokens) > 0
-
-                for scoring_measure in testset.get_scoring_measures():
-                    assert ERROR_LP != typed_sent.sent.get_score(scoring_measure)
 
 
 def assert_is_default(value):
@@ -663,6 +705,8 @@ def parse_testset(
         sent_types = SPROUSE_SENTENCE_TYPES
     elif experimental_design == ExperimentalDesigns.MINIMAL_PAIRS:
         sent_types = BLIMP_SENTENCE_TYPES
+    elif experimental_design == ExperimentalDesigns.MINIMAL_PAIRS_VARIATIONS:
+        sent_types = MINIMAL_PAIRS_VARIATIONS_SENTENCE_TYPES
     else:
         raise ValueError(f"unrecognized experimental_design: {experimental_design}")
 

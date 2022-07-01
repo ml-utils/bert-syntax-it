@@ -168,7 +168,9 @@ def main(
         #     show_plot=show_plot,
         # )
 
-        tests_subdirs = ["sprouse/", "syntactic_tests_it/"]
+        tests_subdirs = [
+            "syntactic_tests_it/"
+        ]  # "sprouse/", "syntactic_tests_it/", "variations/"
         for tests_subdir in tests_subdirs:
             run_test_design(
                 model_types_and_names={

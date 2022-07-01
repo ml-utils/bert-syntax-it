@@ -4,6 +4,7 @@ import json
 import logging
 import os.path
 import pickle
+import sys
 import time
 
 import pandas
@@ -300,7 +301,9 @@ def get_pickle_filename(
     # todo: filenames as pyplot filenames
     #  rename as get_pickle_filepath, ad results dir (same as pyplot images)
 
-    filename_base = _get_test_session_descr(dataset_source, model_descr)
+    filename_base = _get_test_session_descr(
+        dataset_source, linguistic_phenomenon, model_descr
+    )
 
     filename = f"{filename_base}_{linguistic_phenomenon}_.testset.pickle"
     return filename
@@ -362,7 +365,7 @@ def _setup_logging(log_level):
     # root_logger.addFilter(NoFontMsgFilter())
     # root_logger.addFilter(NoStreamMsgFilter())
 
-    logging.basicConfig(format=fmt, level=log_level)  #
+    logging.basicConfig(stream=sys.stdout, format=fmt, level=log_level)  #
     this_module_logger = logging.getLogger(__name__)
     this_module_logger.setLevel(log_level)
 

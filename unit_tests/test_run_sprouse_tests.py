@@ -9,7 +9,7 @@ from src.linguistic_tests.lm_utils import assert_almost_equal
 from src.linguistic_tests.lm_utils import SprouseSentencesOrder
 from src.linguistic_tests.plots_and_prints import _print_example
 from src.linguistic_tests.plots_and_prints import _print_testset_results
-from src.linguistic_tests.plots_and_prints import plot_results
+from src.linguistic_tests.plots_and_prints import plot_single_testset_results
 from src.linguistic_tests.run_test_design import run_test_design
 from src.linguistic_tests.run_test_design import score_factorial_testset
 from src.linguistic_tests.run_test_design import score_factorial_testsets
@@ -24,7 +24,7 @@ class TestRunSprouseTests(TestCase):
 
     @pytest.mark.skip("todo")
     def test_plot_results(self):
-        plot_results()
+        plot_single_testset_results()
         raise NotImplementedError
 
     @pytest.mark.skip("todo")

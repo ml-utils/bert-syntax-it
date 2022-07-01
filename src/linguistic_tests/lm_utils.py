@@ -70,6 +70,9 @@ class ScoringMeasures(StrEnum):
     def __repr__(self):
         return str(self.name)
 
+    def __str__(self):
+        return str(self.name)
+
 
 class SprouseSentencesOrder(IntEnum):
     SHORT_NONISLAND = 0
@@ -543,18 +546,30 @@ BLIMP_TESTSETS_ROOT_FILENAMES = [
 ]
 
 
-def _get_test_session_descr(dataset_source, model_descr, score_name=""):
-    session_descr = f"{dataset_source[:7]}_{model_descr}_{score_name}"
+def _get_test_session_descr(
+    dataset_source: str,
+    dependency_type_prefix: str,
+    model_descr: str,
+    score_name: str = "",
+):
+    session_descr = (
+        f"{dataset_source[:7]}_{dependency_type_prefix[:2]}_{model_descr}_{score_name}"
+    )
     session_descr = session_descr.replace(" ", "_").replace("/", "_")
     return session_descr
 
 
-SPROUSE_TESTSETS_ROOT_FILENAMES = [  # 'rc_adjunct_island',
-    # 'rc_complex_np', 'rc_subject_island', 'rc_wh_island', # fixme: rc_wh_island empty file
+SPROUSE_TESTSETS_ROOT_FILENAMES_WH = [
     "wh_adjunct_island",
     "wh_complex_np",
     "wh_subject_island",
     "wh_whether_island",
+]
+SPROUSE_TESTSETS_ROOT_FILENAMES_RC = [
+    "rc_adjunct_island",
+    "rc_complex_np",
+    "rc_subject_island",
+    "rc_wh_island",  # fixme: rc_wh_island empty file
 ]
 CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES = [
     # "wh_adjunct_islands",
@@ -571,12 +586,14 @@ CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES = [
 class ExperimentalDesigns(IntEnum):
     MINIMAL_PAIRS = 0
     FACTORIAL = 1
+    MINIMAL_PAIRS_VARIATIONS = 2
 
 
 class DataSources(StrEnum):
     BLIMP_EN = "Blimp Warstadt et al. 2020"  # "Blimp paper"
     SPROUSE = "Sprouse et al. 2016"  # "sprouse", "Sprouse et al. 2016"
     MADEDDU = "Madeddu"
+    VARIATIONS = "variations"
 
     def __repr__(self):
         return self.value
@@ -601,7 +618,7 @@ def get_testset_params(
         dataset_source = DataSources.MADEDDU
         experimental_design = ExperimentalDesigns.FACTORIAL
     elif tests_subdir == "sprouse/":
-        testsets_root_filenames = SPROUSE_TESTSETS_ROOT_FILENAMES
+        testsets_root_filenames = SPROUSE_TESTSETS_ROOT_FILENAMES_WH  # SPROUSE_TESTSETS_ROOT_FILENAMES_RC + SPROUSE_TESTSETS_ROOT_FILENAMES_WH
         broader_test_type = "sprouse"
         dataset_source = DataSources.SPROUSE
         experimental_design = ExperimentalDesigns.FACTORIAL
@@ -610,6 +627,13 @@ def get_testset_params(
         broader_test_type = "blimp"
         dataset_source = DataSources.BLIMP_EN
         experimental_design = ExperimentalDesigns.MINIMAL_PAIRS
+    elif tests_subdir == "variations/":
+        testsets_root_filenames = [
+            "wh_complex_np_islands"
+        ]  # "wh_adjunct_islands", "wh_whether_island", "wh_whether_island2", "wh_whether_island3"
+        broader_test_type = "variations"
+        dataset_source = DataSources.VARIATIONS
+        experimental_design = ExperimentalDesigns.MINIMAL_PAIRS_VARIATIONS
     else:
         raise ValueError(f"Invalid tests_subdir specified: {tests_subdir}")
 
@@ -639,9 +663,9 @@ def discretize(
     retbins: bool = False,
     use_quantiles=False,
 ):
-    print(
-        f"discretize: {len(x)}, groups={groups}, labels={labels}, retbins={retbins}, use_quantiles={use_quantiles}"
-    )
+    # print(
+    #     f"discretize: {len(x)}, groups={groups}, labels={labels}, retbins={retbins}, use_quantiles={use_quantiles}"
+    # )
     if use_quantiles:
         return pd.qcut(x, q=groups, labels=labels, retbins=retbins)
     else:

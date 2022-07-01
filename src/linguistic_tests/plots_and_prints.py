@@ -1,6 +1,8 @@
 import logging
 import os
+import sys
 import time
+from typing import Dict
 from typing import List
 
 from matplotlib import pyplot as plt
@@ -9,6 +11,7 @@ from src.linguistic_tests.bert_utils import estimate_sentence_probability
 from src.linguistic_tests.compute_model_score import perc
 from src.linguistic_tests.lm_utils import _get_test_session_descr
 from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import ExperimentalDesigns
 from src.linguistic_tests.lm_utils import get_results_dir
 from src.linguistic_tests.lm_utils import MODEL_NAMES_IT
 from src.linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
@@ -21,7 +24,59 @@ from src.linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from src.linguistic_tests.testset import TestSet
 
 
-def plot_results(
+def reorder_testsets_legacy(scored_testsets: List[TestSet]):
+    preferred_axs_order = {"whether": 0, "complex": 1, "subject": 2, "adjunct": 3}
+    for phenomenon_short_name, preferred_index in preferred_axs_order.items():
+        if (
+            phenomenon_short_name
+            not in scored_testsets[preferred_index].linguistic_phenomenon
+        ):
+            for idx, testset in enumerate(scored_testsets):
+                if phenomenon_short_name in testset.linguistic_phenomenon:
+                    scored_testsets.remove(testset)
+                    scored_testsets.insert(preferred_index, testset)
+                    break
+
+
+def reorder_testsets2(testsets: List[TestSet]) -> List[TestSet]:
+    preferred_axs_order = {
+        "wh_whether_island": 0,
+        "rc_wh_island": 0,
+        "complex": 1,
+        "subject": 2,
+        "adjunct": 3,
+    }
+    sorted_testsets = []
+    testsets_by_wanted_position: Dict[int, TestSet] = dict()
+    for testset in testsets:
+        successfully_positioned = False
+        for phenomenon_shortname in preferred_axs_order.keys():
+            if phenomenon_shortname in testset.linguistic_phenomenon:
+                wanted_position = preferred_axs_order[phenomenon_shortname]
+                # check no testset already at current key
+                if wanted_position in testsets_by_wanted_position:
+                    logging.error(
+                        f"Error while sorting testsets before plotting, "
+                        f"at position {wanted_position} "
+                        f"there is already testset for {testset.linguistic_phenomenon}"
+                    )
+                testsets_by_wanted_position[wanted_position] = testset
+                successfully_positioned = True
+                break
+        if not successfully_positioned:
+            logging.error(
+                f"Could not position testset for {testset.linguistic_phenomenon}, while sorting before plotting."
+            )
+    for position in sorted(testsets_by_wanted_position.keys()):
+        sorted_testsets.append(testsets_by_wanted_position[position])
+
+    logging.debug(
+        f"final testsets sorting: {[testset.linguistic_phenomenon for testset in sorted_testsets]}"
+    )
+    return sorted_testsets
+
+
+def plot_single_testset_results(
     scored_testsets: List[TestSet],
     score_name,
     use_zscore=False,
@@ -35,24 +90,17 @@ def plot_results(
     fig, axs = plt.subplots(2, 2, figsize=(12.8, 12.8))  # default figsize=(6.4, 4.8)
 
     window_title = _get_test_session_descr(
-        scored_testsets[0].dataset_source, scored_testsets[0].model_descr, score_name
+        scored_testsets[0].dataset_source,
+        scored_testsets[0].linguistic_phenomenon,
+        scored_testsets[0].model_descr,
+        score_name,
     )
 
     fig.canvas.manager.set_window_title(window_title)
     axs_list = axs.reshape(-1)
     logging_debug(f"type axs_list: {type(axs_list)}, {len(axs_list)}, {axs_list}")
 
-    preferred_axs_order = {"whether": 0, "complex": 1, "subject": 2, "adjunct": 3}
-    for phenomenon_short_name, preferred_index in preferred_axs_order.items():
-        if (
-            phenomenon_short_name
-            not in scored_testsets[preferred_index].linguistic_phenomenon
-        ):
-            for idx, testset in enumerate(scored_testsets):
-                if phenomenon_short_name in testset.linguistic_phenomenon:
-                    scored_testsets.remove(testset)
-                    scored_testsets.insert(preferred_index, testset)
-                    break
+    scored_testsets = reorder_testsets2(scored_testsets)
 
     set_xlabels = [False, False, True, True]
     for scored_testset, ax, set_xlabel in zip(scored_testsets, axs_list, set_xlabels):
@@ -92,9 +140,63 @@ def plot_results(
         plt.show()
 
 
+def do_extended_testset_plot(
+    scoring_measure: ScoringMeasures,
+    testset: TestSet,
+):
+    """
+    Plots the lines for each item of a testset
+    :param scoring_measure:
+    :param testset:
+    :return:
+    """
+
+    # alternative:
+    # plot with 7+1x7 subplots of a testset (one subplot for each example)
+    # nb: having the standard errors in the plots is already overcoming this,
+    # showing the variance
+
+    fig, ax = plt.subplots(1)
+    for example in testset.examples:
+        # logging_info(f"example={example.__str__(scoring_measure=scoring_measure)}")
+        y_values_ni = [
+            example.get_score(scoring_measure, SentenceNames.SHORT_NONISLAND),
+            example.get_score(scoring_measure, SentenceNames.LONG_NONISLAND),
+        ]
+        y_values_is = [
+            example.get_score(scoring_measure, SentenceNames.SHORT_ISLAND),
+            example.get_score(scoring_measure, SentenceNames.LONG_ISLAND),
+        ]
+        x_values = ["SHORT", "LONG"]
+        # logging_info(f"ploting: y_values_ni={y_values_ni}, y_values_is={y_values_is}")
+        (non_island_line,) = ax.plot(x_values, y_values_ni, color="blue")
+        (island_line,) = ax.plot(x_values, y_values_is, color="orange", linestyle="--")
+        lines = [non_island_line, island_line]
+        labels = ["Non-island structure", "Island structure"]
+
+    ax.set_ylabel(f"{scoring_measure} values")  # if not use_zscore
+    ax.set_xlabel("Dependency distance")  # if set_xlabel:
+
+    # ax.set_aspect('equal', 'box')  # , 'box'
+    ax.set_title(testset.linguistic_phenomenon)
+
+    fig.suptitle(
+        f"Model: {testset.model_descr}, "
+        f"\n Dataset: {testset.dataset_source} "
+        f"({testset.get_item_count_per_phenomenon()} items per phenomenon)"
+    )
+
+    plt.figlegend(lines, labels)
+
+    plt.show()
+
+    # problem: the likert scores and the zscores are not stored, only their
+    # averages
+
+
 def _plot_results_subplot(
     scored_testset: TestSet,
-    scoring_measure,
+    scoring_measure: ScoringMeasures,
     ax,
     use_zscore=False,
     likert=False,  # only valid if also using z scores, on which the likerts are calculated
@@ -203,7 +305,7 @@ def plot_testsets(
         scoring_measures_to_plot += [ScoringMeasures.LL.name, ScoringMeasures.PLL.name]
 
     for scoring_measure in scoring_measures_to_plot:
-        plot_results(
+        plot_single_testset_results(
             scored_testsets,
             scoring_measure,
             use_zscore=True,
@@ -220,7 +322,9 @@ def log_and_print(logging_level: int, msg, also_print=True):
     if also_print:
         # because logging actually is delayed/buffered, and gets out of synch with
         # regular prints. Both logging and printing both until a fix is found.
-        print(msg)
+        print_orange(msg)
+
+    sys.stdout.flush()
 
 
 def logging_info(msg, also_print=True):
@@ -292,8 +396,15 @@ def _print_examples_compare_diff(
     phenomena,
     model_name,
     dataset_source,
-    testsets=None,
+    testsets,
 ):
+    if not all(
+        item in testsets[0].get_sentence_types() for item in [sent_type1, sent_type2]
+    ):
+        logging.info(
+            f"Skipping, {sent_type1} or {sent_type2} are not in {testsets[0].get_sentence_types()}"
+        )
+        return
 
     max_testsets = 4
     for testset in testsets[:max_testsets]:
@@ -301,7 +412,9 @@ def _print_examples_compare_diff(
             f"printing testset for {testset.linguistic_phenomenon} from {testset.model_descr}"
         )
         print(
-            f"comparing {sent_type1} and {sent_type2} ({testset.linguistic_phenomenon} from {testset.model_descr})"
+            f"comparing {sent_type1} and {sent_type2} "
+            f"({testset.linguistic_phenomenon} from {testset.model_descr}) "
+            f"dataset_source={testset.dataset_source}"
         )
         examples = testset.get_examples_sorted_by_score_diff(
             score_descr, sent_type1, sent_type2, reverse=False
@@ -335,10 +448,10 @@ def _print_testset_results(
         # todo: also print results in table format or csv for excel export or word doc report
         print_accuracy_scores(scored_testset)
         print(
-            f"Testset accuracy with DDs_with_lp: {scored_testset.accuracy_by_DD_lp:.2%}"
+            f"Testset accuracy with DDs_with_lp: {scored_testset.accuracy_by_DD_lp:.2%} ({scored_testset.linguistic_phenomenon})"
         )
         print(
-            f"Testset accuracy with DDs_with_penlp: {scored_testset.accuracy_by_DD_penlp:.2%}"
+            f"Testset accuracy with DDs_with_penlp: {scored_testset.accuracy_by_DD_penlp:.2%} ({scored_testset.linguistic_phenomenon})"
         )
         lp_averages = scored_testset.lp_average_by_sentence_type
         penlp_averages = scored_testset.penlp_average_by_sentence_type
@@ -347,10 +460,10 @@ def _print_testset_results(
 
         if model_type in BERT_LIKE_MODEL_TYPES:
             print(
-                f"Testset accuracy with DDs_with_ll: {scored_testset.accuracy_by_DD_ll:.2%}"
+                f"Testset accuracy with DDs_with_ll: {scored_testset.accuracy_by_DD_ll:.2%} ({scored_testset.linguistic_phenomenon})"
             )
             print(
-                f"Testset accuracy with DDs_with_penll: {scored_testset.accuracy_by_DD_penll:.2%}"
+                f"Testset accuracy with DDs_with_penll: {scored_testset.accuracy_by_DD_penll:.2%} ({scored_testset.linguistic_phenomenon})"
             )
             ll_averages = scored_testset.ll_average_by_sentence_type
             penll_averages = scored_testset.penll_average_by_sentence_type
@@ -359,21 +472,34 @@ def _print_testset_results(
 
     score_descr = ScoringMeasures.PenLP.name
 
-    _print_sorted_sentences_to_check_spelling_errors2(
-        score_descr,
-        testsets_root_filenames,
-        MODEL_NAMES_IT[model_type],
-        dataset_source,
-        scored_testsets,
-    )
-    _print_sorted_sentences_to_check_spelling_errors(
-        score_descr,
-        testsets_root_filenames,
-        MODEL_NAMES_IT[model_type],
-        dataset_source,
-        scored_testsets,
-    )
+    if scored_testsets[0].experimental_design in [
+        ExperimentalDesigns.FACTORIAL,
+        ExperimentalDesigns.MINIMAL_PAIRS,
+    ]:
+        _print_sorted_sentences_to_check_spelling_errors2(
+            score_descr,
+            testsets_root_filenames,
+            MODEL_NAMES_IT[model_type],
+            dataset_source,
+            scored_testsets,
+        )
+        _print_sorted_sentences_to_check_spelling_errors(
+            score_descr,
+            testsets_root_filenames,
+            MODEL_NAMES_IT[model_type],
+            dataset_source,
+            scored_testsets,
+        )
 
+    _print_examples_compare_diff(
+        score_descr,
+        SentenceNames.SHORT_NONISLAND,
+        SentenceNames.LONG_NONISLAND,
+        testsets_root_filenames,
+        MODEL_NAMES_IT[model_type],
+        dataset_source,
+        testsets=scored_testsets,
+    )
     _print_examples_compare_diff(
         score_descr,
         SentenceNames.SHORT_ISLAND,

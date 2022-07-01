@@ -23,6 +23,7 @@ from src.linguistic_tests.lm_utils import print_orange
 from src.linguistic_tests.lm_utils import ScoringMeasures
 from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.plots_and_prints import _print_testset_results
+from src.linguistic_tests.plots_and_prints import do_extended_testset_plot
 from src.linguistic_tests.plots_and_prints import plot_testsets
 from src.linguistic_tests.plots_and_prints import print_accuracy_scores
 from src.linguistic_tests.testset import get_dd_score_parametric
@@ -93,7 +94,7 @@ def score_factorial_testset(
 
     # assigning sentence scores and testset accuracy rates
     score_minimal_pairs_testset(model_type, model, tokenizer, device, testset)
-    if experimental_design == ExperimentalDesigns.MINIMAL_PAIRS:
+    if experimental_design != ExperimentalDesigns.FACTORIAL:
         return testset
 
     # doing factorial design scores
@@ -414,13 +415,17 @@ def run_test_design(
         for scored_testset in loaded_testsets:
             print_accuracy_scores(scored_testset)
 
-        if experimental_design == ExperimentalDesigns.FACTORIAL:
+        if experimental_design in [
+            ExperimentalDesigns.FACTORIAL,
+            ExperimentalDesigns.MINIMAL_PAIRS_VARIATIONS,
+        ]:
 
             # todo: add experimental_design param to work also with minimal pairs testsets
             _print_testset_results(
                 loaded_testsets, broader_test_type, model_type, testsets_root_filenames
             )
 
+        if experimental_design in [ExperimentalDesigns.FACTORIAL]:
             load_and_plot_pickles(
                 testsets_root_filenames,
                 model_name,
@@ -431,9 +436,7 @@ def run_test_design(
                 show_plot=show_plot,
                 save_plot=save_plot,
             )
-            # todo:
-            # plot with 7+1x7 subplots of a testset (one subplot for each example)
-            # nb: having the standard errors in the plots is already overcoming this,
-            # showing the variance
+
+            do_extended_testset_plot(ScoringMeasures.PenLP, loaded_testsets[0])
 
         print_orange(f"Finished test session for {model_name}")
