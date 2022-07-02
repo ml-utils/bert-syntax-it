@@ -401,7 +401,7 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
     #  it's also more comparable among phenomena
 
     # todo
-    #  excel file formatting: :.2f for numbers, columns width, wrap text, ..
+    #  excel file formatting: columns width, wrap text, ..
     #  file name from model descr, merge in one sheet multiple datasources of the same 4 phenomena
     #  ..
 
@@ -455,14 +455,14 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
     # todo: shorten col names
     for stype in first_testsset.get_sentence_types():
 
-        column_names.append(stype.name)
-
         STYPE_SCORE_COL = f"{stype.name}_score"
         column_names.append(STYPE_SCORE_COL)
         number_column_names.append(STYPE_SCORE_COL)
 
         if stype in first_testsset.get_acceptable_sentence_types():
             column_names.append(f"is_{stype.name}_scored_accurately")
+
+        column_names.append(stype.name)
 
     for colum_name in column_names:
         data_for_dataframe[colum_name] = []
@@ -533,15 +533,42 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
             num_format = workbook.add_format({"num_format": "0.00"})
             for number_column_name in number_column_names:
                 col_idx = df.columns.get_loc(number_column_name)
-
                 # col_letter = xlsxwriter.utility.xl_col_to_name(col_idx)
-                logging.debug(f"Column {number_column_name} has idx {col_idx}")
+
                 worksheet.set_column(
                     first_col=col_idx,
                     last_col=col_idx,
                     width=None,
                     cell_format=num_format,
                 )  # Adds formatting to column C
+
+            # Given a dict of dataframes, for example:
+            # dfs = {'gadgets': df_gadgets, 'widgets': df_widgets}
+            #  for sheetname, df in dfs.items():  # loop through `dict` of dataframes
+
+            # column width adjusting
+            EXTRA_SPACE = 1
+            numerical_columns_width = 4
+            for idx, col in enumerate(df):  # loop through all columns
+                if str(col) in number_column_names:
+                    col_width = numerical_columns_width
+                else:
+                    series = df[col]
+                    len_of_largest_item = series.astype(str).map(len).max()
+                    col_width = (
+                        max(
+                            (
+                                len_of_largest_item,
+                                0,  # len(str(series.name))  # len of column name/header
+                            )
+                        )
+                        + EXTRA_SPACE
+                    )  # adding a little extra space
+                worksheet.set_column(idx, idx, width=col_width)  # set column width
+                logging.debug(
+                    f"Column {col} has been set to {col_width} chars of width"
+                )
+
             writer.save()
 
             # todo: reorder columns
