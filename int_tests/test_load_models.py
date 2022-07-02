@@ -584,7 +584,7 @@ class TestLoadModels(TestCase):
     @pytest.mark.skipif(not is_fairseq_installed, reason="Fairseq is not installed")
     def test_load_with_fairseq_RobertaModel(self):
 
-        if not self.is_fairseq_installed():
+        if not self.is_fairseq_installed:
             return
 
         from fairseq.models.roberta import RobertaModel as RobertaModel_FS

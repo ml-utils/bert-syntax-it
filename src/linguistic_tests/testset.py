@@ -131,6 +131,27 @@ class Example:
     ) -> float:
         return self[sent_type].get_score(scoring_measure)
 
+    def get_lenght_effect(self, scoring_measure: ScoringMeasures) -> float:
+        short_nonisland = self[SentenceNames.SHORT_NONISLAND]
+        long_nonisland = self[SentenceNames.LONG_NONISLAND]
+        return short_nonisland.get_score(scoring_measure) - long_nonisland.get_score(
+            scoring_measure
+        )
+
+    def get_structure_effect(self, scoring_measure: ScoringMeasures) -> float:
+        short_nonisland = self[SentenceNames.SHORT_NONISLAND]
+        short_island = self[SentenceNames.SHORT_ISLAND]
+        return short_nonisland.get_score(scoring_measure) - short_island.get_score(
+            scoring_measure
+        )
+
+    def get_total_effect(self, scoring_measure: ScoringMeasures) -> float:
+        short_nonisland = self[SentenceNames.SHORT_NONISLAND]
+        long_island = self[SentenceNames.LONG_ISLAND]
+        return short_nonisland.get_score(scoring_measure) - long_island.get_score(
+            scoring_measure
+        )
+
     def get_dd_score(self, scoring_measure: ScoringMeasures) -> float:
 
         for typed_sentence in self.sentences:
@@ -172,9 +193,6 @@ class Example:
             example_dd_with_ll,
             example_dd_with_pll,
         )
-
-    def get_structure_effect(self, score_descr) -> float:
-        raise NotImplementedError
 
     def get_score_diff(
         self, score_descr: ScoringMeasures, stype1: SentenceNames, stype2: SentenceNames
@@ -515,6 +533,18 @@ class TestSet:
             return self.avg_DD_penll
         else:
             raise ValueError(f"Unexpected scoring_measure: {scoring_measure}")
+
+    def get_examples_sorted_by_DD_score(
+        self,
+        scoring_measure: ScoringMeasures,
+        reverse=False,
+    ) -> List[Example]:
+
+        return sorted(
+            self.examples,
+            key=lambda x: x.get_dd_score(scoring_measure),
+            reverse=reverse,
+        )
 
     def get_examples_sorted_by_score_diff(
         self,

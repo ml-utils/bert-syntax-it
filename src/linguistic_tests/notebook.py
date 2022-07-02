@@ -169,8 +169,10 @@ def main(
         # )
 
         tests_subdirs = [
-            "syntactic_tests_it/"
-        ]  # "sprouse/", "syntactic_tests_it/", "variations/"
+            "sprouse/",
+            "syntactic_tests_it/",
+            # "variations/",
+        ]
         for tests_subdir in tests_subdirs:
             run_test_design(
                 model_types_and_names={
@@ -197,7 +199,7 @@ if __name__ == "__main__":
     main_setting_rescore = False
     main_setting_show_plot = False
     main_settings_save_plot = False
-    main_setting_log_level = logging.INFO
+    main_setting_log_level = logging.DEBUG
 
     main(
         device=main_setting_device,

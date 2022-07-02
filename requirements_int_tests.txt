@@ -2,3 +2,5 @@ sentencepiece
 fairseq
 cython
 protobuf
+openpyxl
+xlsxwriter

@@ -24,6 +24,7 @@ from src.linguistic_tests.lm_utils import ScoringMeasures
 from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.plots_and_prints import _print_testset_results
 from src.linguistic_tests.plots_and_prints import do_extended_testset_plot
+from src.linguistic_tests.plots_and_prints import excel_output
 from src.linguistic_tests.plots_and_prints import plot_testsets
 from src.linguistic_tests.plots_and_prints import print_accuracy_scores
 from src.linguistic_tests.testset import get_dd_score_parametric
@@ -437,6 +438,13 @@ def run_test_design(
                 save_plot=save_plot,
             )
 
-            do_extended_testset_plot(ScoringMeasures.PenLP, loaded_testsets[0])
+            do_extended_testset_plot(
+                ScoringMeasures.PenLP,
+                loaded_testsets[0],
+                show_plot=show_plot,
+            )
+
+        scored_testsets_by_datasource = {dataset_source.value[:8]: loaded_testsets}
+        excel_output(scored_testsets_by_datasource)
 
         print_orange(f"Finished test session for {model_name}")

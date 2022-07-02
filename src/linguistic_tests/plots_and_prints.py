@@ -4,6 +4,7 @@ import sys
 import time
 from typing import Dict
 from typing import List
+from typing import Union
 
 from matplotlib import pyplot as plt
 
@@ -143,6 +144,7 @@ def plot_single_testset_results(
 def do_extended_testset_plot(
     scoring_measure: ScoringMeasures,
     testset: TestSet,
+    show_plot=False,
 ):
     """
     Plots the lines for each item of a testset
@@ -155,6 +157,9 @@ def do_extended_testset_plot(
     # plot with 7+1x7 subplots of a testset (one subplot for each example)
     # nb: having the standard errors in the plots is already overcoming this,
     # showing the variance
+
+    if not show_plot:
+        return
 
     fig, ax = plt.subplots(1)
     for example in testset.examples:
@@ -389,14 +394,204 @@ def _print_sorted_sentences_to_check_spelling_errors(
                 )
 
 
+def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
+    # todo: extend input dict also by dependency type (wh, rc)
+
+    # todo: dd score based on likerts and zscores (save in the testset the likert and zscores for all the sentences)
+    #  it's also more comparable among phenomena
+
+    # todo
+    #  excel file formatting: :.2f for numbers, columns width, wrap text, ..
+    #  file name from model descr, merge in one sheet multiple datasources of the same 4 phenomena
+    #  ..
+
+    import pandas as pd
+
+    # import xlsxwriter
+
+    # pip install openpyxl, add to requirements
+
+    # todo: filename: models, and datasources?
+    # excel files with prefix like pickle filenames (but one for multiple testsets/phenomena)
+
+    # todo:
+    # each dataframe in a separate excel sheet
+
+    # df_accuracy_scores (one row per phenomena)
+    # file name (or additional columns): model name, datasource
+    # columns: phenomenon, measure or with DD, sentence type, accuracy score
+
+    # df_items_comparisons
+    # file content: comparing examples (one row per example)
+    # filename/sheet name: datasource, model (add these to the columns?)
+    scoring_measure = ScoringMeasures.PenLP
+    data_for_dataframe: Dict[str, List[Union[str, float, bool]]] = dict()
+    LINGUISTIC_PHENOMENON_COL = "linguistic_phenomenon"
+    DD_SCORE_COLUMN_NAME = f"DD_{scoring_measure.name}"
+    LENGHT_EFFECT_COL = "Lenght effect"
+    STRUCTURE_EFFECT_COL = "Structure effect"
+    TOTAL_EFFECT_COL = "Total effect"
+    SCORING_MEASURE_COL = "Scoring measure"
+
+    # initialize the columns
+    number_column_names = [
+        DD_SCORE_COLUMN_NAME,
+        LENGHT_EFFECT_COL,
+        STRUCTURE_EFFECT_COL,
+        TOTAL_EFFECT_COL,
+    ]
+
+    column_names = [
+        LINGUISTIC_PHENOMENON_COL,
+        SCORING_MEASURE_COL,
+        DD_SCORE_COLUMN_NAME,
+        LENGHT_EFFECT_COL,
+        STRUCTURE_EFFECT_COL,
+        TOTAL_EFFECT_COL,
+    ]
+
+    first_testsset = list(scored_testsets_by_datasource.values())[0][0]
+
+    # todo: shorten col names
+    for stype in first_testsset.get_sentence_types():
+
+        column_names.append(stype.name)
+
+        STYPE_SCORE_COL = f"{stype.name}_score"
+        column_names.append(STYPE_SCORE_COL)
+        number_column_names.append(STYPE_SCORE_COL)
+
+        if stype in first_testsset.get_acceptable_sentence_types():
+            column_names.append(f"is_{stype.name}_scored_accurately")
+
+    for colum_name in column_names:
+        data_for_dataframe[colum_name] = []
+
+    # fill the data
+    for datasource in scored_testsets_by_datasource:
+        logging.debug(
+            f"There are {len(scored_testsets_by_datasource[datasource])} testsets"
+        )
+        for scored_testset in scored_testsets_by_datasource[datasource]:
+            for example in scored_testset.examples:
+
+                # columns: phenomena,
+                # dd score, lenght/structure/total effects,
+                # scoring measure,
+                # 4 cols for txt of short/long island/nonisland,
+                # score for the 4 sentences
+                data_for_dataframe[LINGUISTIC_PHENOMENON_COL].append(
+                    scored_testset.linguistic_phenomenon
+                )
+                data_for_dataframe[SCORING_MEASURE_COL].append(scoring_measure.name)
+
+                # todo: get dd score based on likert and zscores ..
+                data_for_dataframe[DD_SCORE_COLUMN_NAME].append(
+                    example.get_dd_score(scoring_measure)
+                )
+                data_for_dataframe[LENGHT_EFFECT_COL].append(
+                    example.get_lenght_effect(scoring_measure)
+                )
+                data_for_dataframe[STRUCTURE_EFFECT_COL].append(
+                    example.get_structure_effect(scoring_measure)
+                )
+                data_for_dataframe[TOTAL_EFFECT_COL].append(
+                    example.get_total_effect(scoring_measure)
+                )
+
+                for stype in example.get_sentence_types():
+                    data_for_dataframe[f"{stype.name}_score"].append(
+                        example[stype].get_score(scoring_measure)
+                    )
+                    # todo: for acceptable stypes, add boolean column telling if it's scored accurately
+                    if stype != example.get_type_of_unacceptable_sentence():
+                        data_for_dataframe[
+                            f"is_{stype.name}_scored_accurately"
+                        ] = example.is_scored_accurately_for(scoring_measure, stype)
+                    data_for_dataframe[stype.name].append(example[stype].txt)
+
+        # todo: get results dir
+        filename = f"{datasource}.xlsx"
+        logging.info(f"Writing excel output to {filename}")
+
+        df = pd.DataFrame.from_dict(data_for_dataframe)
+        logging.debug(f"Dataframe lenght: {len(df)}")
+        with pd.ExcelWriter(filename) as writer:
+            # writing the data to excel
+            sheet_name = "examples_comparison"
+            include_the_index_of_each_row = False
+            df.to_excel(
+                writer,
+                sheet_name=sheet_name,
+                columns=column_names,
+                index=include_the_index_of_each_row,
+            )
+
+            # column formatting
+            workbook = writer.book
+            worksheet = writer.sheets[sheet_name]
+            num_format = workbook.add_format({"num_format": "0.00"})
+            for number_column_name in number_column_names:
+                col_idx = df.columns.get_loc(number_column_name)
+
+                # col_letter = xlsxwriter.utility.xl_col_to_name(col_idx)
+                logging.debug(f"Column {number_column_name} has idx {col_idx}")
+                worksheet.set_column(
+                    first_col=col_idx,
+                    last_col=col_idx,
+                    width=None,
+                    cell_format=num_format,
+                )  # Adds formatting to column C
+            writer.save()
+
+            # todo: reorder columns
+            #  ..
+
+
+def _print_compare__examples_by_DD_score(
+    scoring_measure: ScoringMeasures,
+    testset: TestSet,
+):
+    max_prints_per_testset = 50
+    print(
+        f"comparing examples by DD score based on {scoring_measure}  "
+        f"({testset.linguistic_phenomenon} from {testset.model_descr}, "
+        f"dataset_source={testset.dataset_source})"
+    )
+    examples_sorted_by_dd_score = testset.get_examples_sorted_by_DD_score(
+        scoring_measure
+    )
+    print(
+        f"{'DD':<8}"
+        f"{'lenght':<8}"
+        f"{'struct.':<8}"
+        f"{'total':<8}"
+        f"{'s1 ' + scoring_measure:^10}"
+        f"{'s1 txt (' + SentenceNames.SHORT_ISLAND + ')':<70}"
+        f"{'s2 ' + scoring_measure:^10}"
+        f"{'s2 txt (' + SentenceNames.LONG_ISLAND + ')':<5}"
+    )
+    for example in examples_sorted_by_dd_score[0:max_prints_per_testset]:
+        print(
+            f"{example.get_dd_score(scoring_measure) : <8.2f}"
+            f"{example.get_lenght_effect(scoring_measure) : <8.2f}"
+            f"{example.get_structure_effect(scoring_measure) : <8.2f}"
+            f"{example.get_total_effect(scoring_measure) : <8.2f}"
+            f"{example[SentenceNames.SHORT_ISLAND].get_score(scoring_measure) : ^10.2f}"
+            f"{example[SentenceNames.SHORT_ISLAND].txt : <70}"
+            f"{example[SentenceNames.LONG_ISLAND].get_score(scoring_measure) :^10.2f}"
+            f"{example[SentenceNames.LONG_ISLAND].txt : <5}"
+        )
+
+
 def _print_examples_compare_diff(
-    score_descr,
-    sent_type1,
-    sent_type2,
-    phenomena,
-    model_name,
-    dataset_source,
-    testsets,
+    scoring_measure: ScoringMeasures,
+    sent_type1: SentenceNames,
+    sent_type2: SentenceNames,
+    phenomena: List[str],
+    model_name: str,
+    dataset_source: str,
+    testsets: List[TestSet],
 ):
     if not all(
         item in testsets[0].get_sentence_types() for item in [sent_type1, sent_type2]
@@ -407,32 +602,35 @@ def _print_examples_compare_diff(
         return
 
     max_testsets = 4
+    max_prints_per_testset = 50
     for testset in testsets[:max_testsets]:
         logging_info(
-            f"printing testset for {testset.linguistic_phenomenon} from {testset.model_descr}"
+            f"printing testset for {testset.linguistic_phenomenon} "
+            f"from {testset.model_descr} (dataset_source={dataset_source})"
         )
+
         print(
             f"comparing {sent_type1} and {sent_type2} "
             f"({testset.linguistic_phenomenon} from {testset.model_descr}) "
             f"dataset_source={testset.dataset_source}"
         )
-        examples = testset.get_examples_sorted_by_score_diff(
-            score_descr, sent_type1, sent_type2, reverse=False
+        examples_sorted_by_score_diff = testset.get_examples_sorted_by_score_diff(
+            scoring_measure, sent_type1, sent_type2, reverse=False
         )
-        max_prints = 50
+
         print(
             f"{'diff':<8}"
-            f"{'s1 '+score_descr:^10}"
+            f"{'s1 ' + scoring_measure:^10}"
             f"{'s1 txt (' + sent_type1 + ')':<70}"
-            f"{'s2 '+score_descr:^10}"
+            f"{'s2 ' + scoring_measure:^10}"
             f"{'s2 txt (' + sent_type2 + ')':<5}"
         )
-        for example in examples[0:max_prints]:
+        for example in examples_sorted_by_score_diff[0:max_prints_per_testset]:
             print(
-                f"{example.get_score_diff(score_descr, sent_type1, sent_type2) : <8.2f}"
-                f"{example[sent_type1].get_score(score_descr) : ^10.2f}"
+                f"{example.get_score_diff(scoring_measure, sent_type1, sent_type2) : <8.2f}"
+                f"{example[sent_type1].get_score(scoring_measure) : ^10.2f}"
                 f"{example[sent_type1].txt : <70}"
-                f"{example[sent_type2].get_score(score_descr) :^10.2f}"
+                f"{example[sent_type2].get_score(scoring_measure) :^10.2f}"
                 f"{example[sent_type2].txt : <5}"
             )
 
@@ -443,6 +641,8 @@ def _print_testset_results(
     model_type: ModelTypes,
     testsets_root_filenames: List[str],
 ):
+    score_descr = ScoringMeasures.PenLP.name
+
     logging_info("Printing accuracy scores..")
     for scored_testset in scored_testsets:
         # todo: also print results in table format or csv for excel export or word doc report
@@ -455,8 +655,8 @@ def _print_testset_results(
         )
         lp_averages = scored_testset.lp_average_by_sentence_type
         penlp_averages = scored_testset.penlp_average_by_sentence_type
-        print(f"lp_averages: {lp_averages}")
-        print(f"penlp_averages: {penlp_averages}")
+        logging.info(f"lp_averages: {lp_averages}")
+        logging.info(f"penlp_averages: {penlp_averages}")
 
         if model_type in BERT_LIKE_MODEL_TYPES:
             print(
@@ -467,10 +667,10 @@ def _print_testset_results(
             )
             ll_averages = scored_testset.ll_average_by_sentence_type
             penll_averages = scored_testset.penll_average_by_sentence_type
-            print(f"{ll_averages}")
-            print(f"{penll_averages}")
+            logging.info(f"{ll_averages}")
+            logging.info(f"{penll_averages}")
 
-    score_descr = ScoringMeasures.PenLP.name
+        _print_compare__examples_by_DD_score(score_descr, scored_testset)
 
     if scored_testsets[0].experimental_design in [
         ExperimentalDesigns.FACTORIAL,

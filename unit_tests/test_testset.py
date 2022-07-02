@@ -1,3 +1,4 @@
+import random
 from unittest import TestCase
 
 import numpy as np
@@ -132,10 +133,30 @@ class TestTestset(TestCase):
         )
         assert not is_accurate
 
+    def test_get_dd_score(self):
+        example = get_full_example()
+        scoring_measure = ScoringMeasures.PenLP
+        dd_score_method1 = example.get_total_effect(scoring_measure) - (
+            example.get_lenght_effect(scoring_measure)
+            + example.get_structure_effect(scoring_measure)
+        )
+        # dd_score_method1 *= -1
+        dd_score_method2 = example.get_dd_score(scoring_measure)
+        assert dd_score_method1 == dd_score_method2
+
 
 def get_basic_sentence(txt=""):
     sent = Sentence(txt)
     sent.lp_softmax = -5
+    return sent
+
+
+def get_scored_sentence(txt=""):
+    sent = Sentence(txt)
+    sent.lp_softmax = random.uniform(-5, -35)
+    sent.pen_lp_softmax = random.uniform(-5, -35)
+    sent.lp_logistic = random.uniform(0, 1)
+    sent.pen_lp_logistic = random.uniform(0, 1)
     return sent
 
 
@@ -147,6 +168,30 @@ def get_basic_example():
         ),
         TypedSentence(
             SentenceNames.LONG_ISLAND, get_basic_sentence("The is pen on the table")
+        ),
+    ]
+    example = Example(typed_senteces)
+    return example
+
+
+def get_full_example():
+
+    typed_senteces = [
+        TypedSentence(
+            SentenceNames.SHORT_NONISLAND,
+            get_scored_sentence("Chi dice che io abbia usato il cellulare in classe?"),
+        ),
+        TypedSentence(
+            SentenceNames.LONG_NONISLAND,
+            get_scored_sentence("Cosa dici che io abbia usato in classe?"),
+        ),
+        TypedSentence(
+            SentenceNames.SHORT_ISLAND,
+            get_scored_sentence("Chi si infuria se uso il cellulare in classe?"),
+        ),
+        TypedSentence(
+            SentenceNames.LONG_ISLAND,
+            get_scored_sentence("Cosa ti infuri se uso in classe?"),
         ),
     ]
     example = Example(typed_senteces)
