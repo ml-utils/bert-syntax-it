@@ -68,9 +68,8 @@ class TestRunTestSets(TestCase):
             self._test_run_test_design_helper(
                 mock_get_testset_params,
                 tests_subdir="sprouse/",
-                model_types_and_names={
-                    "dbmdz/bert-base-italian-xxl-cased": ModelTypes.BERT,
-                },
+                model_type=ModelTypes.BERT,
+                model_name="dbmdz/bert-base-italian-xxl-cased",
                 max_examples=8,
                 rescore=True,
             )
@@ -89,9 +88,8 @@ class TestRunTestSets(TestCase):
         self._test_run_test_design_helper(
             mock_get_testset_params,
             tests_subdir="blimp/",
-            model_types_and_names={
-                "gpt2": ModelTypes.GPT,
-            },
+            model_type=ModelTypes.GPT,
+            model_name="gpt2",
             max_examples=5,
             rescore=True,
         )
@@ -99,9 +97,10 @@ class TestRunTestSets(TestCase):
     def _test_run_test_design_helper(
         self,
         mock_get_testset_params,
-        tests_subdir,
-        model_types_and_names,
-        max_examples,
+        tests_subdir: str,
+        model_type: ModelTypes,
+        model_name: str,
+        max_examples: int,
         rescore,
     ):
         assert (
@@ -151,7 +150,8 @@ class TestRunTestSets(TestCase):
                                 )
 
                                 run_test_design(
-                                    model_types_and_names=model_types_and_names,
+                                    model_name=model_name,
+                                    model_type=model_type,
                                     tests_subdir=tests_subdir,
                                     max_examples=max_examples,
                                     device=DEVICES.CPU,
