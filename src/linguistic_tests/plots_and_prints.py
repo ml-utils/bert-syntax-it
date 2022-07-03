@@ -420,13 +420,6 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
     # todo: filename: models, and datasources?
     # excel files with prefix like pickle filenames (but one for multiple testsets/phenomena)
 
-    # todo:
-    # each dataframe in a separate excel sheet
-
-    # df_accuracy_scores (one row per phenomena)
-    # file name (or additional columns): model name, datasource
-    # columns: phenomenon, measure or with DD, sentence type, accuracy score
-
     # df_items_comparisons
     # file content: comparing examples (one row per example)
     # filename/sheet name: datasource, model (add these to the columns?)
@@ -434,6 +427,7 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
     first_testsset = list(scored_testsets_by_datasource.values())[0][0]
 
     scoring_measure = ScoringMeasures.PenLP
+    # data_for_dataframe: key=column_name, value: list_of_values
     data_for_dataframe: Dict[str, List[Union[str, float, bool]]] = dict()
     LINGUISTIC_PHENOMENON_COL = "linguistic_phenomenon"
     DD_SCORE_COLUMN_NAME = f"DD_{scoring_measure}"
@@ -504,6 +498,79 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
     )
 
 
+def excel_output_helper_accuracy(
+    scored_testsets_by_datasource: Dict[str, List[TestSet]]
+):
+
+    # each dataframe in a separate excel sheet
+
+    # df_accuracy_scores (one row per phenomena)
+    # file name (or additional columns): model name, datasource
+    DATASOURCE_COL = "datasource"
+    LINGUISTIC_PHENOMENON_COL = "linguistic_phenomenon"
+    SCORING_MEASURE_COL = "Scoring measure"
+    SENTENCE_TYPE_COL = "Sentence type"
+    ACCURACY_COL = "Accuracy"
+    SAMPLE_ACCEPTABLE_SENTENCE_COL = "Sample"
+    SAMPLE_UNACCEPTABLE_SENTENCE_COL = "Unacceptable sample"
+    column_names = [
+        DATASOURCE_COL,
+        LINGUISTIC_PHENOMENON_COL,
+        SCORING_MEASURE_COL,
+        SENTENCE_TYPE_COL,
+        ACCURACY_COL,
+        SAMPLE_ACCEPTABLE_SENTENCE_COL,
+        SAMPLE_UNACCEPTABLE_SENTENCE_COL,
+    ]
+
+    number_column_names = [
+        ACCURACY_COL,
+    ]
+    print(f"number_column_names={number_column_names}")
+    # first_testsset = list(scored_testsets_by_datasource.values())[0][0]
+
+    # data_for_dataframe: key=column_name, value: list_of_values
+    data_for_dataframe: Dict[str, List[Union[str, float, bool]]] = dict()
+    for colum_name in column_names:
+        data_for_dataframe[colum_name] = []
+
+    # sheet: accuracy by stype (pairs comparison)
+    for datasource, testsets in scored_testsets_by_datasource.items():
+        for testset in testsets:
+            for scoring_measure in testset.get_scoring_measures():
+                for stype_acceptable in testset.get_acceptable_sentence_types():
+                    # fixme, check: 0 values for accuracy based on logistic scoring measure
+                    accuracy = testset.accuracy_per_score_type_per_sentence_type[
+                        scoring_measure
+                    ][stype_acceptable]
+
+                    data_for_dataframe[DATASOURCE_COL].append(datasource)
+                    data_for_dataframe[LINGUISTIC_PHENOMENON_COL].append(
+                        testset.linguistic_phenomenon
+                    )
+                    data_for_dataframe[SCORING_MEASURE_COL].append(scoring_measure)
+                    data_for_dataframe[SENTENCE_TYPE_COL].append(stype_acceptable)
+                    data_for_dataframe[ACCURACY_COL].append(f"{accuracy:.2%}")
+
+                    sample_example: Example = testset.examples[0]
+                    stype_unacceptable = (
+                        sample_example.get_type_of_unacceptable_sentence()
+                    )
+                    data_for_dataframe[SAMPLE_ACCEPTABLE_SENTENCE_COL].append(
+                        sample_example[stype_acceptable].txt
+                    )
+                    data_for_dataframe[SAMPLE_UNACCEPTABLE_SENTENCE_COL].append(
+                        sample_example[stype_unacceptable].txt
+                    )
+
+    # todo: save to excel file
+
+    # sheet: examples factorial accuracy based on DD score (Testset accuracy with DDs_with_ ..+)
+    # columns:
+    # scoring_measure, phenomenon, dataset_source, accuracy perc
+    # scored_testset.accuracy_by_DD_lp
+
+
 def _excel_output_helper_write_file(
     column_names: List[str],
     number_column_names: List[str],
@@ -569,7 +636,6 @@ def _excel_output_helper_write_file(
                     + EXTRA_SPACE
                 )  # adding a little extra space
             worksheet.set_column(idx, idx, width=col_width)  # set column width
-            logging.debug(f"Column {col} has been set to {col_width} chars of width")
 
         writer.save()
 
@@ -852,11 +918,9 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt, scorebase):
 
 def print_accuracy_scores(testset: TestSet):
     logging_info(f"test results report, {testset.linguistic_phenomenon}:")
-    for scoring_measure in testset.accuracy_per_score_type_per_sentence_type.keys():
+    for scoring_measure in testset.get_scoring_measures():
         logging_debug(f"scores with {scoring_measure}")
-        for (
-            stype_acceptable_sentence
-        ) in testset.accuracy_per_score_type_per_sentence_type[scoring_measure].keys():
+        for stype_acceptable_sentence in testset.get_acceptable_sentence_types():
             # fixme: 0 values for accuracy base on logistic scoring measure
             accuracy = testset.accuracy_per_score_type_per_sentence_type[
                 scoring_measure
