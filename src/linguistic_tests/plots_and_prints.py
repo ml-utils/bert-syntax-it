@@ -430,6 +430,9 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
     # df_items_comparisons
     # file content: comparing examples (one row per example)
     # filename/sheet name: datasource, model (add these to the columns?)
+
+    first_testsset = list(scored_testsets_by_datasource.values())[0][0]
+
     scoring_measure = ScoringMeasures.PenLP
     data_for_dataframe: Dict[str, List[Union[str, float, bool]]] = dict()
     LINGUISTIC_PHENOMENON_COL = "linguistic_phenomenon"
@@ -456,8 +459,6 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
         TOTAL_EFFECT_COL,
     ]
 
-    first_testsset = list(scored_testsets_by_datasource.values())[0][0]
-
     # todo: shorten col names
     for stype in first_testsset.get_sentence_types():
 
@@ -480,44 +481,18 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
         )
         for scored_testset in scored_testsets_by_datasource[datasource]:
             for example in scored_testset.examples:
-
-                # columns: phenomena,
-                # dd score, lenght/structure/total effects,
-                # scoring measure,
-                # 4 cols for txt of short/long island/nonisland,
-                # score for the 4 sentences
-                data_for_dataframe[LINGUISTIC_PHENOMENON_COL].append(
-                    scored_testset.linguistic_phenomenon
+                _excel_output_helper_fill_example_data(
+                    example,
+                    scored_testset,
+                    scoring_measure,
+                    data_for_dataframe,
+                    LINGUISTIC_PHENOMENON_COL,
+                    SCORING_MEASURE_COL,
+                    DD_SCORE_COLUMN_NAME,
+                    LENGHT_EFFECT_COL,
+                    STRUCTURE_EFFECT_COL,
+                    TOTAL_EFFECT_COL,
                 )
-                data_for_dataframe[SCORING_MEASURE_COL].append(scoring_measure)
-
-                # todo: get dd score based on likert and zscores ..
-                data_for_dataframe[DD_SCORE_COLUMN_NAME].append(
-                    example.get_dd_score(scoring_measure)
-                )
-                data_for_dataframe[LENGHT_EFFECT_COL].append(
-                    example.get_lenght_effect(scoring_measure)
-                )
-                data_for_dataframe[STRUCTURE_EFFECT_COL].append(
-                    example.get_structure_effect(scoring_measure)
-                )
-                data_for_dataframe[TOTAL_EFFECT_COL].append(
-                    example.get_total_effect(scoring_measure)
-                )
-
-                for stype in example.get_sentence_types():
-                    data_for_dataframe[f"{stype.name}_score"].append(
-                        example[stype].get_score(scoring_measure)
-                    )
-                    # todo: for acceptable stypes, add boolean column telling if it's scored accurately
-                    if stype != example.get_type_of_unacceptable_sentence():
-                        is_scored_accurately = example.is_scored_accurately_for(
-                            scoring_measure, stype
-                        )
-                        data_for_dataframe[f"is_{stype.name}_scored_accurately"].append(
-                            is_scored_accurately
-                        )
-                    data_for_dataframe[stype.name].append(example[stype].txt)
 
         # todo: get results dir
         filename = f"{datasource}.xlsx"
@@ -582,6 +557,57 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
 
             # todo: reorder columns
             #  ..
+
+
+def _excel_output_helper_fill_example_data(
+    example: Example,
+    scored_testset: TestSet,
+    scoring_measure: ScoringMeasures,
+    data_for_dataframe: Dict[str, List[Union[str, float, bool]]],
+    LINGUISTIC_PHENOMENON_COL: str,
+    SCORING_MEASURE_COL: str,
+    DD_SCORE_COLUMN_NAME: str,
+    LENGHT_EFFECT_COL: str,
+    STRUCTURE_EFFECT_COL: str,
+    TOTAL_EFFECT_COL: str,
+):
+    # columns: phenomena,
+    # dd score, lenght/structure/total effects,
+    # scoring measure,
+    # 4 cols for txt of short/long island/nonisland,
+    # score for the 4 sentences
+    data_for_dataframe[LINGUISTIC_PHENOMENON_COL].append(
+        scored_testset.linguistic_phenomenon
+    )
+    data_for_dataframe[SCORING_MEASURE_COL].append(scoring_measure)
+
+    # todo: get dd score based on likert and zscores ..
+    data_for_dataframe[DD_SCORE_COLUMN_NAME].append(
+        example.get_dd_score(scoring_measure)
+    )
+    data_for_dataframe[LENGHT_EFFECT_COL].append(
+        example.get_lenght_effect(scoring_measure)
+    )
+    data_for_dataframe[STRUCTURE_EFFECT_COL].append(
+        example.get_structure_effect(scoring_measure)
+    )
+    data_for_dataframe[TOTAL_EFFECT_COL].append(
+        example.get_total_effect(scoring_measure)
+    )
+
+    for stype in example.get_sentence_types():
+        data_for_dataframe[f"{stype.name}_score"].append(
+            example[stype].get_score(scoring_measure)
+        )
+        # todo: for acceptable stypes, add boolean column telling if it's scored accurately
+        if stype != example.get_type_of_unacceptable_sentence():
+            is_scored_accurately = example.is_scored_accurately_for(
+                scoring_measure, stype
+            )
+            data_for_dataframe[f"is_{stype.name}_scored_accurately"].append(
+                is_scored_accurately
+            )
+        data_for_dataframe[stype.name].append(example[stype].txt)
 
 
 def _print_compare__examples_by_DD_score_helper(

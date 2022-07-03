@@ -444,7 +444,12 @@ def run_test_design(
                 show_plot=show_plot,
             )
 
-        scored_testsets_by_datasource = {dataset_source.value[:8]: loaded_testsets}
-        excel_output(scored_testsets_by_datasource)
+        if experimental_design in [ExperimentalDesigns.FACTORIAL]:
+            scored_testsets_by_datasource = {dataset_source.value[:8]: loaded_testsets}
+            excel_output(scored_testsets_by_datasource)
+        else:
+            logging.info(
+                f"Skipping excel output, experimental_design is {experimental_design}"
+            )
 
         print_orange(f"Finished test session for {model_name}")
