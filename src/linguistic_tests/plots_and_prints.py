@@ -494,69 +494,84 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
                     TOTAL_EFFECT_COL,
                 )
 
-        # todo: get results dir
-        filename = f"{datasource}.xlsx"
-        logging.info(f"Writing excel output to {filename}")
+    _excel_output_helper_write_file(
+        column_names,
+        number_column_names,
+        data_for_dataframe,
+        first_testsset.model_descr,
+        scoring_measure,
+        pd,
+    )
 
-        df = pd.DataFrame.from_dict(data_for_dataframe)
-        logging.debug(f"Dataframe lenght: {len(df)}")
-        with pd.ExcelWriter(filename) as writer:
-            # writing the data to excel
-            sheet_name = "examples_comparison"
-            include_the_index_of_each_row = False
-            df.to_excel(
-                writer,
-                sheet_name=sheet_name,
-                columns=column_names,
-                index=include_the_index_of_each_row,
-            )
 
-            # column formatting
-            workbook = writer.book
-            worksheet = writer.sheets[sheet_name]
-            num_format = workbook.add_format({"num_format": "0.00"})
-            for number_column_name in number_column_names:
-                col_idx = df.columns.get_loc(number_column_name)
-                # col_letter = xlsxwriter.utility.xl_col_to_name(col_idx)
+def _excel_output_helper_write_file(
+    column_names: List[str],
+    number_column_names: List[str],
+    data_for_dataframe: Dict[str, List[Union[str, float, bool]]],
+    model_descr,
+    scoring_measure: ScoringMeasures,
+    pd,
+):
+    # todo: get results dir
+    model_descr = model_descr.replace(" ", "_").replace("/", "_")
+    filename = f"{model_descr}_{scoring_measure}.xlsx"
+    logging.info(f"Writing excel output to {filename}")
 
-                worksheet.set_column(
-                    first_col=col_idx,
-                    last_col=col_idx,
-                    width=None,
-                    cell_format=num_format,
-                )  # Adds formatting to column C
+    df = pd.DataFrame.from_dict(data_for_dataframe)
+    logging.debug(f"Dataframe lenght: {len(df)}")
+    with pd.ExcelWriter(filename) as writer:
+        # writing the data to excel
+        sheet_name = "examples_comparison"
+        include_the_index_of_each_row = False
+        df.to_excel(
+            writer,
+            sheet_name=sheet_name,
+            columns=column_names,
+            index=include_the_index_of_each_row,
+        )
 
-            # Given a dict of dataframes, for example:
-            # dfs = {'gadgets': df_gadgets, 'widgets': df_widgets}
-            #  for sheetname, df in dfs.items():  # loop through `dict` of dataframes
+        # column formatting
+        workbook = writer.book
+        worksheet = writer.sheets[sheet_name]
+        num_format = workbook.add_format({"num_format": "0.00"})
+        for number_column_name in number_column_names:
+            col_idx = df.columns.get_loc(number_column_name)
+            # col_letter = xlsxwriter.utility.xl_col_to_name(col_idx)
 
-            # column width adjusting
-            EXTRA_SPACE = 1
-            numerical_columns_width = 6
-            for idx, col in enumerate(df):  # loop through all columns
-                if str(col) in number_column_names:
-                    col_width = numerical_columns_width
-                else:
-                    series = df[col]
-                    len_of_largest_item = series.astype(str).map(len).max()
-                    col_width = (
-                        max(
-                            (
-                                len_of_largest_item,
-                                0,  # len(str(series.name))  # len of column name/header
-                            )
+            worksheet.set_column(
+                first_col=col_idx,
+                last_col=col_idx,
+                width=None,
+                cell_format=num_format,
+            )  # Adds formatting to column C
+
+        # Given a dict of dataframes, for example:
+        # dfs = {'gadgets': df_gadgets, 'widgets': df_widgets}
+        #  for sheetname, df in dfs.items():  # loop through `dict` of dataframes
+
+        # column width adjusting
+        EXTRA_SPACE = 1
+        numerical_columns_width = 6
+        for idx, col in enumerate(df):  # loop through all columns
+            if str(col) in number_column_names:
+                col_width = numerical_columns_width
+            else:
+                series = df[col]
+                len_of_largest_item = series.astype(str).map(len).max()
+                col_width = (
+                    max(
+                        (
+                            len_of_largest_item,
+                            0,
+                            # len(str(series.name))  # len of column name/header
                         )
-                        + EXTRA_SPACE
-                    )  # adding a little extra space
-                worksheet.set_column(idx, idx, width=col_width)  # set column width
-                logging.debug(
-                    f"Column {col} has been set to {col_width} chars of width"
-                )
+                    )
+                    + EXTRA_SPACE
+                )  # adding a little extra space
+            worksheet.set_column(idx, idx, width=col_width)  # set column width
+            logging.debug(f"Column {col} has been set to {col_width} chars of width")
 
-            writer.save()
-
-            # todo: reorder columns
-            #  ..
+        writer.save()
 
 
 def _excel_output_helper_fill_example_data(
