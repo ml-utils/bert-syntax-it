@@ -608,6 +608,9 @@ class DataSources(StrEnum):
             or (hasattr(b, "value") and b.value.lower() == self.name.lower())
         )
 
+    def __hash__(self):
+        return hash(self.name)
+
 
 def get_testset_params(
     tests_subdir,

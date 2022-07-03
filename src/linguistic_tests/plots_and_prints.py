@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 import time
+from dataclasses import dataclass
 from typing import Dict
 from typing import List
 from typing import Union
@@ -12,6 +13,7 @@ from src.linguistic_tests.bert_utils import estimate_sentence_probability
 from src.linguistic_tests.compute_model_score import perc
 from src.linguistic_tests.lm_utils import _get_test_session_descr
 from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
 from src.linguistic_tests.lm_utils import get_results_dir
 from src.linguistic_tests.lm_utils import MODEL_NAMES_IT
@@ -398,7 +400,10 @@ def _print_sorted_sentences_to_check_spelling_errors(
                 )
 
 
-def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
+def excel_output(
+    scored_testsets_by_datasource: Dict[DataSources, List[TestSet]],
+    # model_descr: str,
+):
     # todo: extend input dict also by dependency type (wh, rc)
 
     # todo: dd score based on likerts and zscores (save in the testset the likert and zscores for all the sentences)
@@ -424,11 +429,39 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
     # file content: comparing examples (one row per example)
     # filename/sheet name: datasource, model (add these to the columns?)
 
-    first_testsset = list(scored_testsets_by_datasource.values())[0][0]
+    # todo: possibly save excel data for multiple scoring measures
+    factorial_scoring_measure = ScoringMeasures.PenLP
 
-    scoring_measure = ScoringMeasures.PenLP
+    data_for_excel_examples_comparison = _excel_output_helper_examples_comparison(
+        factorial_scoring_measure,
+        scored_testsets_by_datasource,
+    )
+    data_for_excel_accuracy_scores = _excel_output_helper_accuracy(
+        scored_testsets_by_datasource,
+    )
+
+    data_for_excel = [
+        data_for_excel_examples_comparison,
+        data_for_excel_accuracy_scores,
+    ]
+
+    sample_testset = list(scored_testsets_by_datasource.values())[0][0]
+    _excel_output_helper_write_file(
+        data_for_excel,
+        sample_testset.model_descr,
+        factorial_scoring_measure,
+        pd,
+    )
+
+
+def _excel_output_helper_examples_comparison(
+    scoring_measure: ScoringMeasures,
+    scored_testsets_by_datasource,
+):
+
     # data_for_dataframe: key=column_name, value: list_of_values
     data_for_dataframe: Dict[str, List[Union[str, float, bool]]] = dict()
+    DATASOURCE_COL = "datasource"
     LINGUISTIC_PHENOMENON_COL = "linguistic_phenomenon"
     DD_SCORE_COLUMN_NAME = f"DD_{scoring_measure}"
     LENGHT_EFFECT_COL = "Lenght effect"
@@ -445,6 +478,7 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
     ]
 
     column_names = [
+        DATASOURCE_COL,
         LINGUISTIC_PHENOMENON_COL,
         SCORING_MEASURE_COL,
         DD_SCORE_COLUMN_NAME,
@@ -454,13 +488,14 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
     ]
 
     # todo: shorten col names
-    for stype in first_testsset.get_sentence_types():
+    sample_testset = list(scored_testsets_by_datasource.values())[0][0]
+    for stype in sample_testset.get_sentence_types():
 
         STYPE_SCORE_COL = f"{stype.name}_score"
         column_names.append(STYPE_SCORE_COL)
         number_column_names.append(STYPE_SCORE_COL)
 
-        if stype in first_testsset.get_acceptable_sentence_types():
+        if stype in sample_testset.get_acceptable_sentence_types():
             column_names.append(f"is_{stype.name}_scored_accurately")
 
         column_names.append(stype.name)
@@ -470,16 +505,15 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
 
     # fill the data
     for datasource in scored_testsets_by_datasource:
-        logging.debug(
-            f"There are {len(scored_testsets_by_datasource[datasource])} testsets"
-        )
         for scored_testset in scored_testsets_by_datasource[datasource]:
             for example in scored_testset.examples:
                 _excel_output_helper_fill_example_data(
                     example,
+                    datasource,
                     scored_testset,
                     scoring_measure,
                     data_for_dataframe,
+                    DATASOURCE_COL,
                     LINGUISTIC_PHENOMENON_COL,
                     SCORING_MEASURE_COL,
                     DD_SCORE_COLUMN_NAME,
@@ -488,17 +522,17 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
                     TOTAL_EFFECT_COL,
                 )
 
-    _excel_output_helper_write_file(
+    examples_comparison_data_for_excel = DataForExcel(
         column_names,
         number_column_names,
         data_for_dataframe,
-        first_testsset.model_descr,
-        scoring_measure,
-        pd,
+        sheet_name=f"examples_comparison_{scoring_measure}",
     )
 
+    return examples_comparison_data_for_excel
 
-def excel_output_helper_accuracy(
+
+def _excel_output_helper_accuracy(
     scored_testsets_by_datasource: Dict[str, List[TestSet]]
 ):
 
@@ -534,34 +568,31 @@ def excel_output_helper_accuracy(
     for colum_name in column_names:
         data_for_dataframe[colum_name] = []
 
-    # sheet: accuracy by stype (pairs comparison)
-    for datasource, testsets in scored_testsets_by_datasource.items():
-        for testset in testsets:
-            for scoring_measure in testset.get_scoring_measures():
-                for stype_acceptable in testset.get_acceptable_sentence_types():
-                    # fixme, check: 0 values for accuracy based on logistic scoring measure
-                    accuracy = testset.accuracy_per_score_type_per_sentence_type[
-                        scoring_measure
-                    ][stype_acceptable]
+    # sheet name: accuracy by stype (pairs comparison)
 
-                    data_for_dataframe[DATASOURCE_COL].append(datasource)
-                    data_for_dataframe[LINGUISTIC_PHENOMENON_COL].append(
-                        testset.linguistic_phenomenon
-                    )
-                    data_for_dataframe[SCORING_MEASURE_COL].append(scoring_measure)
-                    data_for_dataframe[SENTENCE_TYPE_COL].append(stype_acceptable)
-                    data_for_dataframe[ACCURACY_COL].append(f"{accuracy:.2%}")
+    for datasource in scored_testsets_by_datasource:
+        for testset in scored_testsets_by_datasource[datasource]:
+            _excel_output_helper_fill_accuracy_data(
+                datasource,
+                testset,
+                data_for_dataframe,
+                ACCURACY_COL,
+                DATASOURCE_COL,
+                LINGUISTIC_PHENOMENON_COL,
+                SCORING_MEASURE_COL,
+                SENTENCE_TYPE_COL,
+                SAMPLE_ACCEPTABLE_SENTENCE_COL,
+                SAMPLE_UNACCEPTABLE_SENTENCE_COL,
+            )
 
-                    sample_example: Example = testset.examples[0]
-                    stype_unacceptable = (
-                        sample_example.get_type_of_unacceptable_sentence()
-                    )
-                    data_for_dataframe[SAMPLE_ACCEPTABLE_SENTENCE_COL].append(
-                        sample_example[stype_acceptable].txt
-                    )
-                    data_for_dataframe[SAMPLE_UNACCEPTABLE_SENTENCE_COL].append(
-                        sample_example[stype_unacceptable].txt
-                    )
+    accuracy_data_for_excel = DataForExcel(
+        column_names,
+        number_column_names,
+        data_for_dataframe,
+        sheet_name="Accuracy scores",
+    )
+
+    return accuracy_data_for_excel
 
     # todo: save to excel file
 
@@ -571,80 +602,138 @@ def excel_output_helper_accuracy(
     # scored_testset.accuracy_by_DD_lp
 
 
+@dataclass
+class DataForExcel:
+    column_names: List[str]
+    number_column_names: List[str]
+    data_for_dataframe: Dict[str, List[Union[str, float, bool]]]
+    sheet_name: str
+
+
 def _excel_output_helper_write_file(
-    column_names: List[str],
-    number_column_names: List[str],
-    data_for_dataframe: Dict[str, List[Union[str, float, bool]]],
+    data_for_excel_sheets: List[DataForExcel],
     model_descr,
-    scoring_measure: ScoringMeasures,
+    factorial_scoring_measure: ScoringMeasures,
     pd,
 ):
+
     # todo: get results dir
     model_descr = model_descr.replace(" ", "_").replace("/", "_")
-    filename = f"{model_descr}_{scoring_measure}.xlsx"
+
+    filename = f"{model_descr}.xlsx"
     logging.info(f"Writing excel output to {filename}")
 
-    df = pd.DataFrame.from_dict(data_for_dataframe)
-    logging.debug(f"Dataframe lenght: {len(df)}")
     with pd.ExcelWriter(filename) as writer:
-        # writing the data to excel
-        sheet_name = "examples_comparison"
-        include_the_index_of_each_row = False
-        df.to_excel(
-            writer,
-            sheet_name=sheet_name,
-            columns=column_names,
-            index=include_the_index_of_each_row,
-        )
 
-        # column formatting
-        workbook = writer.book
-        worksheet = writer.sheets[sheet_name]
-        num_format = workbook.add_format({"num_format": "0.00"})
-        for number_column_name in number_column_names:
-            col_idx = df.columns.get_loc(number_column_name)
-            # col_letter = xlsxwriter.utility.xl_col_to_name(col_idx)
+        for data_for_excel_sheet in data_for_excel_sheets:
 
-            worksheet.set_column(
-                first_col=col_idx,
-                last_col=col_idx,
-                width=None,
-                cell_format=num_format,
-            )  # Adds formatting to column C
+            data_for_dataframe = data_for_excel_sheet.data_for_dataframe
+            column_names = data_for_excel_sheet.column_names
+            number_column_names = data_for_excel_sheet.number_column_names
+            sheet_name = data_for_excel_sheet.sheet_name
 
-        # Given a dict of dataframes, for example:
-        # dfs = {'gadgets': df_gadgets, 'widgets': df_widgets}
-        #  for sheetname, df in dfs.items():  # loop through `dict` of dataframes
+            df = pd.DataFrame.from_dict(data_for_dataframe)
+            logging.debug(f"Dataframe lenght: {len(df)}")
 
-        # column width adjusting
-        EXTRA_SPACE = 1
-        numerical_columns_width = 6
-        for idx, col in enumerate(df):  # loop through all columns
-            if str(col) in number_column_names:
-                col_width = numerical_columns_width
-            else:
-                series = df[col]
-                len_of_largest_item = series.astype(str).map(len).max()
-                col_width = (
-                    max(
-                        (
-                            len_of_largest_item,
-                            0,
-                            # len(str(series.name))  # len of column name/header
+            include_the_index_of_each_row = False
+            df.to_excel(
+                writer,
+                sheet_name=sheet_name,
+                columns=column_names,
+                index=include_the_index_of_each_row,
+            )
+
+            # column formatting
+            workbook = writer.book
+            worksheet = writer.sheets[sheet_name]
+            num_format = workbook.add_format({"num_format": "0.00"})
+            for number_column_name in number_column_names:
+                col_idx = df.columns.get_loc(number_column_name)
+                # col_letter = xlsxwriter.utility.xl_col_to_name(col_idx)
+
+                worksheet.set_column(
+                    first_col=col_idx,
+                    last_col=col_idx,
+                    width=None,
+                    cell_format=num_format,
+                )  # Adds formatting to column C
+
+            # Given a dict of dataframes, for example:
+            # dfs = {'gadgets': df_gadgets, 'widgets': df_widgets}
+            #  for sheetname, df in dfs.items():  # loop through `dict` of dataframes
+
+            # column width adjusting
+            EXTRA_SPACE = 1
+            numerical_columns_width = 6
+            for idx, col in enumerate(df):  # loop through all columns
+                if str(col) in number_column_names:
+                    col_width = numerical_columns_width
+                else:
+                    series = df[col]
+                    len_of_largest_item = series.astype(str).map(len).max()
+                    col_width = (
+                        max(
+                            (
+                                len_of_largest_item,
+                                0,
+                                # len(str(series.name))  # len of column name/header
+                            )
                         )
-                    )
-                    + EXTRA_SPACE
-                )  # adding a little extra space
-            worksheet.set_column(idx, idx, width=col_width)  # set column width
+                        + EXTRA_SPACE
+                    )  # adding a little extra space
+                worksheet.set_column(idx, idx, width=col_width)  # set column width
 
         writer.save()
 
 
+def _excel_output_helper_fill_accuracy_data(
+    datasource: DataSources,
+    testset: TestSet,
+    data_for_dataframe: Dict[str, List[Union[str, float, bool]]],
+    ACCURACY_COL,
+    DATASOURCE_COL,
+    LINGUISTIC_PHENOMENON_COL,
+    SCORING_MEASURE_COL,
+    SENTENCE_TYPE_COL,
+    SAMPLE_ACCEPTABLE_SENTENCE_COL,
+    SAMPLE_UNACCEPTABLE_SENTENCE_COL,
+):
+    # fill the data
+
+    datasource_descr = datasource[:8]
+
+    for scoring_measure in testset.get_scoring_measures():
+        for stype_acceptable in testset.get_acceptable_sentence_types():
+            # fixme, check: 0 values for accuracy based on logistic scoring measure
+            accuracy = testset.accuracy_per_score_type_per_sentence_type[
+                scoring_measure
+            ][stype_acceptable]
+            data_for_dataframe[ACCURACY_COL].append(f"{accuracy:.2%}")
+
+            data_for_dataframe[DATASOURCE_COL].append(datasource_descr)
+            data_for_dataframe[LINGUISTIC_PHENOMENON_COL].append(
+                testset.linguistic_phenomenon
+            )
+            data_for_dataframe[SCORING_MEASURE_COL].append(scoring_measure)
+            data_for_dataframe[SENTENCE_TYPE_COL].append(stype_acceptable)
+
+            sample_example: Example = testset.examples[0]
+            stype_unacceptable = sample_example.get_type_of_unacceptable_sentence()
+            data_for_dataframe[SAMPLE_ACCEPTABLE_SENTENCE_COL].append(
+                sample_example[stype_acceptable].txt
+            )
+            data_for_dataframe[SAMPLE_UNACCEPTABLE_SENTENCE_COL].append(
+                sample_example[stype_unacceptable].txt
+            )
+
+
 def _excel_output_helper_fill_example_data(
     example: Example,
+    datasource: DataSources,
     scored_testset: TestSet,
     scoring_measure: ScoringMeasures,
     data_for_dataframe: Dict[str, List[Union[str, float, bool]]],
+    DATASOURCE_COL: str,
     LINGUISTIC_PHENOMENON_COL: str,
     SCORING_MEASURE_COL: str,
     DD_SCORE_COLUMN_NAME: str,
@@ -652,11 +741,29 @@ def _excel_output_helper_fill_example_data(
     STRUCTURE_EFFECT_COL: str,
     TOTAL_EFFECT_COL: str,
 ):
+    """
+    Fills the data corresponding to one row in the final excel file.
+    :param example:
+    :param datasource:
+    :param scored_testset:
+    :param scoring_measure:
+    :param data_for_dataframe:
+    :param DATASOURCE_COL:
+    :param LINGUISTIC_PHENOMENON_COL:
+    :param SCORING_MEASURE_COL:
+    :param DD_SCORE_COLUMN_NAME:
+    :param LENGHT_EFFECT_COL:
+    :param STRUCTURE_EFFECT_COL:
+    :param TOTAL_EFFECT_COL:
+    :return:
+    """
     # columns: phenomena,
     # dd score, lenght/structure/total effects,
     # scoring measure,
     # 4 cols for txt of short/long island/nonisland,
     # score for the 4 sentences
+    datasource_descr = datasource[:8]
+    data_for_dataframe[DATASOURCE_COL].append(datasource_descr)
     data_for_dataframe[LINGUISTIC_PHENOMENON_COL].append(
         scored_testset.linguistic_phenomenon
     )

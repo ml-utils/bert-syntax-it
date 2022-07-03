@@ -24,7 +24,6 @@ from src.linguistic_tests.lm_utils import ScoringMeasures
 from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.plots_and_prints import _print_testset_results
 from src.linguistic_tests.plots_and_prints import do_extended_testset_plot
-from src.linguistic_tests.plots_and_prints import excel_output
 from src.linguistic_tests.plots_and_prints import plot_testsets
 from src.linguistic_tests.plots_and_prints import print_accuracy_scores
 from src.linguistic_tests.testset import get_dd_score_parametric
@@ -353,7 +352,8 @@ def load_and_plot_pickles(
 
 
 def run_test_design(
-    model_types_and_names: Dict[str, ModelTypes],
+    model_name: str,
+    model_type: ModelTypes,
     tests_subdir,
     max_examples,
     device: DEVICES,
@@ -361,7 +361,7 @@ def run_test_design(
     log_level=logging.INFO,
     show_plot=False,
     save_plot=False,
-):
+) -> List[TestSet]:
 
     _setup_logging(log_level)
     args = _parse_arguments()
@@ -379,8 +379,6 @@ def run_test_design(
     # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")
     testset_dir_path = str(get_syntactic_tests_dir() / tests_subdir)
 
-    logging.info(f"Will run tests with models: {model_types_and_names.keys()}")
-
     (
         testsets_root_filenames,
         broader_test_type,
@@ -388,68 +386,60 @@ def run_test_design(
         experimental_design,
     ) = get_testset_params(tests_subdir)
 
-    for model_name, model_type in model_types_and_names.items():
-        print_orange(
-            f"Starting test session for model {model_name}, and dataset_source={dataset_source}"
+    print_orange(
+        f"Starting test session for model {model_name}, and dataset_source={dataset_source}"
+    )
+
+    if rescore:
+        rescore_testsets_and_save_pickles(
+            model_type=model_type,
+            model_name=model_name,
+            testset_dir_path=testset_dir_path,
+            testsets_root_filenames=testsets_root_filenames,
+            dataset_source=dataset_source,
+            experimental_design=experimental_design,
+            device=device,
+            examples_format="json_lines",
+            max_examples=max_examples,
         )
 
-        if rescore:
-            rescore_testsets_and_save_pickles(
-                model_type=model_type,
-                model_name=model_name,
-                testset_dir_path=testset_dir_path,
-                testsets_root_filenames=testsets_root_filenames,
-                dataset_source=dataset_source,
-                experimental_design=experimental_design,
-                device=device,
-                examples_format="json_lines",
-                max_examples=max_examples,
-            )
+    loaded_testsets = load_testsets_from_pickles(
+        dataset_source,
+        testsets_root_filenames,
+        model_name,
+        expected_experimental_design=experimental_design,
+    )
 
-        loaded_testsets = load_testsets_from_pickles(
-            dataset_source,
+    for scored_testset in loaded_testsets:
+        print_accuracy_scores(scored_testset)
+
+    if experimental_design in [
+        ExperimentalDesigns.FACTORIAL,
+        ExperimentalDesigns.MINIMAL_PAIRS_VARIATIONS,
+    ]:
+
+        # todo: add experimental_design param to work also with minimal pairs testsets
+        _print_testset_results(
+            loaded_testsets, broader_test_type, model_type, testsets_root_filenames
+        )
+
+    if experimental_design in [ExperimentalDesigns.FACTORIAL]:
+        load_and_plot_pickles(
             testsets_root_filenames,
             model_name,
+            dataset_source,
+            model_type,
             expected_experimental_design=experimental_design,
+            loaded_testsets=loaded_testsets,
+            show_plot=show_plot,
+            save_plot=save_plot,
         )
 
-        for scored_testset in loaded_testsets:
-            print_accuracy_scores(scored_testset)
+        do_extended_testset_plot(
+            ScoringMeasures.PenLP,
+            loaded_testsets[0],
+            show_plot=show_plot,
+        )
 
-        if experimental_design in [
-            ExperimentalDesigns.FACTORIAL,
-            ExperimentalDesigns.MINIMAL_PAIRS_VARIATIONS,
-        ]:
-
-            # todo: add experimental_design param to work also with minimal pairs testsets
-            _print_testset_results(
-                loaded_testsets, broader_test_type, model_type, testsets_root_filenames
-            )
-
-        if experimental_design in [ExperimentalDesigns.FACTORIAL]:
-            load_and_plot_pickles(
-                testsets_root_filenames,
-                model_name,
-                dataset_source,
-                model_type,
-                expected_experimental_design=experimental_design,
-                loaded_testsets=loaded_testsets,
-                show_plot=show_plot,
-                save_plot=save_plot,
-            )
-
-            do_extended_testset_plot(
-                ScoringMeasures.PenLP,
-                loaded_testsets[0],
-                show_plot=show_plot,
-            )
-
-        if experimental_design in [ExperimentalDesigns.FACTORIAL]:
-            scored_testsets_by_datasource = {dataset_source.value[:8]: loaded_testsets}
-            excel_output(scored_testsets_by_datasource)
-        else:
-            logging.info(
-                f"Skipping excel output, experimental_design is {experimental_design}"
-            )
-
-        print_orange(f"Finished test session for {model_name}")
+    print_orange(f"Finished test session for {model_name}")
+    return loaded_testsets

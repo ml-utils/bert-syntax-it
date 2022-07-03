@@ -1,12 +1,17 @@
 import argparse
 import logging
 import sys
+from typing import Dict
+from typing import List
 
 from src.linguistic_tests.bert_utils import analize_example
 from src.linguistic_tests.compute_model_score import score_example
 from src.linguistic_tests.file_utils import _setup_logging
+from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import DEVICES
+from src.linguistic_tests.lm_utils import ExperimentalDesigns
 from src.linguistic_tests.lm_utils import get_num_of_available_cuda_gpus
+from src.linguistic_tests.lm_utils import get_testset_params
 from src.linguistic_tests.lm_utils import load_model_and_tokenizer
 from src.linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
 from src.linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
@@ -19,10 +24,12 @@ from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.plots_and_prints import (
     _print_compare__examples_by_DD_score_helper,
 )
+from src.linguistic_tests.plots_and_prints import excel_output
 from src.linguistic_tests.plots_and_prints import print_detailed_sentence_info
 from src.linguistic_tests.run_test_design import run_test_design
 from src.linguistic_tests.testset import parse_example
 from src.linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
+from src.linguistic_tests.testset import TestSet
 
 
 def get_interactive_mode_arg_parser():
@@ -281,19 +288,46 @@ def main(
             "syntactic_tests_it/",
             # "variations/",
         ]
-        for tests_subdir in tests_subdirs:
-            run_test_design(
-                model_types_and_names={
-                    "LorenzoDeMattei/GePpeTto": ModelTypes.GEPPETTO,
-                },  # MODEL_TYPES_AND_NAMES_IT
-                tests_subdir=tests_subdir,
-                max_examples=50,
-                device=device,
-                rescore=rescore,
-                log_level=log_level,
-                show_plot=show_plot,
-                save_plot=save_plot,
-            )
+
+        model_types_and_names: Dict[str, ModelTypes] = {
+            "LorenzoDeMattei/GePpeTto": ModelTypes.GEPPETTO,
+        }  # MODEL_TYPES_AND_NAMES_IT
+        logging.info(f"Will run tests with models: {model_types_and_names.keys()}")
+        for model_name, model_type in model_types_and_names.items():
+
+            scored_testsets_by_datasource: Dict[DataSources, List[TestSet]] = dict()
+
+            for tests_subdir in tests_subdirs:
+                loaded_testsets = run_test_design(
+                    # todo: use only one model
+                    #  loop models in the outer for (one excel file output for each model)
+                    #  check consistency with output on plots and prints
+                    # or could aggregate also scores for multiple models in one excel file
+                    model_name=model_name,
+                    model_type=model_type,
+                    tests_subdir=tests_subdir,
+                    max_examples=50,
+                    device=device,
+                    rescore=rescore,
+                    log_level=log_level,
+                    show_plot=show_plot,
+                    save_plot=save_plot,
+                )
+
+                # write excel output
+                _, _, dataset_source, experimental_design = get_testset_params(
+                    tests_subdir
+                )
+                if experimental_design in [ExperimentalDesigns.FACTORIAL]:
+                    scored_testsets_by_datasource[dataset_source] = loaded_testsets
+
+            first_testsset = list(scored_testsets_by_datasource.values())[0][0]
+            if first_testsset.experimental_design in [ExperimentalDesigns.FACTORIAL]:
+                excel_output(scored_testsets_by_datasource)
+            else:
+                logging.info(
+                    f"Skipping excel output, experimental_design is {first_testsset.experimental_design}"
+                )
 
 
 if __name__ == "__main__":
