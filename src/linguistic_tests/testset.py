@@ -771,7 +771,7 @@ def get_merged_score_across_testsets(
     return merged_scores
 
 
-def parse_example(example: Dict, sent_types: list):
+def parse_example(example: Dict[SentenceNames, str], sent_types: list):
     typed_senteces = []
     # print(f"example: {example}")
 

@@ -1,7 +1,10 @@
+import argparse
 import logging
 import sys
 
 from src.linguistic_tests.bert_utils import analize_example
+from src.linguistic_tests.compute_model_score import score_example
+from src.linguistic_tests.file_utils import _setup_logging
 from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import get_num_of_available_cuda_gpus
 from src.linguistic_tests.lm_utils import load_model_and_tokenizer
@@ -10,15 +13,22 @@ from src.linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import print_red
 from src.linguistic_tests.lm_utils import red_txt
+from src.linguistic_tests.lm_utils import ScoringMeasures
 from src.linguistic_tests.lm_utils import sentence_score_bases
+from src.linguistic_tests.lm_utils import SentenceNames
+from src.linguistic_tests.plots_and_prints import (
+    _print_compare__examples_by_DD_score_helper,
+)
 from src.linguistic_tests.plots_and_prints import print_detailed_sentence_info
 from src.linguistic_tests.run_test_design import run_test_design
+from src.linguistic_tests.testset import parse_example
+from src.linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 
 
 def get_interactive_mode_arg_parser():
     import argparse
 
-    arg_parser = argparse.ArgumentParser()
+    arg_parser = argparse.ArgumentParser(exit_on_error=False)
 
     # example: --cmd example --s_ni ".." --l_ni ".." --s_is ".." --l_is ".."
     arg_parser.add_argument("--cmd", type=str, choices=["compare2", "example", "exit"])
@@ -32,6 +42,8 @@ def get_interactive_mode_arg_parser():
 
 def interactive_mode(device=DEVICES.CPU):
     print("interactive mode")
+    _setup_logging(log_level=logging.DEBUG)
+    print_red(f"Using cuda device {device}")  # logging.info
 
     import shlex
 
@@ -86,19 +98,58 @@ def interactive_mode(device=DEVICES.CPU):
     # given two sentences, print PenLPs, and diff btw PenLPs
     end_program = False
     while not end_program:
-        argString = input("Enter command: ")
-        args = parser.parse_args(shlex.split(argString))
+        valid_args = False
+        # argString = input("Enter command: ")
+        argString = ""
+        print("Enter command: ", end="")
+        try:
+            sentinel = ""  # iter terminates when receives ""
+            argString = " ".join(iter(input, sentinel))
+        except (TypeError, ValueError) as err:  # ..
+            print(f"{err}")
+        logging.debug(f"argString = {argString}")
 
-        if args.cmd == "exit":
-            return
-        elif args.cmd == "compare2":
-            compare_two_sentences(args, model, tokenizer)
-        elif args.cmd == "example":
-            score_example(args, model, tokenizer)
+        try:
+            args = parser.parse_args(shlex.split(argString))
+            valid_args = True
+        except argparse.ArgumentError as err:
+            print(f"{err}")
+
+        if valid_args:
+            if args.cmd == "exit":
+                end_program = True
+            elif args.cmd == "compare2":
+                compare_two_sentences(args, model_type, model, tokenizer)
+            elif args.cmd == "example":
+                score_and_print_inline_example(
+                    args, model_type, model, tokenizer, device
+                )
 
 
-def score_example(args, model, tokenizer):
-    raise NotImplementedError
+def score_and_print_inline_example(
+    args, model_type, model, tokenizer, device=DEVICES.CPU
+):
+    example_dict = {
+        SentenceNames.SHORT_NONISLAND: args.s_ni,
+        SentenceNames.LONG_NONISLAND: args.l_ni,
+        SentenceNames.SHORT_ISLAND: args.s_is,
+        SentenceNames.LONG_ISLAND: args.l_is,
+    }
+    example = parse_example(example_dict, SPROUSE_SENTENCE_TYPES)
+
+    logging.debug("Scoring example..")
+    score_example(
+        device,
+        example,
+        model,
+        model_type,
+        tokenizer,
+    )
+    logging.debug("done.")
+
+    _print_compare__examples_by_DD_score_helper(
+        [example], ScoringMeasures.PenLP, shorter_form=True
+    )
 
 
 def compare_two_sentences(args, model, tokenizer):
@@ -202,12 +253,10 @@ def main(
     show_plot=False,
     save_plot=False,
 ):
-
-    print_red(f"Using cuda device {device}")  # logging.info
-
     if len(sys.argv) > 1:
-        interactive_mode(device)
+        interactive_mode()  # device
     else:
+        print_red(f"Using cuda device {device}")  # logging.info
         # todo: save accuracy and other results to csv file (for import in excel table)
         #  also another csv file with details on sentences scores
         #  and an option to load the report csv and print them in the command line

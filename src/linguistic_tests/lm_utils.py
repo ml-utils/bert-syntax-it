@@ -111,7 +111,7 @@ class ModelTypes(IntEnum):
         return f"ModelType({self.name})"
 
 
-class sentence_score_bases:
+class sentence_score_bases(IntEnum):
     SOFTMAX = 0
     LOGISTIC_FUN = 2
 

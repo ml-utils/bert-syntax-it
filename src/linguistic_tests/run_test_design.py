@@ -98,7 +98,7 @@ def score_factorial_testset(
     if experimental_design != ExperimentalDesigns.FACTORIAL:
         return testset
 
-    # doing factorial design scores
+    # doing factorial design scores (aggregated across examples)
     for example_idx, example in enumerate(testset.examples):
         (
             example.DD_with_lp,

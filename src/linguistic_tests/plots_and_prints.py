@@ -20,9 +20,13 @@ from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import print_orange
 from src.linguistic_tests.lm_utils import print_red
 from src.linguistic_tests.lm_utils import ScoringMeasures
-from src.linguistic_tests.lm_utils import SentenceNames
+from src.linguistic_tests.lm_utils import SentenceNames as SN
+from src.linguistic_tests.testset import Example
 from src.linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from src.linguistic_tests.testset import TestSet
+
+
+MAX_EXAMPLES_PRINTS_PER_TESTSET = 50
 
 
 def reorder_testsets_legacy(scored_testsets: List[TestSet]):
@@ -165,12 +169,12 @@ def do_extended_testset_plot(
     for example in testset.examples:
         # logging_info(f"example={example.__str__(scoring_measure=scoring_measure)}")
         y_values_ni = [
-            example.get_score(scoring_measure, SentenceNames.SHORT_NONISLAND),
-            example.get_score(scoring_measure, SentenceNames.LONG_NONISLAND),
+            example.get_score(scoring_measure, SN.SHORT_NONISLAND),
+            example.get_score(scoring_measure, SN.LONG_NONISLAND),
         ]
         y_values_is = [
-            example.get_score(scoring_measure, SentenceNames.SHORT_ISLAND),
-            example.get_score(scoring_measure, SentenceNames.LONG_ISLAND),
+            example.get_score(scoring_measure, SN.SHORT_ISLAND),
+            example.get_score(scoring_measure, SN.LONG_ISLAND),
         ]
         x_values = ["SHORT", "LONG"]
         # logging_info(f"ploting: y_values_ni={y_values_ni}, y_values_is={y_values_is}")
@@ -212,30 +216,30 @@ def _plot_results_subplot(
 
         y_values_ni = [
             scored_testset.get_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, SentenceNames.SHORT_NONISLAND, likert=likert
+                scoring_measure, SN.SHORT_NONISLAND, likert=likert
             ),
             scored_testset.get_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, SentenceNames.LONG_NONISLAND, likert=likert
+                scoring_measure, SN.LONG_NONISLAND, likert=likert
             ),
         ]
         y_values_is = [
             scored_testset.get_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, SentenceNames.SHORT_ISLAND, likert=likert
+                scoring_measure, SN.SHORT_ISLAND, likert=likert
             ),
             scored_testset.get_avg_zscores_by_measure_and_by_stype(
-                scoring_measure, SentenceNames.LONG_ISLAND, likert=likert
+                scoring_measure, SN.LONG_ISLAND, likert=likert
             ),
         ]
     else:
         DD_value = scored_testset.get_avg_DD(scoring_measure)
         score_averages = scored_testset.get_avg_scores(scoring_measure)
         y_values_ni = [
-            score_averages[SentenceNames.SHORT_NONISLAND],
-            score_averages[SentenceNames.LONG_NONISLAND],
+            score_averages[SN.SHORT_NONISLAND],
+            score_averages[SN.LONG_NONISLAND],
         ]
         y_values_is = [
-            score_averages[SentenceNames.SHORT_ISLAND],
-            score_averages[SentenceNames.LONG_ISLAND],
+            score_averages[SN.SHORT_ISLAND],
+            score_averages[SN.LONG_ISLAND],
         ]
 
     logging_debug(f"{y_values_ni}")
@@ -248,12 +252,12 @@ def _plot_results_subplot(
 
     std_errors_ni = (
         scored_testset.get_std_errors_of_zscores_by_measure_and_sentence_structure(
-            scoring_measure, SentenceNames.SHORT_NONISLAND
+            scoring_measure, SN.SHORT_NONISLAND
         )
     )
     std_errors_is = (
         scored_testset.get_std_errors_of_zscores_by_measure_and_sentence_structure(
-            scoring_measure, SentenceNames.SHORT_ISLAND
+            scoring_measure, SN.SHORT_ISLAND
         )
     )
 
@@ -341,7 +345,7 @@ def logging_debug(msg, also_print=True):
 
 
 def _print_sorted_sentences_to_check_spelling_errors2(
-    score_descr,
+    score_descr: ScoringMeasures,
     phenomena,
     model_name,
     dataset_source,
@@ -368,7 +372,7 @@ def _print_sorted_sentences_to_check_spelling_errors2(
 
 
 def _print_sorted_sentences_to_check_spelling_errors(
-    score_descr,
+    score_descr: ScoringMeasures,
     phenomena,
     model_name,
     dataset_source,
@@ -411,6 +415,8 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
 
     # pip install openpyxl, add to requirements
 
+    # todo: add accuracy scores sheet
+
     # todo: filename: models, and datasources?
     # excel files with prefix like pickle filenames (but one for multiple testsets/phenomena)
 
@@ -427,7 +433,7 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
     scoring_measure = ScoringMeasures.PenLP
     data_for_dataframe: Dict[str, List[Union[str, float, bool]]] = dict()
     LINGUISTIC_PHENOMENON_COL = "linguistic_phenomenon"
-    DD_SCORE_COLUMN_NAME = f"DD_{scoring_measure.name}"
+    DD_SCORE_COLUMN_NAME = f"DD_{scoring_measure}"
     LENGHT_EFFECT_COL = "Lenght effect"
     STRUCTURE_EFFECT_COL = "Structure effect"
     TOTAL_EFFECT_COL = "Total effect"
@@ -483,7 +489,7 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
                 data_for_dataframe[LINGUISTIC_PHENOMENON_COL].append(
                     scored_testset.linguistic_phenomenon
                 )
-                data_for_dataframe[SCORING_MEASURE_COL].append(scoring_measure.name)
+                data_for_dataframe[SCORING_MEASURE_COL].append(scoring_measure)
 
                 # todo: get dd score based on likert and zscores ..
                 data_for_dataframe[DD_SCORE_COLUMN_NAME].append(
@@ -505,9 +511,12 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
                     )
                     # todo: for acceptable stypes, add boolean column telling if it's scored accurately
                     if stype != example.get_type_of_unacceptable_sentence():
-                        data_for_dataframe[
-                            f"is_{stype.name}_scored_accurately"
-                        ] = example.is_scored_accurately_for(scoring_measure, stype)
+                        is_scored_accurately = example.is_scored_accurately_for(
+                            scoring_measure, stype
+                        )
+                        data_for_dataframe[f"is_{stype.name}_scored_accurately"].append(
+                            is_scored_accurately
+                        )
                     data_for_dataframe[stype.name].append(example[stype].txt)
 
         # todo: get results dir
@@ -548,7 +557,7 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
 
             # column width adjusting
             EXTRA_SPACE = 1
-            numerical_columns_width = 4
+            numerical_columns_width = 6
             for idx, col in enumerate(df):  # loop through all columns
                 if str(col) in number_column_names:
                     col_width = numerical_columns_width
@@ -575,11 +584,64 @@ def excel_output(scored_testsets_by_datasource: Dict[str, List[TestSet]]):
             #  ..
 
 
+def _print_compare__examples_by_DD_score_helper(
+    examples: List[Example],
+    scoring_measure: ScoringMeasures,
+    shorter_form=False,
+):
+    if shorter_form:
+        max_chars = 20
+    else:
+        max_chars = 70
+
+    print(
+        f"{'DD':<6}"
+        f"{'len_eff.':<8}"
+        f"{'struct.':<8}"
+        f"{'total':<8}"
+        f"{'s1 ' + str(scoring_measure):<10}"
+        f"{SN.SHORT_NONISLAND.name[:max_chars]:<{max_chars}}"
+        f"{'s2 ' + str(scoring_measure):<10}"
+        f"{SN.LONG_NONISLAND.name[:max_chars]:<{max_chars}}"
+        f"{'s3 ' + str(scoring_measure):<10}"
+        f"{SN.SHORT_ISLAND.name[:max_chars]:<{max_chars}}"
+        f"{'s4 ' + str(scoring_measure):<10}"
+        f"{SN.LONG_ISLAND.name[:max_chars]:<5}"
+    )
+    for example in examples[0:MAX_EXAMPLES_PRINTS_PER_TESTSET]:
+        print(
+            f"{example.get_dd_score(scoring_measure) : <6.2f}"
+            f"{example.get_lenght_effect(scoring_measure) : <8.2f}"
+            f"{example.get_structure_effect(scoring_measure) : <8.2f}"
+            f"{example.get_total_effect(scoring_measure) : <8.2f}"
+            f"{_prt_score(SN.SHORT_NONISLAND, example, scoring_measure, max_chars)}"
+            f"{_prt_score(SN.LONG_NONISLAND, example, scoring_measure, max_chars)}"
+            f"{_prt_score(SN.SHORT_ISLAND, example, scoring_measure, max_chars)}"
+            f"{_prt_score(SN.LONG_ISLAND, example, scoring_measure, max_chars=5)}"
+        )
+
+
+def _prt_score(
+    stype: SN, example: Example, scoring_measure: ScoringMeasures, max_chars
+):
+    if stype == example.get_type_of_unacceptable_sentence():
+        accuracy_mark = "_"
+    elif example.is_scored_accurately_for(scoring_measure, stype):
+        accuracy_mark = "✓"
+    else:
+        accuracy_mark = "x"
+
+    return (
+        f" {accuracy_mark : <2}"
+        f"{example[stype].get_score(scoring_measure) : <8.2f}"
+        f"{example[stype].txt[:max_chars] : <{max_chars}}"
+    )
+
+
 def _print_compare__examples_by_DD_score(
     scoring_measure: ScoringMeasures,
     testset: TestSet,
 ):
-    max_prints_per_testset = 50
     print(
         f"comparing examples by DD score based on {scoring_measure}  "
         f"({testset.linguistic_phenomenon} from {testset.model_descr}, "
@@ -588,33 +650,15 @@ def _print_compare__examples_by_DD_score(
     examples_sorted_by_dd_score = testset.get_examples_sorted_by_DD_score(
         scoring_measure
     )
-    print(
-        f"{'DD':<8}"
-        f"{'lenght':<8}"
-        f"{'struct.':<8}"
-        f"{'total':<8}"
-        f"{'s1 ' + scoring_measure:^10}"
-        f"{'s1 txt (' + SentenceNames.SHORT_ISLAND + ')':<70}"
-        f"{'s2 ' + scoring_measure:^10}"
-        f"{'s2 txt (' + SentenceNames.LONG_ISLAND + ')':<5}"
+    _print_compare__examples_by_DD_score_helper(
+        examples_sorted_by_dd_score, scoring_measure
     )
-    for example in examples_sorted_by_dd_score[0:max_prints_per_testset]:
-        print(
-            f"{example.get_dd_score(scoring_measure) : <8.2f}"
-            f"{example.get_lenght_effect(scoring_measure) : <8.2f}"
-            f"{example.get_structure_effect(scoring_measure) : <8.2f}"
-            f"{example.get_total_effect(scoring_measure) : <8.2f}"
-            f"{example[SentenceNames.SHORT_ISLAND].get_score(scoring_measure) : ^10.2f}"
-            f"{example[SentenceNames.SHORT_ISLAND].txt : <70}"
-            f"{example[SentenceNames.LONG_ISLAND].get_score(scoring_measure) :^10.2f}"
-            f"{example[SentenceNames.LONG_ISLAND].txt : <5}"
-        )
 
 
 def _print_examples_compare_diff(
     scoring_measure: ScoringMeasures,
-    sent_type1: SentenceNames,
-    sent_type2: SentenceNames,
+    sent_type1: SN,
+    sent_type2: SN,
     phenomena: List[str],
     model_name: str,
     dataset_source: str,
@@ -629,7 +673,7 @@ def _print_examples_compare_diff(
         return
 
     max_testsets = 4
-    max_prints_per_testset = 50
+
     for testset in testsets[:max_testsets]:
         logging_info(
             f"printing testset for {testset.linguistic_phenomenon} "
@@ -652,7 +696,7 @@ def _print_examples_compare_diff(
             f"{'s2 ' + scoring_measure:^10}"
             f"{'s2 txt (' + sent_type2 + ')':<5}"
         )
-        for example in examples_sorted_by_score_diff[0:max_prints_per_testset]:
+        for example in examples_sorted_by_score_diff[0:MAX_EXAMPLES_PRINTS_PER_TESTSET]:
             print(
                 f"{example.get_score_diff(scoring_measure, sent_type1, sent_type2) : <8.2f}"
                 f"{example[sent_type1].get_score(scoring_measure) : ^10.2f}"
@@ -668,7 +712,7 @@ def _print_testset_results(
     model_type: ModelTypes,
     testsets_root_filenames: List[str],
 ):
-    score_descr = ScoringMeasures.PenLP.name
+    scoring_measure = ScoringMeasures.PenLP
 
     logging_info("Printing accuracy scores..")
     for scored_testset in scored_testsets:
@@ -697,21 +741,21 @@ def _print_testset_results(
             logging.info(f"{ll_averages}")
             logging.info(f"{penll_averages}")
 
-        _print_compare__examples_by_DD_score(score_descr, scored_testset)
+        _print_compare__examples_by_DD_score(scoring_measure, scored_testset)
 
     if scored_testsets[0].experimental_design in [
         ExperimentalDesigns.FACTORIAL,
         ExperimentalDesigns.MINIMAL_PAIRS,
     ]:
         _print_sorted_sentences_to_check_spelling_errors2(
-            score_descr,
+            scoring_measure,
             testsets_root_filenames,
             MODEL_NAMES_IT[model_type],
             dataset_source,
             scored_testsets,
         )
         _print_sorted_sentences_to_check_spelling_errors(
-            score_descr,
+            scoring_measure,
             testsets_root_filenames,
             MODEL_NAMES_IT[model_type],
             dataset_source,
@@ -719,36 +763,36 @@ def _print_testset_results(
         )
 
     _print_examples_compare_diff(
-        score_descr,
-        SentenceNames.SHORT_NONISLAND,
-        SentenceNames.LONG_NONISLAND,
+        scoring_measure,
+        SN.SHORT_NONISLAND,
+        SN.LONG_NONISLAND,
         testsets_root_filenames,
         MODEL_NAMES_IT[model_type],
         dataset_source,
         testsets=scored_testsets,
     )
     _print_examples_compare_diff(
-        score_descr,
-        SentenceNames.SHORT_ISLAND,
-        SentenceNames.LONG_ISLAND,
+        scoring_measure,
+        SN.SHORT_ISLAND,
+        SN.LONG_ISLAND,
         testsets_root_filenames,
         MODEL_NAMES_IT[model_type],
         dataset_source,
         testsets=scored_testsets,
     )
     _print_examples_compare_diff(
-        score_descr,
-        SentenceNames.LONG_NONISLAND,
-        SentenceNames.LONG_ISLAND,
+        scoring_measure,
+        SN.LONG_NONISLAND,
+        SN.LONG_ISLAND,
         testsets_root_filenames,
         MODEL_NAMES_IT[model_type],
         dataset_source,
         testsets=scored_testsets,
     )
     _print_examples_compare_diff(
-        score_descr,
-        SentenceNames.SHORT_NONISLAND,
-        SentenceNames.SHORT_ISLAND,
+        scoring_measure,
+        SN.SHORT_NONISLAND,
+        SN.SHORT_ISLAND,
         testsets_root_filenames,
         MODEL_NAMES_IT[model_type],
         dataset_source,
@@ -779,7 +823,7 @@ def print_accuracy_scores(testset: TestSet):
 
             print(
                 f"{testset.linguistic_phenomenon}: "
-                f"Accuracy with {scoring_measure.name} "
+                f"Accuracy with {scoring_measure} "
                 f"for {stype_acceptable_sentence.name}: {accuracy:.2%} "
                 f"({testset.model_descr})"
             )
