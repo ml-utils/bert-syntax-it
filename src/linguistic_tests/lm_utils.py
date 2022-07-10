@@ -634,6 +634,7 @@ def get_testset_params(
         testsets_root_filenames = [
             # "wh_complex_np_islands",
             "wh_complex_np_islands_2",
+            "wh_complex_np_islands_3",
             # "wh_adjunct_islands_2",
             # "wh_whether_island",
             # "wh_whether_island2",
@@ -641,7 +642,7 @@ def get_testset_params(
         ]
         broader_test_type = "variations"
         dataset_source = DataSources.VARIATIONS
-        experimental_design = ExperimentalDesigns.MINIMAL_PAIRS_VARIATIONS
+        experimental_design = ExperimentalDesigns.FACTORIAL
     else:
         raise ValueError(f"Invalid tests_subdir specified: {tests_subdir}")
 
