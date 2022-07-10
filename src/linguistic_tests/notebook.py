@@ -284,9 +284,9 @@ def main(
         # )
 
         tests_subdirs = [
-            "sprouse/",
-            "syntactic_tests_it/",
-            # "variations/",
+            # "sprouse/",
+            # "syntactic_tests_it/",
+            "variations/",
         ]
 
         model_types_and_names: Dict[str, ModelTypes] = {
@@ -318,10 +318,11 @@ def main(
                 _, _, dataset_source, experimental_design = get_testset_params(
                     tests_subdir
                 )
-                if experimental_design in [ExperimentalDesigns.FACTORIAL]:
-                    scored_testsets_by_datasource[dataset_source] = loaded_testsets
+                # if experimental_design in [ExperimentalDesigns.FACTORIAL]:
+                scored_testsets_by_datasource[dataset_source] = loaded_testsets
 
-            first_testsset = list(scored_testsets_by_datasource.values())[0][0]
+            testsets_first_datasource = list(scored_testsets_by_datasource.values())[0]
+            first_testsset = testsets_first_datasource[0]
             if first_testsset.experimental_design in [ExperimentalDesigns.FACTORIAL]:
                 excel_output(scored_testsets_by_datasource)
             else:
@@ -338,7 +339,7 @@ if __name__ == "__main__":
     else:
         main_setting_device = DEVICES.CPU
 
-    main_setting_rescore = False
+    main_setting_rescore = True
     main_setting_show_plot = False
     main_settings_save_plot = False
     main_setting_log_level = logging.DEBUG

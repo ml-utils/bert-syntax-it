@@ -632,8 +632,13 @@ def get_testset_params(
         experimental_design = ExperimentalDesigns.MINIMAL_PAIRS
     elif tests_subdir == "variations/":
         testsets_root_filenames = [
-            "wh_complex_np_islands"
-        ]  # "wh_adjunct_islands", "wh_whether_island", "wh_whether_island2", "wh_whether_island3"
+            # "wh_complex_np_islands",
+            "wh_complex_np_islands_2",
+            # "wh_adjunct_islands_2",
+            # "wh_whether_island",
+            # "wh_whether_island2",
+            # "wh_whether_island3"
+        ]
         broader_test_type = "variations"
         dataset_source = DataSources.VARIATIONS
         experimental_design = ExperimentalDesigns.MINIMAL_PAIRS_VARIATIONS
