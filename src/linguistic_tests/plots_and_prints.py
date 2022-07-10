@@ -28,7 +28,7 @@ from src.linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
 from src.linguistic_tests.testset import TestSet
 
 
-MAX_EXAMPLES_PRINTS_PER_TESTSET = 50
+MAX_EXAMPLES_PRINTS_PER_TESTSET = 99  # 50
 
 
 def reorder_testsets_legacy(scored_testsets: List[TestSet]):

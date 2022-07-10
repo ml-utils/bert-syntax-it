@@ -340,8 +340,8 @@ if __name__ == "__main__":
         main_setting_device = DEVICES.CPU
 
     main_setting_rescore = True
-    main_setting_show_plot = False
-    main_settings_save_plot = False
+    main_setting_show_plot = True
+    main_settings_save_plot = True
     main_setting_log_level = logging.DEBUG
 
     main(

@@ -634,7 +634,8 @@ def get_testset_params(
         testsets_root_filenames = [
             # "wh_complex_np_islands",
             "wh_complex_np_islands_2",
-            "wh_complex_np_islands_3",
+            # "wh_complex_np_islands_3",
+            "wh_complex_np_islands_4",
             # "wh_adjunct_islands_2",
             # "wh_whether_island",
             # "wh_whether_island2",

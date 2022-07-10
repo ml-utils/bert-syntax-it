@@ -727,7 +727,7 @@ def parse_testset(
     examples_list: list,
     experimental_design: ExperimentalDesigns,
     scoring_measures: List[ScoringMeasures],
-    max_examples=50,
+    max_examples,
 ) -> TestSet:
     print(f"len examples: {len(examples_list)}, max: {max_examples}")
 
