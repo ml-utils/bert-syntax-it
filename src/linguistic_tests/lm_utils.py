@@ -633,10 +633,10 @@ def get_testset_params(
     elif tests_subdir == "variations/":
         testsets_root_filenames = [
             # "wh_complex_np_islands",
-            "wh_complex_np_islands_2",
+            # "wh_complex_np_islands_2", # all items with the "ha intuito che" construct
             # "wh_complex_np_islands_3",
-            "wh_complex_np_islands_4",
-            # "wh_adjunct_islands_2",
+            "wh_complex_np_islands_4",  # like n.2, plus merged Sprouse and Madeddu testsuites and added more items with variations
+            "wh_adjunct_islands_2",  # all in present perfect as the complex np
             # "wh_whether_island",
             # "wh_whether_island2",
             # "wh_whether_island3"
