@@ -635,11 +635,19 @@ def get_testset_params(
             # "wh_complex_np_islands",
             # "wh_complex_np_islands_2", # all items with the "ha intuito che" construct
             # "wh_complex_np_islands_3",
-            "wh_complex_np_islands_4",  # like n.2, plus merged Sprouse and Madeddu testsuites and added more items with variations
+            # "wh_complex_np_islands_4",  # like n.2, plus merged Sprouse and Madeddu testsuites and added more items with variations
+            # "wh_complex_np_islands_5",  # like n.4, but replaced "percepire"/"avere la percezione che" with "avvertire"/"avere il sentore che"
+            # "wh_complex_np_islands_6",  # like n.5, but replaced with "avere il sentore che / ..avvertito che"
+            # "wh_complex_np_islands_7",  # like n.6, but replaced with "avere la premonizione che / ..premonito che"
+            # "wh_complex_np_islands_8",  # like n.7, but replaced main clause with "sapeva che" / "sapeva del fatto che"
+            # "eri a conoscenza che" / "conoscevi il fatto che" (NB: "light nouns" effect that avoids the island effect?)
+            "wh_complex_np_islands_9",  # like n.7, but replaced main clause with  "sapevi che" / "conoscevi la novità che"
+            # like n.4, but replaced "intuire"/"avere l'intuizione" with "percepire"/"avere la percezione che"
             "wh_adjunct_islands_2",  # all in present perfect as the complex np
-            # "wh_whether_island",
+            "wh_whether_island",
             # "wh_whether_island2",
-            # "wh_whether_island3"
+            # "wh_whether_island3",
+            "wh_subject_islands",  # same as the standard test suite
         ]
         broader_test_type = "variations"
         dataset_source = DataSources.VARIATIONS

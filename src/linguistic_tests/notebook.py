@@ -306,7 +306,7 @@ def main(
                     model_name=model_name,
                     model_type=model_type,
                     tests_subdir=tests_subdir,
-                    max_examples=50,
+                    max_examples=99,
                     device=device,
                     rescore=rescore,
                     log_level=log_level,
