@@ -284,14 +284,17 @@ def main(
         # )
 
         tests_subdirs = [
-            # "sprouse/",
-            # "syntactic_tests_it/",
-            "variations/",
+            "sprouse/",
+            "syntactic_tests_it/",
+            # "variations/",
         ]
 
-        model_types_and_names: Dict[str, ModelTypes] = {
-            "LorenzoDeMattei/GePpeTto": ModelTypes.GEPPETTO,
-        }  # MODEL_TYPES_AND_NAMES_IT
+        # gpt_it_model_type_and_name = {
+        #             "LorenzoDeMattei/GePpeTto": ModelTypes.GEPPETTO,
+        #         }
+        model_types_and_names: Dict[
+            str, ModelTypes
+        ] = MODEL_TYPES_AND_NAMES_IT  # gpt_it_model_type_and_name
         logging.info(f"Will run tests with models: {model_types_and_names.keys()}")
         for model_name, model_type in model_types_and_names.items():
 

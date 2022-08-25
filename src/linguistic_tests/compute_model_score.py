@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from scipy.special import expit as logistic
 from scipy.special import softmax
+from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
 from transformers.modeling_outputs import MaskedLMOutput
 
 from .lm_utils import BERT_LIKE_MODEL_TYPES
@@ -16,6 +17,8 @@ from .testset import ERROR_LP
 from .testset import Example
 from .testset import parse_example
 from .testset import SPROUSE_SENTENCE_TYPES
+
+# from transformers.models.gpt2.modeling_gpt2 import GPT2DoubleHeadsModelOutput
 
 
 AcceptabilityScoreRes = namedtuple(
@@ -202,7 +205,7 @@ def get_sentence_acceptability_score(
         batch_labels[:, :1] = DO_NOT_COMPUTE_LOSS_OVER_THESE_TOKENS
         # nb: labels should be the "correct" output tokens the model should return
         # nb: there is no masked token in this case
-        model_output = model(
+        model_output: CausalLMOutputWithCrossAttentions = model(
             # nb: this labels variable not actually used when "not using context"
             # todo, check: is this a copy&paste error?
             sentence_ids_in_batch_as_tensor,

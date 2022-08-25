@@ -73,19 +73,35 @@ class TestLoadModels(TestCase):
     model_dir_bpe_edited_vocabfile = os.path.join(model_dir_bpe_edited, vocab_filename)
 
     def _test_sentencepiece_robertatokenizer_helper(
-        self, roberta_tokenizer: RobertaTokenizer, model
+        self,
+        roberta_tokenizer: RobertaTokenizer,
+        model,
+        mask_token="<mask>",
+        override_mask_id=None,
     ):
-        masked_sentence = "The pen is on the <mask>."
+        masked_sentence = "The pen is on the " + mask_token + "."
         masked_index_in_sentence = len(roberta_tokenizer.tokenize("The pen is on the"))
         tokenized_as = roberta_tokenizer.tokenize(masked_sentence)
         input_ids = roberta_tokenizer(masked_sentence)["input_ids"]
-        print(f"\n{masked_sentence}" f"\n{input_ids}" f"\n{tokenized_as}")
+
+        if override_mask_id is not None and isinstance(override_mask_id, int):
+            print(f"overriding mask_token_id with {override_mask_id}")
+            input_ids = [
+                override_mask_id if x == roberta_tokenizer.mask_token_id else x
+                for x in input_ids
+            ]
+
+        print(
+            f"\nmasked_sentence={masked_sentence}"
+            f"\ninput_ids={input_ids}"
+            f"\ntokenized_as={tokenized_as}"
+        )
         (
             logits,
             res_softmax,
             res_logistic,
-            res_normalized,
-            logits_shifted_above_zero,
+            # res_normalized,
+            # logits_shifted_above_zero,
         ) = get_bert_output_single_masking(model, input_ids, masked_index_in_sentence)
         k = 5
         topk_probs, topk_ids = torch.topk(res_softmax, k)
@@ -93,7 +109,7 @@ class TestLoadModels(TestCase):
         topk_tokens = convert_ids_to_tokens(
             roberta_tokenizer, topk_ids
         )  # nb: topk_ids might be a list of tensors, not int
-        print(f"{topk_tokens}, {topk_ids}")
+        print(f"topk_tokens, topk_ids = {topk_tokens}, {topk_ids}")
         # decode the topk ids to tokens, and see if "table" is contained
         # (or encode "table" first and see if the id is in the topk)
 
@@ -108,7 +124,14 @@ class TestLoadModels(TestCase):
 
         return topk_prediction_includes_expected, topk_ids, topk_tokens
 
-    def _test_sentencepiece_custom_tokens_helper(self, custom_tokenizer, model):
+    def _test_sentencepiece_custom_tokens_helper(
+        self,
+        custom_tokenizer,
+        model,
+        cls_token="[CLS]",
+        mask_token="[MASK]",
+        sep_token="[SEP]",
+    ):
         # encode the sentence: "The coffee is on the ***mask*** ."
         # tokens = ["[CLS]", "The", "coffee", "is", "on", "the", "[MASK]", ".", "[SEP]"]
 
@@ -116,7 +139,7 @@ class TestLoadModels(TestCase):
         tokens_l = custom_tokenizer.tokenize("The pen is on the")
         # tokens_r = custom_tokenizer.tokenize(".")  # removed because it adds also a spece token before
         tokens_tot = (
-            ["[CLS]"] + tokens_l + ["[MASK]"] + ["[SEP]"]
+            [cls_token] + tokens_l + [mask_token] + [sep_token]
         )  # + tokens_r + ["[SEP]"]
         # bos_id = custom_tokenizer.piece_to_id("[CLS]")
         # mask_id = custom_tokenizer.piece_to_id("[MASK]")

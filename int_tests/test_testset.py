@@ -44,6 +44,7 @@ class TestTestset(TestCase):
             examples_list,
             ExperimentalDesigns.FACTORIAL,
             scoring_measures,
+            max_examples=99,
         )
 
         assert len(parsed_testset.examples) == 2
@@ -74,6 +75,7 @@ class TestTestset(TestCase):
             examples_list,
             ExperimentalDesigns.MINIMAL_PAIRS,
             scoring_measures,
+            max_examples=99,
         )
 
         assert len(parsed_testset.examples) == 2
@@ -104,6 +106,7 @@ class TestTestset(TestCase):
             examples_list,
             ExperimentalDesigns.FACTORIAL,
             scoring_measures,
+            max_examples=99,
         )
 
         assert len(parsed_testset.examples) == 2
