@@ -7,6 +7,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 import torch
+from numpy import ndarray
 from scipy.special import softmax
 from tqdm import tqdm
 from transformers import BertForMaskedLM as BRT_M
@@ -421,7 +422,9 @@ def test_bert_output():
     assert isinstance(input_tensor_batch, torch.Tensor)
     assert isinstance(logits_sentence, torch.Tensor)
     assert isinstance(logits_whole_batch, torch.Tensor)
-    assert isinstance(logits_sentence_softmax, torch.Tensor)
+    assert isinstance(
+        logits_sentence_softmax, (torch.Tensor, ndarray)
+    ), f"type(logits_sentence_softmax)={type(logits_sentence_softmax)}"
     assert isinstance(logits_sentence_normalized, torch.Tensor)
 
     assert input_tensor_batch.shape == (batch_size, tokens_count)
