@@ -165,13 +165,14 @@ def _plot_bert_sentence_scores(
     batched_segment_ids = []
     device = DEVICES.CPU
     # not use_context variant:
-    tokenize_combined = ["[CLS]"] + sentence_tokens + ["[SEP]"]
+
+    tokenize_combined = [tokenizer.cls_token] + sentence_tokens + [tokenizer.sep_token]
     for i in range(len(sentence_tokens)):
         # Mask a token that we will try to predict back with
         # `BertForMaskedLM`
         masked_token_index = i + 1 + 0  # not use_context variant
         tokenize_masked = tokenize_combined.copy()
-        tokenize_masked[masked_token_index] = "[MASK]"
+        tokenize_masked[masked_token_index] = tokenizer.mask_token
         # unidir bert
         # for j in range(masked_index, len(tokenize_combined)-1):
         #    tokenize_masked[j] = '[MASK]'

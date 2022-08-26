@@ -496,9 +496,9 @@ def estimate_sentence_probability(
     # iterate for each word, mask it and get the probability
     # sum the logs of the probabilities
 
-    MASK_ID = tokenizer.convert_tokens_to_ids(["[MASK]"])[0]
-    CLS_ID = tokenizer.convert_tokens_to_ids(["[CLS]"])[0]
-    SEP_ID = tokenizer.convert_tokens_to_ids(["[SEP]"])[0]
+    MASK_ID = tokenizer.convert_tokens_to_ids([tokenizer.mask_token])[0]
+    CLS_ID = tokenizer.convert_tokens_to_ids([tokenizer.cls_token])[0]
+    SEP_ID = tokenizer.convert_tokens_to_ids([tokenizer.sep_token])[0]
 
     sentence_log_prob_from_softmax = 0
     sentence_log_prob_from_logistic = 0
@@ -551,16 +551,16 @@ def bert_get_logprobs_softmax(tokenize_input, model, tokenizer):
     batched_indexed_tokens = []
     batched_segment_ids = []
 
-    tokenize_combined = ["[CLS]"] + tokenize_input + ["[SEP]"]
+    tokenize_combined = [tokenizer.cls_token] + tokenize_input + [tokenizer.sep_token]
 
     for i in range(len(tokenize_input)):
         # Mask a token that we will try to predict back with `BertForMaskedLM`
         masked_index = i + 1
         tokenize_masked = tokenize_combined.copy()
-        tokenize_masked[masked_index] = "[MASK]"
+        tokenize_masked[masked_index] = tokenizer.mask_token
         # unidir bert
         # for j in range(masked_index, len(tokenize_combined)-1):
-        #    tokenize_masked[j] = '[MASK]'
+        #    tokenize_masked[j] = tokenizer.mask_token
 
         # Convert token to vocabulary indices
         indexed_tokens = tokenizer.convert_tokens_to_ids(tokenize_masked)
@@ -662,7 +662,7 @@ def tokenize_sentence(tokenizer: BertTokenizer, sent: str):
     print(f"pre: {pre}, target: {target}, post: {post}")
 
     if "mask" in [target.lower()]:  # todo:check, it was if "mask" in target.lower():
-        tokenized_target = ["[MASK]"]
+        tokenized_target = [tokenizer.mask_token]
 
     else:
 
@@ -671,11 +671,11 @@ def tokenize_sentence(tokenizer: BertTokenizer, sent: str):
     # todo, fixme: the vocabulary of the pretrained model from Bostrom &
     #  Durrett (2020) does not have entries for CLS, UNK
     # fixme: tokenizer.tokenize(pre), does not recognize the words
-    tokens = ["[CLS]"] + tokenizer.tokenize(pre)  # tokens
+    tokens = [tokenizer.cls_token] + tokenizer.tokenize(pre)  # tokens
     # = tokenizer.tokenize(pre)
     target_idx = len(tokens)
     print(f"target_idx: {target_idx}")
-    tokens += tokenized_target + tokenizer.tokenize(post) + ["[SEP]"]
+    tokens += tokenized_target + tokenizer.tokenize(post) + [tokenizer.sep_token]
     print(f"tokens {tokens}")
     return tokens, target_idx
 

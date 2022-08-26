@@ -142,7 +142,7 @@ class TestTestset(TestCase):
         )
         # dd_score_method1 *= -1
         dd_score_method2 = example.get_dd_score(scoring_measure)
-        self.assertAlmostEqual(dd_score_method1, dd_score_method2, places=14)
+        self.assertAlmostEqual(dd_score_method1, dd_score_method2, places=13)
 
 
 def get_basic_sentence(txt=""):
