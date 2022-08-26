@@ -782,7 +782,7 @@ def parse_example(example: Dict[SentenceNames, str], sent_types: list):
     return Example(typed_senteces)
 
 
-def parse_typed_sentence(stype: SentenceNames, txt: str):
+def parse_typed_sentence(stype: SentenceNames, txt: str) -> TypedSentence:
     sent = Sentence(txt)
     return TypedSentence(stype, sent)
 
