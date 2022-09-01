@@ -92,6 +92,8 @@ def score_factorial_testset(
     experimental_design: ExperimentalDesigns,
 ) -> TestSet:
 
+    print(f"Scoring {testset.linguistic_phenomenon}..")
+
     # assigning sentence scores and testset accuracy rates
     score_minimal_pairs_testset(model_type, model, tokenizer, device, testset)
     if experimental_design != ExperimentalDesigns.FACTORIAL:
@@ -373,7 +375,7 @@ def run_test_design(
     if args.datasource == "sprouse":
         tests_subdir = "sprouse/"
     elif args.datasource == "madeddu":
-        tests_subdir = "syntactic_tests_it/"
+        tests_subdir = "mdd2/"  # "syntactic_tests_it/"
     elif args.datasource == "blimp":
         tests_subdir = "blimp/from_blim_en/islands/"
     # model_dir = str(get_models_dir() / "bostromkaj/bpe_20k_ep20_pytorch")

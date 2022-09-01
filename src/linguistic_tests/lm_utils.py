@@ -304,7 +304,7 @@ def get_pen_score(unnormalized_score, text_lenght):
     return unnormalized_score / get_penalty_term(text_lenght)
 
 
-def get_penalty_term(text_lenght, alpha=0.8):
+def get_penalty_term(text_lenght, alpha=1.0):  # alpha=0.8
     return (5 + text_lenght) ** alpha / (5 + 1) ** alpha
 
 
@@ -540,9 +540,14 @@ MODEL_NAMES_EN: Dict[ModelTypes, str] = {
 }
 
 BLIMP_TESTSETS_ROOT_FILENAMES = [
-    "wh_island",  # .jsonl
     "adjunct_island",
     "complex_NP_island",
+    "coordinate_structure_constraint_complex_left_branch",
+    "coordinate_structure_constraint_object_extraction",
+    "left_branch_island_echo_question",
+    "left_branch_island_simple_question",
+    "sentential_subject_island",
+    "wh_island",  # .jsonl
 ]
 
 
@@ -615,7 +620,7 @@ class DataSources(StrEnum):
 def get_testset_params(
     tests_subdir,
 ) -> Tuple[List[str], str, DataSources, ExperimentalDesigns]:
-    if tests_subdir == "syntactic_tests_it/":
+    if tests_subdir == "mdd2/":  # "syntactic_tests_it/"
         testsets_root_filenames = CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES
         broader_test_type = "it_tests"
         dataset_source = DataSources.MADEDDU

@@ -261,7 +261,7 @@ class TestRunTestSets(TestCase):
         model, tokenizer = load_model(model_type, model_name, DEVICES.CPU)
         if testset_dir_path is None:
             p = (
-                get_syntactic_tests_dir() / "syntactic_tests_it"
+                get_syntactic_tests_dir() / "mdd2"  # "syntactic_tests_it"
             )  # "./outputs/syntactic_tests_it/"
             testset_dir_path = str(p)
         if testset_filenames is None:

@@ -306,7 +306,7 @@ class TestBertUtils(TestCase):
         # gpt_model = GPT2LMHeadModel.from_pretrained(gpt_model_name)
         # gpt_tokenizer = GPT2Tokenizer.from_pretrained(gpt_model_name)
 
-        testsets_dir = "../outputs/syntactic_tests_it/"
+        testsets_dir = "../outputs/mdd2/"  # "../outputs/syntactic_tests_it/"
         testset_filename = "wh_adjunct_islands.jsonl"  # 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl', 'wh_whether_island.jsonl', 'variations_tests.jsonl'
 
         testset_filepath = os.path.join(testsets_dir, testset_filename)
@@ -326,7 +326,7 @@ class TestBertUtils(TestCase):
                 )
                 bert_tokenized_sentence = bert_tokenizer.tokenize(sentence)
                 # gpt_text_len = len(gpt_tokenized_sentence)
-                bert_sentence_lp_expected, _, _ = get_sentence_acceptability_score(
+                bert_sentence_lp_expected, _, _, _ = get_sentence_acceptability_score(
                     ModelTypes.BERT,
                     bert_model,
                     bert_tokenizer,

@@ -284,17 +284,25 @@ def main(
         # )
 
         tests_subdirs = [
-            "sprouse/",
-            "syntactic_tests_it/",
+            # "sprouse/",
+            # "mdd2/",
+            # "syntactic_tests_it/",
             # "variations/",
+            "blimp/from_blim_en/islands/",
         ]
-
         # gpt_it_model_type_and_name = {
         #             "LorenzoDeMattei/GePpeTto": ModelTypes.GEPPETTO,
         #         }
-        model_types_and_names: Dict[
-            str, ModelTypes
-        ] = MODEL_TYPES_AND_NAMES_IT  # gpt_it_model_type_and_name
+        # model_types_and_names: Dict[
+        #     str, ModelTypes
+        # ] = MODEL_TYPES_AND_NAMES_IT  # gpt_it_model_type_and_name
+        model_types_and_names = {
+            # "bert-base-cased": ModelTypes.BERT,
+            "bert-large-cased": ModelTypes.BERT,
+            # "roberta-base": ModelTypes.ROBERTA,
+            # "roberta-large": ModelTypes.ROBERTA,
+        }
+
         logging.info(f"Will run tests with models: {model_types_and_names.keys()}")
         for model_name, model_type in model_types_and_names.items():
 
@@ -309,7 +317,7 @@ def main(
                     model_name=model_name,
                     model_type=model_type,
                     tests_subdir=tests_subdir,
-                    max_examples=99,
+                    max_examples=9999,
                     device=device,
                     rescore=rescore,
                     log_level=log_level,

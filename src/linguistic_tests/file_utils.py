@@ -86,9 +86,11 @@ def convert_testset_to_csv(
 
 
 def convert_files_to_csv():
-    dir_path = str(get_syntactic_tests_dir() / "syntactic_tests_it/")
+    dir_name = "mdd2/"  # "syntactic_tests_it/"
+
+    dir_path = str(get_syntactic_tests_dir() / dir_name)
     input_filenames = [
-        # "wh_adjunct_islands.jsonl",
+        "wh_adjunct_islands.jsonl",
         "wh_complex_np_islands.jsonl",
         "wh_whether_island.jsonl",
         "wh_subject_islands.jsonl",
@@ -104,7 +106,7 @@ def convert_files_to_csv():
 
 
 def change_files_sentence_order():
-    dir_path = str(get_syntactic_tests_dir() / "syntactic_tests_it/")
+    dir_path = str(get_syntactic_tests_dir() / "mdd2/")  # "syntactic_tests_it/"
     input_filenames = [
         "wh_adjunct_islands.jsonl",
         "wh_complex_np_islands.jsonl",

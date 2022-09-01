@@ -2,7 +2,7 @@ from utils import vocab_it
 
 
 # def test_sentences():
-#     testset_data = load_testset_data("./outputs/syntactic_tests_it/wh_island.jsonl")
+#     testset_data = load_testset_data("./outputs/mdd2/wh_island.jsonl")  # "./outputs/syntactic_tests_it/wh_island.jsonl"
 #
 #     for example_data in testset_data["sentences"]:
 #         sentence_good_no_extraction = example_data["sentence_good_no_extraction"]
