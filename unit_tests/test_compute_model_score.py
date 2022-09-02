@@ -92,7 +92,7 @@ class TestComputeModelScore(TestCase):
             with patch.object(
                 compute_model_score,
                 get_sentence_acceptability_score.__name__,  # "get_sentence_acceptability_score"
-                return_value=(lp_softmax, lp_logistic, None),
+                return_value=(lp_softmax, lp_logistic, None, None),
             ) as _:
                 # don't mock: get_penalty_term
                 # sentence_log_weight = -3.0
@@ -130,7 +130,7 @@ class TestComputeModelScore(TestCase):
 
     def test_get_sentence_score_JHLau_empty(self):
         actual_score = get_sentence_acceptability_score(None, None, None, [], None)
-        assert actual_score == (ERROR_LP, None, None)
+        assert actual_score == (ERROR_LP, None, None, None)
 
     def test_get_sentence_score_JHLau_gpt(self):
         vocab_size = 1000
@@ -178,7 +178,7 @@ class TestComputeModelScore(TestCase):
         actual_score = get_sentence_acceptability_score(
             ModelTypes.GPT, mock_gpt2_m, mock_gpt2_t, sentence_tokens, DEVICES.CPU
         )
-        assert len(actual_score) == 3
+        assert len(actual_score) == 4
         assert actual_score[0] != 0
         assert actual_score[0] != ERROR_LP
 
@@ -270,7 +270,7 @@ class TestComputeModelScore(TestCase):
         )
 
         # todo: more checks on the returned values
-        assert len(actual_score) == 3
+        assert len(actual_score) == 4
         assert actual_score[0] != 0
         assert actual_score[0] != ERROR_LP
 
@@ -345,16 +345,28 @@ class TestComputeModelScore(TestCase):
                 # 4th element values are ignored, 3rd acceptable sentence
                 mock_get_sentence_acceptability_score.side_effect = [
                     AcceptabilityScoreRes(
-                        lp_softmax=-1.0, lp_logistic=-1.0, score_per_masking=None
+                        lp_softmax=-1.0,
+                        lp_logistic=-1.0,
+                        score_per_masking=None,
+                        logistic_score_per_masking=None,
                     ),
                     AcceptabilityScoreRes(
-                        lp_softmax=-2.0, lp_logistic=-2.0, score_per_masking=None
+                        lp_softmax=-2.0,
+                        lp_logistic=-2.0,
+                        score_per_masking=None,
+                        logistic_score_per_masking=None,
                     ),
                     AcceptabilityScoreRes(
-                        lp_softmax=-3.0, lp_logistic=-1.0, score_per_masking=None
+                        lp_softmax=-3.0,
+                        lp_logistic=-1.0,
+                        score_per_masking=None,
+                        logistic_score_per_masking=None,
                     ),
                     AcceptabilityScoreRes(
-                        lp_softmax=-0.0, lp_logistic=-0.0, score_per_masking=None
+                        lp_softmax=-0.0,
+                        lp_logistic=-0.0,
+                        score_per_masking=None,
+                        logistic_score_per_masking=None,
                     ),
                 ]
                 expected_correct_lps_1st_sentence = 1
@@ -419,7 +431,7 @@ class TestComputeModelScore(TestCase):
         with patch.object(
             compute_model_score,
             get_sentence_acceptability_score.__name__,  # "get_sentence_acceptability_score",
-            return_value=(ERROR_LP, ERROR_LP, None),  # (lp_softmax, lp_logistic)
+            return_value=(ERROR_LP, ERROR_LP, None, None),  # (lp_softmax, lp_logistic)
         ) as _:
             # todo: also patch tokenizer.tokenize(sentence)
             return_values_1 = get_unparsed_example_scores_legacy_impl(
@@ -482,7 +494,7 @@ def get_unparsed_example_scores_legacy_impl(
         text_len = len(sentence_tokens)
 
         # nb: this is patched to avoid any model/tokenizer calls
-        lp_softmax, lp_logistic, _ = get_sentence_acceptability_score(
+        lp_softmax, lp_logistic, _, _ = get_sentence_acceptability_score(
             model_type, model, tokenizer, sentence_tokens, device
         )
 

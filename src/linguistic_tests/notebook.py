@@ -298,8 +298,8 @@ def main(
         # ] = MODEL_TYPES_AND_NAMES_IT  # gpt_it_model_type_and_name
         model_types_and_names = {
             # "bert-base-cased": ModelTypes.BERT,
-            "bert-large-cased": ModelTypes.BERT,
-            # "roberta-base": ModelTypes.ROBERTA,
+            # "bert-large-cased": ModelTypes.BERT,
+            "roberta-base": ModelTypes.ROBERTA,
             # "roberta-large": ModelTypes.ROBERTA,
         }
 

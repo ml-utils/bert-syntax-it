@@ -202,6 +202,13 @@ class Example:
     def get_sentence_types(self) -> List[SentenceNames]:
         return [typed_sentence.stype for typed_sentence in self.sentences]
 
+    def get_types_of_acceptable_sentences(self) -> List[SentenceNames]:
+        types_of_acceptable_sentences = []
+        for typed_sentence in self.sentences:
+            if typed_sentence.stype is not self.get_type_of_unacceptable_sentence():
+                types_of_acceptable_sentences.append(typed_sentence.stype)
+        return types_of_acceptable_sentences
+
     def get_type_of_unacceptable_sentence(self) -> SentenceNames:
 
         unacceptable_sentences_types = [

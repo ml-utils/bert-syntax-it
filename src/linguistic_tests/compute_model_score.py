@@ -22,7 +22,8 @@ from .testset import SPROUSE_SENTENCE_TYPES
 
 score_per_masking_DEFAULT = None
 AcceptabilityScoreRes = namedtuple(
-    "AcceptabilityScoreRes", ["lp_softmax", "lp_logistic", "score_per_masking"]
+    "AcceptabilityScoreRes",
+    ["lp_softmax", "lp_logistic", "score_per_masking", "logistic_score_per_masking"],
 )
 
 
@@ -39,7 +40,7 @@ def score_example(
         if len(sentence.tokens) == 0:
             logging.warning(f"Warning: lenght 0 for {sentence} from {example}")
         text_len = len(sentence.tokens)
-        lp_softmax, lp_logistic, _ = get_sentence_acceptability_score(
+        lp_softmax, lp_logistic, _, _ = get_sentence_acceptability_score(
             model_type, model, tokenizer, sentence.tokens, device
         )
 
@@ -154,7 +155,7 @@ def logistic4(x):
 
 def get_sentence_acceptability_score(
     model_type, model, tokenizer, sentence_tokens, device, verbose=False
-):
+) -> AcceptabilityScoreRes:
     """
     Calculates a sentence acceptability score from a Gpt-like or a Bert-like model.
     For Bert-like system it's and estimate of the sentence acceptability as described in
@@ -184,7 +185,10 @@ def get_sentence_acceptability_score(
             f"Warning, can't compute score of empty sentence: {sentence_tokens}"
         )
         return AcceptabilityScoreRes(
-            lp_softmax=ERROR_LP, lp_logistic=None, score_per_masking=None
+            lp_softmax=ERROR_LP,
+            lp_logistic=None,
+            score_per_masking=None,
+            logistic_score_per_masking=None,
         )
 
     if model_type in [ModelTypes.GPT, ModelTypes.GEPPETTO]:
@@ -214,10 +218,12 @@ def get_sentence_acceptability_score(
             labels=sentence_ids_in_batch_as_tensor,
         )
         loss = model_output.loss  # in this case equivalent to model_output[0]
+        # logits = model_output.logits
         return AcceptabilityScoreRes(
             lp_softmax=float(loss) * -1.0 * len(sentence_tokens),
             lp_logistic=None,
             score_per_masking=None,
+            logistic_score_per_masking=None,
         )
 
     elif model_type in BERT_LIKE_MODEL_TYPES:  #
@@ -285,9 +291,10 @@ def get_sentence_acceptability_score(
                 predictions_logits_whole_batch = model_output
 
         # go through each word in the sentence and sum the logprobs of their predictions when masked
-        lp_softmax = 0.0
+        PseudoLogLikelihood = 0.0
         lp_logistic = 0.0
-        score_per_masking = []
+        negative_token_log_probabilities = []
+        logistic_score_per_masking = []
         for i in range(len(sentence_tokens)):
             masked_token_index = i + 1 + 0  # not use_context variant
             # size of output logits: (batch_lenght, encoded_sentence_tokens_incl_specials, vocab)
@@ -305,11 +312,20 @@ def get_sentence_acceptability_score(
 
             # this are the values that should be about the same for all masked words in the sentence
             # spikes should indicate ungrammatical/unfluent sentences
-            log_score_this_masking = np.log(softmax_probabilities[masked_word_id])
-            score_per_masking.append(-log_score_this_masking)
-            lp_softmax += log_score_this_masking
+            token_log_probability = np.log(softmax_probabilities[masked_word_id])
+            negative_token_log_probabilities.append(-token_log_probability)
 
-            lp_logistic += np.log(logistic_probabilities[masked_word_id])
+            # PseudoLogLikelihood (PLL)
+            # this is the sum over the conditional log probabilities
+            # log P_MLM (w_t | W_\t) of each sentence token
+            # Paper: Salazar et al 2021 Masked Language Model Scoring
+            PseudoLogLikelihood += token_log_probability
+
+            log_logistic_score_this_masking = np.log(
+                logistic_probabilities[masked_word_id]
+            )
+            logistic_score_per_masking.append(-log_logistic_score_this_masking)
+            lp_logistic += log_logistic_score_this_masking
             # verbose=True
             if verbose:
                 print(
@@ -323,9 +339,10 @@ def get_sentence_acceptability_score(
                 )
 
         return AcceptabilityScoreRes(
-            lp_softmax=lp_softmax,
+            lp_softmax=PseudoLogLikelihood,
             lp_logistic=lp_logistic,
-            score_per_masking=score_per_masking,
+            score_per_masking=negative_token_log_probabilities,
+            logistic_score_per_masking=logistic_score_per_masking,
         )
 
     else:
