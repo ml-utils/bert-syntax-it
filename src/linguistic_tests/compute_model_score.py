@@ -1,6 +1,7 @@
 import logging
 from collections import namedtuple
 from functools import reduce
+from typing import List
 
 import numpy as np
 import torch
@@ -10,6 +11,7 @@ from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
 from transformers.modeling_outputs import MaskedLMOutput
 
 from .lm_utils import BERT_LIKE_MODEL_TYPES
+from .lm_utils import DEVICES
 from .lm_utils import get_penalty_term
 from .lm_utils import ModelTypes
 from .lm_utils import sent_idx
@@ -153,8 +155,16 @@ def logistic4(x):
     return logistic2(x, k=4)
 
 
+# todo: pass the sentence object instead of the tokens. To the sentence object, add also a "pretokens" field, a list of the words
+# as obtained from the pretokenizer (but removing the tuples indicating the character positions)
 def get_sentence_acceptability_score(
-    model_type, model, tokenizer, sentence_tokens, device, verbose=False
+    model_type,
+    model,
+    tokenizer,
+    sentence_tokens: List[str],
+    device: DEVICES,
+    verbose=False,
+    at_once_mask_all_tokens_of_a_word=False,
 ) -> AcceptabilityScoreRes:
     """
     Calculates a sentence acceptability score from a Gpt-like or a Bert-like model.
