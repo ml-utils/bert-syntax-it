@@ -63,7 +63,8 @@ class Sentence:
     # todo? add sentence ids
     tokens: List[str] = field(default_factory=list)
     # these are the individual words (one OOV word might correspond to n tokens)
-    pretokens: List[str] = field(default_factory=list)
+    # for each pretoken (str), there is a Tuple[int, int] indicating the sentence idxes of first and last token
+    pretokens: List[Tuple[str, Tuple[int, int]]] = field(default_factory=list)
 
     def __str__(self):
         return (

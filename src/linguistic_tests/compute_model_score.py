@@ -1,6 +1,7 @@
 import logging
 from collections import namedtuple
 from functools import reduce
+from typing import List
 
 import numpy as np
 import torch
@@ -27,6 +28,7 @@ AcceptabilityScoreRes = namedtuple(
     "AcceptabilityScoreRes",
     ["lp_softmax", "lp_logistic", "score_per_masking", "logistic_score_per_masking"],
 )
+BOS_TOKEN_COUNT = 1
 
 
 def score_example(
@@ -155,8 +157,6 @@ def logistic4(x):
     return logistic2(x, k=4)
 
 
-# todo: pass the sentence object instead of the tokens. To the sentence object, add also a "pretokens" field, a list of the words
-# as obtained from the pretokenizer (but removing the tuples indicating the character positions)
 def get_sentence_acceptability_score(
     model_type,
     model,
@@ -249,15 +249,47 @@ def get_sentence_acceptability_score(
             [tokenizer.cls_token] + sentence.tokens + [tokenizer.sep_token]
         )
 
-        for i in range(len(sentence.tokens)):
-            # Mask a token that we will try to predict back with
-            # `BertForMaskedLM`
-            masked_token_index = i + 1 + 0  # not use_context variant, len(context) = 0
+        if at_once_mask_all_tokens_of_a_word:
+            # use the pretokenizer, obtain the list of pretokens to fill Sentence.pretokens
+
+            # fixme: BertTokenizer from pretrained has no backend_tokenizer, no pretokenization possible
+            # eg.: [('Hello', (0, 5)), (',', (5, 6)), ('how', (7, 10)), ('are', (11, 14)), ('you', (16, 19)), ('?', (19, 20))]
+            pretokenization = (
+                tokenizer.backend_tokenizer.pre_tokenizer.pre_tokenize_str(sentence.txt)
+            )
+
+            sentence.pretokens = []
+            current_token_idx = 0
+            for pretoken, (_, _) in pretokenization:
+                tokens_in_pretoken = tokenizer.tokenize(pretoken)
+                last_token_idx = current_token_idx + len(tokens_in_pretoken)
+                sentence.pretokens.append(
+                    (pretoken, (current_token_idx, last_token_idx))
+                )
+                current_token_idx = last_token_idx
+                # todo: check this with a unit test
+
+        if at_once_mask_all_tokens_of_a_word:
+            masking_configurations_count = len(sentence.pretokens)
+        else:
+            masking_configurations_count = len(sentence.tokens)
+
+        for masking_configuration_idx in range(masking_configurations_count):
             sentence_tokens_with_mask = sentence_tokens_with_specials.copy()
-            sentence_tokens_with_mask[masked_token_index] = tokenizer.mask_token
-            # unidir bert
-            # for j in range(masked_index, len(tokenize_combined)-1):
-            #    tokenize_masked[j] = tokenizer.mask_token
+            # Mask a token (or the tokens of a word/pretoken) that we will try to predict back with `BertForMaskedLM`
+            if at_once_mask_all_tokens_of_a_word:
+                # todo: test this in a unit test
+                # keep track of correspondence btw masking_configuration_idx and token idx
+                current_pretoken, (
+                    pretoken_starts_at,
+                    pretoken_ends_at,
+                ) = sentence.pretokens[masking_configuration_idx]
+                for token_idx in range(pretoken_starts_at, pretoken_ends_at):
+                    masked_token_index = token_idx + BOS_TOKEN_COUNT
+                    sentence_tokens_with_mask[masked_token_index] = tokenizer.mask_token
+            else:
+                masked_token_index = masking_configuration_idx + BOS_TOKEN_COUNT
+                sentence_tokens_with_mask[masked_token_index] = tokenizer.mask_token
 
             sentence_ids_with_mask = tokenizer.convert_tokens_to_ids(
                 sentence_tokens_with_mask
@@ -300,53 +332,19 @@ def get_sentence_acceptability_score(
                 # for former/deprecated version of transformers
                 predictions_logits_whole_batch = model_output
 
-        # go through each word in the sentence and sum the logprobs of their predictions when masked
-        PseudoLogLikelihood = 0.0
-        lp_logistic = 0.0
-        negative_token_log_probabilities = []
-        logistic_score_per_masking = []
-        for i in range(len(sentence.tokens)):
-            masked_token_index = i + 1 + 0  # not use_context variant
-            # size of output logits: (batch_lenght, encoded_sentence_tokens_incl_specials, vocab)
-            cuda_logits_this_masking = predictions_logits_whole_batch[
-                i, masked_token_index
-            ]
-
-            logits = cuda_logits_this_masking.cpu().numpy()
-            softmax_probabilities = softmax(logits)
-            logistic_pseudo_probabilities = logistic2(logits)
-
-            masked_word_id = tokenizer.convert_tokens_to_ids(
-                [sentence_tokens_with_specials[masked_token_index]]
-            )[0]
-
-            # this are the values that should be about the same for all masked words in the sentence
-            # spikes should indicate ungrammatical/unfluent sentences
-            token_log_probability = np.log(softmax_probabilities[masked_word_id])
-            negative_token_log_probabilities.append(-token_log_probability)
-
-            # PseudoLogLikelihood (PLL)
-            # this is the sum over the conditional log probabilities
-            # log P_MLM (w_t | W_\t) of each sentence token
-            # Paper: Salazar et al 2021 Masked Language Model Scoring
-            PseudoLogLikelihood += token_log_probability
-
-            log_logistic_score_this_masking = np.log(
-                logistic_pseudo_probabilities[masked_word_id]
-            )
-            logistic_score_per_masking.append(-log_logistic_score_this_masking)
-            lp_logistic += log_logistic_score_this_masking
-            # verbose=True
-            if verbose:
-                print(
-                    f"masked word  scores: "
-                    f"{logits[masked_word_id]}, "
-                    f"{logistic_pseudo_probabilities[masked_word_id]}, "
-                    f"{softmax_probabilities[masked_word_id]}, "
-                    f"{np.log(logistic_pseudo_probabilities[masked_word_id])}, "
-                    f"{np.log(softmax_probabilities[masked_word_id])}, "
-                    f"({sentence_tokens_with_specials[masked_token_index]})"
-                )
+        (
+            PseudoLogLikelihood,
+            logistic_score_per_masking,
+            lp_logistic,
+            negative_token_log_probabilities,
+        ) = calculate_PseudoLogLikelihood_from_model_output(
+            predictions_logits_whole_batch,
+            sentence,
+            sentence_tokens_with_specials,
+            tokenizer,
+            verbose,
+            at_once_mask_all_tokens_of_a_word,
+        )
 
         return AcceptabilityScoreRes(
             lp_softmax=PseudoLogLikelihood,
@@ -357,3 +355,173 @@ def get_sentence_acceptability_score(
 
     else:
         raise ValueError(f"Error: unrecognized model type {model_type}")
+
+
+def calculate_PseudoLogLikelihood_from_model_output(
+    predictions_logits_whole_batch,
+    sentence: Sentence,
+    sentence_tokens_with_specials,
+    tokenizer,
+    verbose,
+    at_once_mask_all_tokens_of_a_word=False,
+):
+    # go through each word in the sentence and sum the logprobs of their predictions when masked
+    PseudoLogLikelihood = 0.0
+    PseudoLogLikelihood2_logistic_based = 0.0
+    negative_token_log_probabilities: List[float] = []
+    negative_token_log_logistic_pseudo_probabilities: List[float] = []
+
+    if at_once_mask_all_tokens_of_a_word:
+        masking_configurations_count = len(sentence.pretokens)
+    else:
+        masking_configurations_count = len(sentence.tokens)
+
+    # if we are masking according to pretokens (words) we should iterate according to those instead of tokens (subwords)
+    for masking_configuration_idx in range(masking_configurations_count):
+
+        if at_once_mask_all_tokens_of_a_word:
+            # todo: test this in a unit test
+            # keep track of correspondence btw masking_configuration_idx and token idx
+            current_pretoken, (
+                pretoken_starts_at,
+                pretoken_ends_at,
+            ) = sentence.pretokens[masking_configuration_idx]
+            # there are multiple masked_tokens for each pretoken/word
+            for token_idx in range(pretoken_starts_at, pretoken_ends_at):
+
+                # size of output logits: (batch_lenght, encoded_sentence_tokens_incl_specials, vocab)
+                # batch_lenght = num of maskings = num of tokens or num of pretokens/words
+                #   masking configuration index:
+                #       in case of pretokens, a "masking configuration" is a sentence where a word/pretokens (all its tokens) are masked
+
+                masked_token_index = token_idx + BOS_TOKEN_COUNT
+                cuda_logits_this_masking = predictions_logits_whole_batch[
+                    masking_configuration_idx, masked_token_index
+                ]
+
+                (
+                    PseudoLogLikelihood,
+                    PseudoLogLikelihood2_logistic_based,
+                ) = update_sentence_score_totals(
+                    PseudoLogLikelihood,
+                    PseudoLogLikelihood2_logistic_based,
+                    cuda_logits_this_masking,
+                    masked_token_index,
+                    negative_token_log_logistic_pseudo_probabilities,
+                    negative_token_log_probabilities,
+                    sentence_tokens_with_specials,
+                    tokenizer,
+                )
+        else:
+            masked_token_index = masking_configuration_idx + BOS_TOKEN_COUNT
+            cuda_logits_this_masking = predictions_logits_whole_batch[
+                masking_configuration_idx, masked_token_index
+            ]
+
+            (
+                PseudoLogLikelihood,
+                PseudoLogLikelihood2_logistic_based,
+            ) = update_sentence_score_totals(
+                PseudoLogLikelihood,
+                PseudoLogLikelihood2_logistic_based,
+                cuda_logits_this_masking,
+                masked_token_index,
+                negative_token_log_logistic_pseudo_probabilities,
+                negative_token_log_probabilities,
+                sentence_tokens_with_specials,
+                tokenizer,
+            )
+
+        # if verbose:
+        #     print(
+        #         f"masked word  scores: "
+        #         f"{logits[masked_token_id]}, "
+        #         f"{logistic_pseudo_probabilities[masked_token_id]}, "
+        #         f"{softmax_probabilities[masked_token_id]}, "
+        #         f"{np.log(logistic_pseudo_probabilities[masked_token_id])}, "
+        #         f"{np.log(softmax_probabilities[masked_token_id])}, "
+        #         f"({sentence_tokens_with_specials[masked_token_index]})"
+        #     )
+
+    return (
+        PseudoLogLikelihood,
+        negative_token_log_logistic_pseudo_probabilities,
+        PseudoLogLikelihood2_logistic_based,
+        negative_token_log_probabilities,
+    )
+
+
+def update_sentence_score_totals(
+    PseudoLogLikelihood,
+    PseudoLogLikelihood2_logistic_based,
+    cuda_logits_this_masking,
+    masked_token_index,
+    negative_token_log_logistic_pseudo_probabilities,
+    negative_token_log_probabilities,
+    sentence_tokens_with_specials,
+    tokenizer,
+):
+    token_log_probability, token_log_logistic_pseudo_probability = get_token_log_scores(
+        tokenizer,
+        cuda_logits_this_masking,
+        sentence_tokens_with_specials,
+        masked_token_index,
+    )
+
+    (
+        PseudoLogLikelihood,
+        PseudoLogLikelihood2_logistic_based,
+    ) = update_sentence_score_totals_helper(
+        PseudoLogLikelihood,
+        PseudoLogLikelihood2_logistic_based,
+        negative_token_log_logistic_pseudo_probabilities,
+        negative_token_log_probabilities,
+        token_log_logistic_pseudo_probability,
+        token_log_probability,
+    )
+
+    return PseudoLogLikelihood, PseudoLogLikelihood2_logistic_based
+
+
+def update_sentence_score_totals_helper(
+    PseudoLogLikelihood,
+    PseudoLogLikelihood2_logistic_based,
+    negative_token_log_logistic_pseudo_probabilities,
+    negative_token_log_probabilities,
+    token_log_logistic_pseudo_probability,
+    token_log_probability,
+):
+    negative_token_log_probabilities.append(-token_log_probability)
+    # PseudoLogLikelihood (PLL): the sum over the conditional log probabilities
+    # log P_MLM (w_t | W_\t) of each sentence token (Salazar et al 2021 Masked Language Model Scoring)
+    PseudoLogLikelihood += token_log_probability
+    negative_token_log_logistic_pseudo_probabilities.append(
+        -token_log_logistic_pseudo_probability
+    )
+    PseudoLogLikelihood2_logistic_based += token_log_logistic_pseudo_probability
+
+    return PseudoLogLikelihood, PseudoLogLikelihood2_logistic_based
+
+
+def get_token_log_scores(
+    tokenizer,
+    cuda_logits_single_masking,
+    sentence_tokens_with_specials,
+    masked_token_index,
+):
+    logits = cuda_logits_single_masking.cpu().numpy()
+    softmax_probabilities = softmax(logits)
+    logistic_pseudo_probabilities = logistic2(logits)
+
+    masked_token_id = tokenizer.convert_tokens_to_ids(
+        [sentence_tokens_with_specials[masked_token_index]]
+    )[0]
+
+    # this are the values that should be about the same for all masked words in the sentence
+    # spikes should indicate ungrammatical/unfluent sentences
+    token_log_probability = np.log(softmax_probabilities[masked_token_id])
+    token_log_logistic_pseudo_probability = np.log(
+        logistic_pseudo_probabilities[masked_token_id]
+    )
+
+    return token_log_probability, token_log_logistic_pseudo_probability

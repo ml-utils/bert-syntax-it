@@ -155,7 +155,12 @@ def compare_token_peaks_for_acceptability(
                         score_per_masking,
                         logistic_score_per_masking,
                     ) = get_sentence_acceptability_score(
-                        model_type, model, tokenizer, sentence, device
+                        model_type,
+                        model,
+                        tokenizer,
+                        sentence,
+                        device,
+                        at_once_mask_all_tokens_of_a_word=False,
                     )
                     sentence.score_per_masking = score_per_masking
                     sentence.pen_lp_softmax = lp_softmax
@@ -305,7 +310,12 @@ def print_sentences_scores(
             score_per_masking,
             logistic_score_per_masking,
         ) = get_sentence_acceptability_score(
-            model_type, model, tokenizer, sentence, device
+            model_type,
+            model,
+            tokenizer,
+            sentence,
+            device,
+            at_once_mask_all_tokens_of_a_word=False,
         )
 
         # print the score for each token in the sentence (its prediction when it's masked)
