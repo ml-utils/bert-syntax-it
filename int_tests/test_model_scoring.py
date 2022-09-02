@@ -33,7 +33,7 @@ class TestModelScoring(TestCase):
             score_per_masking,
             logistic_score_per_masking,
         ) = get_sentence_acceptability_score(
-            model_type, model, tokenizer, typed_sentence.sent.tokens, device
+            model_type, model, tokenizer, typed_sentence.sent, device
         )
         expected_sentence_log_Pgpt2 = -8.693
         decimals_precision = 3
@@ -55,7 +55,7 @@ class TestModelScoring(TestCase):
             score_per_masking,
             logistic_score_per_masking,
         ) = get_sentence_acceptability_score(
-            model_type, model, tokenizer, typed_sentence.sent.tokens, device
+            model_type, model, tokenizer, typed_sentence.sent, device
         )
         expected_sentence_PLL_roberta = -1.006
         expected_tokens_probs = [0.006, 1.000]

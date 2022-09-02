@@ -299,8 +299,8 @@ def main(
         model_types_and_names = {
             # "bert-base-cased": ModelTypes.BERT,
             # "bert-large-cased": ModelTypes.BERT,
-            "roberta-base": ModelTypes.ROBERTA,
-            # "roberta-large": ModelTypes.ROBERTA,
+            # "roberta-base": ModelTypes.ROBERTA,
+            "roberta-large": ModelTypes.ROBERTA,
         }
 
         logging.info(f"Will run tests with models: {model_types_and_names.keys()}")

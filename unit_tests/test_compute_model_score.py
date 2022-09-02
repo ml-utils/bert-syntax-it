@@ -39,6 +39,7 @@ from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import sent_idx
 from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.testset import ERROR_LP
+from src.linguistic_tests.testset import Sentence
 from unit_tests.test_lm_utils import get_basic_example_data_dict
 
 
@@ -129,11 +130,14 @@ class TestComputeModelScore(TestCase):
         print(sentences)
 
     def test_get_sentence_score_JHLau_empty(self):
-        actual_score = get_sentence_acceptability_score(None, None, None, [], None)
+        actual_score = get_sentence_acceptability_score(
+            None, None, None, Sentence(""), None
+        )
         assert actual_score == (ERROR_LP, None, None, None)
 
     def test_get_sentence_score_JHLau_gpt(self):
         vocab_size = 1000
+        sentence_txt = "Chi è partito per Parigi dopo aver fatto le valigie?"
         sentence_tokens = [
             "Chi",
             "ĠÃ¨",
@@ -148,6 +152,8 @@ class TestComputeModelScore(TestCase):
             "gie",
             "?",
         ]
+        sentence = Sentence(sentence_txt)
+        sentence.tokens = sentence_tokens
         sentence_ids = [
             9176,
             350,
@@ -176,7 +182,7 @@ class TestComputeModelScore(TestCase):
         )
 
         actual_score = get_sentence_acceptability_score(
-            ModelTypes.GPT, mock_gpt2_m, mock_gpt2_t, sentence_tokens, DEVICES.CPU
+            ModelTypes.GPT, mock_gpt2_m, mock_gpt2_t, sentence, DEVICES.CPU
         )
         assert len(actual_score) == 4
         assert actual_score[0] != 0
@@ -203,6 +209,7 @@ class TestComputeModelScore(TestCase):
         self, model_type, model_class, model_output_class, tok_class
     ):
         vocab_size = 1000
+        sentence_txt = "Chi è partito per Parigi dopo aver fatto le valigie?"
         sentence_tokens = [
             "Chi",
             "è",
@@ -216,6 +223,8 @@ class TestComputeModelScore(TestCase):
             "valigie",
             "?",
         ]
+        sentence = Sentence(sentence_txt)
+        sentence.tokens = sentence_tokens
         """tokenize_masked = [
             "[CLS]",
             "[MASK]",
@@ -266,7 +275,7 @@ class TestComputeModelScore(TestCase):
         mock_bert_m = MagicMock(spec=model_class, return_value=mock_bert_m_return_value)
 
         actual_score = get_sentence_acceptability_score(
-            model_type, mock_bert_m, mock_bert_t, sentence_tokens, DEVICES.CPU
+            model_type, mock_bert_m, mock_bert_t, sentence, DEVICES.CPU
         )
 
         # todo: more checks on the returned values
@@ -281,8 +290,10 @@ class TestComputeModelScore(TestCase):
     def test_get_sentence_score_JHLau_unrecognized(self):
         unrecognizable_model_type = 10
         with self.assertRaises(ValueError):
+            sentence = Sentence("")
+            sentence.tokens = [""]
             _ = get_sentence_acceptability_score(
-                unrecognizable_model_type, None, None, [""], None
+                unrecognizable_model_type, None, None, sentence, None
             )
 
     def test_perc(self):
@@ -487,15 +498,16 @@ def get_unparsed_example_scores_legacy_impl(
     lls = []
     penlls = []
 
-    for sent_id, sentence in enumerate(sentences):
-        sentence_tokens = tokenizer.tokenize(sentence)  # , return_tensors='pt'
+    for sent_id, sentence_txt in enumerate(sentences):
+        sentence = Sentence(sentence_txt)
+        sentence.tokens = tokenizer.tokenize(sentence_txt)  # , return_tensors='pt'
         # if len(sentence_tokens) == 0:
         #     logging.warning(f"Warning: lenght 0 for {sentence} from {example_data}")
-        text_len = len(sentence_tokens)
+        text_len = len(sentence.tokens)
 
         # nb: this is patched to avoid any model/tokenizer calls
         lp_softmax, lp_logistic, _, _ = get_sentence_acceptability_score(
-            model_type, model, tokenizer, sentence_tokens, device
+            model_type, model, tokenizer, sentence, device
         )
 
         # acceptability measures by sentence idx

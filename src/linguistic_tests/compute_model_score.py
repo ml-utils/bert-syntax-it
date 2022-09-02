@@ -1,7 +1,6 @@
 import logging
 from collections import namedtuple
 from functools import reduce
-from typing import List
 
 import numpy as np
 import torch
@@ -18,6 +17,7 @@ from .lm_utils import sent_idx
 from .testset import ERROR_LP
 from .testset import Example
 from .testset import parse_example
+from .testset import Sentence
 from .testset import SPROUSE_SENTENCE_TYPES
 
 # from transformers.models.gpt2.modeling_gpt2 import GPT2DoubleHeadsModelOutput
@@ -43,7 +43,7 @@ def score_example(
             logging.warning(f"Warning: lenght 0 for {sentence} from {example}")
         text_len = len(sentence.tokens)
         lp_softmax, lp_logistic, _, _ = get_sentence_acceptability_score(
-            model_type, model, tokenizer, sentence.tokens, device
+            model_type, model, tokenizer, sentence, device
         )
 
         penalty = get_penalty_term(text_len)
@@ -161,7 +161,7 @@ def get_sentence_acceptability_score(
     model_type,
     model,
     tokenizer,
-    sentence_tokens: List[str],
+    sentence: Sentence,  # sentence_tokens: List[str],
     device: DEVICES,
     verbose=False,
     at_once_mask_all_tokens_of_a_word=False,
@@ -190,9 +190,9 @@ def get_sentence_acceptability_score(
     sentence when it is masked.
     """
 
-    if len(sentence_tokens) == 0:
+    if len(sentence.tokens) == 0:
         logging.error(
-            f"Warning, can't compute score of empty sentence: {sentence_tokens}"
+            f"Warning, can't compute score of empty sentence: {sentence.tokens}"
         )
         return AcceptabilityScoreRes(
             lp_softmax=ERROR_LP,
@@ -207,7 +207,7 @@ def get_sentence_acceptability_score(
         # (nb "context" is a sequence of words preceding the main input sentence)
         # prepend the sentence with <|endoftext|> token, so that the loss is
         # computed correctly
-        sentence_ids = tokenizer.convert_tokens_to_ids(sentence_tokens)
+        sentence_ids = tokenizer.convert_tokens_to_ids(sentence.tokens)
         sentence_ids_in_batch = [[tokenizer.bos_token_id] + sentence_ids]
         sentence_ids_in_batch_as_tensor = torch.tensor(
             sentence_ids_in_batch, device=device
@@ -230,7 +230,7 @@ def get_sentence_acceptability_score(
         loss = model_output.loss  # in this case equivalent to model_output[0]
         # logits = model_output.logits
         return AcceptabilityScoreRes(
-            lp_softmax=float(loss) * -1.0 * len(sentence_tokens),
+            lp_softmax=float(loss) * -1.0 * len(sentence.tokens),
             lp_logistic=None,
             score_per_masking=None,
             logistic_score_per_masking=None,
@@ -246,10 +246,10 @@ def get_sentence_acceptability_score(
 
         # not use_context variant:
         sentence_tokens_with_specials = (
-            [tokenizer.cls_token] + sentence_tokens + [tokenizer.sep_token]
+            [tokenizer.cls_token] + sentence.tokens + [tokenizer.sep_token]
         )
 
-        for i in range(len(sentence_tokens)):
+        for i in range(len(sentence.tokens)):
             # Mask a token that we will try to predict back with
             # `BertForMaskedLM`
             masked_token_index = i + 1 + 0  # not use_context variant, len(context) = 0
@@ -305,7 +305,7 @@ def get_sentence_acceptability_score(
         lp_logistic = 0.0
         negative_token_log_probabilities = []
         logistic_score_per_masking = []
-        for i in range(len(sentence_tokens)):
+        for i in range(len(sentence.tokens)):
             masked_token_index = i + 1 + 0  # not use_context variant
             # size of output logits: (batch_lenght, encoded_sentence_tokens_incl_specials, vocab)
             cuda_logits_this_masking = predictions_logits_whole_batch[

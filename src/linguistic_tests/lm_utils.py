@@ -430,7 +430,7 @@ def load_model(model_type, model_name, device: DEVICES):
     return load_pretrained(model_type, model_name, device=device)
 
 
-def load_testset_data(file_path, examples_format="blimp"):
+def load_testset_data(file_path, examples_format="blimp") -> List[dict]:
     if examples_format == "blimp":
         with open(file_path, mode="r", encoding="utf-8") as json_file:
             # json_list = list(json_file)
@@ -473,7 +473,7 @@ def load_testset_data(file_path, examples_format="blimp"):
 
 def get_sentences_from_example(
     example: dict, sentences_per_example=2, sprouse_format=False
-):
+) -> List:
     by_sentence_variant_name = False
 
     if by_sentence_variant_name:

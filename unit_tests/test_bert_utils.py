@@ -1,5 +1,6 @@
 import os
 import random
+from typing import List
 from unittest import TestCase
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -37,9 +38,9 @@ from src.linguistic_tests.compute_model_score import get_sentence_acceptability_
 from src.linguistic_tests.lm_utils import get_sentences_from_example
 from src.linguistic_tests.lm_utils import load_testset_data
 from src.linguistic_tests.lm_utils import ModelTypes
+from src.linguistic_tests.testset import Sentence
 
 # from src.linguistic_tests.bert_utils import get_topk
-
 
 CLS_ID = 101
 SEP_ID = 102
@@ -310,7 +311,9 @@ class TestBertUtils(TestCase):
         testset_filename = "wh_adjunct_islands.jsonl"  # 'wh_complex_np_islands.jsonl', 'wh_subject_islands.jsonl', 'wh_whether_island.jsonl', 'variations_tests.jsonl'
 
         testset_filepath = os.path.join(testsets_dir, testset_filename)
-        testset_examples = (load_testset_data(testset_filepath))["sentences"]
+        testset_examples: List[dict] = (load_testset_data(testset_filepath))[
+            "sentences"
+        ]
 
         MAX_EXAMPLES = 5
         for example_idx, example in tqdm(
@@ -318,19 +321,20 @@ class TestBertUtils(TestCase):
         ):  # or enumerate(tqdm(testset_examples))
             if example_idx >= MAX_EXAMPLES:
                 break
-            for sentence_idx, sentence in enumerate(
+            for sentence_idx, sentence_txt in enumerate(
                 get_sentences_from_example(example, 2)
             ):
                 (bert_sentence_lp_actual, _,) = estimate_sentence_probability_from_text(
-                    bert_model, bert_tokenizer, sentence
+                    bert_model, bert_tokenizer, sentence_txt
                 )
-                bert_tokenized_sentence = bert_tokenizer.tokenize(sentence)
+                sentence = Sentence(sentence_txt)
+                sentence.tokens = bert_tokenizer.tokenize(sentence_txt)
                 # gpt_text_len = len(gpt_tokenized_sentence)
                 bert_sentence_lp_expected, _, _, _ = get_sentence_acceptability_score(
                     ModelTypes.BERT,
                     bert_model,
                     bert_tokenizer,
-                    bert_tokenized_sentence,
+                    sentence,
                     device=None,
                 )
                 with self.subTest(example=example_idx, sentence=sentence_idx):
