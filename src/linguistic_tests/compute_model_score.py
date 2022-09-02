@@ -314,7 +314,7 @@ def get_sentence_acceptability_score(
 
             logits = cuda_logits_this_masking.cpu().numpy()
             softmax_probabilities = softmax(logits)
-            logistic_probabilities = logistic2(logits)
+            logistic_pseudo_probabilities = logistic2(logits)
 
             masked_word_id = tokenizer.convert_tokens_to_ids(
                 [sentence_tokens_with_specials[masked_token_index]]
@@ -332,7 +332,7 @@ def get_sentence_acceptability_score(
             PseudoLogLikelihood += token_log_probability
 
             log_logistic_score_this_masking = np.log(
-                logistic_probabilities[masked_word_id]
+                logistic_pseudo_probabilities[masked_word_id]
             )
             logistic_score_per_masking.append(-log_logistic_score_this_masking)
             lp_logistic += log_logistic_score_this_masking
@@ -341,9 +341,9 @@ def get_sentence_acceptability_score(
                 print(
                     f"masked word  scores: "
                     f"{logits[masked_word_id]}, "
-                    f"{logistic_probabilities[masked_word_id]}, "
+                    f"{logistic_pseudo_probabilities[masked_word_id]}, "
                     f"{softmax_probabilities[masked_word_id]}, "
-                    f"{np.log(logistic_probabilities[masked_word_id])}, "
+                    f"{np.log(logistic_pseudo_probabilities[masked_word_id])}, "
                     f"{np.log(softmax_probabilities[masked_word_id])}, "
                     f"({sentence_tokens_with_specials[masked_token_index]})"
                 )
