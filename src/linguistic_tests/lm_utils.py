@@ -123,6 +123,7 @@ class DEVICES(StrEnum):
 
 
 BERT_LIKE_MODEL_TYPES = [ModelTypes.BERT, ModelTypes.ROBERTA, ModelTypes.GILBERTO]
+GPT_LIKE_MODEL_TYPES = [ModelTypes.GPT, ModelTypes.GEPPETTO]
 
 
 class CustomModelWrapper:

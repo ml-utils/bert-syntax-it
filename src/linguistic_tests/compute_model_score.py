@@ -2,6 +2,7 @@ import logging
 from collections import namedtuple
 from functools import reduce
 from typing import List
+from typing import Tuple
 
 import numpy as np
 import torch
@@ -210,6 +211,8 @@ def get_sentence_acceptability_score(
         # prepend the sentence with <|endoftext|> token, so that the loss is
         # computed correctly
         sentence_ids = tokenizer.convert_tokens_to_ids(sentence.tokens)
+        sentence_tokens_with_specials = [tokenizer.bos_token] + sentence.tokens
+        # todo, fixme: is there a eos token missing?
         sentence_ids_in_batch = [[tokenizer.bos_token_id] + sentence_ids]
         sentence_ids_in_batch_as_tensor = torch.tensor(
             sentence_ids_in_batch, device=device
@@ -223,18 +226,29 @@ def get_sentence_acceptability_score(
         batch_labels[:, :1] = DO_NOT_COMPUTE_LOSS_OVER_THESE_TOKENS
         # nb: labels should be the "correct" output tokens the model should return
         # nb: there is no masked token in this case
-        model_output: CausalLMOutputWithCrossAttentions = model(
-            # nb: this labels variable not actually used when "not using context"
-            # todo, check: is this a copy&paste error?
-            sentence_ids_in_batch_as_tensor,
-            labels=sentence_ids_in_batch_as_tensor,
+        with torch.no_grad():
+            model_output: CausalLMOutputWithCrossAttentions = model(
+                # nb: this labels variable not actually used when "not using context"
+                # todo, check: is this a copy&paste error?
+                sentence_ids_in_batch_as_tensor,
+                labels=sentence_ids_in_batch_as_tensor,
+            )
+            loss = model_output.loss  # in this case equivalent to model_output[0]
+            predictions_logits_whole_batch = (
+                model_output.logits
+            )  # (torch.FloatTensor of shape (batch_size, sequence_length, config.vocab_size))
+
+        surprisals_per_token = get_surprisals_per_token_from_gpt2_logits(
+            predictions_logits_whole_batch,
+            sentence,
+            sentence_tokens_with_specials,
+            tokenizer,
         )
-        loss = model_output.loss  # in this case equivalent to model_output[0]
-        # logits = model_output.logits
+
         return AcceptabilityScoreRes(
             lp_softmax=float(loss) * -1.0 * len(sentence.tokens),
             lp_logistic=None,
-            score_per_masking=None,
+            score_per_masking=surprisals_per_token,
             logistic_score_per_masking=None,
         )
 
@@ -359,6 +373,32 @@ def get_sentence_acceptability_score(
         raise ValueError(f"Error: unrecognized model type {model_type}")
 
 
+def get_surprisals_per_token_from_gpt2_logits(
+    predictions_logits_whole_batch,
+    sentence: Sentence,
+    sentence_tokens_with_specials,
+    tokenizer,
+) -> List[float]:
+    # logits shape: # (torch.FloatTensor of shape (batch_size, sequence_length, config.vocab_size))
+    negative_token_log_probabilities: List[float] = []
+    masking_configurations_count = len(sentence.tokens)
+    for masking_configuration_idx in range(masking_configurations_count):
+        masked_token_index = masking_configuration_idx + BOS_TOKEN_COUNT
+        cuda_logits_this_masking = predictions_logits_whole_batch[0, masked_token_index]
+
+        _, _ = update_sentence_score_totals(
+            0,
+            0,
+            cuda_logits_this_masking,
+            masked_token_index,
+            [],
+            negative_token_log_probabilities,
+            sentence_tokens_with_specials,
+            tokenizer,
+        )
+    return negative_token_log_probabilities
+
+
 def calculate_PseudoLogLikelihood_from_model_output(
     predictions_logits_whole_batch,
     sentence: Sentence,
@@ -366,7 +406,8 @@ def calculate_PseudoLogLikelihood_from_model_output(
     tokenizer,
     verbose,
     at_once_mask_all_tokens_of_a_word=False,
-):
+) -> Tuple[float, List[float], float, List[float]]:
+
     # go through each word in the sentence and sum the logprobs of their predictions when masked
     PseudoLogLikelihood = 0.0
     PseudoLogLikelihood2_logistic_based = 0.0

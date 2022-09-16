@@ -9,12 +9,14 @@ from tqdm import tqdm
 from src.linguistic_tests.compute_model_score import get_sentence_acceptability_score
 from src.linguistic_tests.file_utils import load_object_from_pickle
 from src.linguistic_tests.file_utils import save_obj_to_pickle
+from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
 from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
 from src.linguistic_tests.lm_utils import get_penalty_term
 from src.linguistic_tests.lm_utils import get_results_dir
 from src.linguistic_tests.lm_utils import get_syntactic_tests_dir
+from src.linguistic_tests.lm_utils import GPT_LIKE_MODEL_TYPES
 from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import ScoringMeasures
@@ -59,6 +61,13 @@ def print_model_scores_numerical_properties_helper(
 
     # rescore_testsets_and_save_pickles(...)
 
+    if model_type in BERT_LIKE_MODEL_TYPES:
+        scoring_measures = [ScoringMeasures.LP]
+    elif model_type in GPT_LIKE_MODEL_TYPES:
+        scoring_measures = [ScoringMeasures.PenLP]
+    else:
+        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+
     parsed_testsets = parse_testsets(
         testset_dir_path,
         testset_filenames,
@@ -66,16 +75,32 @@ def print_model_scores_numerical_properties_helper(
         examples_format,
         experimental_design,
         model_name,
-        scoring_measures=[ScoringMeasures.LP],  # , ScoringMeasures.PenLP
+        scoring_measures=scoring_measures,
         max_examples=max_examples,
     )
 
     model, tokenizer = load_model(model_type, model_name, device)
 
+    if model_type in BERT_LIKE_MODEL_TYPES:
+        scoring_measure = ScoringMeasures.LP
+    elif model_type in GPT_LIKE_MODEL_TYPES:
+        scoring_measure = ScoringMeasures.PenLP
+    else:
+        scoring_measure = ScoringMeasures.LP
+
     # analyze_avg_of_sentences_of_same_lenght(parsed_testsets, tokenizer, model_type, model, device)
     compare_token_peaks_for_acceptability(
-        parsed_testsets, tokenizer, model_type, model, device
+        parsed_testsets,
+        tokenizer,
+        model_type,
+        model,
+        device,
+        scoring_measure,
     )
+
+
+def get_item_dd_penlp_score(e: Example):
+    return e.get_dd_score(ScoringMeasures.PenLP)
 
 
 def get_item_dd_lp_score(e: Example):
@@ -97,7 +122,12 @@ def get_example_min_acceptability_diff(e: Example):
 
 
 def compare_token_peaks_for_acceptability(
-    parsed_testsets: List[TestSet], tokenizer, model_type, model, device
+    parsed_testsets: List[TestSet],
+    tokenizer,
+    model_type,
+    model,
+    device,
+    scoring_measure: ScoringMeasures,
 ):
 
     # plot sentences, tokens names on x axis,
@@ -151,7 +181,7 @@ def compare_token_peaks_for_acceptability(
                     if "uncased" in example.model_descr:
                         # todo: if model uncased, lowercase sentence text # tokenizer.do_lower_case
                         tokenizer.do_lower_case = True
-                        sentence.txt.lower()
+                        sentence.txt = sentence.txt.lower()
 
                     sentence.tokens = tokenizer.tokenize(sentence.txt)
                     if len(sentence.tokens) == 0:
@@ -183,10 +213,25 @@ def compare_token_peaks_for_acceptability(
     # todo: separate for each phenomenon (open 1 window/figure for each phenomenon for each show)
     # sort by diff btw unacceptable and acceptable sentences
 
+    if scoring_measure == ScoringMeasures.PenLP:
+        get_item_dd_score = get_item_dd_penlp_score
+        scoring_measure_descr = "LP"  # LogProbability
+        scoring_measure_descr_long = "log probability"
+        surprisal_label = (
+            r"token surprisal: $\displaystyle\ - \log P_{LM} (w_t | W_{< t}) $"
+        )
+    elif scoring_measure == ScoringMeasures.LP:
+        get_item_dd_score = get_item_dd_lp_score
+        scoring_measure_descr = "PLL"  # PseudoLogLikelihood
+        scoring_measure_descr_long = "pseudo-log-likelihood"
+        surprisal_label = (
+            r"token surprisal: $\displaystyle\ - \log P_{MLM} (w_t | W_{\setminus t}) $"
+        )
+
     all_examples = sorted(
         all_examples,
         reverse=True,
-        key=get_item_dd_lp_score,  # get_example_min_acceptability_diff
+        key=get_item_dd_score,  # get_example_min_acceptability_diff
     )
 
     # get_lenght_effect
@@ -215,10 +260,10 @@ def compare_token_peaks_for_acceptability(
                 for token in typed_sentence.sent.tokens
             ]
             subplot_ax.set_xticks(ticks=token_idxes, labels=labels)
-            subplot_ax.set_ylim([0, 8])
-            # subplot_ax.set_title(f"{typed_sentence.stype} | {sentence.pen_lp_softmax:.2f}")
+            subplot_ax.set_ylim([0, 32])
+            # subplot_ax.set_title(f"{typed_sentence.stype} | {sentence.get_score(scoring_measure):.2f}")
             subplot_ax.annotate(
-                rf"{typed_sentence.stype}, PLL: {sentence.lp_softmax:.2f}",
+                rf"{typed_sentence.stype}, {scoring_measure_descr}: {sentence.get_score(scoring_measure):.2f}",
                 xy=(0.8, 0.9),
                 xycoords="axes fraction",
             )
@@ -227,9 +272,7 @@ def compare_token_peaks_for_acceptability(
             #     plt.show()
             #     figures_count = 0
             # plt.figure()
-        surprisal_label = (
-            r"token surprisal: $\displaystyle\ - \log P_{MLM} (w_t | W_{\setminus t}) $"
-        )
+
         fig.text(
             0.05,
             0.5,
@@ -239,13 +282,16 @@ def compare_token_peaks_for_acceptability(
             fontdict={"size": 16},
             usetex=True,
         )
-        scoring_measure = ScoringMeasures.LP
+
         # plt.ylabel(surprisal_label, horizontalalignment='right', verticalalignment ='top')
         # subplot_ax.set_ylabel(surprisal_label)
+
         fig.suptitle(
             rf"{example.linguistic_phenomenon} | {example.model_descr} | Testset: {example.dataset_source}"
             "\n"
-            r"$DD_{PLL} = $"
+            r"$DD_{"
+            f"{scoring_measure_descr}"
+            r"} = $"
             rf"{example.get_dd_score(scoring_measure):.2f} | "
             r"$StructEffect = $"
             f"{example.get_structure_effect(scoring_measure):.2f} | "
@@ -256,7 +302,7 @@ def compare_token_peaks_for_acceptability(
             # "\n"
             # r"$PLL_{unacceptable} - min(PLL_{acceptable})$"
             # rf" = {get_example_min_acceptability_diff(example):.2f}"
-            "\n" r"(PLL : pseudo-log-likelihood)",
+            "\n" rf"({scoring_measure_descr} : {scoring_measure_descr_long})",
             usetex=True,
         )
         # plt.show()
@@ -270,9 +316,9 @@ def compare_token_peaks_for_acceptability(
         # plt.cla()
     # plt.show()
 
-    for parsed_testset in parsed_testsets:
-        for example_idx, example in enumerate(tqdm(parsed_testset.examples)):
-            pass
+    # for parsed_testset in parsed_testsets:
+    #     for example_idx, example in enumerate(tqdm(parsed_testset.examples)):
+    #         pass
 
 
 def replace_for_valid_filename(filename: str) -> str:
@@ -460,8 +506,10 @@ def print_model_scores_numerical_properties():
 
         # model_name = "dbmdz/bert-base-italian-xxl-cased"
         # model_type = ModelTypes.BERT
-        model_name = "idb-ita/gilberto-uncased-from-camembert"  #
-        model_type = ModelTypes.GILBERTO
+        # model_name = "idb-ita/gilberto-uncased-from-camembert"  #
+        # model_type = ModelTypes.GILBERTO
+        model_name = "LorenzoDeMattei/GePpeTto"  #
+        model_type = ModelTypes.GEPPETTO
 
         # todo:
         # inspect the loss from gpt2/geppetto ..
