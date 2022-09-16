@@ -740,7 +740,7 @@ def parse_testset(
     max_examples,
 ) -> TestSet:
     print(f"len examples: {len(examples_list)}, max: {max_examples}")
-
+    do_lower_case = True if "uncased" in model_descr else False
     if experimental_design == ExperimentalDesigns.FACTORIAL:
         sent_types = SPROUSE_SENTENCE_TYPES
     elif experimental_design == ExperimentalDesigns.MINIMAL_PAIRS:
@@ -756,7 +756,7 @@ def parse_testset(
 
     parsed_examples = []
     for example in examples_list:
-        parsed_example = parse_example(example, sent_types)
+        parsed_example = parse_example(example, sent_types, do_lower_case=do_lower_case)
         parsed_examples.append(parsed_example)
 
     return TestSet(
@@ -781,12 +781,17 @@ def get_merged_score_across_testsets(
     return merged_scores
 
 
-def parse_example(example: Dict[SentenceNames, str], sent_types: list):
+def parse_example(
+    example: Dict[SentenceNames, str], sent_types: list, do_lower_case=False
+):
     typed_senteces = []
     # print(f"example: {example}")
 
     for sent_type in sent_types:
-        typed_sentece = parse_typed_sentence(sent_type, example[sent_type])
+        sentence_txt: str = example[sent_type]
+        if do_lower_case:
+            sentence_txt = sentence_txt.lower()
+        typed_sentece = parse_typed_sentence(sent_type, sentence_txt)
         typed_senteces.append(typed_sentece)
 
     return Example(typed_senteces)

@@ -12,6 +12,7 @@ from src.linguistic_tests.file_utils import save_obj_to_pickle
 from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
+from src.linguistic_tests.lm_utils import get_penalty_term
 from src.linguistic_tests.lm_utils import get_results_dir
 from src.linguistic_tests.lm_utils import get_syntactic_tests_dir
 from src.linguistic_tests.lm_utils import load_model
@@ -65,7 +66,7 @@ def print_model_scores_numerical_properties_helper(
         examples_format,
         experimental_design,
         model_name,
-        scoring_measures=[ScoringMeasures.LP, ScoringMeasures.PenLP],
+        scoring_measures=[ScoringMeasures.LP],  # , ScoringMeasures.PenLP
         max_examples=max_examples,
     )
 
@@ -75,6 +76,10 @@ def print_model_scores_numerical_properties_helper(
     compare_token_peaks_for_acceptability(
         parsed_testsets, tokenizer, model_type, model, device
     )
+
+
+def get_item_dd_lp_score(e: Example):
+    return e.get_dd_score(ScoringMeasures.LP)
 
 
 def get_example_min_acceptability_diff(e: Example):
@@ -143,6 +148,10 @@ def compare_token_peaks_for_acceptability(
                 all_examples.append(example)
                 for _idx, typed_sentence in enumerate(example.sentences):
                     sentence = typed_sentence.sent
+                    if "uncased" in example.model_descr:
+                        # todo: if model uncased, lowercase sentence text # tokenizer.do_lower_case
+                        tokenizer.do_lower_case = True
+                        sentence.txt.lower()
 
                     sentence.tokens = tokenizer.tokenize(sentence.txt)
                     if len(sentence.tokens) == 0:
@@ -163,7 +172,10 @@ def compare_token_peaks_for_acceptability(
                         at_once_mask_all_tokens_of_a_word=False,
                     )
                     sentence.score_per_masking = score_per_masking
-                    sentence.pen_lp_softmax = lp_softmax
+                    sentence.lp_softmax = lp_softmax
+                    sentence.pen_lp_softmax = lp_softmax / get_penalty_term(
+                        len(sentence.tokens)
+                    )
         # save scored examples to avoid reloading each time
         save_obj_to_pickle(all_examples, filename)
 
@@ -172,13 +184,16 @@ def compare_token_peaks_for_acceptability(
     # sort by diff btw unacceptable and acceptable sentences
 
     all_examples = sorted(
-        all_examples, reverse=True, key=get_example_min_acceptability_diff
+        all_examples,
+        reverse=True,
+        key=get_item_dd_lp_score,  # get_example_min_acceptability_diff
     )
 
     # get_lenght_effect
     # get_structure_effect
-    for example in all_examples:
-        fig, axs = plt.subplots(4, 1, squeeze=True)
+
+    for item_idx, example in enumerate(all_examples):
+        fig, axs = plt.subplots(4, 1, figsize=(12.8, 12.8), squeeze=True)
         for _idx, (typed_sentence, subplot_ax) in enumerate(
             zip(example.sentences, axs)
         ):
@@ -203,7 +218,7 @@ def compare_token_peaks_for_acceptability(
             subplot_ax.set_ylim([0, 8])
             # subplot_ax.set_title(f"{typed_sentence.stype} | {sentence.pen_lp_softmax:.2f}")
             subplot_ax.annotate(
-                rf"{typed_sentence.stype}, PLL: {sentence.pen_lp_softmax:.2f}",
+                rf"{typed_sentence.stype}, PLL: {sentence.lp_softmax:.2f}",
                 xy=(0.8, 0.9),
                 xycoords="axes fraction",
             )
@@ -213,7 +228,7 @@ def compare_token_peaks_for_acceptability(
             #     figures_count = 0
             # plt.figure()
         surprisal_label = (
-            r"token surprisal, $\displaystyle\ - log P_{MLM} (w_t | W_{\setminus t}) $"
+            r"token surprisal: $\displaystyle\ - \log P_{MLM} (w_t | W_{\setminus t}) $"
         )
         fig.text(
             0.05,
@@ -224,23 +239,44 @@ def compare_token_peaks_for_acceptability(
             fontdict={"size": 16},
             usetex=True,
         )
+        scoring_measure = ScoringMeasures.LP
         # plt.ylabel(surprisal_label, horizontalalignment='right', verticalalignment ='top')
         # subplot_ax.set_ylabel(surprisal_label)
         fig.suptitle(
             rf"{example.linguistic_phenomenon} | {example.model_descr} | Testset: {example.dataset_source}"
             "\n"
-            r"$PLL_{unacceptable} - min(PLL_{acceptable})$"
-            rf" = {get_example_min_acceptability_diff(example):.2f}"
-            "\n"
-            r"(PLL : pseudo-log-likelihood, )",
+            r"$DD_{PLL} = $"
+            rf"{example.get_dd_score(scoring_measure):.2f} | "
+            r"$StructEffect = $"
+            f"{example.get_structure_effect(scoring_measure):.2f} | "
+            r"$LengthEffect = $"
+            f"{example.get_lenght_effect(scoring_measure):.2f} | "
+            r"$TotEffect = $"
+            f"{example.get_total_effect(scoring_measure):.2f}"
+            # "\n"
+            # r"$PLL_{unacceptable} - min(PLL_{acceptable})$"
+            # rf" = {get_example_min_acceptability_diff(example):.2f}"
+            "\n" r"(PLL : pseudo-log-likelihood)",
             usetex=True,
         )
-        plt.show()
+        # plt.show()
+        # todo: save file, add phenomenon name and item number
+        saving_dir = str(get_results_dir() / "token_spikes_analysis 15.9.2022/")
+
+        filename = f"{example.dataset_source}_{example.model_descr}_{example.linguistic_phenomenon}_item_{item_idx}.png"
+        filename = replace_for_valid_filename(filename)
+        filepath = os.path.join(saving_dir, filename)
+        plt.savefig(filepath)  # , dpi=300
+        # plt.cla()
     # plt.show()
 
     for parsed_testset in parsed_testsets:
         for example_idx, example in enumerate(tqdm(parsed_testset.examples)):
             pass
+
+
+def replace_for_valid_filename(filename: str) -> str:
+    return filename.replace("/", "_")
 
 
 def analyze_avg_of_sentences_of_same_lenght(
@@ -418,19 +454,21 @@ def print_model_scores_numerical_properties():
             "wh_complex_np_islands",
             "wh_adjunct_islands",
         ]
-        p = get_syntactic_tests_dir() / "mdd2/"  # "syntactic_tests_it/"
+        p = (
+            get_syntactic_tests_dir() / "syntactic_tests_it/"
+        )  # "mdd2/"  # "syntactic_tests_it/"
 
-        model_name = "dbmdz/bert-base-italian-xxl-cased"
-        model_type = ModelTypes.BERT
-        # model_name = "idb-ita/gilberto-uncased-from-camembert"  #
-        # model_type = ModelTypes.GILBERTO  # ModelTypes.BERT
+        # model_name = "dbmdz/bert-base-italian-xxl-cased"
+        # model_type = ModelTypes.BERT
+        model_name = "idb-ita/gilberto-uncased-from-camembert"  #
+        model_type = ModelTypes.GILBERTO
 
         # todo:
         # inspect the loss from gpt2/geppetto ..
 
         experimental_design = ExperimentalDesigns.FACTORIAL
         datasource = DataSources.MADEDDU  # DataSources.BLIMP_EN,
-        max_examples = 9999
+        max_examples = 50  # 9999
 
     testset_dir_path = str(p)
     print_model_scores_numerical_properties_helper(

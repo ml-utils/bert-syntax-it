@@ -304,7 +304,7 @@ def get_pen_score(unnormalized_score, text_lenght):
     return unnormalized_score / get_penalty_term(text_lenght)
 
 
-def get_penalty_term(text_lenght, alpha=1.0):  # alpha=0.8
+def get_penalty_term(text_lenght, alpha=0.8):  # alpha=1.0, 0.8, 0.6
     return (5 + text_lenght) ** alpha / (5 + 1) ** alpha
 
 
@@ -393,9 +393,12 @@ def load_pretrained(
         print("tokenizer loaded.")
     elif model_type == ModelTypes.GILBERTO:
         print(f"loading model {model_name}..")
-        model = CamembertForMaskedLM.from_pretrained(model_name)
-        print(f"model loaded. Loading tokenizer {model_name}..")
         tokenizer = CamembertTokenizer.from_pretrained(model_name, do_lower_case=True)
+        # tokenizer = AutoTokenizer.from_pretrained(model_name, do_lower_case=True)
+        model = CamembertForMaskedLM.from_pretrained(model_name)
+        # model = AutoModel.from_pretrained(model_name)
+        print(f"model loaded. Loading tokenizer {model_name}..")
+
         print("tokenizer loaded.")
     else:
         raise ValueError(
@@ -620,7 +623,7 @@ class DataSources(StrEnum):
 def get_testset_params(
     tests_subdir,
 ) -> Tuple[List[str], str, DataSources, ExperimentalDesigns]:
-    if tests_subdir == "mdd2/":  # "syntactic_tests_it/"
+    if tests_subdir == "syntactic_tests_it/":  # "mdd2/"
         testsets_root_filenames = CUSTOM_IT_ISLAND_TESTSETS_ROOT_FILENAMES
         broader_test_type = "it_tests"
         dataset_source = DataSources.MADEDDU

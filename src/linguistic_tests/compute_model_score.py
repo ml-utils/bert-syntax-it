@@ -40,6 +40,8 @@ def score_example(
 ):
     for _idx, typed_sentence in enumerate(example.sentences):
         sentence = typed_sentence.sent
+
+        # todo: redundant, needed for gilbert: if model uncased, uncase the sentence text before tokenizing
         sentence.tokens = tokenizer.tokenize(sentence.txt)  # , return_tensors='pt'
         if len(sentence.tokens) == 0:
             logging.warning(f"Warning: lenght 0 for {sentence} from {example}")
