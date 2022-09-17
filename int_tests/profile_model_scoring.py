@@ -190,9 +190,9 @@ def compare_token_peaks_for_acceptability(
 
                     (
                         lp_softmax,
-                        lp_logistic,
+                        _,
                         score_per_masking,
-                        logistic_score_per_masking,
+                        _,
                     ) = get_sentence_acceptability_score(
                         model_type,
                         model,
@@ -220,6 +220,7 @@ def compare_token_peaks_for_acceptability(
         surprisal_label = (
             r"token surprisal: $\displaystyle\ - \log P_{LM} (w_t | W_{< t}) $"
         )
+        ylim = [5, 20]
     elif scoring_measure == ScoringMeasures.LP:
         get_item_dd_score = get_item_dd_lp_score
         scoring_measure_descr = "PLL"  # PseudoLogLikelihood
@@ -227,6 +228,7 @@ def compare_token_peaks_for_acceptability(
         surprisal_label = (
             r"token surprisal: $\displaystyle\ - \log P_{MLM} (w_t | W_{\setminus t}) $"
         )
+        ylim = [0, 8]
 
     all_examples = sorted(
         all_examples,
@@ -260,7 +262,7 @@ def compare_token_peaks_for_acceptability(
                 for token in typed_sentence.sent.tokens
             ]
             subplot_ax.set_xticks(ticks=token_idxes, labels=labels)
-            subplot_ax.set_ylim([0, 32])
+            subplot_ax.set_ylim(ylim)
             # subplot_ax.set_title(f"{typed_sentence.stype} | {sentence.get_score(scoring_measure):.2f}")
             subplot_ax.annotate(
                 rf"{typed_sentence.stype}, {scoring_measure_descr}: {sentence.get_score(scoring_measure):.2f}",
