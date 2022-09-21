@@ -529,6 +529,7 @@ MODEL_TYPES_AND_NAMES_EN: Dict[str, ModelTypes] = {
 MODEL_TYPES_AND_NAMES_IT: Dict[str, ModelTypes] = {
     "LorenzoDeMattei/GePpeTto": ModelTypes.GEPPETTO,
     "dbmdz/bert-base-italian-xxl-cased": ModelTypes.BERT,
+    "dbmdz/bert-base-italian-cased": ModelTypes.BERT,
     "idb-ita/gilberto-uncased-from-camembert": ModelTypes.GILBERTO,
 }
 
@@ -546,11 +547,11 @@ MODEL_NAMES_EN: Dict[ModelTypes, str] = {
 BLIMP_TESTSETS_ROOT_FILENAMES = [
     "adjunct_island",
     "complex_NP_island",
-    "coordinate_structure_constraint_complex_left_branch",
-    "coordinate_structure_constraint_object_extraction",
-    "left_branch_island_echo_question",
-    "left_branch_island_simple_question",
-    "sentential_subject_island",
+    # "coordinate_structure_constraint_complex_left_branch",
+    # "coordinate_structure_constraint_object_extraction",
+    # "left_branch_island_echo_question",
+    # "left_branch_island_simple_question",
+    # "sentential_subject_island",
     "wh_island",  # .jsonl
 ]
 
