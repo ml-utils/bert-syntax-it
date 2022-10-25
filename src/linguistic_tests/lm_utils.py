@@ -445,7 +445,7 @@ def load_testset_data(file_path, examples_format="blimp") -> List[dict]:
 
     elif examples_format in ["sprouse", "json_lines"]:
         print(f"loading testset file {file_path}..")
-        with open(file_path, mode="r", encoding="utf-8") as json_file:
+        with open(file_path, mode="r", encoding="utf-8-sig") as json_file:
             json_list = list(json_file)
         print("testset loaded.")
 
