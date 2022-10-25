@@ -167,7 +167,9 @@ def compare_token_peaks_for_acceptability(
     )
     filepath = os.path.join(str(get_results_dir()), filename)
     if os.path.exists(filepath):
+        # todo: bool rescore, but don't overwrite the prev file, rename it
         all_examples = load_object_from_pickle(filename)
+        print("pickle loading done.")
     else:
         all_examples = []
         for parsed_testset in parsed_testsets:
@@ -309,12 +311,15 @@ def compare_token_peaks_for_acceptability(
         )
         # plt.show()
         # todo: save file, add phenomenon name and item number
-        saving_dir = str(get_results_dir() / "token_spikes_analysis 15.9.2022/")
+        saving_dir = str(
+            get_results_dir() / "token_spikes_analysis_variations_21.9.2022/"
+        )
 
         filename = f"{example.dataset_source}_{example.model_descr}_{example.linguistic_phenomenon}_item_{item_idx}.png"
         filename = replace_for_valid_filename(filename)
         filepath = os.path.join(saving_dir, filename)
         plt.savefig(filepath)  # , dpi=300
+        print(f"saved plot to {filepath}")
         # plt.cla()
     # plt.show()
 
@@ -497,15 +502,17 @@ def print_model_scores_numerical_properties():
     elif config == "mro":
 
         testset_filenames = [
-            "wh_whether_island",
-            "wh_subject_islands",
-            "wh_complex_np_islands",
-            "wh_adjunct_islands",
+            # "wh_whether_island",
+            # "wh_subject_islands",
+            # "wh_complex_np_islands",
+            # "wh_adjunct_islands",
+            # "wh_subject_islands_variations",
+            "unidirectional_test",
         ]
-        p = (
-            get_syntactic_tests_dir() / "syntactic_tests_it/"
-        )  # "mdd2/"  # "syntactic_tests_it/"
+        p = get_syntactic_tests_dir() / "mdd3/"  # "mdd2/"  # "syntactic_tests_it/"
 
+        # model_name = "dbmdz/bert-base-italian-cased"
+        # model_type = ModelTypes.BERT
         # model_name = "dbmdz/bert-base-italian-xxl-cased"
         # model_type = ModelTypes.BERT
         # model_name = "idb-ita/gilberto-uncased-from-camembert"  #
@@ -532,7 +539,7 @@ def print_model_scores_numerical_properties():
     )
 
 
-def online_test():
+def online_test1():
     # models: english roberta large and gpt2 (345M)
     sentence_txt = "San Francisco"
     typed_sentence = parse_typed_sentence(SentenceNames.SENTENCE_GOOD, sentence_txt)
@@ -567,6 +574,10 @@ def online_test():
     # Paper: -7.749 + (-0.944) = -8.693 = log Pgpt2(W)
 
 
+def online_test2():
+    pass
+
+
 def online_test_helper_roberta(typed_sentence, device):
 
     model_type = ModelTypes.ROBERTA
@@ -582,4 +593,4 @@ def online_test_helper_roberta(typed_sentence, device):
 
 if __name__ == "__main__":
     print_model_scores_numerical_properties()
-    # online_test()
+    # online_test2()
