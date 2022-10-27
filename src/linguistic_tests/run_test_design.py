@@ -2,6 +2,7 @@ import logging
 from statistics import mean
 from typing import Dict
 from typing import List
+from typing import Tuple
 
 import numpy as np
 from tqdm import tqdm
@@ -353,10 +354,64 @@ def load_and_plot_pickles(
     plot_testsets(loaded_testsets, model_type, show_plot=show_plot, save_plot=save_plot)
 
 
+# saves results to excel or csv file
+def run_multiple_tests_with_multiple_models(
+    model_types_and_names: Dict[str, ModelTypes],
+    tests_subdir: str,
+    device: DEVICES,
+    rescore=False,
+    log_level=logging.INFO,
+) -> Dict[Tuple[str, ModelTypes], TestSet]:
+    """
+
+    :param model_types_and_names:
+    :param tests_subdir: the method will load all the json files in this folder. Each is supposed to be a testsuite of about 20 items.
+    :param device:
+    :param rescore:
+    :param log_level:
+    :return: a ditionary, where the keys are tuples for model name and type, and the values are the scored testsets
+    """
+
+    # todo:
+    # load all the test files (..unscored)
+    # for each model, score them, and save a separate scored testsuite
+    # save all results for all models to excel/csv (or update them step by stem as the scoring goes on, to see some progress)
+    # (also show on terminal the scores as they are done for each model/testuite of 20 items)
+    # ..
+    # separate method to generate csv output from the scored testsets
+    #
+    # todo: refactoring, terminology: Wilcox et al. terminology: item, ..suite, ..
+    #   item, conditions, success criterion, ..properties, ..factors, ..
+    #  Hu et al systematic: "test suite contains a number of
+    #  ITEMS (typically between 20 and 30), and each item appears in several
+    # CONDITIONS: across conditions, a given item will
+    # differ only according to a
+    # controlled manipulation designed to target a particular
+    # feature of grammatical knowledge. Each test suite contains at least one
+    # PREDICTION, which specifies inequalities between
+    # surprisal values at pairs of regions/conditions that
+    # should hold if a model has learned the appropriate
+    # syntactic generalization"
+    #
+    # ..todo: add fields to scored testsets objects..
+    #
+    # todo: enrich the json files info, with details on the particular phenomenon captured by that file/suite
+    # for each item, and each sentence, ..more structured info.. like regions of the sentence that are of particular interest ..
+    # ..different phenomena / suites have different needs for additional info
+    # fields: phenomenon short name, phenomenon long name, phenomenon category, phenomenon ..subcategory, ..
+    # field: language
+    # ..source (like blimp, wilcox, hu, cola, ..)
+    scored_testsets: Dict[Tuple[str, ModelTypes], TestSet] = dict()
+
+    # todo: for each testset, there should be an accuracy score
+
+    return scored_testsets
+
+
 def run_test_design(
     model_name: str,
     model_type: ModelTypes,
-    tests_subdir,
+    tests_subdir: str,
     max_examples,
     device: DEVICES,
     rescore=False,

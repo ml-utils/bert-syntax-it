@@ -253,9 +253,6 @@ def compare_two_sentences(args, model, tokenizer):
 # acc. correct_pen_lps_1st_sentence: 90.2 %
 
 
-# todo: Wilcox et al. terminology: item, ..suite, ..
-
-
 def main(
     device: DEVICES,
     rescore=False,
