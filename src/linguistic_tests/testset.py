@@ -103,7 +103,7 @@ class TypedSentence:
 
 
 @dataclass
-class Example:
+class TestItem:
     # todo: convert to Dict[]
     sentences: List[TypedSentence]
 
@@ -241,7 +241,7 @@ class TestSet:
     model_descr: str
     dataset_source: DataSources
     experimental_design: ExperimentalDesigns
-    examples: List[Example]
+    examples: List[TestItem]
 
     scoring_measures: InitVar[List[ScoringMeasures]]
 
@@ -548,7 +548,7 @@ class TestSet:
         self,
         scoring_measure: ScoringMeasures,
         reverse=False,
-    ) -> List[Example]:
+    ) -> List[TestItem]:
 
         return sorted(
             self.examples,
@@ -562,7 +562,7 @@ class TestSet:
         sent_type1: SentenceNames,
         sent_type2: SentenceNames,
         reverse=True,
-    ) -> List[Example]:
+    ) -> List[TestItem]:
         return sorted(
             self.examples,
             key=lambda x: x.get_score_diff(score_descr, sent_type1, sent_type2),
@@ -584,7 +584,7 @@ class TestSet:
 
     def get_examples_sorted_by_sentence_type_and_score(
         self, stype: SentenceNames, score_descr: ScoringMeasures, reverse=True
-    ) -> List[Example]:
+    ) -> List[TestItem]:
         return sorted(
             self.examples,
             key=lambda x: x[stype].get_score(score_descr),
@@ -794,7 +794,7 @@ def parse_example(
         typed_sentece = parse_typed_sentence(sent_type, sentence_txt)
         typed_senteces.append(typed_sentece)
 
-    return Example(typed_senteces)
+    return TestItem(typed_senteces)
 
 
 def parse_typed_sentence(stype: SentenceNames, txt: str) -> TypedSentence:

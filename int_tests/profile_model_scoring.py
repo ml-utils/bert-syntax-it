@@ -21,9 +21,9 @@ from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import ScoringMeasures
 from src.linguistic_tests.lm_utils import SentenceNames
-from src.linguistic_tests.testset import Example
 from src.linguistic_tests.testset import parse_testsets
 from src.linguistic_tests.testset import parse_typed_sentence
+from src.linguistic_tests.testset import TestItem
 from src.linguistic_tests.testset import TestSet
 from src.linguistic_tests.testset import TypedSentence
 
@@ -99,15 +99,15 @@ def print_model_scores_numerical_properties_helper(
     )
 
 
-def get_item_dd_penlp_score(e: Example):
+def get_item_dd_penlp_score(e: TestItem):
     return e.get_dd_score(ScoringMeasures.PenLP)
 
 
-def get_item_dd_lp_score(e: Example):
+def get_item_dd_lp_score(e: TestItem):
     return e.get_dd_score(ScoringMeasures.LP)
 
 
-def get_example_min_acceptability_diff(e: Example):
+def get_example_min_acceptability_diff(e: TestItem):
 
     types_of_acceptable_sentences = e.get_types_of_acceptable_sentences()
     acceptable_scores = []

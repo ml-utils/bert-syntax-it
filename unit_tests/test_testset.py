@@ -9,9 +9,9 @@ from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
 from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.testset import ERROR_LP
-from src.linguistic_tests.testset import Example
 from src.linguistic_tests.testset import ScoringMeasures
 from src.linguistic_tests.testset import Sentence
+from src.linguistic_tests.testset import TestItem
 from src.linguistic_tests.testset import TestSet
 from src.linguistic_tests.testset import TypedSentence
 
@@ -170,7 +170,7 @@ def get_basic_example():
             SentenceNames.LONG_ISLAND, get_basic_sentence("The is pen on the table")
         ),
     ]
-    example = Example(typed_senteces)
+    example = TestItem(typed_senteces)
     return example
 
 
@@ -194,7 +194,7 @@ def get_full_example():
             get_scored_sentence("Cosa ti infuri se uso in classe?"),
         ),
     ]
-    example = Example(typed_senteces)
+    example = TestItem(typed_senteces)
     return example
 
 

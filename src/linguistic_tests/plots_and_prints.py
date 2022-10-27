@@ -23,8 +23,8 @@ from src.linguistic_tests.lm_utils import print_orange
 from src.linguistic_tests.lm_utils import print_red
 from src.linguistic_tests.lm_utils import ScoringMeasures
 from src.linguistic_tests.lm_utils import SentenceNames as SN
-from src.linguistic_tests.testset import Example
 from src.linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
+from src.linguistic_tests.testset import TestItem
 from src.linguistic_tests.testset import TestSet
 
 
@@ -717,7 +717,7 @@ def _excel_output_helper_fill_accuracy_data(
             data_for_dataframe[SCORING_MEASURE_COL].append(scoring_measure)
             data_for_dataframe[SENTENCE_TYPE_COL].append(stype_acceptable)
 
-            sample_example: Example = testset.examples[0]
+            sample_example: TestItem = testset.examples[0]
             stype_unacceptable = sample_example.get_type_of_unacceptable_sentence()
             data_for_dataframe[SAMPLE_ACCEPTABLE_SENTENCE_COL].append(
                 sample_example[stype_acceptable].txt
@@ -728,7 +728,7 @@ def _excel_output_helper_fill_accuracy_data(
 
 
 def _excel_output_helper_fill_example_data(
-    example: Example,
+    example: TestItem,
     datasource: DataSources,
     scored_testset: TestSet,
     scoring_measure: ScoringMeasures,
@@ -799,7 +799,7 @@ def _excel_output_helper_fill_example_data(
 
 
 def _print_compare__examples_by_DD_score_helper(
-    examples: List[Example],
+    examples: List[TestItem],
     scoring_measure: ScoringMeasures,
     shorter_form=False,
 ):
@@ -836,7 +836,7 @@ def _print_compare__examples_by_DD_score_helper(
 
 
 def _prt_score(
-    stype: SN, example: Example, scoring_measure: ScoringMeasures, max_chars
+    stype: SN, example: TestItem, scoring_measure: ScoringMeasures, max_chars
 ):
     if stype == example.get_type_of_unacceptable_sentence():
         accuracy_mark = "_"

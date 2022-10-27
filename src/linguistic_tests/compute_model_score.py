@@ -17,10 +17,10 @@ from .lm_utils import get_penalty_term
 from .lm_utils import ModelTypes
 from .lm_utils import sent_idx
 from .testset import ERROR_LP
-from .testset import Example
 from .testset import parse_example
 from .testset import Sentence
 from .testset import SPROUSE_SENTENCE_TYPES
+from .testset import TestItem
 
 # from transformers.models.gpt2.modeling_gpt2 import GPT2DoubleHeadsModelOutput
 
@@ -34,7 +34,7 @@ BOS_TOKEN_COUNT = 1
 
 def score_example(
     device,
-    example: Example,
+    example: TestItem,
     model,
     model_type: ModelTypes,
     tokenizer,
