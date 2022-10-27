@@ -11,6 +11,7 @@ from src.linguistic_tests.compute_model_score import score_example
 from src.linguistic_tests.file_utils import _parse_arguments
 from src.linguistic_tests.file_utils import _setup_logging
 from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import Conditions
 from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import discretize
@@ -22,7 +23,6 @@ from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import print_orange
 from src.linguistic_tests.lm_utils import ScoringMeasures
-from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.plots_and_prints import _print_testset_results
 from src.linguistic_tests.plots_and_prints import do_extended_testset_plot
 from src.linguistic_tests.plots_and_prints import plot_testsets
@@ -139,59 +139,57 @@ def score_factorial_testset(
 
     testset.avg_DD_lp = get_dd_score_parametric(
         a_short_nonisland_score=testset.lp_average_by_sentence_type[
-            SentenceNames.SHORT_NONISLAND
+            Conditions.SHORT_NONISLAND
         ],
         b_long_nonisland_score=testset.lp_average_by_sentence_type[
-            SentenceNames.LONG_NONISLAND
+            Conditions.LONG_NONISLAND
         ],
         c_short_island_score=testset.lp_average_by_sentence_type[
-            SentenceNames.SHORT_ISLAND
+            Conditions.SHORT_ISLAND
         ],
-        d_long_island_score=testset.lp_average_by_sentence_type[
-            SentenceNames.LONG_ISLAND
-        ],
+        d_long_island_score=testset.lp_average_by_sentence_type[Conditions.LONG_ISLAND],
     )
     testset.avg_DD_penlp = get_dd_score_parametric(
         a_short_nonisland_score=testset.penlp_average_by_sentence_type[
-            SentenceNames.SHORT_NONISLAND
+            Conditions.SHORT_NONISLAND
         ],
         b_long_nonisland_score=testset.penlp_average_by_sentence_type[
-            SentenceNames.LONG_NONISLAND
+            Conditions.LONG_NONISLAND
         ],
         c_short_island_score=testset.penlp_average_by_sentence_type[
-            SentenceNames.SHORT_ISLAND
+            Conditions.SHORT_ISLAND
         ],
         d_long_island_score=testset.penlp_average_by_sentence_type[
-            SentenceNames.LONG_ISLAND
+            Conditions.LONG_ISLAND
         ],
     )
     if model_type in BERT_LIKE_MODEL_TYPES:
         testset.avg_DD_ll = get_dd_score_parametric(
             a_short_nonisland_score=testset.ll_average_by_sentence_type[
-                SentenceNames.SHORT_NONISLAND
+                Conditions.SHORT_NONISLAND
             ],
             b_long_nonisland_score=testset.ll_average_by_sentence_type[
-                SentenceNames.LONG_NONISLAND
+                Conditions.LONG_NONISLAND
             ],
             c_short_island_score=testset.ll_average_by_sentence_type[
-                SentenceNames.SHORT_ISLAND
+                Conditions.SHORT_ISLAND
             ],
             d_long_island_score=testset.ll_average_by_sentence_type[
-                SentenceNames.LONG_ISLAND
+                Conditions.LONG_ISLAND
             ],
         )
         testset.avg_DD_penll = get_dd_score_parametric(
             a_short_nonisland_score=testset.penll_average_by_sentence_type[
-                SentenceNames.SHORT_NONISLAND
+                Conditions.SHORT_NONISLAND
             ],
             b_long_nonisland_score=testset.penll_average_by_sentence_type[
-                SentenceNames.LONG_NONISLAND
+                Conditions.LONG_NONISLAND
             ],
             c_short_island_score=testset.penll_average_by_sentence_type[
-                SentenceNames.SHORT_ISLAND
+                Conditions.SHORT_ISLAND
             ],
             d_long_island_score=testset.penll_average_by_sentence_type[
-                SentenceNames.LONG_ISLAND
+                Conditions.LONG_ISLAND
             ],
         )
 
@@ -414,6 +412,11 @@ def run_multiple_tests_with_multiple_models(
     #  particular tags
     # field: language
     # ..source (like blimp, wilcox, hu, cola, ..)
+    #
+    # the json file should also specify the success criteria to be used for the items of that test suite
+    # ..
+    # lenght effects, structure effect, should be properties/methods of a subclass of testitem or ..some property derived from testsuite
+    # ..
 
     scored_testsets: Dict[Tuple[str, ModelTypes], TestSuite] = dict()
 

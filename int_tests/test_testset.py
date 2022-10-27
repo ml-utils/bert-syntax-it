@@ -160,11 +160,11 @@ def test_serialization(tmp_path):
     )
 
     # todo: workaround for known issue:
-    from src.linguistic_tests.lm_utils import SentenceNames
+    from src.linguistic_tests.lm_utils import Conditions
 
     scored_testsets[0].avg_zscores_of_likerts_by_measure_and_by_stype[
         ScoringMeasures.LP
-    ][SentenceNames.SHORT_ISLAND] = 0.6
+    ][Conditions.SHORT_ISLAND] = 0.6
 
     tmp_file = tmp_path / "tmpfile.pickle"
     scored_testsets[0].save_to_pickle(tmp_file)

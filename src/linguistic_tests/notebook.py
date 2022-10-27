@@ -7,6 +7,7 @@ from typing import List
 from src.linguistic_tests.bert_utils import analize_example
 from src.linguistic_tests.compute_model_score import score_example
 from src.linguistic_tests.file_utils import _setup_logging
+from src.linguistic_tests.lm_utils import Conditions
 from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
@@ -20,7 +21,6 @@ from src.linguistic_tests.lm_utils import print_red
 from src.linguistic_tests.lm_utils import red_txt
 from src.linguistic_tests.lm_utils import ScoringMeasures
 from src.linguistic_tests.lm_utils import sentence_score_bases
-from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.plots_and_prints import (
     _print_compare__examples_by_DD_score_helper,
 )
@@ -137,10 +137,10 @@ def score_and_print_inline_example(
     args, model_type, model, tokenizer, device=DEVICES.CPU
 ):
     example_dict = {
-        SentenceNames.SHORT_NONISLAND: args.s_ni,
-        SentenceNames.LONG_NONISLAND: args.l_ni,
-        SentenceNames.SHORT_ISLAND: args.s_is,
-        SentenceNames.LONG_ISLAND: args.l_is,
+        Conditions.SHORT_NONISLAND: args.s_ni,
+        Conditions.LONG_NONISLAND: args.l_ni,
+        Conditions.SHORT_ISLAND: args.s_is,
+        Conditions.LONG_ISLAND: args.l_is,
     }
     example = parse_example(example_dict, SPROUSE_SENTENCE_TYPES)
 

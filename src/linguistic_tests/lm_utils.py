@@ -36,7 +36,7 @@ class StrEnum(str, Enum):
     pass
 
 
-class SentenceNames(StrEnum):
+class Conditions(StrEnum):
     SHORT_NONISLAND = "short_nonisland"
     LONG_NONISLAND = "long_nonisland"
     SHORT_ISLAND = "short_island"
@@ -468,8 +468,8 @@ def load_testset_data(file_path, examples_format="blimp") -> List[dict]:
     # integrity checks:
     testset_examples: List[dict] = testset_data["sentences"]
     assert (
-        SentenceNames.SENTENCE_GOOD in testset_examples[0].keys()
-        or SentenceNames.SHORT_NONISLAND in testset_examples[0].keys()
+        Conditions.SENTENCE_GOOD in testset_examples[0].keys()
+        or Conditions.SHORT_NONISLAND in testset_examples[0].keys()
     )
 
     return testset_data

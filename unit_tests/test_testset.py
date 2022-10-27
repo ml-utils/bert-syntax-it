@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 from scipy.stats import zmap
 
+from src.linguistic_tests.lm_utils import Conditions
 from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
-from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.testsuite import ERROR_LP
 from src.linguistic_tests.testsuite import ScoringMeasures
 from src.linguistic_tests.testsuite import Sentence
@@ -84,8 +84,8 @@ class TestTestset(TestCase):
         testset = get_basic_testset()
         stypes = testset.get_sentence_types()
         assert 2 == len(stypes)
-        assert SentenceNames.SHORT_NONISLAND in stypes
-        assert SentenceNames.LONG_ISLAND in stypes
+        assert Conditions.SHORT_NONISLAND in stypes
+        assert Conditions.LONG_ISLAND in stypes
 
     def test_get_scoring_measures(self):
         testset = get_basic_testset()
@@ -97,21 +97,21 @@ class TestTestset(TestCase):
         testset = get_basic_testset()
         acc_stypes = testset.get_acceptable_sentence_types()
         assert 1 == len(acc_stypes)
-        assert SentenceNames.SHORT_NONISLAND in acc_stypes
-        assert SentenceNames.LONG_ISLAND not in acc_stypes
-        assert SentenceNames.SENTENCE_BAD not in acc_stypes
+        assert Conditions.SHORT_NONISLAND in acc_stypes
+        assert Conditions.LONG_ISLAND not in acc_stypes
+        assert Conditions.SENTENCE_BAD not in acc_stypes
 
     def test_example_get_type_of_unacceptable_sentence(self):
         example = get_basic_example()
         unacc_stype = example.get_type_of_unacceptable_sentence()
-        assert SentenceNames.LONG_ISLAND == unacc_stype
+        assert Conditions.LONG_ISLAND == unacc_stype
 
     def test_example_get_sentence_types(self):
         example = get_basic_example()
         stypes = example.get_sentence_types()
         assert 2 == len(stypes)
-        assert SentenceNames.SHORT_NONISLAND in stypes
-        assert SentenceNames.LONG_ISLAND in stypes
+        assert Conditions.SHORT_NONISLAND in stypes
+        assert Conditions.LONG_ISLAND in stypes
 
     def test_sentence_get_score(self):
         sent = get_basic_sentence("The pen is on the table")
@@ -121,7 +121,7 @@ class TestTestset(TestCase):
         example = get_basic_example()
         scoring_measure = ScoringMeasures.LP
         diff = example.get_score_diff(
-            scoring_measure, SentenceNames.SHORT_NONISLAND, SentenceNames.LONG_ISLAND
+            scoring_measure, Conditions.SHORT_NONISLAND, Conditions.LONG_ISLAND
         )
         assert 0 == diff
 
@@ -129,7 +129,7 @@ class TestTestset(TestCase):
         example = get_basic_example()
         scoring_measure = ScoringMeasures.LP
         is_accurate = example.is_scored_accurately_for(
-            scoring_measure, SentenceNames.SHORT_NONISLAND
+            scoring_measure, Conditions.SHORT_NONISLAND
         )
         assert not is_accurate
 
@@ -164,10 +164,10 @@ def get_basic_example():
 
     typed_senteces = [
         TypedSentence(
-            SentenceNames.SHORT_NONISLAND, get_basic_sentence("The pen is on the table")
+            Conditions.SHORT_NONISLAND, get_basic_sentence("The pen is on the table")
         ),
         TypedSentence(
-            SentenceNames.LONG_ISLAND, get_basic_sentence("The is pen on the table")
+            Conditions.LONG_ISLAND, get_basic_sentence("The is pen on the table")
         ),
     ]
     example = TestItem(typed_senteces)
@@ -178,19 +178,19 @@ def get_full_example():
 
     typed_senteces = [
         TypedSentence(
-            SentenceNames.SHORT_NONISLAND,
+            Conditions.SHORT_NONISLAND,
             get_scored_sentence("Chi dice che io abbia usato il cellulare in classe?"),
         ),
         TypedSentence(
-            SentenceNames.LONG_NONISLAND,
+            Conditions.LONG_NONISLAND,
             get_scored_sentence("Cosa dici che io abbia usato in classe?"),
         ),
         TypedSentence(
-            SentenceNames.SHORT_ISLAND,
+            Conditions.SHORT_ISLAND,
             get_scored_sentence("Chi si infuria se uso il cellulare in classe?"),
         ),
         TypedSentence(
-            SentenceNames.LONG_ISLAND,
+            Conditions.LONG_ISLAND,
             get_scored_sentence("Cosa ti infuri se uso in classe?"),
         ),
     ]

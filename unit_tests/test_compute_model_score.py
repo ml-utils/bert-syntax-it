@@ -32,12 +32,12 @@ from src.linguistic_tests.compute_model_score import logistic2
 from src.linguistic_tests.compute_model_score import perc
 from src.linguistic_tests.compute_model_score import reduce_to_log_product
 from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import Conditions
 from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import get_penalty_term
 from src.linguistic_tests.lm_utils import get_sentences_from_example
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import sent_idx
-from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.testsuite import ERROR_LP
 from src.linguistic_tests.testsuite import Sentence
 from unit_tests.test_lm_utils import get_basic_example_data_dict
@@ -320,10 +320,10 @@ class TestComputeModelScore(TestCase):
         testset = {
             "sentences": [
                 {
-                    SentenceNames.SHORT_NONISLAND: example_sentences[0],
-                    SentenceNames.LONG_ISLAND: example_sentences[1],
-                    SentenceNames.LONG_NONISLAND: example_sentences[2],
-                    SentenceNames.SHORT_ISLAND: example_sentences[3],
+                    Conditions.SHORT_NONISLAND: example_sentences[0],
+                    Conditions.LONG_ISLAND: example_sentences[1],
+                    Conditions.LONG_NONISLAND: example_sentences[2],
+                    Conditions.SHORT_ISLAND: example_sentences[3],
                 }
             ]
         }

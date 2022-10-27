@@ -3,10 +3,10 @@ from unittest import TestCase
 import pytest
 
 from src.linguistic_tests.compute_model_score import get_sentence_acceptability_score
+from src.linguistic_tests.lm_utils import Conditions
 from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import ModelTypes
-from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.testsuite import parse_typed_sentence
 
 
@@ -14,7 +14,7 @@ class TestModelScoring(TestCase):
     @pytest.mark.enable_socket
     def test_run_test_design_sprouse_bert(self):
         sentence_txt = "San Francisco"
-        typed_sentence = parse_typed_sentence(SentenceNames.SENTENCE_GOOD, sentence_txt)
+        typed_sentence = parse_typed_sentence(Conditions.SENTENCE_GOOD, sentence_txt)
         print(f"typed_sentence.sent.txt: {typed_sentence.sent.txt}")
 
         device = DEVICES.CPU

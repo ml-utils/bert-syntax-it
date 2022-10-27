@@ -13,6 +13,7 @@ from src.linguistic_tests.bert_utils import estimate_sentence_probability
 from src.linguistic_tests.compute_model_score import perc
 from src.linguistic_tests.lm_utils import _get_test_session_descr
 from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import Conditions as SN
 from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
 from src.linguistic_tests.lm_utils import get_results_dir
@@ -22,7 +23,6 @@ from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import print_orange
 from src.linguistic_tests.lm_utils import print_red
 from src.linguistic_tests.lm_utils import ScoringMeasures
-from src.linguistic_tests.lm_utils import SentenceNames as SN
 from src.linguistic_tests.testsuite import SPROUSE_SENTENCE_TYPES
 from src.linguistic_tests.testsuite import TestItem
 from src.linguistic_tests.testsuite import TestSuite

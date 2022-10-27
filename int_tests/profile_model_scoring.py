@@ -10,6 +10,7 @@ from src.linguistic_tests.compute_model_score import get_sentence_acceptability_
 from src.linguistic_tests.file_utils import load_object_from_pickle
 from src.linguistic_tests.file_utils import save_obj_to_pickle
 from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import Conditions
 from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
@@ -20,7 +21,6 @@ from src.linguistic_tests.lm_utils import GPT_LIKE_MODEL_TYPES
 from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import ScoringMeasures
-from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.testsuite import parse_testsets
 from src.linguistic_tests.testsuite import parse_typed_sentence
 from src.linguistic_tests.testsuite import TestItem
@@ -542,7 +542,7 @@ def print_model_scores_numerical_properties():
 def online_test1():
     # models: english roberta large and gpt2 (345M)
     sentence_txt = "San Francisco"
-    typed_sentence = parse_typed_sentence(SentenceNames.SENTENCE_GOOD, sentence_txt)
+    typed_sentence = parse_typed_sentence(Conditions.SENTENCE_GOOD, sentence_txt)
     print(f"typed_sentence.sent.txt: {typed_sentence.sent.txt}")
 
     device = DEVICES.CUDA_0

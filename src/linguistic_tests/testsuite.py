@@ -18,6 +18,7 @@ from src.linguistic_tests.file_utils import load_object_from_pickle
 from src.linguistic_tests.file_utils import save_obj_to_pickle
 from src.linguistic_tests.lm_utils import assert_almost_equal
 from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import Conditions
 from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import discretize
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
@@ -26,26 +27,25 @@ from src.linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
 from src.linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_IT
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import ScoringMeasures
-from src.linguistic_tests.lm_utils import SentenceNames
 
 
-SPROUSE_SENTENCE_TYPES: List[SentenceNames] = [
-    SentenceNames.SHORT_NONISLAND,
-    SentenceNames.LONG_NONISLAND,
-    SentenceNames.SHORT_ISLAND,
-    SentenceNames.LONG_ISLAND,
+SPROUSE_SENTENCE_TYPES: List[Conditions] = [
+    Conditions.SHORT_NONISLAND,
+    Conditions.LONG_NONISLAND,
+    Conditions.SHORT_ISLAND,
+    Conditions.LONG_ISLAND,
 ]
 
-BLIMP_SENTENCE_TYPES: List[SentenceNames] = [
-    SentenceNames.SENTENCE_GOOD,
-    SentenceNames.SENTENCE_BAD,
+BLIMP_SENTENCE_TYPES: List[Conditions] = [
+    Conditions.SENTENCE_GOOD,
+    Conditions.SENTENCE_BAD,
 ]
 
-MINIMAL_PAIRS_VARIATIONS_SENTENCE_TYPES: List[SentenceNames] = [
-    SentenceNames.SHORT_NONISLAND,
-    SentenceNames.LONG_NONISLAND,
-    SentenceNames.SHORT_ISLAND,
-    SentenceNames.LONG_ISLAND,
+MINIMAL_PAIRS_VARIATIONS_SENTENCE_TYPES: List[Conditions] = [
+    Conditions.SHORT_NONISLAND,
+    Conditions.LONG_NONISLAND,
+    Conditions.SHORT_ISLAND,
+    Conditions.LONG_ISLAND,
 ]
 
 ERROR_LP: float = -200.0
@@ -95,7 +95,7 @@ class Sentence:
 
 @dataclass
 class TypedSentence:
-    stype: SentenceNames
+    stype: Conditions
     sent: Sentence
 
     def __str__(self):
@@ -123,34 +123,34 @@ class TestItem:
                 descr += f"{stype}={self.get_score(scoring_measure, stype)}, "
             return f"Example({scoring_measure.name}: {descr})"
 
-    def __getitem__(self, key: SentenceNames) -> Sentence:
+    def __getitem__(self, key: Conditions) -> Sentence:
         for typed_sentence in self.sentences:
             if typed_sentence.stype == key:
                 return typed_sentence.sent
         raise ValueError(f"Invalid key, it's not a SentenceName: {key}")
 
     def get_score(
-        self, scoring_measure: ScoringMeasures, sent_type: SentenceNames
+        self, scoring_measure: ScoringMeasures, sent_type: Conditions
     ) -> float:
         return self[sent_type].get_score(scoring_measure)
 
     def get_lenght_effect(self, scoring_measure: ScoringMeasures) -> float:
-        short_nonisland = self[SentenceNames.SHORT_NONISLAND]
-        long_nonisland = self[SentenceNames.LONG_NONISLAND]
+        short_nonisland = self[Conditions.SHORT_NONISLAND]
+        long_nonisland = self[Conditions.LONG_NONISLAND]
         return short_nonisland.get_score(scoring_measure) - long_nonisland.get_score(
             scoring_measure
         )
 
     def get_structure_effect(self, scoring_measure: ScoringMeasures) -> float:
-        short_nonisland = self[SentenceNames.SHORT_NONISLAND]
-        short_island = self[SentenceNames.SHORT_ISLAND]
+        short_nonisland = self[Conditions.SHORT_NONISLAND]
+        short_island = self[Conditions.SHORT_ISLAND]
         return short_nonisland.get_score(scoring_measure) - short_island.get_score(
             scoring_measure
         )
 
     def get_total_effect(self, scoring_measure: ScoringMeasures) -> float:
-        short_nonisland = self[SentenceNames.SHORT_NONISLAND]
-        long_island = self[SentenceNames.LONG_ISLAND]
+        short_nonisland = self[Conditions.SHORT_NONISLAND]
+        long_island = self[Conditions.LONG_ISLAND]
         return short_nonisland.get_score(scoring_measure) - long_island.get_score(
             scoring_measure
         )
@@ -160,13 +160,13 @@ class TestItem:
         for typed_sentence in self.sentences:
             stype = typed_sentence.stype
             sent = typed_sentence.sent
-            if stype == SentenceNames.SHORT_NONISLAND:
+            if stype == Conditions.SHORT_NONISLAND:
                 a_short_nonisland = sent
-            elif stype == SentenceNames.LONG_NONISLAND:
+            elif stype == Conditions.LONG_NONISLAND:
                 b_long_nonisland = sent
-            elif stype == SentenceNames.SHORT_ISLAND:
+            elif stype == Conditions.SHORT_ISLAND:
                 c_short_island = sent
-            elif stype == SentenceNames.LONG_ISLAND:
+            elif stype == Conditions.LONG_ISLAND:
                 d_long_island = sent
             else:
                 raise ValueError(f"Unexpected sentence type: {stype}")
@@ -198,25 +198,25 @@ class TestItem:
         )
 
     def get_score_diff(
-        self, score_descr: ScoringMeasures, stype1: SentenceNames, stype2: SentenceNames
+        self, score_descr: ScoringMeasures, stype1: Conditions, stype2: Conditions
     ) -> float:
         return self[stype1].get_score(score_descr) - self[stype2].get_score(score_descr)
 
-    def get_sentence_types(self) -> List[SentenceNames]:
+    def get_sentence_types(self) -> List[Conditions]:
         return [typed_sentence.stype for typed_sentence in self.sentences]
 
-    def get_types_of_acceptable_sentences(self) -> List[SentenceNames]:
+    def get_types_of_acceptable_sentences(self) -> List[Conditions]:
         types_of_acceptable_sentences = []
         for typed_sentence in self.sentences:
             if typed_sentence.stype is not self.get_type_of_unacceptable_sentence():
                 types_of_acceptable_sentences.append(typed_sentence.stype)
         return types_of_acceptable_sentences
 
-    def get_type_of_unacceptable_sentence(self) -> SentenceNames:
+    def get_type_of_unacceptable_sentence(self) -> Conditions:
 
         unacceptable_sentences_types = [
-            SentenceNames.LONG_ISLAND,
-            SentenceNames.SENTENCE_BAD,
+            Conditions.LONG_ISLAND,
+            Conditions.SENTENCE_BAD,
         ]
         for unacceptable_sentences_type in unacceptable_sentences_types:
             for typed_sentence in self.sentences:
@@ -227,7 +227,7 @@ class TestItem:
         )
 
     def is_scored_accurately_for(
-        self, score_descr: ScoringMeasures, stype: SentenceNames
+        self, score_descr: ScoringMeasures, stype: Conditions
     ) -> bool:
         score_diff = self.get_score_diff(
             score_descr, stype, self.get_type_of_unacceptable_sentence()
@@ -245,31 +245,27 @@ class TestSuite:
 
     scoring_measures: InitVar[List[ScoringMeasures]]
 
-    lp_average_by_sentence_type: Dict[SentenceNames, float] = field(
+    lp_average_by_sentence_type: Dict[Conditions, float] = field(default_factory=dict)
+    penlp_average_by_sentence_type: Dict[Conditions, float] = field(
         default_factory=dict
     )
-    penlp_average_by_sentence_type: Dict[SentenceNames, float] = field(
-        default_factory=dict
-    )
-    ll_average_by_sentence_type: Dict[SentenceNames, float] = field(
-        default_factory=dict
-    )
-    penll_average_by_sentence_type: Dict[SentenceNames, float] = field(
+    ll_average_by_sentence_type: Dict[Conditions, float] = field(default_factory=dict)
+    penll_average_by_sentence_type: Dict[Conditions, float] = field(
         default_factory=dict
     )
 
     # z scores for a testset, to be used in the sprouse-like plots, so just for the DD caclulations
     avg_zscores_by_measure_and_by_stype: Dict[
-        ScoringMeasures, Dict[SentenceNames, float]
+        ScoringMeasures, Dict[Conditions, float]
     ] = field(default_factory=dict)
     avg_zscores_of_likerts_by_measure_and_by_stype: Dict[
-        ScoringMeasures, Dict[SentenceNames, float]
+        ScoringMeasures, Dict[Conditions, float]
     ] = field(default_factory=dict)
     std_error_of_zscores_by_measure_and_by_stype: Dict[
-        ScoringMeasures, Dict[SentenceNames, float]
+        ScoringMeasures, Dict[Conditions, float]
     ] = field(default_factory=dict)
     std_error_of_zscores_of_likerts_by_measure_and_by_stype: Dict[
-        ScoringMeasures, Dict[SentenceNames, float]
+        ScoringMeasures, Dict[Conditions, float]
     ] = field(default_factory=dict)
 
     avg_DD_lp: float = ERROR_LP
@@ -283,7 +279,7 @@ class TestSuite:
     accuracy_by_DD_penll: float = 0
 
     accuracy_per_score_type_per_sentence_type: Dict[
-        ScoringMeasures, Dict[SentenceNames, float]
+        ScoringMeasures, Dict[Conditions, float]
     ] = field(default_factory=dict)
 
     # todo: check that no longer used and remove
@@ -335,8 +331,8 @@ class TestSuite:
                 # so for the ungrammatical/unacceptable sentence there is no point in storing an accuracy value
                 # (it would be like comparing it with iself)
                 if (
-                    stype is not SentenceNames.SENTENCE_BAD
-                    and stype is not SentenceNames.LONG_ISLAND
+                    stype is not Conditions.SENTENCE_BAD
+                    and stype is not Conditions.LONG_ISLAND
                 ):
                     self.accuracy_per_score_type_per_sentence_type[scoring_measure][
                         stype
@@ -361,26 +357,26 @@ class TestSuite:
             DataSources.VARIATIONS,
         ]:
             return [
-                SentenceNames.SHORT_NONISLAND,
-                SentenceNames.LONG_NONISLAND,
-                SentenceNames.SHORT_ISLAND,
-                SentenceNames.LONG_ISLAND,
+                Conditions.SHORT_NONISLAND,
+                Conditions.LONG_NONISLAND,
+                Conditions.SHORT_ISLAND,
+                Conditions.LONG_ISLAND,
             ]
         elif self.dataset_source == DataSources.BLIMP_EN:
-            return [SentenceNames.SENTENCE_GOOD, SentenceNames.SENTENCE_BAD]
+            return [Conditions.SENTENCE_GOOD, Conditions.SENTENCE_BAD]
         else:
             raise ValueError(f"Unexpected dataset_source: {self.dataset_source}")
 
     def get_item_count_per_phenomenon(self) -> int:
         return len(self.examples)
 
-    def get_sentence_types(self) -> KeysView[SentenceNames]:
+    def get_sentence_types(self) -> KeysView[Conditions]:
         return self.lp_average_by_sentence_type.keys()
 
     def get_scoring_measures(self) -> KeysView[ScoringMeasures]:
         return self.accuracy_per_score_type_per_sentence_type.keys()
 
-    def get_acceptable_sentence_types(self) -> KeysView[SentenceNames]:
+    def get_acceptable_sentence_types(self) -> KeysView[Conditions]:
         some_scoring_measure = next(iter(self.get_scoring_measures()))
         return self.accuracy_per_score_type_per_sentence_type[
             some_scoring_measure
@@ -439,7 +435,7 @@ class TestSuite:
     def get_avg_zscores_by_measure_and_by_stype(
         self,
         scoring_measure: ScoringMeasures,
-        stype: SentenceNames,
+        stype: Conditions,
         likert=False,
     ):
         if not likert:
@@ -452,7 +448,7 @@ class TestSuite:
     def get_std_error_of_zscores_by_measure_and_by_stype(
         self,
         scoring_measure: ScoringMeasures,
-        stype: SentenceNames,
+        stype: Conditions,
         likert=False,
     ):
         if not likert:
@@ -467,7 +463,7 @@ class TestSuite:
     def get_std_errors_of_zscores_by_measure_and_sentence_structure(
         self,
         scoring_measure: ScoringMeasures,
-        sentence_structure: SentenceNames,
+        sentence_structure: Conditions,
         likert=False,
     ):
         if not likert:
@@ -478,20 +474,20 @@ class TestSuite:
             )
 
         if sentence_structure in [
-            SentenceNames.SHORT_NONISLAND,
-            SentenceNames.LONG_NONISLAND,
+            Conditions.SHORT_NONISLAND,
+            Conditions.LONG_NONISLAND,
         ]:
             return [
-                std_error_of_zscores[scoring_measure][SentenceNames.SHORT_NONISLAND],
-                std_error_of_zscores[scoring_measure][SentenceNames.LONG_NONISLAND],
+                std_error_of_zscores[scoring_measure][Conditions.SHORT_NONISLAND],
+                std_error_of_zscores[scoring_measure][Conditions.LONG_NONISLAND],
             ]
         if sentence_structure in [
-            SentenceNames.SHORT_ISLAND,
-            SentenceNames.LONG_ISLAND,
+            Conditions.SHORT_ISLAND,
+            Conditions.LONG_ISLAND,
         ]:
             return [
-                std_error_of_zscores[scoring_measure][SentenceNames.SHORT_ISLAND],
-                std_error_of_zscores[scoring_measure][SentenceNames.LONG_ISLAND],
+                std_error_of_zscores[scoring_measure][Conditions.SHORT_ISLAND],
+                std_error_of_zscores[scoring_measure][Conditions.LONG_ISLAND],
             ]
         raise ValueError(
             f"Unrecognized sentence type as sentenc structure type: {sentence_structure}"
@@ -518,15 +514,13 @@ class TestSuite:
 
         return get_dd_score_parametric(
             a_short_nonisland_score=avg_zscores[scoring_measure][
-                SentenceNames.SHORT_NONISLAND
+                Conditions.SHORT_NONISLAND
             ],
             b_long_nonisland_score=avg_zscores[scoring_measure][
-                SentenceNames.LONG_NONISLAND
+                Conditions.LONG_NONISLAND
             ],
-            c_short_island_score=avg_zscores[scoring_measure][
-                SentenceNames.SHORT_ISLAND
-            ],
-            d_long_island_score=avg_zscores[scoring_measure][SentenceNames.LONG_ISLAND],
+            c_short_island_score=avg_zscores[scoring_measure][Conditions.SHORT_ISLAND],
+            d_long_island_score=avg_zscores[scoring_measure][Conditions.LONG_ISLAND],
         )
 
     def get_pvalues_of_avg_DD_zscores(self, scoring_measure: ScoringMeasures):
@@ -559,8 +553,8 @@ class TestSuite:
     def get_examples_sorted_by_score_diff(
         self,
         score_descr,
-        sent_type1: SentenceNames,
-        sent_type2: SentenceNames,
+        sent_type1: Conditions,
+        sent_type2: Conditions,
         reverse=True,
     ) -> List[TestItem]:
         return sorted(
@@ -583,7 +577,7 @@ class TestSuite:
         )
 
     def get_examples_sorted_by_sentence_type_and_score(
-        self, stype: SentenceNames, score_descr: ScoringMeasures, reverse=True
+        self, stype: Conditions, score_descr: ScoringMeasures, reverse=True
     ) -> List[TestItem]:
         return sorted(
             self.examples,
@@ -782,7 +776,7 @@ def get_merged_score_across_testsets(
 
 
 def parse_example(
-    example: Dict[SentenceNames, str], sent_types: list, do_lower_case=False
+    example: Dict[Conditions, str], sent_types: list, do_lower_case=False
 ):
     typed_senteces = []
     # print(f"example: {example}")
@@ -797,7 +791,7 @@ def parse_example(
     return TestItem(typed_senteces)
 
 
-def parse_typed_sentence(stype: SentenceNames, txt: str) -> TypedSentence:
+def parse_typed_sentence(stype: Conditions, txt: str) -> TypedSentence:
     sent = Sentence(txt)
     return TypedSentence(stype, sent)
 

@@ -11,6 +11,7 @@ import pandas
 
 from src.linguistic_tests.lm_utils import _get_test_session_descr
 from src.linguistic_tests.lm_utils import BlimpSentencesOrder
+from src.linguistic_tests.lm_utils import Conditions
 from src.linguistic_tests.lm_utils import get_results_dir
 from src.linguistic_tests.lm_utils import get_sentences_from_example
 from src.linguistic_tests.lm_utils import get_syntactic_tests_dir
@@ -18,7 +19,6 @@ from src.linguistic_tests.lm_utils import load_testset_data
 from src.linguistic_tests.lm_utils import MODEL_NAMES_IT
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import print_orange
-from src.linguistic_tests.lm_utils import SentenceNames
 
 
 def convert_testset_to_csv(
@@ -156,10 +156,10 @@ def change_file_sentence_order(
 
 def __get_reformatted_example(example_data):  # , input_sentence_ordering
     return {
-        SentenceNames.SHORT_NONISLAND: example_data[SentenceNames.SHORT_NONISLAND],
-        SentenceNames.LONG_NONISLAND: example_data[SentenceNames.LONG_NONISLAND],
-        SentenceNames.SHORT_ISLAND: example_data[SentenceNames.SHORT_ISLAND],
-        SentenceNames.LONG_ISLAND: example_data[SentenceNames.LONG_ISLAND],
+        Conditions.SHORT_NONISLAND: example_data[Conditions.SHORT_NONISLAND],
+        Conditions.LONG_NONISLAND: example_data[Conditions.LONG_NONISLAND],
+        Conditions.SHORT_ISLAND: example_data[Conditions.SHORT_ISLAND],
+        Conditions.LONG_ISLAND: example_data[Conditions.LONG_ISLAND],
     }
 
 
@@ -267,10 +267,10 @@ def __write_sentence_item(
     good_sentence_short_island,
 ):
     sentence_item = {
-        SentenceNames.SHORT_NONISLAND: good_sentence_short_nonisland,
-        SentenceNames.LONG_NONISLAND: good_sentence_long_nonisland,
-        SentenceNames.SHORT_ISLAND: good_sentence_short_island,
-        SentenceNames.LONG_ISLAND: sentence_bad,
+        Conditions.SHORT_NONISLAND: good_sentence_short_nonisland,
+        Conditions.LONG_NONISLAND: good_sentence_long_nonisland,
+        Conditions.SHORT_ISLAND: good_sentence_short_island,
+        Conditions.LONG_ISLAND: sentence_bad,
     }
     json_string = (
         json.dumps(sentence_item, ensure_ascii=False) + "\n"

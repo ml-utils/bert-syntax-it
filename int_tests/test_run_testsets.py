@@ -15,6 +15,7 @@ from int_tests.int_tests_utils import get_test_data_dir
 from src.linguistic_tests import file_utils
 from src.linguistic_tests import plots_and_prints
 from src.linguistic_tests.lm_utils import BERT_LIKE_MODEL_TYPES
+from src.linguistic_tests.lm_utils import Conditions
 from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
@@ -27,7 +28,6 @@ from src.linguistic_tests.lm_utils import load_testset_data
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import print_orange
 from src.linguistic_tests.lm_utils import ScoringMeasures
-from src.linguistic_tests.lm_utils import SentenceNames
 from src.linguistic_tests.plots_and_prints import print_accuracies
 from src.linguistic_tests.run_test_design import rescore_testsets_and_save_pickles
 from src.linguistic_tests.run_test_design import run_test_design
@@ -347,13 +347,13 @@ class TestRunTestSets(TestCase):
         for json_str in json_list:
             example = json.loads(json_str)
 
-            sentence_good = example[SentenceNames.SENTENCE_GOOD]
-            sentence_bad = example[SentenceNames.SENTENCE_BAD]
+            sentence_good = example[Conditions.SENTENCE_GOOD]
+            sentence_bad = example[Conditions.SENTENCE_BAD]
             examples.append(
                 {
-                    SentenceNames.SENTENCE_GOOD: sentence_good,
-                    SentenceNames.SENTENCE_BAD: sentence_bad,
-                    SentenceNames.SENTENCE_GOOD_2ND: "",
+                    Conditions.SENTENCE_GOOD: sentence_good,
+                    Conditions.SENTENCE_BAD: sentence_bad,
+                    Conditions.SENTENCE_GOOD_2ND: "",
                 }
             )
         testset = {"sentences": examples}
