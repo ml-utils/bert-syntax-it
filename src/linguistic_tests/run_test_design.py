@@ -392,15 +392,28 @@ def run_multiple_tests_with_multiple_models(
     # surprisal values at pairs of regions/conditions that
     # should hold if a model has learned the appropriate
     # syntactic generalization"
-    #
+    # LEVEL
+    # "A common use case is to have \textsc{items} (the equivalent of the sentence pairs in a minimal pairs approach)
+    # structured in a 2 × 2 paradigm, with four sentences in total,
+    # each across two binary PROPERTIES.
+    # Each sentence exemplifies a \textsc{condition}, which is a particular state of the two properties."
+    # " For instance, in the case of \citet{wilcox2018rnn}, in their factorial assessment of filler-gap dependencies,
+    # the two properties were the presence or absence of a filler, and the presence or absence of a gap.
+    # The same approach can be generalized to more complex paradigms, with more than two properties, each having more than two \textsc{levels} (a property with two levels is a binary property)."
     # ..todo: add fields to scored testsets objects..
     #
     # todo: enrich the json files info, with details on the particular phenomenon captured by that file/suite
     # for each item, and each sentence, ..more structured info.. like regions of the sentence that are of particular interest ..
     # ..different phenomena / suites have different needs for additional info
     # fields: phenomenon short name, phenomenon long name, phenomenon category, phenomenon ..subcategory, ..
+    # to automatically group/categorize results in excel, each testsuites should have multiple ..properties
+    #  that describe the phenomena and combination/variation of properties it covers
+    #  use "tags" rather than categories
+    # tags can be used for a ..factorial comparison and disentanngling confounds, that is, comparing all testuites with
+    #  particular tags
     # field: language
     # ..source (like blimp, wilcox, hu, cola, ..)
+
     scored_testsets: Dict[Tuple[str, ModelTypes], TestSet] = dict()
 
     # todo: for each testset, there should be an accuracy score
