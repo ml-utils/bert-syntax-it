@@ -7,7 +7,7 @@ from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import SentenceNames
-from src.linguistic_tests.testset import parse_typed_sentence
+from src.linguistic_tests.testsuite import parse_typed_sentence
 
 
 class TestModelScoring(TestCase):

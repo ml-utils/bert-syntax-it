@@ -29,8 +29,8 @@ from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import print_orange
 from src.linguistic_tests.lm_utils import print_red
 from src.linguistic_tests.lm_utils import red_txt
-from src.linguistic_tests.testset import parse_example
-from src.linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
+from src.linguistic_tests.testsuite import parse_example
+from src.linguistic_tests.testsuite import SPROUSE_SENTENCE_TYPES
 
 
 class TestLMUtils(TestCase):

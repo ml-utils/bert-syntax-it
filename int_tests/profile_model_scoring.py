@@ -21,11 +21,11 @@ from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import ScoringMeasures
 from src.linguistic_tests.lm_utils import SentenceNames
-from src.linguistic_tests.testset import parse_testsets
-from src.linguistic_tests.testset import parse_typed_sentence
-from src.linguistic_tests.testset import TestItem
-from src.linguistic_tests.testset import TestSet
-from src.linguistic_tests.testset import TypedSentence
+from src.linguistic_tests.testsuite import parse_testsets
+from src.linguistic_tests.testsuite import parse_typed_sentence
+from src.linguistic_tests.testsuite import TestItem
+from src.linguistic_tests.testsuite import TestSuite
+from src.linguistic_tests.testsuite import TypedSentence
 
 matplotlib.rc("text", usetex=False)
 
@@ -122,7 +122,7 @@ def get_example_min_acceptability_diff(e: TestItem):
 
 
 def compare_token_peaks_for_acceptability(
-    parsed_testsets: List[TestSet],
+    parsed_testsets: List[TestSuite],
     tokenizer,
     model_type,
     model,

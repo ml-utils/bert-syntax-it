@@ -236,7 +236,7 @@ class TestItem:
 
 
 @dataclass
-class TestSet:
+class TestSuite:
     linguistic_phenomenon: str
     model_descr: str
     dataset_source: DataSources
@@ -723,7 +723,7 @@ def get_model_type_from_model_name(model_name: str) -> ModelTypes:
 
 def load_testset_from_pickle(
     filename, expected_experimental_design: ExperimentalDesigns
-) -> TestSet:
+) -> TestSuite:
     testset = load_object_from_pickle(filename)
     testset.assert_is_well_formed(expected_experimental_design)
 
@@ -738,7 +738,7 @@ def parse_testset(
     experimental_design: ExperimentalDesigns,
     scoring_measures: List[ScoringMeasures],
     max_examples,
-) -> TestSet:
+) -> TestSuite:
     print(f"len examples: {len(examples_list)}, max: {max_examples}")
     do_lower_case = True if "uncased" in model_descr else False
     if experimental_design == ExperimentalDesigns.FACTORIAL:
@@ -759,7 +759,7 @@ def parse_testset(
         parsed_example = parse_example(example, sent_types, do_lower_case=do_lower_case)
         parsed_examples.append(parsed_example)
 
-    return TestSet(
+    return TestSuite(
         linguistic_phenomenon,
         model_descr,
         dataset_source,
@@ -770,7 +770,7 @@ def parse_testset(
 
 
 def get_merged_score_across_testsets(
-    scoring_measure: ScoringMeasures, testsets: List[TestSet]
+    scoring_measure: ScoringMeasures, testsets: List[TestSuite]
 ):
     merged_scores = []
     for testset in testsets:
@@ -832,7 +832,7 @@ def load_testsets_from_pickles(
     phenomena,
     model_name,
     expected_experimental_design: ExperimentalDesigns,
-) -> List[TestSet]:
+) -> List[TestSuite]:
 
     loaded_testsets = []
     for phenomenon in phenomena:
@@ -854,7 +854,7 @@ def parse_testsets(
     model_name: str,
     scoring_measures: List[ScoringMeasures],
     max_examples: int,
-) -> List[TestSet]:
+) -> List[TestSuite]:
 
     # todo: add scorebase var in testset class
 
@@ -884,7 +884,7 @@ def parse_testsets(
 
 
 def save_scored_testsets(
-    scored_testsets: List[TestSet], model_name: str, dataset_source: str
+    scored_testsets: List[TestSuite], model_name: str, dataset_source: str
 ):
     for scored_testset in scored_testsets:
         scored_testset.model_descr = model_name

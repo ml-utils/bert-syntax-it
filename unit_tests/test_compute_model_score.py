@@ -38,8 +38,8 @@ from src.linguistic_tests.lm_utils import get_sentences_from_example
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import sent_idx
 from src.linguistic_tests.lm_utils import SentenceNames
-from src.linguistic_tests.testset import ERROR_LP
-from src.linguistic_tests.testset import Sentence
+from src.linguistic_tests.testsuite import ERROR_LP
+from src.linguistic_tests.testsuite import Sentence
 from unit_tests.test_lm_utils import get_basic_example_data_dict
 
 

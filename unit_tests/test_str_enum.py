@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from src.linguistic_tests.testset import ScoringMeasures
+from src.linguistic_tests.testsuite import ScoringMeasures
 
 
 class TestStrEnum(TestCase):

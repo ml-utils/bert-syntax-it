@@ -13,9 +13,9 @@ from src.linguistic_tests.lm_utils import load_testset_data
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import ScoringMeasures
 from src.linguistic_tests.run_test_design import score_factorial_testsets
-from src.linguistic_tests.testset import load_testset_from_pickle
-from src.linguistic_tests.testset import parse_testset
-from src.linguistic_tests.testset import parse_testsets
+from src.linguistic_tests.testsuite import load_testset_from_pickle
+from src.linguistic_tests.testsuite import parse_testset
+from src.linguistic_tests.testsuite import parse_testsets
 
 
 class TestTestset(TestCase):

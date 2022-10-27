@@ -8,12 +8,12 @@ from scipy.stats import zmap
 from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
 from src.linguistic_tests.lm_utils import SentenceNames
-from src.linguistic_tests.testset import ERROR_LP
-from src.linguistic_tests.testset import ScoringMeasures
-from src.linguistic_tests.testset import Sentence
-from src.linguistic_tests.testset import TestItem
-from src.linguistic_tests.testset import TestSet
-from src.linguistic_tests.testset import TypedSentence
+from src.linguistic_tests.testsuite import ERROR_LP
+from src.linguistic_tests.testsuite import ScoringMeasures
+from src.linguistic_tests.testsuite import Sentence
+from src.linguistic_tests.testsuite import TestItem
+from src.linguistic_tests.testsuite import TestSuite
+from src.linguistic_tests.testsuite import TypedSentence
 
 
 class TestTestset(TestCase):
@@ -200,7 +200,7 @@ def get_full_example():
 
 def get_basic_testset():
 
-    testset = TestSet(
+    testset = TestSuite(
         linguistic_phenomenon="wh",
         model_descr="bert-base-uncased",
         dataset_source=DataSources.SPROUSE,

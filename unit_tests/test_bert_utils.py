@@ -38,7 +38,7 @@ from src.linguistic_tests.compute_model_score import get_sentence_acceptability_
 from src.linguistic_tests.lm_utils import get_sentences_from_example
 from src.linguistic_tests.lm_utils import load_testset_data
 from src.linguistic_tests.lm_utils import ModelTypes
-from src.linguistic_tests.testset import Sentence
+from src.linguistic_tests.testsuite import Sentence
 
 # from src.linguistic_tests.bert_utils import get_topk
 

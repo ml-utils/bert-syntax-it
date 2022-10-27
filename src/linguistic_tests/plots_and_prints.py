@@ -23,15 +23,15 @@ from src.linguistic_tests.lm_utils import print_orange
 from src.linguistic_tests.lm_utils import print_red
 from src.linguistic_tests.lm_utils import ScoringMeasures
 from src.linguistic_tests.lm_utils import SentenceNames as SN
-from src.linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
-from src.linguistic_tests.testset import TestItem
-from src.linguistic_tests.testset import TestSet
+from src.linguistic_tests.testsuite import SPROUSE_SENTENCE_TYPES
+from src.linguistic_tests.testsuite import TestItem
+from src.linguistic_tests.testsuite import TestSuite
 
 
 MAX_EXAMPLES_PRINTS_PER_TESTSET = 99  # 50
 
 
-def reorder_testsets_legacy(scored_testsets: List[TestSet]):
+def reorder_testsets_legacy(scored_testsets: List[TestSuite]):
     preferred_axs_order = {"whether": 0, "complex": 1, "subject": 2, "adjunct": 3}
     for phenomenon_short_name, preferred_index in preferred_axs_order.items():
         if (
@@ -45,7 +45,7 @@ def reorder_testsets_legacy(scored_testsets: List[TestSet]):
                     break
 
 
-def reorder_testsets2(testsets: List[TestSet]) -> List[TestSet]:
+def reorder_testsets2(testsets: List[TestSuite]) -> List[TestSuite]:
     preferred_axs_order = {
         "wh_whether_island": 0,
         "rc_wh_island": 0,
@@ -54,7 +54,7 @@ def reorder_testsets2(testsets: List[TestSet]) -> List[TestSet]:
         "adjunct": 3,
     }
     sorted_testsets = []
-    testsets_by_wanted_position: Dict[int, TestSet] = dict()
+    testsets_by_wanted_position: Dict[int, TestSuite] = dict()
     for testset in testsets:
         successfully_positioned = False
         for phenomenon_shortname in preferred_axs_order.keys():
@@ -84,7 +84,7 @@ def reorder_testsets2(testsets: List[TestSet]) -> List[TestSet]:
 
 
 def plot_single_testset_results(
-    scored_testsets: List[TestSet],
+    scored_testsets: List[TestSuite],
     score_name,
     use_zscore=False,
     likert=False,
@@ -149,7 +149,7 @@ def plot_single_testset_results(
 
 def do_extended_testset_plot(
     scoring_measure: ScoringMeasures,
-    testset: TestSet,
+    testset: TestSuite,
     show_plot=False,
 ):
     """
@@ -206,7 +206,7 @@ def do_extended_testset_plot(
 
 
 def _plot_results_subplot(
-    scored_testset: TestSet,
+    scored_testset: TestSuite,
     scoring_measure: ScoringMeasures,
     ax,
     use_zscore=False,
@@ -306,7 +306,7 @@ def _print_example(example_data, sentence_ordering):
 
 
 def plot_testsets(
-    scored_testsets: List[TestSet],
+    scored_testsets: List[TestSuite],
     model_type: ModelTypes,
     show_plot=False,
     save_plot=False,
@@ -401,7 +401,7 @@ def _print_sorted_sentences_to_check_spelling_errors(
 
 
 def excel_output(
-    scored_testsets_by_datasource: Dict[DataSources, List[TestSet]],
+    scored_testsets_by_datasource: Dict[DataSources, List[TestSuite]],
     # model_descr: str,
 ):
     # todo: extend input dict also by dependency type (wh, rc)
@@ -533,7 +533,7 @@ def _excel_output_helper_examples_comparison(
 
 
 def _excel_output_helper_accuracy(
-    scored_testsets_by_datasource: Dict[str, List[TestSet]]
+    scored_testsets_by_datasource: Dict[str, List[TestSuite]]
 ):
 
     # each dataframe in a separate excel sheet
@@ -688,7 +688,7 @@ def _excel_output_helper_write_file(
 
 def _excel_output_helper_fill_accuracy_data(
     datasource: DataSources,
-    testset: TestSet,
+    testset: TestSuite,
     data_for_dataframe: Dict[str, List[Union[str, float, bool]]],
     ACCURACY_COL,
     DATASOURCE_COL,
@@ -730,7 +730,7 @@ def _excel_output_helper_fill_accuracy_data(
 def _excel_output_helper_fill_example_data(
     example: TestItem,
     datasource: DataSources,
-    scored_testset: TestSet,
+    scored_testset: TestSuite,
     scoring_measure: ScoringMeasures,
     data_for_dataframe: Dict[str, List[Union[str, float, bool]]],
     DATASOURCE_COL: str,
@@ -854,7 +854,7 @@ def _prt_score(
 
 def _print_compare__examples_by_DD_score(
     scoring_measure: ScoringMeasures,
-    testset: TestSet,
+    testset: TestSuite,
 ):
     print(
         f"comparing examples by DD score based on {scoring_measure}  "
@@ -876,7 +876,7 @@ def _print_examples_compare_diff(
     phenomena: List[str],
     model_name: str,
     dataset_source: str,
-    testsets: List[TestSet],
+    testsets: List[TestSuite],
 ):
     if not all(
         item in testsets[0].get_sentence_types() for item in [sent_type1, sent_type2]
@@ -921,7 +921,7 @@ def _print_examples_compare_diff(
 
 
 def _print_testset_results(
-    scored_testsets: List[TestSet],
+    scored_testsets: List[TestSuite],
     dataset_source: str,
     model_type: ModelTypes,
     testsets_root_filenames: List[str],
@@ -1023,7 +1023,7 @@ def print_detailed_sentence_info(bert, tokenizer, sentence_txt, scorebase):
     )
 
 
-def print_accuracy_scores(testset: TestSet):
+def print_accuracy_scores(testset: TestSuite):
     logging_info(f"test results report, {testset.linguistic_phenomenon}:")
     for scoring_measure in testset.get_scoring_measures():
         logging_debug(f"scores with {scoring_measure}")

@@ -32,8 +32,8 @@ from src.linguistic_tests.plots_and_prints import print_accuracies
 from src.linguistic_tests.run_test_design import rescore_testsets_and_save_pickles
 from src.linguistic_tests.run_test_design import run_test_design
 from src.linguistic_tests.run_test_design import score_factorial_testsets
-from src.linguistic_tests.testset import ERROR_LP
-from src.linguistic_tests.testset import parse_testsets
+from src.linguistic_tests.testsuite import ERROR_LP
+from src.linguistic_tests.testsuite import parse_testsets
 from unit_tests.test_compute_model_score import get_unparsed_testset_scores
 
 

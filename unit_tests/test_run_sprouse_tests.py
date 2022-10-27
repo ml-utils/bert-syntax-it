@@ -13,7 +13,7 @@ from src.linguistic_tests.plots_and_prints import plot_single_testset_results
 from src.linguistic_tests.run_test_design import run_test_design
 from src.linguistic_tests.run_test_design import score_factorial_testset
 from src.linguistic_tests.run_test_design import score_factorial_testsets
-from src.linguistic_tests.testset import save_scored_testsets
+from src.linguistic_tests.testsuite import save_scored_testsets
 
 
 class TestRunSprouseTests(TestCase):

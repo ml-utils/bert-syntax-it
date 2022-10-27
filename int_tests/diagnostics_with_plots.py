@@ -12,8 +12,8 @@ from src.linguistic_tests.lm_utils import get_testset_params
 from src.linguistic_tests.lm_utils import load_model
 from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import ScoringMeasures
-from src.linguistic_tests.testset import parse_testsets
-from src.linguistic_tests.testset import TypedSentence
+from src.linguistic_tests.testsuite import parse_testsets
+from src.linguistic_tests.testsuite import TypedSentence
 
 
 class DiagnosticsWithPlots:

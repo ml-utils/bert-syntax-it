@@ -27,9 +27,9 @@ from src.linguistic_tests.plots_and_prints import (
 from src.linguistic_tests.plots_and_prints import excel_output
 from src.linguistic_tests.plots_and_prints import print_detailed_sentence_info
 from src.linguistic_tests.run_test_design import run_test_design
-from src.linguistic_tests.testset import parse_example
-from src.linguistic_tests.testset import SPROUSE_SENTENCE_TYPES
-from src.linguistic_tests.testset import TestSet
+from src.linguistic_tests.testsuite import parse_example
+from src.linguistic_tests.testsuite import SPROUSE_SENTENCE_TYPES
+from src.linguistic_tests.testsuite import TestSuite
 
 
 def get_interactive_mode_arg_parser():
@@ -312,7 +312,7 @@ def main(
         logging.info(f"Will run tests with models: {model_types_and_names.keys()}")
         for model_name, model_type in model_types_and_names.items():
 
-            scored_testsets_by_datasource: Dict[DataSources, List[TestSet]] = dict()
+            scored_testsets_by_datasource: Dict[DataSources, List[TestSuite]] = dict()
 
             for tests_subdir in tests_subdirs:
                 loaded_testsets = run_test_design(

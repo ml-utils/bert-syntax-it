@@ -16,11 +16,11 @@ from .lm_utils import DEVICES
 from .lm_utils import get_penalty_term
 from .lm_utils import ModelTypes
 from .lm_utils import sent_idx
-from .testset import ERROR_LP
-from .testset import parse_example
-from .testset import Sentence
-from .testset import SPROUSE_SENTENCE_TYPES
-from .testset import TestItem
+from .testsuite import ERROR_LP
+from .testsuite import parse_example
+from .testsuite import Sentence
+from .testsuite import SPROUSE_SENTENCE_TYPES
+from .testsuite import TestItem
 
 # from transformers.models.gpt2.modeling_gpt2 import GPT2DoubleHeadsModelOutput
 

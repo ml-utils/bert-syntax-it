@@ -27,12 +27,12 @@ from src.linguistic_tests.plots_and_prints import _print_testset_results
 from src.linguistic_tests.plots_and_prints import do_extended_testset_plot
 from src.linguistic_tests.plots_and_prints import plot_testsets
 from src.linguistic_tests.plots_and_prints import print_accuracy_scores
-from src.linguistic_tests.testset import get_dd_score_parametric
-from src.linguistic_tests.testset import get_merged_score_across_testsets
-from src.linguistic_tests.testset import load_testsets_from_pickles
-from src.linguistic_tests.testset import parse_testsets
-from src.linguistic_tests.testset import save_scored_testsets
-from src.linguistic_tests.testset import TestSet
+from src.linguistic_tests.testsuite import get_dd_score_parametric
+from src.linguistic_tests.testsuite import get_merged_score_across_testsets
+from src.linguistic_tests.testsuite import load_testsets_from_pickles
+from src.linguistic_tests.testsuite import parse_testsets
+from src.linguistic_tests.testsuite import save_scored_testsets
+from src.linguistic_tests.testsuite import TestSuite
 
 
 def run_tests_goldberg():
@@ -53,8 +53,8 @@ def score_minimal_pairs_testset(
     model,
     tokenizer,
     device: DEVICES,
-    testset: TestSet,
-) -> TestSet:
+    testset: TestSuite,
+) -> TestSuite:
 
     # assigning sentence scores
     for example_idx, example in enumerate(tqdm(testset.examples)):
@@ -89,9 +89,9 @@ def score_factorial_testset(
     model,
     tokenizer,
     device: DEVICES,
-    testset: TestSet,
+    testset: TestSuite,
     experimental_design: ExperimentalDesigns,
-) -> TestSet:
+) -> TestSuite:
 
     print(f"Scoring {testset.linguistic_phenomenon}..")
 
@@ -203,9 +203,9 @@ def score_factorial_testsets(
     model,
     tokenizer,
     device: DEVICES,
-    parsed_testsets: List[TestSet],
+    parsed_testsets: List[TestSuite],
     experimental_design: ExperimentalDesigns,
-) -> List[TestSet]:
+) -> List[TestSuite]:
 
     # todo: see activation levels in the model layers, try to identify several phenomena: clause segmentation,
     #  different constructs, long vs short dependencies, wh vs rc dependencies, islands vs non islands
@@ -229,7 +229,7 @@ def score_factorial_testsets(
     return scored_testsets
 
 
-def _calculate_zscores_across_testsets(scored_testsets: List[TestSet]):
+def _calculate_zscores_across_testsets(scored_testsets: List[TestSuite]):
     #  first get a reference for mean and sd:
     #  after the 4 testsets have been scored, merge the arrays of scores for
     #  the 4 phenomena in the testset, and for all 4 sentence types in the
@@ -299,7 +299,7 @@ def rescore_testsets_and_save_pickles(
     device: DEVICES,
     examples_format: str = "json_lines",
     max_examples=1000,
-) -> List[TestSet]:
+) -> List[TestSuite]:
 
     scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
     if model_type in BERT_LIKE_MODEL_TYPES:
@@ -361,7 +361,7 @@ def run_multiple_tests_with_multiple_models(
     device: DEVICES,
     rescore=False,
     log_level=logging.INFO,
-) -> Dict[Tuple[str, ModelTypes], TestSet]:
+) -> Dict[Tuple[str, ModelTypes], TestSuite]:
     """
 
     :param model_types_and_names:
@@ -415,7 +415,7 @@ def run_multiple_tests_with_multiple_models(
     # field: language
     # ..source (like blimp, wilcox, hu, cola, ..)
 
-    scored_testsets: Dict[Tuple[str, ModelTypes], TestSet] = dict()
+    scored_testsets: Dict[Tuple[str, ModelTypes], TestSuite] = dict()
 
     # todo: for each testset, there should be an accuracy score
 
@@ -432,7 +432,7 @@ def run_test_design(
     log_level=logging.INFO,
     show_plot=False,
     save_plot=False,
-) -> List[TestSet]:
+) -> List[TestSuite]:
 
     _setup_logging(log_level)
     args = _parse_arguments()
