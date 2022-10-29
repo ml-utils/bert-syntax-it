@@ -366,7 +366,7 @@ if __name__ == "__main__":
     run_multiple_tests_with_multiple_models(
         MODEL_TYPES_AND_NAMES_IT,
         str(get_syntactic_tests_dir() / "multiple"),
-        device=DEVICES.CPU,
+        device=DEVICES.CPU,  # main_setting_device
     )
 
     # main(

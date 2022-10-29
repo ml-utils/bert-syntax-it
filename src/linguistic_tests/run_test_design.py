@@ -131,6 +131,11 @@ def score_factorial_testset(
                     stype
                 ] += sentence.pen_lp_logistic
 
+    print(f"accuracy_by_DD_lp: {testset.accuracy_by_DD_lp}")
+    print(f"accuracy_by_DD_penlp: {testset.accuracy_by_DD_penlp}")
+    print(f"accuracy_by_DD_ll: {testset.accuracy_by_DD_ll}")
+    print(f"accuracy_by_DD_penll: {testset.accuracy_by_DD_penll}")
+
     for stype in testset.get_sentence_types():
         testset.lp_average_by_sentence_type[stype] /= len(testset.examples)
         testset.penlp_average_by_sentence_type[stype] /= len(testset.examples)
@@ -371,14 +376,6 @@ def run_multiple_tests_with_multiple_models(
     :return: a ditionary, where the keys are tuples for model name and type, and the values are the scored testsets
     """
 
-    # todo:
-    # load all the test files (..unscored)
-    # for each model, score them, and save a separate scored testsuite
-    # save all results for all models to excel/csv (or update them step by stem as the scoring goes on, to see some progress)
-    # (also show on terminal the scores as they are done for each model/testuite of 20 items)
-    # ..
-    # separate method to generate csv output from the scored testsets
-    #
     # todo: refactoring, terminology: Wilcox et al. terminology: item, ..suite, ..
     #   item, conditions, success criterion, ..properties, ..factors, ..
     #  Hu et al systematic: "test suite contains a number of
@@ -400,25 +397,6 @@ def run_multiple_tests_with_multiple_models(
     # the two properties were the presence or absence of a filler, and the presence or absence of a gap.
     # The same approach can be generalized to more complex paradigms, with more than two properties,
     # each having more than two LEVELS (a property with two levels is a binary property)."
-    # ..todo: add fields to scored testsets objects..
-    #
-    # todo: enrich the json files info, with details on the particular phenomenon captured by that file/suite
-    # for each item, and each sentence, ..more structured info.. like regions of the sentence that are of particular interest ..
-    # ..different phenomena / suites have different needs for additional info
-    # fields: phenomenon short name, phenomenon long name, phenomenon category, phenomenon ..subcategory, ..
-    # to automatically group/categorize results in excel, each testsuites should have multiple ..properties
-    #  that describe the phenomena and combination/variation of properties it covers
-    #  use "tags" rather than categories
-    # tags can be used for a ..factorial comparison and disentanngling confounds, that is, comparing all testuites with
-    #  particular tags
-    # field: language
-    # ..source (like blimp, wilcox, hu, cola, ..)
-    #
-    # the json file should also specify the success criteria to be used for the items of that test suite
-    # ..
-    # lenght effects, structure effect, should be properties/methods of a subclass of testitem or ..some property derived from testsuite
-    # ..
-    # to preserve the jsonlines format, the first line could be a header with the testsuite properties/tags
 
     all_scored_testsets: Dict[Tuple[str, ModelTypes], List[TestSuite]] = dict()
 
@@ -457,6 +435,29 @@ def run_multiple_tests_with_multiple_models(
             scored_testsets, model_name, dataset_source=DataSources.MULTIPLE
         )
         all_scored_testsets[(model_name, model_type)] = scored_testsets
+
+    # todo: save all results for all models to excel/csv (or update them step by stem as the scoring goes on, to see some progress)
+    #  (also show on terminal the scores as they are done for each model/testuite of 20 items)
+    #  ..
+    #  separate method to generate csv output from the scored testsets
+
+    # ..todo: add fields to scored testsets objects..
+    #
+    # todo: enrich the json files info, with details on the particular phenomenon captured by that file/suite
+    # for each item, and each sentence, ..more structured info.. like regions of the sentence that are of particular interest ..
+    # ..different phenomena / suites have different needs for additional info
+    # fields: phenomenon short name, phenomenon long name, phenomenon category, phenomenon ..subcategory, ..
+    # to automatically group/categorize results in excel, each testsuites should have multiple ..properties
+    #  that describe the phenomena and combination/variation of properties it covers
+    #  use "tags" rather than categories
+    # tags can be used for a ..factorial comparison and disentanngling confounds, that is, comparing all testuites with
+    #  particular tags
+    # field: language
+    # ..source (like blimp, wilcox, hu, cola, ..)
+    #
+    # the json file should also specify the success criteria to be used for the items of that test suite
+    # ..
+    # lenght effects, structure effect, should be properties/methods of a subclass of testitem or ..some property derived from testsuite
 
     return all_scored_testsets
 
