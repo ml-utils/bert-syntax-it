@@ -443,33 +443,40 @@ def load_testset_data(file_path, examples_format="blimp") -> List[dict]:
             # for i in data:
             #    print(i)
 
-    elif examples_format in ["sprouse", "json_lines"]:
+    elif examples_format in ["sprouse", "json_lines", "jsonl_w_header"]:
         print(f"loading testset file {file_path}..")
         with open(file_path, mode="r", encoding="utf-8-sig") as json_file:
             json_list = list(json_file)
         print("testset loaded.")
 
-        examples = []
+        items = []
         for json_str in tqdm(json_list):
-            example = json.loads(json_str)
+            item = json.loads(json_str)
             # print(f"result: {example}")
             # print(isinstance(example, dict))
             # parsed_example = read_sentences_item(example)
             # sentence_good = example['sentence_good']
             # sentence_bad = example['sentence_bad']
-            examples.append(
-                example
+            items.append(
+                item
             )  # {'sentence_good': sentence_good, 'sentence_bad': sentence_bad, 'sentence_good_2nd': ""})
-        testset_data = {"sentences": examples}
+        if examples_format == "jsonl_w_header":
+            testset_data = items
+        else:
+            testset_data = {"sentences": items}
 
     else:
         raise ValueError(f"unrecognized testset file format arg: {examples_format}")
 
     # integrity checks:
-    testset_examples: List[dict] = testset_data["sentences"]
+    testsuite_items: List[dict]
+    if examples_format == "jsonl_w_header":
+        testsuite_items = testset_data[1:]
+    else:
+        testsuite_items = testset_data["sentences"]
     assert (
-        Conditions.SENTENCE_GOOD in testset_examples[0].keys()
-        or Conditions.SHORT_NONISLAND in testset_examples[0].keys()
+        Conditions.SENTENCE_GOOD in testsuite_items[0].keys()
+        or Conditions.SHORT_NONISLAND in testsuite_items[0].keys()
     )
 
     return testset_data
@@ -604,6 +611,7 @@ class DataSources(StrEnum):
     SPROUSE = "Sprouse et al. 2016"  # "sprouse", "Sprouse et al. 2016"
     MADEDDU = "Madeddu"
     VARIATIONS = "variations"
+    MULTIPLE = "multiple"
 
     def __repr__(self):
         return self.value

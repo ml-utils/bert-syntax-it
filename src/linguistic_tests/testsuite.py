@@ -355,6 +355,7 @@ class TestSuite:
             DataSources.SPROUSE,
             DataSources.MADEDDU,
             DataSources.VARIATIONS,
+            DataSources.MULTIPLE,
         ]:
             return [
                 Conditions.SHORT_NONISLAND,
@@ -837,6 +838,51 @@ def load_testsets_from_pickles(
         loaded_testsets.append(loaded_testset)
 
     return loaded_testsets
+
+
+def parse_testsuites_dir(
+    testset_dir_path: str,
+    model_name: str,
+    scoring_measures: List[ScoringMeasures],
+    dataset_source: DataSources = DataSources.MULTIPLE,
+) -> List[TestSuite]:
+    # todo: list oll *.jsonl files in dir
+    from os import listdir
+    from os.path import isfile, join
+
+    jsonl_filenames = [
+        f
+        for f in listdir(testset_dir_path)
+        if (isfile(join(testset_dir_path, f)) and f.endswith(".jsonl"))
+    ]
+
+    # open each file, read all lines, get the header json line
+    # parse all the other lines according to the header
+    parsed_testsets: List[TestSuite] = []
+    for testsuite_filename in jsonl_filenames:
+        testsuite_filepath = os.path.join(testset_dir_path, testsuite_filename)
+
+        print(f"Parsing testsuite {testsuite_filepath}")
+        testsuite_list = load_testset_data(
+            testsuite_filepath, examples_format="jsonl_w_header"
+        )  # es.: "json_lines"
+        testsuite_header = testsuite_list[0]
+        assert "is_header" in testsuite_header and testsuite_header["is_header"]
+        phenomenon_name = testsuite_header["phenomenon_short_name"]
+        items_list = testsuite_list[1:]
+        parsed_testset = parse_testset(
+            phenomenon_name,
+            model_name,
+            dataset_source,
+            items_list,
+            ExperimentalDesigns.FACTORIAL,
+            scoring_measures,
+            max_examples=999,
+        )
+
+        parsed_testsets.append(parsed_testset)
+
+    return parsed_testsets
 
 
 def parse_testsets(

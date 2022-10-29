@@ -12,6 +12,7 @@ from src.linguistic_tests.lm_utils import DataSources
 from src.linguistic_tests.lm_utils import DEVICES
 from src.linguistic_tests.lm_utils import ExperimentalDesigns
 from src.linguistic_tests.lm_utils import get_num_of_available_cuda_gpus
+from src.linguistic_tests.lm_utils import get_syntactic_tests_dir
 from src.linguistic_tests.lm_utils import get_testset_params
 from src.linguistic_tests.lm_utils import load_model_and_tokenizer
 from src.linguistic_tests.lm_utils import MODEL_TYPES_AND_NAMES_EN
@@ -26,6 +27,7 @@ from src.linguistic_tests.plots_and_prints import (
 )
 from src.linguistic_tests.plots_and_prints import excel_output
 from src.linguistic_tests.plots_and_prints import print_detailed_sentence_info
+from src.linguistic_tests.run_test_design import run_multiple_tests_with_multiple_models
 from src.linguistic_tests.run_test_design import run_test_design
 from src.linguistic_tests.testsuite import parse_example
 from src.linguistic_tests.testsuite import SPROUSE_SENTENCE_TYPES
@@ -361,10 +363,16 @@ if __name__ == "__main__":
     main_settings_save_plot = True
     main_setting_log_level = logging.DEBUG
 
-    main(
-        device=main_setting_device,
-        rescore=main_setting_rescore,
-        log_level=main_setting_log_level,
-        show_plot=main_setting_show_plot,
-        save_plot=main_settings_save_plot,
+    run_multiple_tests_with_multiple_models(
+        MODEL_TYPES_AND_NAMES_IT,
+        str(get_syntactic_tests_dir() / "multiple"),
+        device=DEVICES.CPU,
     )
+
+    # main(
+    #     device=main_setting_device,
+    #     rescore=main_setting_rescore,
+    #     log_level=main_setting_log_level,
+    #     show_plot=main_setting_show_plot,
+    #     save_plot=main_settings_save_plot,
+    # )

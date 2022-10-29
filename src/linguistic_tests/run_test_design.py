@@ -31,6 +31,7 @@ from src.linguistic_tests.testsuite import get_dd_score_parametric
 from src.linguistic_tests.testsuite import get_merged_score_across_testsets
 from src.linguistic_tests.testsuite import load_testsets_from_pickles
 from src.linguistic_tests.testsuite import parse_testsets
+from src.linguistic_tests.testsuite import parse_testsuites_dir
 from src.linguistic_tests.testsuite import save_scored_testsets
 from src.linguistic_tests.testsuite import TestSuite
 
@@ -355,11 +356,11 @@ def load_and_plot_pickles(
 # saves results to excel or csv file
 def run_multiple_tests_with_multiple_models(
     model_types_and_names: Dict[str, ModelTypes],
-    tests_subdir: str,
+    testsuites_dir: str,
     device: DEVICES,
     rescore=False,
     log_level=logging.INFO,
-) -> Dict[Tuple[str, ModelTypes], TestSuite]:
+) -> Dict[Tuple[str, ModelTypes], List[TestSuite]]:
     """
 
     :param model_types_and_names:
@@ -417,12 +418,47 @@ def run_multiple_tests_with_multiple_models(
     # ..
     # lenght effects, structure effect, should be properties/methods of a subclass of testitem or ..some property derived from testsuite
     # ..
+    # to preserve the jsonlines format, the first line could be a header with the testsuite properties/tags
 
-    scored_testsets: Dict[Tuple[str, ModelTypes], TestSuite] = dict()
+    all_scored_testsets: Dict[Tuple[str, ModelTypes], List[TestSuite]] = dict()
 
-    # todo: for each testset, there should be an accuracy score
+    # model_types_and_names # Dict[str, ModelTypes]
+    for model_name in model_types_and_names.keys():
 
-    return scored_testsets
+        model_type = model_types_and_names[model_name]
+
+        scoring_measures = [ScoringMeasures.LP, ScoringMeasures.PenLP]
+        if model_type in BERT_LIKE_MODEL_TYPES:
+            scoring_measures += [ScoringMeasures.LL, ScoringMeasures.PLL]
+        logging.info(
+            f"Parsing testsets from dir {testsuites_dir} for model {model_name}"
+        )
+
+        # todo: for each testset, there should be an accuracy score
+        parsed_testsets: List[TestSuite] = parse_testsuites_dir(
+            testsuites_dir,
+            model_name,
+            scoring_measures,
+        )
+
+        # todo: score the testsuite
+        model, tokenizer = load_model(model_type, model_name, device)
+
+        # TODO: refactor/change scoring code so that experimental design is defined for each testsuite (from the json file)
+        scored_testsets = score_factorial_testsets(
+            model_type,
+            model,
+            tokenizer,
+            device,
+            parsed_testsets,
+            ExperimentalDesigns.FACTORIAL,
+        )
+        save_scored_testsets(
+            scored_testsets, model_name, dataset_source=DataSources.MULTIPLE
+        )
+        all_scored_testsets[(model_name, model_type)] = scored_testsets
+
+    return all_scored_testsets
 
 
 def run_test_design(
