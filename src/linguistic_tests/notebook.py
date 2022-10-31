@@ -364,9 +364,10 @@ if __name__ == "__main__":
     main_setting_log_level = logging.DEBUG
 
     run_multiple_tests_with_multiple_models(
-        {
-            "dbmdz/bert-base-italian-cased": ModelTypes.BERT,
-        },  # MODEL_TYPES_AND_NAMES_IT,
+        MODEL_TYPES_AND_NAMES_IT,
+        # {
+        #     "dbmdz/bert-base-italian-cased": ModelTypes.BERT,
+        # },  # MODEL_TYPES_AND_NAMES_IT,
         str(get_syntactic_tests_dir() / "multiple"),
         device=DEVICES.CPU,  # main_setting_device
     )

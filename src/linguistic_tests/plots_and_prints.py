@@ -442,15 +442,16 @@ def csv_and_excel_output(
     df = pd.DataFrame(records)
     from pathlib import Path
 
+    timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
     saving_dir = str(get_results_dir())
-    filepath_str = os.path.join(saving_dir, "results.csv")
+    filepath_str = os.path.join(saving_dir, f"all_results-{timestamp}.csv")
     csv_filepath = Path(filepath_str)
     csv_filepath.parent.mkdir(parents=True, exist_ok=True)
     # todo: output both in csv and well-formatted excel
     print(f"saving results to {csv_filepath}")
     df.to_csv(path_or_buf=csv_filepath)
 
-    excel_filename = "all_results.xlsx"
+    excel_filename = f"all_results-{timestamp}.xlsx"
     excel_filepath = Path(os.path.join(str(get_results_dir()), excel_filename))
     print(f"saving results to {excel_filepath}")
     with pd.ExcelWriter(excel_filepath) as writer:
