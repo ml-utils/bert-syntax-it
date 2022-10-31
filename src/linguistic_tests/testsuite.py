@@ -245,6 +245,10 @@ class TestSuite:
 
     scoring_measures: InitVar[List[ScoringMeasures]]
 
+    phenomenon_properties: Dict[str, str] = field(default_factory=dict)
+    # todo from the jsonl header, fields "conditions" and "factorial_properties_and_levels",
+    #  can be used to check the integrity of the json testsuite
+
     lp_average_by_sentence_type: Dict[Conditions, float] = field(default_factory=dict)
     penlp_average_by_sentence_type: Dict[Conditions, float] = field(
         default_factory=dict
@@ -733,6 +737,7 @@ def parse_testset(
     experimental_design: ExperimentalDesigns,
     scoring_measures: List[ScoringMeasures],
     max_examples,
+    phenomenon_properties: Dict[str, str] = dict(),
 ) -> TestSuite:
     print(f"len examples: {len(examples_list)}, max: {max_examples}")
     do_lower_case = True if "uncased" in model_descr else False
@@ -761,6 +766,7 @@ def parse_testset(
         experimental_design,
         parsed_examples,
         scoring_measures,
+        phenomenon_properties,
     )
 
 
@@ -866,9 +872,17 @@ def parse_testsuites_dir(
         testsuite_list = load_testset_data(
             testsuite_filepath, examples_format="jsonl_w_header"
         )  # es.: "json_lines"
+
         testsuite_header = testsuite_list[0]
-        assert "is_header" in testsuite_header and testsuite_header["is_header"]
-        phenomenon_name = testsuite_header["phenomenon_short_name"]
+        assert "is_header" in testsuite_header
+        is_header = testsuite_header["is_header"]
+        is_header = is_header.lower() in ["true"]
+
+        assert "phenomenon_properties" in testsuite_header
+        phenomenon_properties = testsuite_header["phenomenon_properties"]
+        assert type(phenomenon_properties) is dict
+
+        phenomenon_name = phenomenon_properties["phenomenon_short_name"]
         items_list = testsuite_list[1:]
         parsed_testset = parse_testset(
             phenomenon_name,
@@ -878,6 +892,7 @@ def parse_testsuites_dir(
             ExperimentalDesigns.FACTORIAL,
             scoring_measures,
             max_examples=999,
+            phenomenon_properties=phenomenon_properties,
         )
 
         parsed_testsets.append(parsed_testset)
@@ -935,3 +950,12 @@ def save_scored_testsets(
         )
 
         scored_testset.save_to_pickle(filename)
+
+
+def save_scored_testsets_to_single_pickle(
+    scored_testsets: Dict[Tuple[str, ModelTypes], List[TestSuite]], filename: str
+):
+    for testsuite_list in scored_testsets.values():
+        for testsuite in testsuite_list:
+            testsuite.assert_is_well_formed()
+    save_obj_to_pickle(scored_testsets, filename, suffix="pickle", add_timestamp=True)

@@ -24,6 +24,7 @@ from src.linguistic_tests.lm_utils import ModelTypes
 from src.linguistic_tests.lm_utils import print_orange
 from src.linguistic_tests.lm_utils import ScoringMeasures
 from src.linguistic_tests.plots_and_prints import _print_testset_results
+from src.linguistic_tests.plots_and_prints import csv_and_excel_output
 from src.linguistic_tests.plots_and_prints import do_extended_testset_plot
 from src.linguistic_tests.plots_and_prints import plot_testsets
 from src.linguistic_tests.plots_and_prints import print_accuracy_scores
@@ -33,6 +34,7 @@ from src.linguistic_tests.testsuite import load_testsets_from_pickles
 from src.linguistic_tests.testsuite import parse_testsets
 from src.linguistic_tests.testsuite import parse_testsuites_dir
 from src.linguistic_tests.testsuite import save_scored_testsets
+from src.linguistic_tests.testsuite import save_scored_testsets_to_single_pickle
 from src.linguistic_tests.testsuite import TestSuite
 
 
@@ -131,10 +133,10 @@ def score_factorial_testset(
                     stype
                 ] += sentence.pen_lp_logistic
 
-    print(f"accuracy_by_DD_lp: {testset.accuracy_by_DD_lp}")
-    print(f"accuracy_by_DD_penlp: {testset.accuracy_by_DD_penlp}")
-    print(f"accuracy_by_DD_ll: {testset.accuracy_by_DD_ll}")
-    print(f"accuracy_by_DD_penll: {testset.accuracy_by_DD_penll}")
+    print(f"accuracy_by_DD_lp: {testset.accuracy_by_DD_lp:.2%}")
+    print(f"accuracy_by_DD_penlp: {testset.accuracy_by_DD_penlp:.2%}")
+    print(f"accuracy_by_DD_ll: {testset.accuracy_by_DD_ll:.2%}")
+    print(f"accuracy_by_DD_penll: {testset.accuracy_by_DD_penll:.2%}")
 
     for stype in testset.get_sentence_types():
         testset.lp_average_by_sentence_type[stype] /= len(testset.examples)
@@ -431,9 +433,10 @@ def run_multiple_tests_with_multiple_models(
             parsed_testsets,
             ExperimentalDesigns.FACTORIAL,
         )
-        save_scored_testsets(
-            scored_testsets, model_name, dataset_source=DataSources.MULTIPLE
-        )
+
+        # save_scored_testsets(
+        #     scored_testsets, model_name, dataset_source=DataSources.MULTIPLE
+        # )
         all_scored_testsets[(model_name, model_type)] = scored_testsets
 
     # todo: save all results for all models to excel/csv (or update them step by stem as the scoring goes on, to see some progress)
@@ -458,6 +461,10 @@ def run_multiple_tests_with_multiple_models(
     # the json file should also specify the success criteria to be used for the items of that test suite
     # ..
     # lenght effects, structure effect, should be properties/methods of a subclass of testitem or ..some property derived from testsuite
+
+    filename = "scored_testsuites"
+    save_scored_testsets_to_single_pickle(all_scored_testsets, filename)
+    csv_and_excel_output(all_scored_testsets)
 
     return all_scored_testsets
 

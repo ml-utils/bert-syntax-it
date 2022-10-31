@@ -345,13 +345,18 @@ def renamed_load(file_obj):
     return RenameUnpickler(file_obj).load()
 
 
-def save_obj_to_pickle(obj, filename):
+def save_obj_to_pickle(obj, filename, suffix="testset.pickle", add_timestamp=False):
+    timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
+    if add_timestamp:
+        filename = f"{filename}-{timestamp}"
+
+    filename = f"{filename}.{suffix}"
+
     saving_dir = str(get_results_dir())
     filepath = os.path.join(saving_dir, filename)
     if os.path.exists(filepath):
         logging.warning(f"File already exists: {filepath}, creating a new one..")
-        timestamp = time.strftime("%Y-%m-%d_h%Hm%Ms%S")
-        filename = f"{filename}-{timestamp}.testset.pickle"
+        filename = f"{filename}-{timestamp}.{suffix}"
         filepath = os.path.join(saving_dir, filename)
     print_orange(f"Saving {type(obj)} to {filepath}")
     with open(filepath, "wb") as file:

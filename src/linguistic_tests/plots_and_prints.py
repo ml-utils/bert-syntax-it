@@ -5,8 +5,10 @@ import time
 from dataclasses import dataclass
 from typing import Dict
 from typing import List
+from typing import Tuple
 from typing import Union
 
+import pandas as pd
 from matplotlib import pyplot as plt
 
 from src.linguistic_tests.bert_utils import estimate_sentence_probability
@@ -400,6 +402,66 @@ def _print_sorted_sentences_to_check_spelling_errors(
                 )
 
 
+def csv_and_excel_output(
+    all_scored_testsets_by_model: Dict[Tuple[str, ModelTypes], List[TestSuite]],
+):
+    records: List[Dict] = []
+    for (model_name, model_type), testsuites in all_scored_testsets_by_model.items():
+        for testsuite in testsuites:
+            record = dict()
+            record["model_name"] = model_name
+            record[
+                "phenomenon"
+            ] = (
+                testsuite.linguistic_phenomenon
+            )  # main island type (adjunct, subject, whether, ..)
+            record["accuracy_by_DD_lp"] = f"{testsuite.accuracy_by_DD_lp:.2%}"
+            record["accuracy_by_DD_penlp"] = f"{testsuite.accuracy_by_DD_penlp:.2%}"
+            record["accuracy_by_DD_ll"] = f"{testsuite.accuracy_by_DD_ll:.2%}"
+            record["accuracy_by_DD_penll"] = f"{testsuite.accuracy_by_DD_penll:.2%}"
+
+            # todo:
+            # extend the testsuite class to add (optional) fields
+            # ensure these fields are updated when parsing a testsuite, if present in the jsonl file
+
+            for property, value in testsuite.phenomenon_properties.items():
+                record[property] = value
+
+            #  (correspondence from jsonl properties and columns in the pandas dataframe/csv file)
+            # {"is_header": "true",
+            # "phenomenon_short_name": "wh_adjunct_islands_conditional_it", "conditions": ["short_nonisland", "long_nonisland", "short_island", "long_island"], "properties": {"dependency_distance": ["short", "long"], "structure": ["island", "nonisland"]}, "language": "italian", "main_phenomenon": "island_effects", "dependency_type": "wh", "island_type": "adjunct", "island_subtype":  "conditional"}
+
+            #  language (it, en)
+            #  dependency tye (wh, rc)
+            #  island subtype (conditional, temporal, ..)
+            #  island/sentence variants: ..
+            #  island /sentence variants/properties (frequent/rare words; common nouns/proper nouns; ..)
+            #  sentence score (lp, penlp, ..)
+            records.append(record)
+
+    df = pd.DataFrame(records)
+    from pathlib import Path
+
+    saving_dir = str(get_results_dir())
+    filepath_str = os.path.join(saving_dir, "results.csv")
+    csv_filepath = Path(filepath_str)
+    csv_filepath.parent.mkdir(parents=True, exist_ok=True)
+    # todo: output both in csv and well-formatted excel
+    print(f"saving results to {csv_filepath}")
+    df.to_csv(path_or_buf=csv_filepath)
+
+    excel_filename = "all_results.xlsx"
+    excel_filepath = Path(os.path.join(str(get_results_dir()), excel_filename))
+    print(f"saving results to {excel_filepath}")
+    with pd.ExcelWriter(excel_filepath) as writer:
+        df.to_excel(
+            writer,
+            # sheet_name=sheet_name,
+            # columns=column_names,
+            # index=include_the_index_of_each_row,
+        )
+
+
 def excel_output(
     scored_testsets_by_datasource: Dict[DataSources, List[TestSuite]],
     # model_descr: str,
@@ -413,8 +475,6 @@ def excel_output(
     #  excel file formatting: columns width, wrap text, ..
     #  file name from model descr, merge in one sheet multiple datasources of the same 4 phenomena
     #  ..
-
-    import pandas as pd
 
     # import xlsxwriter
 
