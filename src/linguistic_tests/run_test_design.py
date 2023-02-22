@@ -400,6 +400,53 @@ def run_multiple_tests_with_multiple_models(
     # The same approach can be generalized to more complex paradigms, with more than two properties,
     # each having more than two LEVELS (a property with two levels is a binary property)."
 
+    # testsuites / phenomena variations / controlling/disentangling confounds:
+    #
+    # translate / adapt other testsuites (Sprouse, Wilcox, Hu, Blimp, Cola, ItaCola, ..)
+    #
+    # % For adjunct islands, while \citet{sprouse2016experimental} tested only conditional clauses introduced by
+    # “se” (“Cosa ti irriti \textit{se dimentico in ufficio}?”), we also tested temporal adjuncts introduced by
+    # “prima/dopo/mentre/quando” (“Che cosa i deputati hanno approvato la legge \textit{dopo aver valutato}?”),
+    #
+    # % list of confounds to balance / variant sentences to try, scoring and analyzing them with the token surprisals
+    # % -variant for whether islands: use complex wh-word: Quale barca pensi che io abbia affondato? (long non island) so it has the same words (adding "barca") as the short nonisland (Chi pensa che io abbia affondato la barca?)
+    # % -(..whether island) possible more balanced variation: short nonisland = Cosa pensi che io in teoria abbia studiato?
+    # % -subject islands, item 8 gilbert: sostituire luisa a dermatologo, e viceversa
+    # % adjunct island: the main clause premise added to the island sentences, can be added as a previous separate sentence in the nonisland sequences (in this cases each would be composed of two sentences separated by a dot).
+    # % test suite splitting the two adjuncts subtypes. Only keep conditional adjuncts in the main plots, the same as Sprouse
+    # % - replace "avrebbe" in adjuncts non island, balance using the same verb form
+    # % - in adjuncts, replace "il libro" con "il romanzo" and "autore" con "autore di romanzi"
+    #
+    # first balance for semantic phenomena (sentences with same lexical content, ..different order, ..), minimal changes..
+    #
+    # complex vs basic/frequent verb forms.  e.g. using the indicative mood instead of the subjunctive mood.
+    # nonce sentences vs prototypical words associations/collocations. using, within a sentence, words with strong association (e.g. \textit{the student reads the book}, \textit{the policeman arrested the burglar}, etc.), vs unexpected associations.
+    # interrogative forms vs affirmative forms
+    # OOV words
+    # simple vs complex wh-phrases as fillers in wh-dependencies.
+    # personal pronouns and proper names (e.g. \textit{Gianni, Luisa}) instead of common nouns (e.g. \textit{the student}, \textit{the doctor}, etc.).
+    #
+    # rc-dependencies. compare the differences across the same island construct types tested here with wh-dependencies.
+    #  translate into Italian the filler-gap and island effects test items from \citet{wilcox2018rnn}, and try their approach of assessing island effects as a reduction in expected gaps in the presence of a filler.
+    # translate and adapt our test suites into English, and to compare the results with those from English speakers collected by \citet{sprouse2016experimental}, and to compare them also with the reported results on English island effects on the BLiMP test suites, and those from \cite{wilcox2018rnn}.
+    #
+    # drawing examples from the ItaCoLA corpus
+    #
+    # a lexical and sentence length difference between  .. and the long-nonisland ("\textit{Cosa pensi che io abbia studiato?}"). The short-nonisland sentence contains the phrase "\textit{la teoria}", that is not present in the long-nonisland sentence and causes two spikes in surprisals that make the short-nonisland PLL score (-18.73) worse than the long-nonisland sentence (-14.72). We'll do follow-up experiments balancing the lexical content of the sentences.
+    #
+    # % (and controlling for semantic cues, same lexical, using informative/prototypica common nouns instead of proper nouns or pronouns..), having testuites with rarer verbs/nouns ..
+    # % and we would like to compare different approaches to quantify island effects: the one from wilcox, that looks the reduction in gap expectancies, and that of sprouse ..
+    # % see which paradigms are more challeinging
+    # % also different formats of subject, complex np, and wh/whether islands..
+    #
+    # % for future work: automatic generation of examples from templates, like in BLiMP, to control and test more easily for more factors (es. verbs moods and tenses)
+    # % to test for frequency effect: use some rare verb moods/tenses?
+    #
+    # % also find an explanation for the other misclassified long non island sentences that use other constructus (with proper agent/patient semantic roles)
+    #
+
+    #
+
     all_scored_testsets: Dict[Tuple[str, ModelTypes], List[TestSuite]] = dict()
 
     # model_types_and_names # Dict[str, ModelTypes]
