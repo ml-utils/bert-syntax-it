@@ -265,7 +265,7 @@ def get_sentence_acceptability_score(
             [tokenizer.cls_token] + sentence.tokens + [tokenizer.sep_token]
         )
 
-        if at_once_mask_all_tokens_of_a_word:
+        if at_once_mask_all_tokens_of_a_word:  # todo: rename as do_whole_word_masking
             # use the pretokenizer, obtain the list of pretokens to fill Sentence.pretokens
 
             # fixme: BertTokenizer from pretrained has no backend_tokenizer, no pretokenization possible
